@@ -623,7 +623,9 @@ constants in `$config.dat`, same values.
 ### F42 — Low — software work envelopes
 
 *Source: Calvin #30.* `$AXWORKSPACE[1..8]` and `$CYLWORKSPACE[1..8]` are
-`#OFF` ($machine.dat:378-385, 403-410); no Cartesian workspace is configured.
+`#OFF` ($machine.dat:378-385, 403-410). Two Cartesian workspaces are set in
+`$custom.dat` (`$WORKSPACE[1..2]`, `MODE #OUTSIDE`): they only signal, they
+do not stop the robot.
 SafeOperation has a monitoring space "Nest Workspace" (edited last on
 2026-09-13). *Decide* with Gestamp whether software envelopes with stop are
 wanted on top of SafeOperation, and document what the safety spaces cover.
