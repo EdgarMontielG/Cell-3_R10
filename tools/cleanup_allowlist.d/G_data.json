@@ -1,0 +1,32 @@
+{
+  "_comment": "Group G_data (declarations): unused integrator declarations removed from $config.dat. Every name was grepped (whole word, case-insensitive) over all KRL files under KRC/ and C/: no live reference.",
+  "removed_code": {
+    "KRC/R1/System/$config.dat": {
+      "reason": "Unused integrator globals. PARTPRESENT4/5: this robot checks 3 nuts, zero references. REDRABBIT/REDRABBIT1..5: REDRABBIT never used, REDRABBIT1..3 written only by the deleted style1app2opt1AutoRR; REDRABBIT also had the name of the deleted module RedRabbit. bscrapGE4_1..5, Part_Style, CL_WeldPressureOK, CL_STEP, NUT_RETRY: zero references. CL_GUN_WORK_REQ, CL_CENTERLINE_READY, CL_ALL_HOME: zero references (on this robot the vendor NutWeld routines were not edited to use them). CL_ALL_HOME_PLC $OUT[4000]: zero references, no bus mapping.",
+      "lines": [
+        "BOOL PARTPRESENT4=FALSE",
+        "BOOL PARTPRESENT5=FALSE",
+        "BOOL REDRABBIT",
+        "BOOL REDRABBIT1=FALSE",
+        "BOOL REDRABBIT2=FALSE",
+        "BOOL REDRABBIT3=FALSE",
+        "BOOL REDRABBIT4=FALSE",
+        "BOOL REDRABBIT5=FALSE",
+        "BOOL bscrapGE4_1=FALSE",
+        "BOOL bscrapGE4_2=FALSE",
+        "BOOL bscrapGE4_3=FALSE",
+        "BOOL bscrapGE4_4=FALSE",
+        "BOOL bscrapGE4_5=FALSE",
+        "INT Part_Style=1",
+        "BOOL CL_WeldPressureOK=FALSE",
+        "DECL INT CL_STEP=0",
+        "DECL BOOL CL_GUN_WORK_REQ=FALSE",
+        "DECL BOOL CL_CENTERLINE_READY=FALSE",
+        "DECL BOOL CL_ALL_HOME=FALSE",
+        "SIGNAL CL_ALL_HOME_PLC $OUT[4000]",
+        "DECL INT NUT_RETRY=2"
+      ]
+    }
+  },
+  "form_header_changes": {}
+}

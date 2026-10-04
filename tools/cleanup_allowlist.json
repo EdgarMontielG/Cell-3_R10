@@ -1,0 +1,28 @@
+{
+  "_comment": "Every executable change of the R10 cleanup, with its reason. tools/check_cleanup.py refuses any change not listed here or in tools/cleanup_allowlist.d/*.json, and proves nothing removed is still referenced.",
+  "deleted_files": {
+    "KRC/R1/Program/Centerline/CENTERLINE_WELD1.src": "First weld version driving the unmapped AutomationCore Bosch Unit 1 block (do305Start1, di305WeldComplete, di309TimerReady, di310WeldFault) with the R20 LPT window 51000..53000; called by nothing (Calvin #31, Gestamp 5).",
+    "KRC/R1/Program/Centerline/trigger1.src": "First split of the nut preload into three steps (now PRELOAD); called by nothing (Calvin #31, Gestamp 5).",
+    "KRC/R1/Program/Centerline/trigger1.dat": "Data of trigger1; no GLOBAL data.",
+    "KRC/R1/Program/Centerline/trigger2.src": "Second step of the old nut preload (now PRELOAD); called by nothing (Calvin #31, Gestamp 5).",
+    "KRC/R1/Program/Centerline/trigger2.dat": "Data of trigger2; no GLOBAL data.",
+    "KRC/R1/Program/Centerline/trigger3.src": "Third step of the old nut preload (now PRELOAD); called by nothing (Calvin #31, Gestamp 5).",
+    "KRC/R1/Program/Centerline/trigger3.dat": "Data of trigger3; no GLOBAL data.",
+    "KRC/R1/Program/CK1STXXX.src": "Nut-check template from another line ('Line - Volvo', 'Robot XXXXX', KSS 4.1.5 inline forms); called by nothing (Gestamp 5).",
+    "KRC/R1/Program/CK1STXXX.dat": "Data of CK1STXXX; no GLOBAL data.",
+    "KRC/R1/Program/POUNCE.src": "Template from another line ('Line - Volvo', 'Robot XXXXX', KSS 4.1.5 inline form); called by nothing. The AutomationCore pounce is the global XPOUNCE (HomeToPounce/PounceToHome).",
+    "KRC/R1/Program/POUNCE.dat": "Data of POUNCE; no GLOBAL data.",
+    "KRC/R1/Program/Utilities/capchange.src": "Servo weld-gun cap changer of a former spot-weld application (do465WaterOnSV, do308ElectrodesReplaced); called by nothing; cannot link (di092CapsareChanged and do092RobotCapChgComplete are not declared).",
+    "KRC/R1/Program/Utilities/capchange.dat": "Data of capchange; no GLOBAL data.",
+    "KRC/R1/Program/Utilities/electrodechange.src": "Older electrode-change routine, superseded by GunElectrodeChange (the one cell.src calls); called by nothing; cannot link (di092CapsareChanged and do092RobotCapChgComplete are not declared).",
+    "KRC/R1/Program/Utilities/ElectrodeChange.dat": "Data of electrodechange; no GLOBAL data.",
+    "KRC/R1/Program/Utilities/redrabbit.src": "Red rabbit of a stud-welding cell (TOOL 2, grippers 2-4, di777..782 stud sensors); starts with WAIT FOR FALSE; called by nothing; cannot link (di777StudPartPresent1.. are not declared) (Gestamp 4).",
+    "KRC/R1/Program/Utilities/RedRabbit.dat": "Data of redrabbit; no GLOBAL data.",
+    "KRC/R1/Program/StyleApps/Options/style1app2opt1AutoRR.src": "Red-rabbit copy of the nut check, writing REDRABBIT1..3; called by nothing (Style1Opt10AutoRR calls the production style1app2opt1) (Gestamp 5, 8).",
+    "KRC/R1/Program/StyleApps/Options/style1app2opt1AutoRR.dat": "Data of style1app2opt1AutoRR; local points only.",
+    "KRC/R1/Program/StyleApps/Options/style1app2opt2AutoRR.src": "Red-rabbit copy of the camera check; called by nothing (Style1Opt10AutoRR calls the production style1app2opt2) (Gestamp 5, 8).",
+    "KRC/R1/Program/StyleApps/Options/style1app2opt2AutoRR.dat": "Data of style1app2opt2AutoRR; local points only."
+  },
+  "removed_code": {},
+  "form_header_changes": {}
+}
