@@ -52,16 +52,16 @@ do080RepositionTooling1=TRUE
 ;WAIT INSPECTION DONE - SIGNAL $IN[80] di080ToolRepositioned1 ON (NO TIMEOUT, F15)
    WAIT FOR di080ToolRepositioned1
 
-;AFTER 0.2 S: SIGNAL $IN[100] di100CameraJudmentOK ON AND $IN[101] di101CameraJudmentNG OFF -> bscrapGE4 =
+;AFTER 0.2 S: SIGNAL $IN[100] di100CameraJudgmentOK ON AND $IN[101] di101CameraJudgmentNG OFF -> bscrapGE4 =
 ;FALSE (GOOD); OK OFF AND NG ON -> bscrapGE4 = TRUE (SCRAP); ANY OTHER COMBINATION LEAVES
 ;bscrapGE4 UNCHANGED (F02)
             WAIT SEC 0.2
      
-         IF (di100CameraJudmentOK==TRUE) AND (di101CameraJudmentNG==FALSE)THEN
+         IF (di100CameraJudgmentOK==TRUE) AND (di101CameraJudgmentNG==FALSE)THEN
             bscrapGE4 = FALSE
        
          ENDIF 
-         IF (di100CameraJudmentOK==FALSE) AND (di101CameraJudmentNG==TRUE)THEN
+         IF (di100CameraJudgmentOK==FALSE) AND (di101CameraJudgmentNG==TRUE)THEN
             bscrapGE4 = TRUE
          ENDIF
             

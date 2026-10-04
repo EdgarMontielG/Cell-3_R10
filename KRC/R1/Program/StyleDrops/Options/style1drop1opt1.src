@@ -60,21 +60,13 @@ LIN XAtDrop3
 
 ;GRIPPER 1 OPEN - SIGNALS $OUT[249] do249Group1Home ON, $OUT[250] do250Group1Work OFF, WAIT 0.2 S,
 ;THEN CHECK $IN[257] di257Cylinder1Home ON, $IN[258] di258Cylinder1Work OFF (STRATEGY 1)
-;WARNING: THE HIDDEN FORM PARAMETERS SAY setgripper=4;setstate=2 - OPENING AND CONFIRMING THIS
-;  FORM REGENERATES GRPg_SetStateAndCheck(4, 2, ...), AN INACTIVE GRIPPER: NOTHING OPENS (F31)
+;NOTE: THE HIDDEN FORM PARAMETERS NOW MATCH THE CALL (WERE setgripper=4;setstate=2, F31)
    ;FOLD Gripper SET [1]Gripper1 State=[1]OPEN Wait 0.2[s] Check with Strategy 1 ;%{PE}
       ;FOLD Parameters Parameters ;%{h}
-         ;Params IlfProvider=GripperTech.GripperSet;setgripper=4;setstate=2;setcont=nocont;waittime=0.2;errorstrategy=1
+         ;Params IlfProvider=GripperTech.GripperSet;setgripper=1;setstate=1;setcont=nocont;waittime=0.2;errorstrategy=1
       ;ENDFOLD
       GRPg_SetStateAndCheck(1, 1, 0.2, 1)
    ;ENDFOLD
-;CHECK GRIPPER 1 OPEN AGAIN (REPEATS THE CHECK ABOVE)
-;FOLD Gripper CHECK [1]Gripper 1 State=[1]OPEN with Strategy 1 ;%{PE}
-;FOLD Parameters Parameters ;%{h}
-;Params IlfProvider=GripperTech.GripperCheck;setgripper=1;setstate=1;setcont=nocont;checkstrategy=1
-;ENDFOLD
-GRPg_Check(1, 1, FALSE, 1)
-;ENDFOLD
 ;WAIT GRIPPER EMPTY - SIGNALS $IN[253] di253PartPresent1 OFF, $IN[254] di254PartPresent2 OFF (NO TIMEOUT)
 ;FOLD WAIT FOR ( NOT IN 253 'di253PartPresent1' ) AND ( NOT IN 254 'di254PartPresent2' );%{PE}%R 8.3.43,%MKUKATPBASIS,%CEXT_WAIT_FOR,%VEXT_WAIT_FOR,%P 2:, 4:NOT, 5:$IN, 6:253, 7:di253PartPresent1, 9:AND, 10:, 12:NOT, 13:$IN, 14:254, 15:di254PartPresent2, 17:
 WAIT FOR  (  NOT $IN[253] ) AND (  NOT $IN[254] ) 

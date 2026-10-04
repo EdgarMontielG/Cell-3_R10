@@ -1,0 +1,17 @@
+{
+  "_comment": "Read by tools/check_equivalence.py. identifiers: names renamed in the code-change phase (base name -> new name), applied to the base before comparing. constants: named constants that replaced literal numbers (name -> value), applied to both sides. Signal renames need no entry: every signal is compared by its address.",
+  "identifiers": {
+    "NUT_STAR": "NUT_START"
+  },
+  "constants": {
+    "CL_GUN_WELD_MIN": 69000,
+    "CL_GUN_WELD_MAX": 73000,
+    "CL_GUN_OPEN_MIN": 120000,
+    "CL_GUN_CLOSE_TIMEOUT": 1000,
+    "CL_GUN_IN_WINDOW_TIME": 300,
+    "CL_GUN_PRESS_BASE": 405,
+    "CL_GUN_PRESS_WELD": 1820,
+    "CL_GUN_PRESS_REST": 39425,
+    "CL_WELD_PROGRAM": 2
+  }
+}
