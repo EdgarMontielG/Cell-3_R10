@@ -1,0 +1,186 @@
+&ACCESS  R
+&PARAM DISKPATH = TP/AutomationCore
+DEFDAT  automationcoredata PUBLIC
+;******************************
+;* Package:     AutomationCoreData  *
+;* Release      V1.0.0        *
+;* Date:        10.2014       *
+;* GUI Version: > = V8.3      *
+;******************************
+
+;FOLD Application Message
+DECL GLOBAL KRLMSG_T AutomationCore_Msg[30]
+AutomationCore_Msg[1]={MODUL[] "AutomationCore",NR 1,MSG_TXT[] "AC_DeleteLine"}
+AutomationCore_Msg[2]={MODUL[] "AutomationCore",NR 2,MSG_TXT[] "AC_Diagnostic"}
+AutomationCore_Msg[3]={MODUL[] "AutomationCore",NR 3,MSG_TXT[] "AC_NotHome"}
+AutomationCore_Msg[4]={MODUL[] "AutomationCore",NR 4,MSG_TXT[] "AC_WorkCmpltAckn"}
+AutomationCore_Msg[5]={MODUL[] "AutomationCore",NR 5,MSG_TXT[] "AC_WaitPLCSelect"}
+AutomationCore_Msg[6]={MODUL[] "AutomationCore",NR 6,MSG_TXT[] "AC_PLCAppsInvalid"}
+AutomationCore_Msg[7]={MODUL[] "AutomationCore",NR 7,MSG_TXT[] "AC_CycTimeDisplay"}
+AutomationCore_Msg[8]={MODUL[] "AutomationCore",NR 8,MSG_TXT[] "AC_AppIDError"}
+AutomationCore_Msg[9]={MODUL[] "AutomationCore",NR 9,MSG_TXT[] "AC_PickIDError"}
+AutomationCore_Msg[10]={MODUL[] "AutomationCore",NR 10,MSG_TXT[] "AC_DropIDError"}
+AutomationCore_Msg[11]={MODUL[] "AutomationCore",NR 11,MSG_TXT[] "AC_ZoneIDError"}
+AutomationCore_Msg[12]={MODUL[] "AutomationCore",NR 12,MSG_TXT[] "AC_ZoneRequest"}
+AutomationCore_Msg[13]={MODUL[] "AutomationCore",NR 13,MSG_TXT[] "AC_RepoIDError"}
+AutomationCore_Msg[14]={MODUL[] "AutomationCore",NR 14,MSG_TXT[] "AC_RepoRequest"}
+AutomationCore_Msg[15]={MODUL[] "AutomationCore",NR 15,MSG_TXT[] "AC_PickRequest"}
+AutomationCore_Msg[16]={MODUL[] "AutomationCore",NR 16,MSG_TXT[] "AC_DropRequest"}
+AutomationCore_Msg[17]={MODUL[] "AutomationCore",NR 17,MSG_TXT[] "AC_AppRequest"}
+AutomationCore_Msg[18]={MODUL[] "AutomationCore",NR 18,MSG_TXT[] "AC_ProcessRequest"}
+AutomationCore_Msg[19]={MODUL[] "AutomationCore",NR 19,MSG_TXT[] "AC_InvalidStyle"}
+AutomationCore_Msg[20]={MODUL[] "AutomationCore",NR 20,MSG_TXT[] "AC_InvalidStyleApps"}
+AutomationCore_Msg[21]={MODUL[] "AutomationCore",NR 21,MSG_TXT[] "AC_InvalidStyleAppX"}
+AutomationCore_Msg[22]={MODUL[] "AutomationCore",NR 22,MSG_TXT[] "AC_InvalidStyleAppOpt"}
+AutomationCore_Msg[23]={MODUL[] "AutomationCore",NR 23,MSG_TXT[] "AC_InvalidStyleAppOpt2"}
+AutomationCore_Msg[24]={MODUL[] "AutomationCore",NR 24,MSG_TXT[] "AC_CycleStart"}
+AutomationCore_Msg[25]={MODUL[] "AutomationCore",NR 25,MSG_TXT[] "AC_ReqToEnter"}
+AutomationCore_Msg[26]={MODUL[] "AutomationCore",NR 26,MSG_TXT[] "AC_AreCapsChgd"}
+;ENDFOLD (Application Message)
+;FOLD Dialog SoftKeys
+DECL GLOBAL KRLMSGDLGSK_T AC_SK_Retry[2]
+AC_SK_Retry[1]={SK_TYPE #VALUE,SK_TXT[] "Diagnostic"}
+AC_SK_Retry[2]={SK_TYPE #VALUE,SK_TXT[] "Retry"}
+DECL GLOBAL KRLMSGDLGSK_T AC_SK_RetrySkip[3]
+AC_SK_RetrySkip[1]={SK_TYPE #VALUE,SK_TXT[] "Diagnostic"}
+AC_SK_RetrySkip[2]={SK_TYPE #VALUE,SK_TXT[] "Retry"}
+AC_SK_RetrySkip[3]={SK_TYPE #VALUE,SK_TXT[] "Skip"}
+DECL GLOBAL KRLMSGDLGSK_T AC_SK_ContSkip[3]
+AC_SK_ContSkip[1]={SK_TYPE #VALUE,SK_TXT[] "Diagnostic"}
+AC_SK_ContSkip[2]={SK_TYPE #VALUE,SK_TXT[] "Continue"}
+AC_SK_ContSkip[3]={SK_TYPE #VALUE,SK_TXT[] "Skip"}
+DECL GLOBAL KRLMSGDLGSK_T AC_SK_YesNo[2]
+AC_SK_YesNo[1]={SK_TYPE #VALUE,SK_TXT[] "Yes"}
+AC_SK_YesNo[2]={SK_TYPE #VALUE,SK_TXT[] "No"}
+DECL GLOBAL KRLMSGDLGSK_T AC_SK_YesNoNav[3]
+AC_SK_YesNoNav[1]={SK_TYPE #VALUE,SK_TXT[] "Diagnostic"}
+AC_SK_YesNoNav[2]={SK_TYPE #VALUE,SK_TXT[] "Yes"}
+AC_SK_YesNoNav[3]={SK_TYPE #VALUE,SK_TXT[] "No"}
+DECL GLOBAL KRLMSGDLGSK_T AC_SK_OK[1]
+AC_SK_OK[1]={SK_TYPE #VALUE,SK_TXT[] "OK"}
+DECL GLOBAL KRLMSGDLGSK_T AC_SK_DIAG[1]
+AC_SK_DIAG[1]={SK_TYPE #VALUE,SK_TXT[] "Diagnostic"}
+DECL GLOBAL KRLMSGDLGSK_T AC_SK_RETURN[1]
+AC_SK_RETURN[1]={SK_TYPE #VALUE,SK_TXT[] "Return"}
+DECL GLOBAL KRLMSGDLGSK_T AC_SK_ContNav[2]
+AC_SK_ContNav[1]={SK_TYPE #VALUE,SK_TXT[] "Navigator"}
+AC_SK_ContNav[2]={SK_TYPE #VALUE,SK_TXT[] "Continue"}
+;ENDFOLD (Dialog SoftKeys)
+;FOLD Messaging Constructs
+DECL GLOBAL KRLMSGPAR_T AutoCore_MsgPar[3]
+DECL GLOBAL KRLMSGPAR_T AutoCoreSPS_MsgPar[3]
+DECL GLOBAL KRLMSGOPT_T AutoCore_MsgOpt_Stop={VL_STOP TRUE,CLEAR_P_RESET TRUE,CLEAR_P_SAW TRUE,LOG_TO_DB TRUE}
+DECL GLOBAL KRLMSGOPT_T AutoCore_MsgOpt_NoStop={VL_STOP FALSE,CLEAR_P_RESET TRUE,CLEAR_P_SAW TRUE,LOG_TO_DB TRUE}
+DECL GLOBAL KRLMSGOPT_T AutoCore_MsgOpt_NoLog={VL_STOP FALSE,CLEAR_P_RESET TRUE,CLEAR_P_SAW TRUE,LOG_TO_DB FALSE}
+DECL GLOBAL INT nAutoCore_Handle=10035
+DECL GLOBAL INT nAutoCore_Handle_SPS=0
+DECL GLOBAL INT nWorkComplete_Handle=12283
+DECL GLOBAL INT nPLCWaiting_Handle=0
+DECL GLOBAL INT nPLCInvalidApps_Handle=0
+DECL GLOBAL INT nCycleStart_Handle=11564
+DECL GLOBAL INT nCycTime_Handle=11563
+DECL GLOBAL INT nRepoRequest_Handle=0
+DECL GLOBAL INT nProcRequest_Handle=0
+DECL GLOBAL INT nReqEnter_Handle=10558
+DECL GLOBAL INT nWaitMsg_Handle=0
+DECL GLOBAL INT nLogOnlyMsg_Handle=10032
+DECL GLOBAL INT nAutoCore_Submit_Handle[10]
+nAutoCore_Submit_Handle[1]=0
+nAutoCore_Submit_Handle[2]=0
+nAutoCore_Submit_Handle[3]=0
+nAutoCore_Submit_Handle[4]=0
+nAutoCore_Submit_Handle[5]=0
+nAutoCore_Submit_Handle[6]=0
+nAutoCore_Submit_Handle[7]=0
+nAutoCore_Submit_Handle[8]=0
+nAutoCore_Submit_Handle[9]=0
+nAutoCore_Submit_Handle[10]=0
+DECL GLOBAL BOOL bAutoCore_Clear
+DECL GLOBAL BOOL bAutoCoreSubmit_Clear=FALSE
+DECL GLOBAL INT nAutoCore_Key
+DECL GLOBAL INT nAutoCore_Key_Temp
+DECL GLOBAL BOOL bAutoCore_PLC_Reset=FALSE
+;ENDFOLD (Messaging Constructs)
+;FOLD Automation Core System Variables
+;FOLD Automation Core Custom Variables
+DECL GLOBAL STATE_T AC_STAT
+DECL GLOBAL MODUS_T AC_MODE
+;ENDFOLD (Automation Core Custom Variables)
+;FOLD Automation Core BOOL Variables
+DECL GLOBAL BOOL bAutoCore_RobStop=FALSE
+DECL GLOBAL BOOL bACProcessReset=TRUE
+DECL GLOBAL BOOL bACMainLine=FALSE
+DECL GLOBAL BOOL bACMainLineReset=FALSE
+DECL GLOBAL BOOL bOption1=FALSE
+DECL GLOBAL BOOL bOption2=FALSE
+DECL GLOBAL BOOL bOption3=FALSE
+DECL GLOBAL BOOL bOption4=FALSE
+DECL GLOBAL BOOL bOption5=FALSE
+DECL GLOBAL BOOL bOption6=FALSE
+DECL GLOBAL BOOL bOption7=FALSE
+DECL GLOBAL BOOL bOption8=FALSE
+;ENDFOLD (Automation Core BOOL Variables)
+;FOLD Automation Core INT Variables
+DECL GLOBAL INT nStyle=0
+DECL GLOBAL INT nOption=0
+DECL GLOBAL INT nPickUp=0
+DECL GLOBAL INT nApps=0
+DECL GLOBAL INT nDropOff=0
+DECL GLOBAL INT nCycleTime=50
+;ENDFOLD (Automation Core INT Variables)
+;FOLD Automation Core FRAME/POS Variables
+DECL GLOBAL E6POS PosCheck={X 874.811523,Y -100.694267,Z 2352.82349,A -4.40716410,B 2.42973685,C 0.669219,S 'B0010',T 'B1010',E1 0.0,E2 0.0,E3 0.0,E4 0.0,E5 0.0,E6 0.0}
+;ENDFOLD (Automation Core FRAME/POS Variables)
+;FOLD Automation Core System Resources
+;ENDFOLD (Automation Core System Resources)
+;FOLD Automation Core Ext Prog Decl
+EXT  PounceToHome ( )
+EXT  HomeToPounce ( )
+EXT  RepairToHome ( )
+EXT  HomeToRepair ( )
+;ENDFOLD (Automation Core Ext Prog Decl)
+;ENDFOLD (Automation Core System Variables)
+; GLOBAL ENUM NutWeld_Style_Type NUTWELD,STUDWELD
+; DECL GLOBAL NutWeld_Style_Type PNWStyle=#NUTWELD
+;FOLD Process Counter
+GLOBAL ENUM MyCountCmd Init,Count1up,Check
+DECL GLOBAL MyCountCmd geProcessCount=#Init
+GLOBAL BOOL bResetProcessCount=FALSE
+; 1st number nStyle, 2nd number nOption 
+GLOBAL INT WeldCount[31,255]
+WeldCount[1,1]=0
+WeldCount[1,2]=0
+WeldCount[1,3]=0
+WeldCount[1,4]=0
+WeldCount[1,5]=0
+WeldCount[1,6]=0
+WeldCount[1,7]=0
+WeldCount[1,8]=0
+WeldCount[1,9]=0
+WeldCount[1,10]=0
+WeldCount[1,11]=0
+WeldCount[1,12]=0
+WeldCount[1,13]=0
+WeldCount[1,14]=0
+WeldCount[1,15]=0
+; 1st number nStyle, 2nd number nOption
+GLOBAL CONST INT WeldNoRequired[31,255]
+WeldNoRequired[1,1]=1
+WeldNoRequired[1,2]=2
+WeldNoRequired[1,3]=2
+WeldNoRequired[1,4]=4
+WeldNoRequired[1,5]=3
+WeldNoRequired[1,6]=3
+WeldNoRequired[1,7]=6
+WeldNoRequired[1,8]=4
+WeldNoRequired[1,9]=2
+WeldNoRequired[1,10]=0
+WeldNoRequired[1,11]=0
+WeldNoRequired[1,12]=0
+WeldNoRequired[1,13]=0
+WeldNoRequired[1,14]=0
+WeldNoRequired[1,15]=0
+; add more assigments if necessary
+;ENDFOLD
+
+ENDDAT

@@ -1,0 +1,296 @@
+&ACCESS RVO3
+&REL 3482
+&PARAM DISKPATH = KRC:\R1\TP\NutWeld
+DEFDAT  nutweldroutines PUBLIC
+;*********************************
+;* Package:     NutWeldRoutines  *
+;* Release      V1.0.4           *
+;* Date:        01.2016          *
+;* GUI Version: > = V8.3         *
+;*********************************
+
+GLOBAL ENUM Nut_Dump_Move Reload_PTP,Reload_LIN
+DECL GLOBAL BOOL bDump_Nut
+DECL GLOBAL INT nMaxGunNr=3
+DECL GLOBAL INT nMaxWeldRetries=0
+DECL GLOBAL INT nMaxFeedRetries=0
+DECL GLOBAL INT nMaxDumpNutRetries=10
+DECL GLOBAL INT nSpotNrTstCrnt=255
+DECL GLOBAL BOOL bPNWBlockFeed=FALSE
+DECL GLOBAL INT nNutWeldSignalTmr=41
+DECL GLOBAL INT nNutWeld_Signal_Timeout=6000 ; (ms)
+DECL GLOBAL INT nNutWeldFeedTmr=41
+DECL GLOBAL INT nNutWeld_Feed_Timeout=7 ; (s)
+DECL GLOBAL INT nNutWeldWeldTmr=41
+DECL GLOBAL INT nNutWeld_Weld_Timeout=8 ; (s)
+DECL GLOBAL INT nNutWeldManWeldTmr=42
+DECL GLOBAL INT nNutWeld_ManWeld_Timeout=5 ; (s)
+DECL GLOBAL BOOL bNutWeldComplete=FALSE
+DECL GLOBAL INT nNutWeld_WtrStrtTime=4 ; (s)
+DECL GLOBAL REAL rSensorSettleTime=0.200000 ; (s)
+DECL GLOBAL BOOL bByPassSmartelec=FALSE
+DECL GLOBAL NutWeld_Style_Type PNWStyle=#NUTWELD
+DECL GLOBAL BOOL bNutWeld_PreAdvPin=FALSE
+;FOLD NutWeld UserKeyBar1
+DECL GLOBAL BOOL bNutWeldWOJoinSTK=TRUE ; Button 1
+DECL GLOBAL BOOL bNutWeldResetSTK=FALSE ; Button 4
+;ENDFOLD (NutWeld UserKeyBar1)
+;FOLD NutWeld UserKeyBar2
+DECL GLOBAL INT nNutWeldGunNrSTK=3 ; Button 1
+DECL GLOBAL BOOL bNutWeldOpnGunSTK=FALSE ; Button 2
+DECL GLOBAL BOOL bNutWeldClsGunSTK=FALSE ; Button 3
+DECL GLOBAL BOOL bNutWeldAdvRetPinSTK=FALSE ; Button 4
+;ENDFOLD (NutWeld UserKeyBar2)
+;FOLD NutWeld UserKeyBar3
+; DECL GLOBAL INT nNutWeldGunNrSTK=1 ; Button 1 - Declared in UserKeyBar2
+DECL GLOBAL INT nNutWeldSpotNrSTK=1 ; Button 2 - Value
+DECL GLOBAL INT nNutWeldSpotMinSTK=1 ; Button 2 - Minimum
+DECL GLOBAL INT nNutWeldSpotMaxSTK=999 ; Button 2 - Maximium
+DECL GLOBAL BOOL bNutWeldManWeldSTK=FALSE ; Button 4
+;ENDFOLD (NutWeld UserKeyBar3)
+;FOLD NutWeld UserKeyBar4
+; DECL GLOBAL INT nNutWeldGunNrSTK=1 ; Button 1 - Declared in UserKeyBar2
+DECL GLOBAL BOOL bNutWeldTchAnlgSTK=FALSE ; Button 2
+DECL GLOBAL BOOL bNutWeldAlgNoNutReq=FALSE ; Button 2-1
+DECL GLOBAL BOOL bNutWeldAlgWNutReq=FALSE ; Button 2-2
+DECL GLOBAL BOOL bNutWeldAlgInNutReq=FALSE ; Button 2-3
+DECL GLOBAL BOOL bNutWeldAlgCheckReq=FALSE ; Button 2-4
+DECL GLOBAL BOOL bNutWeldTstFrceSTK=FALSE ; Button 3
+DECL GLOBAL BOOL bNutWeldTstCrntSTK=FALSE ; Button 4
+;ENDFOLD (NutWeld UserKeyBar4)
+;FOLD New message
+DECL GLOBAL REAL rStartValue
+DECL GLOBAL REAL rActualValue
+DECL GLOBAL BOOL WeldTouchUp=FALSE
+;ENDFOLD
+;FOLD DNMP System 1 IO Data
+;GLOBAL SIGNAL dipw1_Reserved $IN[465]
+;GLOBAL SIGNAL dipw1_Reserved $IN[466]
+;GLOBAL SIGNAL dipw1_Reserved $IN[467]
+;GLOBAL SIGNAL dipw1_Reserved $IN[468]
+;GLOBAL SIGNAL dipw1_Reserved $IN[469]
+;GLOBAL SIGNAL dipw1_Reserved $IN[470]
+;GLOBAL SIGNAL dipw1_Reserved $IN[471]
+;GLOBAL SIGNAL dipw1_Reserved $IN[472]
+GLOBAL SIGNAL dipw1_AirOK $IN[473]
+;GLOBAL SIGNAL dipw1_WaterOk $IN[474]
+GLOBAL BOOL dipw1_WaterOk=TRUE
+
+GLOBAL SIGNAL dipw1_XtfmrTempOk $IN[475]
+GLOBAL SIGNAL dipw1_GunAtHome $IN[476]
+DECL GLOBAL BOOL bpw1_GunAtHome=FALSE
+GLOBAL SIGNAL dipw1_GunAtWork $IN[477]
+DECL GLOBAL BOOL bpw1_GunAtWork=FALSE
+GLOBAL SIGNAL dipw1_PinReturn $IN[478]
+GLOBAL SIGNAL dipw1_IntensfPresOk $IN[479]
+GLOBAL SIGNAL dipw1_HopperLowLevel $IN[480]
+GLOBAL SIGNAL dipw1_FeedComplt $IN[481]
+GLOBAL SIGNAL dipw1_SpearHome $IN[482]
+;GLOBAL SIGNAL dipw1_Reserved $OUT[465]
+;GLOBAL SIGNAL dipw1_Reserved $OUT[466]
+;GLOBAL SIGNAL dipw1_Reserved $OUT[467]
+;GLOBAL SIGNAL dipw1_Reserved $OUT[468]
+;GLOBAL SIGNAL dipw1_Reserved $OUT[469]
+GLOBAL SIGNAL dopw1_Hidraulyc_Valve $OUT[470]
+GLOBAL SIGNAL dopw1_GunHome $OUT[471] ;Nueva
+GLOBAL SIGNAL dopw1_GunWork $OUT[472]
+GLOBAL SIGNAL dopw1_Nut1Intensify_Home $OUT[473]
+GLOBAL SIGNAL dopw1_Nut1Intensify $OUT[474]
+GLOBAL SIGNAL dopw1_StartWater $OUT[475]
+GLOBAL SIGNAL dopw1_StartFeed $OUT[476]
+GLOBAL SIGNAL dopw1_LevelOk $OUT[477]
+GLOBAL SIGNAL dopw1_LowLevel $OUT[478]
+GLOBAL SIGNAL dopw1_StepperWarningPL $OUT[479]
+GLOBAL SIGNAL dopw1_EndofStepperPL $OUT[480]
+GLOBAL SIGNAL dopw1_BlowOff $OUT[494]
+GLOBAL SIGNAL dopw1_AdvancePin $OUT[495]
+GLOBAL SIGNAL dopw1_ReturnPin $OUT[496]
+GLOBAL SIGNAL dopw1_StudStripped $OUT[497]
+;ENDFOLD (DNMP System 1 IO Data)
+;FOLD Welder System 1 IO Data
+GLOBAL SIGNAL dipw1_WeldComplete $IN[483]
+GLOBAL SIGNAL dipw1_Ready $IN[484]
+GLOBAL SIGNAL dipw1_Fault $IN[485]
+GLOBAL SIGNAL dipw1_StepperWarning $IN[486]
+GLOBAL SIGNAL dipw1_EndOfStepper $IN[487]
+GLOBAL SIGNAL dipw1_StepperAreReset $IN[488]
+GLOBAL SIGNAL dopw1_WeldContactEnable $OUT[481]
+GLOBAL SIGNAL dopw1_WeldOnExternal $OUT[482]
+GLOBAL SIGNAL dopw1_WeldInit $OUT[483]
+GLOBAL SIGNAL dopw1_FaultReset $OUT[484]
+GLOBAL SIGNAL dopw1_StepperReset $OUT[485]
+GLOBAL SIGNAL dopw1_486SpotNumber1 $OUT[486]
+GLOBAL SIGNAL dopw1_487SpotNumber2 $OUT[487]
+GLOBAL SIGNAL dopw1_488SpotNumber4 $OUT[488]
+GLOBAL SIGNAL dopw1_489SpotNumber8 $OUT[489]
+GLOBAL SIGNAL dopw1_490SpotNumber16 $OUT[490]
+GLOBAL SIGNAL dopw1_491SpotNumber32 $OUT[491]
+GLOBAL SIGNAL dopw1_492SpotNumber64 $OUT[492]
+GLOBAL SIGNAL dopw1_493SpotNumber128 $OUT[493]
+GLOBAL SIGNAL gdopw1_SpotNumber $OUT[486]  TO $OUT[493]
+;ENDFOLD (Welder System 1 IO Data)
+;FOLD DNMP System 2 IO Data
+;GLOBAL SIGNAL dipw2_Reserved $IN[513]
+;GLOBAL SIGNAL dipw2_Reserved $IN[514]
+;GLOBAL SIGNAL dipw2_Reserved $IN[515]
+;GLOBAL SIGNAL dipw2_Reserved $IN[516]
+;GLOBAL SIGNAL dipw2_Reserved $IN[517]
+;GLOBAL SIGNAL dipw2_Reserved $IN[518]
+;GLOBAL SIGNAL dipw2_Reserved $IN[519]
+;GLOBAL SIGNAL dipw2_Reserved $IN[520]
+GLOBAL SIGNAL dipw2_AirOK $IN[521]
+GLOBAL SIGNAL dipw2_WaterOk $IN[522]
+GLOBAL SIGNAL dipw2_XtfmrTempOk $IN[523]
+GLOBAL SIGNAL dipw2_GunAtHome $IN[524]
+GLOBAL SIGNAL dipw2_GunAtWork $IN[525]
+GLOBAL SIGNAL dipw2_PinReturn $IN[526]
+GLOBAL SIGNAL dipw2_IntensfPresOk $IN[527]
+GLOBAL SIGNAL dipw2_HopperLowLevel $IN[528]
+GLOBAL SIGNAL dipw2_FeedComplt $IN[529]
+GLOBAL SIGNAL dipw2_SpearHome $IN[530]
+;GLOBAL SIGNAL dipw2_Reserved $OUT[513]
+;GLOBAL SIGNAL dipw2_Reserved $OUT[514]
+;GLOBAL SIGNAL dipw2_Reserved $OUT[515]
+;GLOBAL SIGNAL dipw2_Reserved $OUT[516]
+;GLOBAL SIGNAL dipw2_Reserved $OUT[517]
+GLOBAL SIGNAL dopw2_Hidraulyc_Valve $OUT[518]
+GLOBAL SIGNAL dopw2_GunHome $OUT[519]
+DECL GLOBAL BOOL bpw2_GunAtHome=FALSE
+GLOBAL SIGNAL dopw2_GunWork $OUT[520]
+DECL GLOBAL BOOL bpw2_GunAtWork=FALSE
+GLOBAL SIGNAL dopw2_Nut1Intensify_Home $OUT[521]
+GLOBAL SIGNAL dopw2_Nut1Intensify $OUT[522]
+GLOBAL SIGNAL dopw2_StartWater $OUT[523]
+GLOBAL SIGNAL dopw2_StartFeed $OUT[524]
+GLOBAL SIGNAL dopw2_LevelOk $OUT[525]
+GLOBAL SIGNAL dopw2_LowLevel $OUT[526]
+GLOBAL SIGNAL dopw2_StepperWarningPL $OUT[527]
+GLOBAL SIGNAL dopw2_EndofStepperPL $OUT[528]
+GLOBAL SIGNAL dopw2_BlowOff $OUT[542]
+GLOBAL SIGNAL dopw2_AdvancePin $OUT[543]
+GLOBAL SIGNAL dopw2_ReturnPin $OUT[544]
+GLOBAL SIGNAL dopw2_StudStripped $OUT[545]
+;ENDFOLD (DNMP System 2 IO Data)
+;FOLD Welder System 2 IO Data
+GLOBAL SIGNAL dipw2_WeldComplete $IN[531]
+GLOBAL SIGNAL dipw2_Ready $IN[532]
+GLOBAL SIGNAL dipw2_Fault $IN[533]
+GLOBAL SIGNAL dipw2_StepperWarning $IN[534]
+GLOBAL SIGNAL dipw2_EndOfStepper $IN[535]
+GLOBAL SIGNAL dipw2_StepperAreReset $IN[536]
+GLOBAL SIGNAL dopw2_WeldContactEnable $OUT[529]
+GLOBAL SIGNAL dopw2_WeldOnExternal $OUT[530]
+GLOBAL SIGNAL dopw2_WeldInit $OUT[531]
+GLOBAL SIGNAL dopw2_FaultReset $OUT[532]
+GLOBAL SIGNAL dopw2_StepperReset $OUT[533]
+GLOBAL SIGNAL dopw2_534SpotNumber1 $OUT[534]
+GLOBAL SIGNAL dopw2_535SpotNumber2 $OUT[535]
+GLOBAL SIGNAL dopw2_536SpotNumber4 $OUT[536]
+GLOBAL SIGNAL dopw2_537SpotNumber8 $OUT[537]
+GLOBAL SIGNAL dopw2_538SpotNumber16 $OUT[538]
+GLOBAL SIGNAL dopw2_539SpotNumber32 $OUT[539]
+GLOBAL SIGNAL dopw2_540SpotNumber64 $OUT[540]
+GLOBAL SIGNAL dopw2_541SpotNumber128 $OUT[541]
+GLOBAL SIGNAL gdopw2_SpotNumber $OUT[534]  TO $OUT[541]
+;ENDFOLD (Welder System 2 IO Data)
+;FOLD DNMP System 3 IO Data
+;GLOBAL SIGNAL dipw3_Reserved $IN[561]
+;GLOBAL SIGNAL dipw3_Reserved $IN[562]
+;GLOBAL SIGNAL dipw3_Reserved $IN[563]
+;GLOBAL SIGNAL dipw3_Reserved $IN[564]
+;GLOBAL SIGNAL dipw3_Reserved $IN[565]
+;GLOBAL SIGNAL dipw3_Reserved $IN[566]
+;GLOBAL SIGNAL dipw3_Reserved $IN[567]
+;GLOBAL SIGNAL dipw3_Reserved $IN[568]
+GLOBAL SIGNAL dipw3_AirOK $IN[569]
+GLOBAL SIGNAL dipw3_WaterOk $IN[570]
+GLOBAL SIGNAL dipw3_XtfmrTempOk $IN[571]
+GLOBAL SIGNAL dipw3_GunAtHome $IN[572]
+GLOBAL SIGNAL dipw3_GunAtWork $IN[573]
+GLOBAL SIGNAL dipw3_PinReturn $IN[574]
+GLOBAL SIGNAL dipw3_IntensfPresOk $IN[575]
+GLOBAL SIGNAL dipw3_HopperLowLevel $IN[576]
+GLOBAL SIGNAL dipw3_FeedComplt $IN[143]
+GLOBAL SIGNAL dipw3_SpearHome $IN[148]
+;GLOBAL SIGNAL dipw3_Reserved $OUT[561]
+;GLOBAL SIGNAL dipw3_Reserved $OUT[562]
+;GLOBAL SIGNAL dipw3_Reserved $OUT[563]
+;GLOBAL SIGNAL dipw3_Reserved $OUT[564]
+;GLOBAL SIGNAL dipw3_Reserved $OUT[565]
+GLOBAL SIGNAL dopw3_Hidraulyc_Valve $OUT[566]
+GLOBAL SIGNAL dopw3_GunHome $OUT[567]
+DECL GLOBAL BOOL bpw3_GunAtHome=FALSE
+GLOBAL SIGNAL dopw3_GunWork $OUT[568]
+DECL GLOBAL BOOL bpw3_GunAtWork=FALSE
+GLOBAL SIGNAL dopw3_Nut1Intensify_Home $OUT[569]
+GLOBAL SIGNAL dopw3_Nut1Intensify $OUT[570]
+GLOBAL SIGNAL dopw3_StartWater $OUT[571]
+GLOBAL SIGNAL dopw3_StartFeed $OUT[143]
+GLOBAL SIGNAL dopw3_LevelOk $OUT[573]
+GLOBAL SIGNAL dopw3_LowLevel $OUT[574]
+GLOBAL SIGNAL dopw3_StepperWarningPL $OUT[575]
+GLOBAL SIGNAL dopw3_EndofStepperPL $OUT[576]
+GLOBAL SIGNAL dopw3_BlowOff $OUT[590]
+GLOBAL SIGNAL dopw3_AdvancePin $OUT[591]
+GLOBAL SIGNAL dopw3_ReturnPin $OUT[592]
+GLOBAL SIGNAL dopw3_StudStripped $OUT[593]
+;ENDFOLD (DNMP System 3 IO Data)
+;FOLD Welder System 3 IO Data
+GLOBAL SIGNAL dipw3_WeldComplete $IN[579]
+GLOBAL SIGNAL dipw3_Ready $IN[580]
+GLOBAL SIGNAL dipw3_Fault $IN[581]
+GLOBAL SIGNAL dipw3_StepperWarning $IN[582]
+GLOBAL SIGNAL dipw3_EndOfStepper $IN[583]
+GLOBAL SIGNAL dipw3_StepperAreReset $IN[584]
+GLOBAL SIGNAL dopw3_WeldContactEnable $OUT[577]
+GLOBAL SIGNAL dopw3_WeldOnExternal $OUT[578]
+GLOBAL SIGNAL dopw3_WeldInit $OUT[579]
+GLOBAL SIGNAL dopw3_FaultReset $OUT[580]
+GLOBAL SIGNAL dopw3_StepperReset $OUT[581]
+GLOBAL SIGNAL dopw3_582SpotNumber1 $OUT[582]
+GLOBAL SIGNAL dopw3_583SpotNumber2 $OUT[583]
+GLOBAL SIGNAL dopw3_584SpotNumber4 $OUT[584]
+GLOBAL SIGNAL dopw3_585SpotNumber8 $OUT[585]
+GLOBAL SIGNAL dopw3_586SpotNumber16 $OUT[586]
+GLOBAL SIGNAL dopw3_587SpotNumber32 $OUT[587]
+GLOBAL SIGNAL dopw3_588SpotNumber64 $OUT[588]
+GLOBAL SIGNAL dopw3_589SpotNumber128 $OUT[589]
+GLOBAL SIGNAL gdopw3_SpotNumber $OUT[582]  TO $OUT[589]
+;ENDFOLD (Welder System 3 IO Data)
+;FOLD Nut Sensor I/O Data
+GLOBAL SIGNAL aiNutSensorPW1 $IN[492]  TO $IN[505]
+GLOBAL SIGNAL aiNutSensorPW2 $IN[545]  TO $IN[558]
+GLOBAL SIGNAL aiNutSensorPW3 $IN[593]  TO $IN[606]
+GLOBAL SIGNAL aipw1_LVDT $IN[931]  TO $IN[944]
+GLOBAL SIGNAL aipw2_LVDT $IN[945]  TO $IN[958]
+GLOBAL SIGNAL aipw3_LVDT $IN[959]  TO $IN[972]
+
+GLOBAL REAL raipw1_LVDT_OPN=3400.00
+GLOBAL REAL raipw2_LVDT_OPN=2600.00
+GLOBAL REAL raipw3_LVDT_OPN=1260.00
+GLOBAL REAL raipw1_LVDT_CLS_INV_NUT=13677.0
+GLOBAL REAL raipw2_LVDT_CLS_INV_NUT=11978.0
+GLOBAL REAL raipw3_LVDT_CLS_INV_NUT=10298.0
+GLOBAL REAL raipw1_LVDT_CLS_W_NUT=13500.0
+GLOBAL REAL raipw2_LVDT_CLS_W_NUT=13100.0
+GLOBAL REAL raipw3_LVDT_CLS_W_NUT=11440.0
+GLOBAL REAL raipw1_LVDT_CLS_WO_NUT=14356.0
+GLOBAL REAL raipw2_LVDT_CLS_WO_NUT=13078.0
+GLOBAL REAL raipw3_LVDT_CLS_WO_NUT=11483.0
+GLOBAL REAL raipw1_LVDT_CLS_NO_PRT=14428.0
+GLOBAL REAL raipw2_LVDT_CLS_NO_PRT=13216.0
+GLOBAL REAL raipw3_LVDT_CLS_NO_PRT=11600.0
+;ENDFOLD (Nut Sensor Alias I/O Data)
+
+;FOLD 251202 New monitoring variables
+GLOBAL INT iLastActiveGun=3
+GLOBAL INT iSpotnr=3
+GLOBAL REAL rLowerLVDT=11674.0
+GLOBAL REAL rUpperLVDT=0.0
+GLOBAL BOOL bGunReady2Start=FALSE
+GLOBAL BOOL bDumpNutExceeded=FALSE
+GLOBAL ENUM eWState Wait2Weld,FeedRequest,CloseGun,ERRORCloseGun,CheckNut,ERRORInvertedNut,ERRORNoNut,DumpNut,OpenGun,IntensifyGun,ERRORIntensifyWelder,WeldInitiate,GunHome
+DECL GLOBAL eWState eCurrentState=#GunHome
+;ENDFOLD
+
+ENDDAT

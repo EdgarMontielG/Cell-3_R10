@@ -1,0 +1,31 @@
+&ACCESS RO1
+&PARAM KUKATPGLUE_VERSION=4.0.0
+&COMMENT CYCLIC GLUE
+DEF GlueBackground ( )
+
+END
+
+GLOBAL DEF GlueBackgroundInit ( )
+  GLOBAL INTERRUPT DECL 90 WHEN $ON_PATH==FALSE DO DoResetVariables()
+  INTERRUPT ON 90
+  GLOBAL INTERRUPT DECL 98 WHEN $PRO_STATE1==#P_FREE DO ResetGlueOut()
+  INTERRUPT ON 98
+  GLOBAL INTERRUPT DECL 99 WHEN DoAbort==TRUE DO DoAbortCalibration ( )
+  INTERRUPT ON 99
+END
+GLOBAL DEF DoAbortCalibration ( )
+  ; Subroutine to stop and cancel current
+  ; robot program (will be called by
+  ; SPS.SUB by setting DoAbort to TRUE)
+
+  DECL STATE_T STATE
+  DECL MODUS_T MODE
+
+  INTERRUPT OFF 99
+  WAIT SEC 0.01
+  CWRITE($CMD,STATE,MODE, "STOP 1")
+  WAIT SEC 0.01
+  CWRITE($CMD,STATE,MODE, "CANCEL 1")
+  DoAbort = FALSE
+  INTERRUPT ON 99
+END

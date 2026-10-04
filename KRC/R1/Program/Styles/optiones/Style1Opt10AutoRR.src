@@ -1,0 +1,11 @@
+&ACCESS RVO1
+&REL 3
+&COMMENT GE4_002
+DEF Style1Opt10AutoRR( )
+
+   Style1Pick1Opt1AutoRR() ; PICK  ST1
+   style1app2opt1()  ; RED RABBIT 
+   style1app2opt2()  ; RED RABBIT camera
+   style1drop1opt2AutoRR() ; DROP ST1
+  
+END

@@ -1,0 +1,115 @@
+&ACCESS  R
+&COMMENT GlueTechData Global Variables
+&PARAM DISKPATH = TP/GLUETECH
+&REL 6
+DEFDAT  gluetechdata PUBLIC
+;******************************
+;* Package:     GlueTechData  *
+;* Release      V1.0.0        *
+;* Date:        07.2014       *
+;* GUI Version: > = V8.3      *
+;******************************
+
+;FOLD Application Message
+DECL GLOBAL KRLMSG_T GlueTech_Msg[10]
+GlueTech_Msg[1]={MODUL[] "GlueTech",NR 1,MSG_TXT[] "GLU_DeleteLine"}
+GlueTech_Msg[2]={MODUL[] "GlueTech",NR 2,MSG_TXT[] "GLU_Diagnostic"}
+GlueTech_Msg[3]={MODUL[] "GlueTech",NR 3,MSG_TXT[] "GLU_RemoteStart"}
+GlueTech_Msg[4]={MODUL[] "GlueTech",NR 4,MSG_TXT[] "GLU_MajorFault"}
+GlueTech_Msg[5]={MODUL[] "GlueTech",NR 5,MSG_TXT[] "GLU_NeedAuto"}
+GlueTech_Msg[6]={MODUL[] "GlueTech",NR 6,MSG_TXT[] "GLU_FreeReset"}
+GlueTech_Msg[7]={MODUL[] "GlueTech",NR 7,MSG_TXT[] "GLU_MeasWait"}
+GlueTech_Msg[8]={MODUL[] "GlueTech",NR 8,MSG_TXT[] "GLU_MeasPassed"}
+GlueTech_Msg[9]={MODUL[] "GlueTech",NR 9,MSG_TXT[] "GLU_MeasPassFlt"}
+GlueTech_Msg[10]={MODUL[] "GlueTech",NR 10,MSG_TXT[] "GLU_MeasFail"}
+;ENDFOLD (Application Message)
+;FOLD Dialog SoftKeys
+DECL GLOBAL KRLMSGDLGSK_T GLU_SK_OK[1]
+GLU_SK_OK[1]={SK_TYPE #VALUE,SK_TXT[] "OK"}
+DECL GLOBAL KRLMSGDLGSK_T GLU_SK_RetrySkip[3]
+GLU_SK_RetrySkip[1]={SK_TYPE #VALUE,SK_TXT[] "Diagnostic"}
+GLU_SK_RetrySkip[2]={SK_TYPE #VALUE,SK_TXT[] "Retry"}
+GLU_SK_RetrySkip[3]={SK_TYPE #VALUE,SK_TXT[] "Skip"}
+DECL GLOBAL KRLMSGDLGSK_T GLU_SK_Retry[2]
+GLU_SK_Retry[1]={SK_TYPE #VALUE,SK_TXT[] "Diagnostic"}
+GLU_SK_Retry[2]={SK_TYPE #VALUE,SK_TXT[] "Retry"}
+DECL GLOBAL KRLMSGDLGSK_T GLU_SK_YesNo[2]
+GLU_SK_YesNo[1]={SK_TYPE #VALUE,SK_TXT[] "Yes"}
+GLU_SK_YesNo[2]={SK_TYPE #VALUE,SK_TXT[] "No"}
+DECL GLOBAL KRLMSGDLGSK_T GLU_SK_YesNoNav[3]
+GLU_SK_YesNoNav[1]={SK_TYPE #VALUE,SK_TXT[] "Diagnostic"}
+GLU_SK_YesNoNav[2]={SK_TYPE #VALUE,SK_TXT[] "Yes"}
+GLU_SK_YesNoNav[3]={SK_TYPE #VALUE,SK_TXT[] "No"}
+DECL GLOBAL KRLMSGDLGSK_T GLU_SK_RETURN[1]
+GLU_SK_RETURN[1]={SK_TYPE #VALUE,SK_TXT[] "Return"}
+DECL GLOBAL KRLMSGDLGSK_T GLU_SK_HomeGun[2]
+GLU_SK_HomeGun[1]={SK_TYPE #VALUE,SK_TXT[] "Diagnostic"}
+GLU_SK_HomeGun[2]={SK_TYPE #VALUE,SK_TXT[] "Home Gun"}
+DECL GLOBAL KRLMSGDLGSK_T GLU_SK_HomeRetry[3]
+GLU_SK_HomeRetry[1]={SK_TYPE #VALUE,SK_TXT[] "Diagnostic"}
+GLU_SK_HomeRetry[2]={SK_TYPE #VALUE,SK_TXT[] "Home Gun"}
+GLU_SK_HomeRetry[3]={SK_TYPE #VALUE,SK_TXT[] "Retry"}
+DECL GLOBAL KRLMSGDLGSK_T GLU_NumOpt2[3]
+GLU_NumOpt2[1]={SK_TYPE #VALUE,SK_TXT[] "1"}
+GLU_NumOpt2[2]={SK_TYPE #VALUE,SK_TXT[] "2"}
+GLU_NumOpt2[3]={SK_TYPE #VALUE,SK_TXT[] "Cancel"}
+;ENDFOLD (Dialog SoftKeys)
+;FOLD Messaging Constructs
+DECL GLOBAL KRLMSGPAR_T GLU_MsgPar[3]
+DECL GLOBAL KRLMSGPAR_T GLUsps_MsgPar[3]
+DECL GLOBAL KRLMSGOPT_T GLU_MsgOpt_Stop={VL_STOP TRUE,CLEAR_P_RESET TRUE,LOG_TO_DB TRUE}
+DECL GLOBAL KRLMSGOPT_T GLU_MsgOpt_NoStop={VL_STOP FALSE,CLEAR_P_RESET TRUE,LOG_TO_DB TRUE}
+DECL GLOBAL INT nGLU_Handle=0
+DECL GLOBAL INT nGLU_Handle_SPS=0
+DECL GLOBAL BOOL bGLU_Clear
+DECL GLOBAL INT nGLU_Key
+DECL GLOBAL INT nGLU_Key_Temp
+DECL GLOBAL BOOL bGLU_PLC_Reset=FALSE
+
+;Message specific handles
+DECL GLOBAL INT nGLU_Handle_RemoteStrt=0
+DECL GLOBAL INT nGLU_Handle_MajorFault=24962
+DECL GLOBAL INT nGLU_Handle_Measure=25022
+;ENDFOLD (Messaging Constructs)
+;FOLD GLU System Variables
+;FOLD GLU Custom Variables
+;ENDFOLD (GLU Custom Variables)
+;FOLD GLU BOOL Variables
+DECL GLOBAL BOOL bGLU_pFree_OS=TRUE
+DECL GLOBAL BOOL bGLU_AutoClear=FALSE
+DECL GLOBAL BOOL bGLU_ContOff=FALSE
+DECL GLOBAL BOOL bGLU_StartOS=FALSE
+DECL GLOBAL BOOL bGlU_RemoteStart=FALSE
+;ENDFOLD (GLU BOOL Variables)
+;FOLD GLU INT Variables
+DECL GLOBAL INT GLU_Submit_Handle[23]
+GLU_Submit_Handle[1]=0
+GLU_Submit_Handle[2]=0
+GLU_Submit_Handle[3]=0
+GLU_Submit_Handle[4]=0
+GLU_Submit_Handle[5]=0
+GLU_Submit_Handle[6]=0
+GLU_Submit_Handle[7]=0
+GLU_Submit_Handle[8]=0
+GLU_Submit_Handle[9]=0
+GLU_Submit_Handle[10]=0
+GLU_Submit_Handle[11]=0
+GLU_Submit_Handle[12]=0
+GLU_Submit_Handle[13]=0
+GLU_Submit_Handle[14]=0
+GLU_Submit_Handle[15]=0
+GLU_Submit_Handle[16]=0
+GLU_Submit_Handle[17]=0
+GLU_Submit_Handle[18]=0
+GLU_Submit_Handle[19]=0
+GLU_Submit_Handle[20]=0
+GLU_Submit_Handle[21]=0
+GLU_Submit_Handle[22]=0
+GLU_Submit_Handle[23]=0
+DECL GLOBAL INT nGLUProcessTmr=35
+;ENDFOLD (GLU INT Variables)
+;FOLD GLU System Resources
+;ENDFOLD (GLU System Resources)
+;ENDFOLD (GLU System Variables)
+
+ENDDAT

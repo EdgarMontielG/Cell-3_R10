@@ -1,0 +1,1513 @@
+&ACCESS RO3
+&REL 11
+DEF AutomationCoreRoutines( )
+   
+END
+
+GLOBAL DEF AutomationCore_Bkg( )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL INT nAC_MsgQty
+         DECL MSGBUF_T gAC_MsgLog[100]
+         DECL INT nAC_MsgCtr
+         DECL BOOL bTDVlvMan
+         DECL BOOL bSRWTD
+         DECL BOOL bEOATIn
+         DECL BOOL bWeldCtrl1
+         DECL BOOL bRPWSealrDArc1
+         DECL BOOL bPSE
+         DECL BOOL bMigRmr
+         DECL BOOL bEOATVlvMan
+         DECL BOOL bVlvMan
+         DECL BOOL bRPWWeldCtrl
+         DECL BOOL bRPWSealrDArc2
+         DECL BOOL bVlvMan2
+         DECL BOOL bWeldCtrl2
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         IF (di004UseDryCycle==TRUE) THEN
+            dopw1_WeldContactEnable=FALSE
+            dopw1_WeldOnExternal=FALSE
+            dopw2_WeldContactEnable=FALSE
+            dopw2_WeldOnExternal=FALSE
+            dopw3_WeldContactEnable=FALSE
+            dopw3_WeldOnExternal=FALSE
+         ELSE
+            dopw1_WeldContactEnable=TRUE
+            dopw1_WeldOnExternal=TRUE
+            dopw2_WeldContactEnable=TRUE
+            dopw2_WeldOnExternal=TRUE
+            dopw3_WeldContactEnable=TRUE
+            dopw3_WeldOnExternal=TRUE
+         ENDIF
+         ; TOOL ID TO PLC
+         ; see go123ToolID
+         do123ToolIDBit0 = di823ToolIDBit0
+         do124ToolIDBit1 = di825ToolIDBit1
+         AC_Request_to_enter( )
+         ;FOLD Mainline Auto Select
+            IF (($PRO_STATE1==#P_FREE) AND ($MODE_OP==#EX) AND (bACMainLine==FALSE)) THEN
+               bACMainLine=TRUE
+               CWRITE($CMD,AC_STAT,AC_MODE,"RUN /R1/CELL ()")
+            ELSE
+               IF ($MODE_OP==#T1) OR ($MODE_OP==#T2) THEN
+                  bACMainLine=FALSE
+               ENDIF
+            ENDIF
+            IF (($MODE_OP==#EX) AND (bACMainLineReset==TRUE)) THEN
+               IF (($PRO_STATE1==#P_RESET) OR ($PRO_STATE1==#P_ACTIVE) OR ($PRO_STATE1==#P_STOP) OR ($PRO_STATE1==#P_END)) THEN
+                  CWRITE($CMD,AC_STAT,AC_MODE,"STOP 1")
+                  WAIT SEC 0.100
+                  CWRITE($CMD,AC_STAT,AC_MODE,"CANCEL 1")
+                  bACMainLineReset=FALSE
+                  bACMainLine=FALSE
+               ENDIF
+            ENDIF
+         ;ENDFOLD (Program Reset/Cancel)
+         ;FOLD Program Reset/Cancel
+            IF ((($PRO_STATE1==#P_FREE) OR ($PRO_STATE1==#P_RESET)) AND (bACProcessReset==FALSE)) THEN
+               bACProcessReset=TRUE
+               AC_ProcessReset( )
+            ELSE
+               IF (($PRO_STATE1<>#P_FREE) AND ($PRO_STATE1<>#P_RESET)) THEN
+                  bACProcessReset=FALSE
+               ENDIF
+            ENDIF
+         ;ENDFOLD (Program Reset/Cancel)
+         ;FOLD Automation Core Cyclical Monitoring
+            ;FOLD Battery Monitoring
+               SWITCH $ACCU_STATE
+                  CASE #CHARGE_OK
+                     do006RobotBatteryAlarm=FALSE
+                  CASE #CHARGE_OK_LOW
+                     do006RobotBatteryAlarm=TRUE
+                  CASE #CHARGE_UNKNOWN
+                     do006RobotBatteryAlarm=TRUE
+                  CASE #CHARGE_TEST_NOK
+                     do006RobotBatteryAlarm=TRUE
+                  CASE #CHARGE_NOK
+                     do006RobotBatteryAlarm=TRUE
+                  CASE #CHARGE_OFF
+                     do006RobotBatteryAlarm=TRUE
+               ENDSWITCH
+            ;ENDFOLD (Battery Monitoring)
+            do046WeldMode = (NOT di004UseDryCycle)
+            do021BrakeTestReqd = (($BRAKETEST_MONTIME==TRUE) OR ($BRAKETEST_REQ_EX==TRUE) OR ($BRAKETEST_REQ_INT==TRUE))
+            do022MstrRefRequired = ($MasteringTest_Req_Int==TRUE)
+            gdoAxis1Posn=$AXIS_ACT.A1 + nA1Offset
+            do094AirOK= (dipw1_AirOK AND dipw2_AirOK AND dipw3_AirOK)
+            do013WaterIsOn = ((di472WaterTempOK AND di474WaterOk) AND (di520WaterTempOK AND di522WaterOk) AND (di568WaterTempOK AND di570WaterOk))
+            do107Hopper1LowLevel= NOT dipw1_HopperLowLevel
+            do108Hopper2LowLevel= NOT dipw2_HopperLowLevel
+            do110Hopper3LowLevel= NOT dipw3_HopperLowLevel
+            do111Gun1ElectrodeChange= dipw1_EndofStepper
+            do112Gun2ElectrodeChange= dipw2_EndofStepper
+            do113Gun3ElectrodeChange= dipw3_EndofStepper
+            do118Nut1Ready= (dipw1_Ready AND NOT dipw1_Fault)
+            do119Nut2Ready= (dipw2_Ready AND NOT dipw2_Fault)
+            do120Nut3Ready= (dipw3_Ready AND NOT dipw3_Fault)
+            do134Nut1Fault= (dipw1_Fault OR NOT dipw1_Ready)
+            do135Nut2Fault= (dipw2_Fault OR NOT dipw2_Ready)
+            do136Nut3Fault= (dipw3_Fault OR NOT dipw3_Ready)
+            
+            IF di013WaterEnable==TRUE THEN
+               do475StartWater=TRUE
+               do523StartWater=TRUE
+               do571StartWater=TRUE
+               ELSE
+            ENDIF
+            
+            do464WaterBeacon = (di472WaterTempOK AND di474WaterOk)
+            do512WaterBeacon = (di520WaterTempOK AND di522WaterOk)
+            do560WaterBeacon = (di568WaterTempOK AND di570WaterOk)
+            
+            ; sends to PLC when the robot isn`t in 100%
+            IF (($MODE_OP==#EX) AND NOT ($OV_PRO==100)) THEN
+               do146SpeedNot100=TRUE
+            ELSE 
+               do146SpeedNot100=FALSE
+            ENDIF
+            
+            ;FOLD Positional Monitoring
+               IF (VARSTATE("$POS_ACT")==#INITIALIZED) THEN
+                  ON_ERROR_PROCEED
+                  PosCheck = $POS_ACT
+                  IF ($ERR.NUMBER<>1419) THEN
+                     do007RobotAtPounce=AC_CheckSphWZ(xPounce,$Pounce_POS_TOL)
+                     do009RobotAtRepair=AC_CheckSphWZ(xRepair,$Repair_POS_TOL)
+                     do010RobotAtTipDress=AC_CheckSphWZ(xTipDress,$TipDress_POS_TOL)
+                     do051RbtAtMstrRefSwitch=AC_CheckSphWZ(xRefSwitch,$RefSwitch_POS_TOL)
+                     IF ((($WORKSPACE[1].X<>0.0) OR ($WORKSPACE[1].Y<>0.0) OR ($WORKSPACE[1].Z<>00)) AND ($WORKSPACE[1].MODE==#OFF)) THEN
+                        $WORKSPACE[1].MODE=#OUTSIDE
+                     ENDIF
+                     IF ((($WORKSPACE[2].X<>0.0) OR ($WORKSPACE[2].Y<>0.0) OR ($WORKSPACE[2].Z<>00)) AND ($WORKSPACE[2].MODE==#OFF)) THEN
+                        $WORKSPACE[2].MODE=#OUTSIDE
+                     ENDIF
+                  ELSE
+                     IF ($WORKSPACE[1].MODE<>#OFF) THEN
+                        $WORKSPACE[1].MODE=#OFF
+                     ENDIF
+                     IF ($WORKSPACE[2].MODE<>#OFF) THEN
+                        $WORKSPACE[2].MODE=#OFF
+                     ENDIF
+                  ENDIF
+               ENDIF
+            ;ENDFOLD (Positional Monitoring)
+         ;ENDFOLD (Automation Core Cyclical Monitoring)
+         ;FOLD Bus Status IO
+            ;FOLD Initialize boolean variables
+               bTDVlvMan = FALSE
+               bSRWTD = FALSE
+               bEOATIn = FALSE
+               bWeldCtrl1 = FALSE
+               bRPWSealrDArc1 = FALSE
+               bPSE = FALSE
+               bMigRmr = FALSE
+               bEOATVlvMan = FALSE
+               bVlvMan = FALSE
+               bRPWWeldCtrl = FALSE
+               bRPWSealrDArc2 = FALSE
+               bVlvMan2 = FALSE
+               bWeldCtrl2 = FALSE
+            ;ENDFOLD (Initialize boolean variables)
+            ;FOLD Check IO Status
+               IF ((IsMessageSet(10043)==TRUE) OR (IsMessageSet(10045)==TRUE)) THEN
+                  nAC_MsgQty = GET_MSGBUFFER(gAC_MsgLog[])
+                  IF (nAC_MsgQty > 0) THEN
+                     FOR nAC_MsgCtr = 1 TO nAC_MsgQty
+                        IF ((gAC_MsgLog[nAC_MsgCtr].NR==10043) OR (gAC_MsgLog[nAC_MsgCtr].NR==10045)) THEN
+                           bRPWWeldCtrl = bRPWWeldCtrl OR STRCOMP(gAC_MsgLog[nAC_MsgCtr].PAR_TXT1[],"RPW_WELD_CONTROLLER",#NOT_CASE_SENS)
+                           bTDVlvMan = bTDVlvMan OR STRCOMP(gAC_MsgLog[nAC_MsgCtr].PAR_TXT1[],"TD_VLV_MANIFOLD",#NOT_CASE_SENS)
+                           bEOATVlvMan = bEOATVlvMan OR STRCOMP(gAC_MsgLog[nAC_MsgCtr].PAR_TXT1[],"EOAT_VLV_MANIFOLD",#NOT_CASE_SENS)
+                           bMigRmr = bMigRmr OR STRCOMP(gAC_MsgLog[nAC_MsgCtr].PAR_TXT1[],"MIG_REAMER",#NOT_CASE_SENS)
+                           bSRWTD = bSRWTD OR STRCOMP(gAC_MsgLog[nAC_MsgCtr].PAR_TXT1[],"SRW_TD",#NOT_CASE_SENS)
+                           bEOATIn = bEOATIn OR STRCOMP(gAC_MsgLog[nAC_MsgCtr].PAR_TXT1[],"EOAT_INPUTS",#NOT_CASE_SENS)
+                           bWeldCtrl1 = bWeldCtrl1 OR STRCOMP(gAC_MsgLog[nAC_MsgCtr].PAR_TXT1[],"WELD_CONTROLLER",#NOT_CASE_SENS)
+                           bRPWSealrDArc1 = bRPWSealrDArc1 OR STRCOMP(gAC_MsgLog[nAC_MsgCtr].PAR_TXT1[],"RPW_SEALER_DRAWN_ARC",#NOT_CASE_SENS)
+                           bPSE = bPSE OR STRCOMP(gAC_MsgLog[nAC_MsgCtr].PAR_TXT1[],"PSE",#NOT_CASE_SENS)
+                           bRPWSealrDArc2 = bRPWSealrDArc2 OR STRCOMP(gAC_MsgLog[nAC_MsgCtr].PAR_TXT1[],"RPW_SEALER_DRAWN_ARC_2",#NOT_CASE_SENS)
+                           bVlvMan = bVlvMan OR STRCOMP(gAC_MsgLog[nAC_MsgCtr].PAR_TXT1[],"VLV_MANIFOLD",#NOT_CASE_SENS)
+                           bVlvMan2 = bVlvMan2 OR STRCOMP(gAC_MsgLog[nAC_MsgCtr].PAR_TXT1[],"VLV_MANIFOLD_2",#NOT_CASE_SENS)
+                           bWeldCtrl2 = bWeldCtrl2 OR STRCOMP(gAC_MsgLog[nAC_MsgCtr].PAR_TXT1[],"WELD_CONTROLLER_2",#NOT_CASE_SENS)
+                        ENDIF
+                     ENDFOR
+                  ENDIF
+               ENDIF
+            ;ENDFOLD (Check IO Status)
+            ;FOLD Set IO Bits
+               do048RPWCtrlrEnetOK = ((bRPWWeldCtrl==FALSE) AND (bRPWWeldCtrl_Enable==TRUE))
+               do050TDVlvManifold = ((bTDVlvMan==FALSE) AND (bTDVlvMan_Enable==TRUE))
+               do052EOATVlvMnfldEnetOK =true; ((bEOATVlvMan==FALSE) AND (bEOATVlvMan_Enable==TRUE))
+               do053MigReamerEnetOK = ((bMigRmr==FALSE) AND (bMigRmr_Enable==TRUE))
+               do054SRWTipDressIOEnetOK = ((bSRWTD==FALSE) AND (bSRWTD_Enable==TRUE))
+               do055EndEffectorIOEnetOK = ((bEOATIn==FALSE) AND (bEOATIn_Enable==TRUE))
+               do056WeldCntl1EnetOK = ((bWeldCtrl1==FALSE) AND (bWeldCtrl1_Enable==TRUE))
+               do057RPWSlrDArc1EnetOK = ((bRPWSealrDArc1==FALSE) AND (bRPWSealrDArc1_Enable==TRUE))
+               do058PinScribeCntlrIOOK = ((bPSE==FALSE) AND (bPSE_Enable==TRUE))
+               do059RPWSlrDArc2EnetOK = ((bRPWSealrDArc2==FALSE) AND (bRPWSealrDArc2_Enable==TRUE))
+               do060VlvManifoldEnetOK = ((bVlvMan==FALSE) AND (bVlvMan_Enable==TRUE))
+            ;ENDFOLD (Set IO Bits)
+         ;ENDFOLD (Bus Status IO)
+         ;FOLD Wait Message Reset
+            IF ((Exists_KrlMsg(nWaitMsg_Handle)==TRUE) AND ($PRO_STATE1<>#P_ACTIVE) AND (bAutoCoreSubmit_Clear==FALSE)) THEN
+               bAutoCoreSubmit_Clear = Clear_KRLMsg(nWaitMsg_Handle)
+            ENDIF
+         ;ENDFOLD (Wait Message Reset)
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (AutomationCore_Bkg)
+
+GLOBAL DEF InitializeSystem( )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL CHAR DMY[3]
+         DMY[]="---"
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         ;FOLD BASISTECH INI
+            GLOBAL INTERRUPT DECL 3 WHEN $STOPMESS==TRUE DO IR_STOPM ( )
+            INTERRUPT ON 3 
+            BAS (#INITMOV,0 )
+         ;ENDFOLD (BASISTECH INI)
+         ;FOLD HomeCheck
+            HomeCheck()
+            Stop_at_End_of_Cycle = FALSE
+         ;ENDFOLD (HomeCheck)
+         ;FOLD Process Reset
+            AC_ProcessReset( )
+         ;ENDFOLD (Process Reset)
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (InitializeSystem)
+
+GLOBAL DEF MaintainSystem( )
+   ;FOLD Details
+      ;FOLD Declaration
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         bOption1=FALSE
+         bOption2=FALSE
+         bOption3=FALSE
+         bOption4=FALSE
+         bOption5=FALSE
+         bOption6=FALSE
+         bOption7=FALSE
+         bOption8=FALSE
+         nStyle=0  
+         nOption=0
+         nPickUp=0 
+         nApps=0   
+         nDropOff=0
+         gdoStyleAckn=0
+         gdoPickupClear=31
+         gdoApplicationClear=31
+         gdoDropOffClear=31
+         gdoRepositionTooling=0
+         gdoRobotClearZone=127
+         do023PickClearTooling=TRUE
+         do024ApplClrTooling=TRUE
+         do025DropClearTooling=TRUE
+         do004ProcessFault=FALSE
+         do005RobotInCycle = FALSE
+         do015WorkComplete=FALSE
+         do047QualityFault = FALSE
+         AC_Process_Count(#INIT)
+         do091RobotReadyCapChange=FALSE
+         gdoOptionAckn=0
+         gdoProcessSync=0
+         do141RedRabbitFailed=FALSE
+         do142RedRabbitPassed=FALSE
+         
+         ; add to stop robot in Maintain system
+         Stop_at_End_of_Cycle = Stop_at_End_of_Cycle OR di147SEOC   ;Operator or PLC request stop at end of cycle
+         WHILE Stop_at_End_of_Cycle
+            $LOOP_MSG[] = "                                                                                                                                " 
+            IF di147SEOC THEN
+               $LOOP_MSG[] = " Stop_at_End_of_Cycle is selected by PLC ( Robot Input 147, di147SEOC )                                                         "
+            ELSE
+               $LOOP_MSG[] = " Stop_at_End_of_Cycle is selected by User                                                                                       "
+            ENDIF
+            WAIT SEC 1
+         ENDWHILE
+         $LOOP_MSG[] = "                                                                                                                                " 
+         
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (MaintainSystem)
+
+GLOBAL DEF HomeCheck( )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL BOOL bMsgRelease
+         GLOBAL INTERRUPT DECL IR_HOME WHEN $T1==FALSE DO IR_HOME_T1 ( )
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         bMsgRelease=FALSE
+         WHILE ($IN_HOME==FALSE)
+            IF (($MODE_OP==#EX) AND (do007RobotAtPounce==TRUE)) THEN
+               PounceToHome()
+            ELSE
+               do004ProcessFault=TRUE
+               ;FOLD Dialog "Robot is not home.  To Allow Robot To Move Home Select Continue"
+                  REPEAT
+                     nAutoCore_Handle = Set_KrlDlg (AutomationCore_Msg[3], AutoCore_MsgPar[], AC_SK_ContNav[], AutoCore_MsgOpt_Stop)
+                     IF (nAutoCore_Handle > 0) THEN
+                        WHILE (Exists_KrlDlg(nAutoCore_Handle, nAutoCore_Key))
+                           do004ProcessFault=TRUE
+                           WAIT SEC 0.024
+                        ENDWHILE
+                        do004ProcessFault=FALSE
+                        SWITCH nAutoCore_Key
+                           CASE 1 ; Diagnostic
+                              nAutoCore_Handle = Set_Krlmsg (#QUIT, AutomationCore_Msg[2], AutoCore_MsgPar[], AutoCore_MsgOpt_Stop)
+                              WHILE (Exists_KrlMsg(nAutoCore_Handle))
+                                 WAIT SEC 0.024
+                              ENDWHILE
+                           CASE 2 ; Continue
+                              REPEAT
+                                 WAIT FOR TRUE
+                                 $OV_PRO=0
+                                 WAIT FOR $T1
+                                 INTERRUPT ON IR_HOME
+                              UNTIL $T1					
+                              ;FOLD PTP HOME  Vel= 100 % DEFAULT;%{PE}%MKUKATPBASIS,%CMOVE,%VPTP,%P 1:PTP, 2:HOME, 3:, 5:100, 7:DEFAULT
+                                 $H_POS=XHOME
+                                 PDAT_ACT=PDEFAULT
+                                 BAS (#PTP_DAT )
+                                 FDAT_ACT=FHOME
+                                 BAS (#FRAMES )
+                                 BAS (#VEL_PTP,100 )
+                                 PTP  XHOME
+                              ;ENDFOLD
+                              WAIT FOR TRUE
+                              INTERRUPT OFF IR_HOME					  
+                              do004ProcessFault=FALSE
+                              bMsgRelease = TRUE
+                        ENDSWITCH
+                     ENDIF
+                  UNTIL (bMsgRelease==TRUE)
+                  bMsgRelease=FALSE
+               ;ENDFOLD (Dialog)
+            ENDIF
+         ENDWHILE
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (HomeCheck)
+
+GLOBAL DEF IR_HOME_T1( )
+   ;FOLD Details
+      ;FOLD Declaration
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         INTERRUPT OFF IR_HOME
+         $OV_PRO=0
+         WAIT FOR $T1
+         WAIT FOR TRUE
+         INTERRUPT ON IR_HOME
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (IR_HOME_T1)
+
+GLOBAL DEF GetOptions( )
+   ;FOLD Details
+      ;FOLD Declaration
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         bOption1=((nOption B_AND 1) > 0)
+         do038OptionAckn1=bOption1
+         bOption2=((nOption B_AND 2) > 0)
+         do039OptionAckn2=bOption2
+         bOption3=((nOption B_AND 4) > 0)
+         do040OptionAckn3=bOption3
+         bOption4=((nOption B_AND 8) > 0)
+         do041OptionAckn4=bOption4
+         bOption5=((nOption B_AND 16) > 0)
+         do042OptionAckn5=bOption5
+         bOption6=((nOption B_AND 32) > 0)
+         do043OptionAckn6=bOption6
+         bOption7=((nOption B_AND 64) > 0)
+         do044OptionAckn7=bOption7
+         bOption8=((nOption B_AND 128) > 0)
+         do045OptionAckn8=bOption8
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (GetOptions)
+
+GLOBAL DEF EndOfCycle( )
+   ;FOLD Details
+      ;FOLD Declaration
+      ;ENDFOLD (Declaration)
+      INT S,O
+      ;FOLD Implementation
+         ;AC_Process_Count(#CHECK)
+         ;======SL====do015WorkComplete=TRUE
+         ;WHILE (di015WorkCompleteAckn==FALSE)
+            ;FOLD Status Waiting for Work Complete Ackn.
+               ;IF (Exists_KrlMsg(nWorkComplete_Handle)==FALSE) THEN
+                  ;nWorkComplete_Handle=Set_Krlmsg (#STATE, AutomationCore_Msg[4], AutoCore_MsgPar[], AutoCore_MsgOpt_NoStop)
+               ;ENDIF
+            ;ENDFOLD (Status)
+         ;ENDWHILE
+         ;======SL====do005RobotInCycle = FALSE
+         bAutoCore_Clear=Clear_KRLMsg(nWorkComplete_Handle)
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (EndOfCycle)
+
+GLOBAL DEF CriticalWZ(bState :IN )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL BOOL bState
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         TRIGGER WHEN DISTANCE=0 DELAY=0 DO doCriticalWZ=bState
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (CriticalWZ)
+
+GLOBAL DEF AC_ProcessSync(nProcess :IN )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL INT nProcess
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         gdoProcessSync = AC_POW(2,(nProcess-1))
+         WHILE (gdoProcessSync <> gdiProcessSync)
+            ;FOLD Dialog "Waiting for Process %1 Synchronization(DI-%2)."
+               AutoCore_MsgPar[1]={par_type #value, par_int 0}
+               AutoCore_MsgPar[1].par_int=nProcess
+               AutoCore_MsgPar[2]={par_type #value, par_int 0}
+               AutoCore_MsgPar[2].par_int=nProcess + 60
+               nProcRequest_Handle = Set_Krlmsg (#STATE, AutomationCore_Msg[18], AutoCore_MsgPar[], AutoCore_MsgOpt_NoStop)
+               IF (nProcRequest_Handle > 0) THEN
+                  WHILE (Exists_KrlMsg(nProcRequest_Handle))
+                     WAIT SEC 0.012
+                     IF (gdoProcessSync == gdiProcessSync) THEN
+                        bAutoCore_Clear=Clear_KRLMsg(nProcRequest_Handle)
+                     ENDIF
+                  ENDWHILE
+               ENDIF
+            ;ENDFOLD (Dialog)
+         ENDWHILE
+         gdoProcessSync=0
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (AC_ProcessSync)
+
+GLOBAL DEF AC_Application(nApplication :IN, bState :IN )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL INT nApplication
+         DECL BOOL bState
+         DECL BOOL bMsgRelease
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         bMsgRelease=FALSE
+         SWITCH nApplication
+            CASE 1
+               do070ApplicationClear1 = bState
+            CASE 2
+               do071ApplicationClear2 = bState
+            CASE 3
+               do072ApplicationClear3 = bState
+            CASE 4
+               do073ApplicationClear4 = bState
+            CASE 5
+               do074ApplicationClear5 = bState
+            DEFAULT
+               do004ProcessFault=TRUE
+               ;FOLD Dialog "Application %1 is invalid.  Reprogram with application 1 - 5."
+                  REPEAT
+                     AutoCore_MsgPar[1]={par_type #value, par_int 0}
+                     AutoCore_MsgPar[1].par_int=nApplication
+                     nAutoCore_Handle = Set_KrlDlg (AutomationCore_Msg[8], AutoCore_MsgPar[], AC_SK_DIAG[], AutoCore_MsgOpt_Stop)
+                     IF (nAutoCore_Handle > 0) THEN
+                        WHILE (Exists_KrlDlg(nAutoCore_Handle, nAutoCore_Key))
+                           do004ProcessFault=TRUE
+                           IF ($ERR.Int_Prio>0) THEN
+                              BRAKE
+                           ENDIF
+                           WAIT SEC 0.024
+                        ENDWHILE
+                        do004ProcessFault=FALSE
+                        SWITCH nAutoCore_Key
+                           CASE 1 ; Diagnostic
+                              do004ProcessFault=FALSE
+                              nAutoCore_Handle = Set_Krlmsg (#QUIT, AutomationCore_Msg[2], AutoCore_MsgPar[], AutoCore_MsgOpt_Stop)
+                              WHILE (Exists_KrlMsg(nAutoCore_Handle))
+                                 WAIT SEC 0.024
+                              ENDWHILE
+                        ENDSWITCH
+                     ENDIF
+                  UNTIL (bMsgRelease==TRUE)
+                  bMsgRelease=FALSE
+               ;ENDFOLD (Dialog)
+         ENDSWITCH
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (AC_Application)
+
+GLOBAL DEF AC_ApplicationCheck(nApplication :IN )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL INT nApplication
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         SWITCH nApplication
+            CASE 1
+               ;FOLD Dialog "Waiting for Application %1 permission to enter (DI-%2)."
+                  AutoCore_MsgPar[1]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[1].par_int=nApplication
+                  AutoCore_MsgPar[2]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[2].par_int=nApplication + 69
+                  SetWaitingMessage(AutomationCore_Msg[17], di070ApplicationMachine1, TRUE )
+               ;ENDFOLD (Dialog)
+               do070ApplicationClear1 = FALSE
+               do024ApplClrTooling = FALSE
+            CASE 2
+               ;FOLD Dialog "Waiting for Application %1 permission to enter (DI-%2)."
+                  AutoCore_MsgPar[1]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[1].par_int=nApplication
+                  AutoCore_MsgPar[2]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[2].par_int=nApplication + 69
+                  SetWaitingMessage(AutomationCore_Msg[17], di071ApplicationMachine2, TRUE )
+               ;ENDFOLD (Dialog)
+               do071ApplicationClear2 = FALSE
+               do024ApplClrTooling = FALSE
+            CASE 3
+               ;FOLD Dialog "Waiting for Application %1 permission to enter (DI-%2)."
+                  AutoCore_MsgPar[1]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[1].par_int=nApplication
+                  AutoCore_MsgPar[2]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[2].par_int=nApplication + 69
+                  SetWaitingMessage(AutomationCore_Msg[17], di072ApplicationMachine3, TRUE )
+               ;ENDFOLD (Dialog)
+               di072ApplicationMachine3 = FALSE
+               do024ApplClrTooling = FALSE
+            CASE 4
+               ;FOLD Dialog "Waiting for Application %1 permission to enter (DI-%2)."
+                  AutoCore_MsgPar[1]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[1].par_int=nApplication
+                  AutoCore_MsgPar[2]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[2].par_int=nApplication + 69
+                  SetWaitingMessage(AutomationCore_Msg[17], di073ApplicationMachine4, TRUE )
+               ;ENDFOLD (Dialog)
+               di073ApplicationMachine4 = FALSE
+               do024ApplClrTooling = FALSE
+            CASE 5
+               ;FOLD Dialog "Waiting for Application %1 permission to enter (DI-%2)."
+                  AutoCore_MsgPar[1]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[1].par_int=nApplication
+                  AutoCore_MsgPar[2]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[2].par_int=nApplication + 69
+                  SetWaitingMessage(AutomationCore_Msg[17], di074ApplicationMachine5, TRUE )
+               ;ENDFOLD (Dialog)
+               di074ApplicationMachine5 = FALSE
+               do024ApplClrTooling = FALSE
+            DEFAULT
+               do004ProcessFault=TRUE
+               ;FOLD Dialog "Application %1 is invalid.  Reprogram with application 1 - 5."
+                  LOOP
+                     AutoCore_MsgPar[1]={par_type #value, par_int 0}
+                     AutoCore_MsgPar[1].par_int=nApplication
+                     nAutoCore_Handle = Set_KrlDlg (AutomationCore_Msg[8], AutoCore_MsgPar[], AC_SK_DIAG[], AutoCore_MsgOpt_Stop)
+                     IF (nAutoCore_Handle > 0) THEN
+                        WHILE (Exists_KrlDlg(nAutoCore_Handle, nAutoCore_Key))
+                           do004ProcessFault=TRUE
+                           IF ($ERR.Int_Prio>0) THEN
+                              BRAKE
+                           ENDIF
+                           WAIT SEC 0.024
+                        ENDWHILE
+                        do004ProcessFault=FALSE
+                        SWITCH nAutoCore_Key
+                           CASE 1 ; Diagnostic
+                              do004ProcessFault=FALSE
+                              nAutoCore_Handle = Set_Krlmsg (#QUIT, AutomationCore_Msg[2], AutoCore_MsgPar[], AutoCore_MsgOpt_Stop)
+                              WHILE (Exists_KrlMsg(nAutoCore_Handle))
+                                 WAIT SEC 0.024
+                              ENDWHILE
+                        ENDSWITCH
+                     ENDIF
+                  ENDLOOP
+               ;ENDFOLD (Dialog)
+         ENDSWITCH
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (AC_ApplicationCheck)
+
+GLOBAL DEF AC_PickUp(nPickUp :IN, bState :IN )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL INT nPickUp
+         DECL BOOL bState
+         DECL BOOL bMsgRelease
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         bMsgRelease=FALSE
+         SWITCH nPickUp
+            CASE 1
+               do065PickupClear1 = bState
+            CASE 2
+               do066PickupClear2 = bState
+            CASE 3
+               do067PickupClear3 = bState
+            CASE 4
+               do068PickupClear4 = bState
+            CASE 5
+               do069PickupClear5 = bState
+            DEFAULT
+               do004ProcessFault=TRUE
+               ;FOLD Dialog "PickUp %1 is invalid.  Reprogram with PickUp 1 - 5."
+                  REPEAT
+                     AutoCore_MsgPar[1]={par_type #value, par_int 0}
+                     AutoCore_MsgPar[1].par_int=nPickUp
+                     nAutoCore_Handle = Set_KrlDlg (AutomationCore_Msg[9], AutoCore_MsgPar[], AC_SK_DIAG[], AutoCore_MsgOpt_Stop)
+                     IF (nAutoCore_Handle > 0) THEN
+                        WHILE (Exists_KrlDlg(nAutoCore_Handle, nAutoCore_Key))
+                           do004ProcessFault=TRUE
+                           IF ($ERR.Int_Prio>0) THEN
+                              BRAKE
+                           ENDIF
+                           WAIT SEC 0.024
+                        ENDWHILE
+                        do004ProcessFault=FALSE
+                        SWITCH nAutoCore_Key
+                           CASE 1 ; Diagnostic
+                              do004ProcessFault=FALSE
+                              nAutoCore_Handle = Set_Krlmsg (#QUIT, AutomationCore_Msg[2], AutoCore_MsgPar[], AutoCore_MsgOpt_Stop)
+                              WHILE (Exists_KrlMsg(nAutoCore_Handle))
+                                 WAIT SEC 0.024
+                              ENDWHILE
+                        ENDSWITCH
+                     ENDIF
+                  UNTIL (bMsgRelease==TRUE)
+                  bMsgRelease=FALSE
+               ;ENDFOLD (Dialog)
+         ENDSWITCH
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (AC_PickUp)
+
+GLOBAL DEF AC_PickUpCheck(nPickUp :IN )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL INT nPickUp
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         SWITCH nPickUp
+            CASE 1
+               ;FOLD Dialog "Waiting for PickUp %1 permission to enter (DI-%2)."
+                  AutoCore_MsgPar[1]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[1].par_int=nPickUp
+                  AutoCore_MsgPar[2]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[2].par_int=nPickUp + 64
+                  SetWaitingMessage(AutomationCore_Msg[15], di065PickupMachine1, TRUE )
+               ;ENDFOLD (Dialog)
+               do065PickupClear1=FALSE
+               do023PickClearTooling=FALSE
+            CASE 2
+               ;FOLD Dialog "Waiting for PickUp %1 permission to enter (DI-%2)."
+                  AutoCore_MsgPar[1]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[1].par_int=nPickUp
+                  AutoCore_MsgPar[2]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[2].par_int=nPickUp + 64
+                  SetWaitingMessage(AutomationCore_Msg[15], di066PickupMachine2, TRUE )
+               ;ENDFOLD (Dialog)
+               do066PickupClear2=FALSE
+               do023PickClearTooling=FALSE
+            CASE 3
+               ;FOLD Dialog "Waiting for PickUp %1 permission to enter (DI-%2)."
+                  AutoCore_MsgPar[1]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[1].par_int=nPickUp
+                  AutoCore_MsgPar[2]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[2].par_int=nPickUp + 64
+                  SetWaitingMessage(AutomationCore_Msg[15], di067PickupMachine3, TRUE )
+               ;ENDFOLD (Dialog)
+               do067PickupClear3=FALSE
+               do023PickClearTooling=FALSE
+            CASE 4
+               ;FOLD Dialog "Waiting for PickUp %1 permission to enter (DI-%2)."
+                  AutoCore_MsgPar[1]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[1].par_int=nPickUp
+                  AutoCore_MsgPar[2]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[2].par_int=nPickUp + 64
+                  SetWaitingMessage(AutomationCore_Msg[15], di068PickupMachine4, TRUE )
+               ;ENDFOLD (Dialog)
+               do068PickupClear4=FALSE
+               do023PickClearTooling=FALSE
+            CASE 5
+               ;FOLD Dialog "Waiting for PickUp %1 permission to enter (DI-%2)."
+                  AutoCore_MsgPar[1]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[1].par_int=nPickUp
+                  AutoCore_MsgPar[2]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[2].par_int=nPickUp + 64
+                  SetWaitingMessage(AutomationCore_Msg[15], di069PickupMachine5, TRUE )
+               ;ENDFOLD (Dialog)
+               do069PickupClear5=FALSE
+               do023PickClearTooling=FALSE
+            DEFAULT
+               do004ProcessFault=TRUE
+               ;FOLD Dialog "PickUp %1 is invalid.  Reprogram with PickUp 1 - 5."
+                  LOOP
+                     AutoCore_MsgPar[1]={par_type #value, par_int 0}
+                     AutoCore_MsgPar[1].par_int=nPickUp
+                     nAutoCore_Handle = Set_KrlDlg (AutomationCore_Msg[9], AutoCore_MsgPar[], AC_SK_DIAG[], AutoCore_MsgOpt_Stop)
+                     IF (nAutoCore_Handle > 0) THEN
+                        WHILE (Exists_KrlDlg(nAutoCore_Handle, nAutoCore_Key))
+                           do004ProcessFault=TRUE
+                           IF ($ERR.Int_Prio>0) THEN
+                              BRAKE
+                           ENDIF
+                           WAIT SEC 0.024
+                        ENDWHILE
+                        do004ProcessFault=FALSE
+                        SWITCH nAutoCore_Key
+                           CASE 1 ; Diagnostic
+                              do004ProcessFault=FALSE
+                              nAutoCore_Handle = Set_Krlmsg (#QUIT, AutomationCore_Msg[2], AutoCore_MsgPar[], AutoCore_MsgOpt_Stop)
+                              WHILE (Exists_KrlMsg(nAutoCore_Handle))
+                                 WAIT SEC 0.024
+                              ENDWHILE
+                        ENDSWITCH
+                     ENDIF
+                  ENDLOOP
+               ;ENDFOLD (Dialog)
+         ENDSWITCH
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (AC_PickUpCheck)
+
+GLOBAL DEF AC_DropOff(nDropOff :IN, bState :IN )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL INT nDropOff
+         DECL BOOL bState
+         DECL BOOL bMsgRelease
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         bMsgRelease=FALSE
+         SWITCH nDropOff
+            CASE 1
+               do075DropOffClear1 = bState
+            CASE 2
+               do076DropOffClear2 = bState
+            CASE 3
+               do077DropOffClear3 = bState
+            CASE 4
+               do078DropOffClear4 = bState
+            CASE 5
+               do079DropOffClear5 = bState
+            DEFAULT
+               do004ProcessFault=TRUE
+               ;FOLD Dialog "DropOff %1 is invalid.  Reprogram with DropOff 1 - 5."
+                  REPEAT
+                     AutoCore_MsgPar[1]={par_type #value, par_int 0}
+                     AutoCore_MsgPar[1].par_int=nDropOff
+                     nAutoCore_Handle = Set_KrlDlg (AutomationCore_Msg[10], AutoCore_MsgPar[], AC_SK_DIAG[], AutoCore_MsgOpt_Stop)
+                     IF (nAutoCore_Handle > 0) THEN
+                        WHILE (Exists_KrlDlg(nAutoCore_Handle, nAutoCore_Key))
+                           do004ProcessFault=TRUE
+                           IF ($ERR.Int_Prio>0) THEN
+                              BRAKE
+                           ENDIF
+                           WAIT SEC 0.024
+                        ENDWHILE
+                        do004ProcessFault=FALSE
+                        SWITCH nAutoCore_Key
+                           CASE 1 ; Diagnostic
+                              do004ProcessFault=FALSE
+                              nAutoCore_Handle = Set_Krlmsg (#QUIT, AutomationCore_Msg[2], AutoCore_MsgPar[], AutoCore_MsgOpt_Stop)
+                              WHILE (Exists_KrlMsg(nAutoCore_Handle))
+                                 WAIT SEC 0.024
+                              ENDWHILE
+                        ENDSWITCH
+                     ENDIF
+                  UNTIL (bMsgRelease==TRUE)
+                  bMsgRelease=FALSE
+               ;ENDFOLD (Dialog)
+         ENDSWITCH
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (AC_DropOff)
+
+GLOBAL DEF AC_DropOffCheck(nDropOff :IN )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL INT nDropOff
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         SWITCH nDropOff
+            CASE 1
+               ;FOLD Dialog "Waiting for DropOff %1 permission to enter (DI-%2)."
+                  AutoCore_MsgPar[1]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[1].par_int=nDropOff
+                  AutoCore_MsgPar[2]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[2].par_int=nDropOff + 74
+                  SetWaitingMessage(AutomationCore_Msg[16], di075DropOffMachine1, TRUE )
+               ;ENDFOLD (Dialog)
+               do075DropOffClear1 = FALSE
+               do025DropClearTooling = FALSE
+            CASE 2
+               ;FOLD Dialog "Waiting for DropOff %1 permission to enter (DI-%2)."
+                  AutoCore_MsgPar[1]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[1].par_int=nDropOff
+                  AutoCore_MsgPar[2]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[2].par_int=nDropOff + 74
+                  SetWaitingMessage(AutomationCore_Msg[16], di076DropOffMachine2, TRUE )
+               ;ENDFOLD (Dialog)
+               do076DropOffClear2 = FALSE
+               do025DropClearTooling = FALSE
+            CASE 3
+               ;FOLD Dialog "Waiting for DropOff %1 permission to enter (DI-%2)."
+                  AutoCore_MsgPar[1]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[1].par_int=nDropOff
+                  AutoCore_MsgPar[2]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[2].par_int=nDropOff + 74
+                  SetWaitingMessage(AutomationCore_Msg[16], di077DropOffMachine3, TRUE )
+               ;ENDFOLD (Dialog)
+               do077DropOffClear3 = FALSE
+               do025DropClearTooling = FALSE
+            CASE 4
+               ;FOLD Dialog "Waiting for DropOff %1 permission to enter (DI-%2)."
+                  AutoCore_MsgPar[1]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[1].par_int=nDropOff
+                  AutoCore_MsgPar[2]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[2].par_int=nDropOff + 74
+                  SetWaitingMessage(AutomationCore_Msg[16], di078DropOffMachine4, TRUE )
+               ;ENDFOLD (Dialog)
+               do078DropOffClear4 = FALSE
+               do025DropClearTooling = FALSE
+            CASE 5
+               ;FOLD Dialog "Waiting for DropOff %1 permission to enter (DI-%2)."
+                  AutoCore_MsgPar[1]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[1].par_int=nDropOff
+                  AutoCore_MsgPar[2]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[2].par_int=nDropOff + 74
+                  SetWaitingMessage(AutomationCore_Msg[16], di079DropOffMachine5, TRUE )
+               ;ENDFOLD (Dialog)
+               do079DropOffClear5 = TRUE
+               do025DropClearTooling = FALSE
+            DEFAULT
+               do004ProcessFault=TRUE
+               ;FOLD Dialog "DropOff %1 is invalid.  Reprogram with DropOff 1 - 5."
+                  LOOP
+                     AutoCore_MsgPar[1]={par_type #value, par_int 0}
+                     AutoCore_MsgPar[1].par_int=nDropOff
+                     nAutoCore_Handle = Set_KrlDlg (AutomationCore_Msg[10], AutoCore_MsgPar[], AC_SK_DIAG[], AutoCore_MsgOpt_Stop)
+                     IF (nAutoCore_Handle > 0) THEN
+                        WHILE (Exists_KrlDlg(nAutoCore_Handle, nAutoCore_Key))
+                           do004ProcessFault=TRUE
+                           IF ($ERR.Int_Prio>0) THEN
+                              BRAKE
+                           ENDIF
+                           WAIT SEC 0.024
+                        ENDWHILE
+                        do004ProcessFault=FALSE
+                        SWITCH nAutoCore_Key
+                           CASE 1 ; Diagnostic
+                              do004ProcessFault=FALSE
+                              nAutoCore_Handle = Set_Krlmsg (#QUIT, AutomationCore_Msg[2], AutoCore_MsgPar[], AutoCore_MsgOpt_Stop)
+                              WHILE (Exists_KrlMsg(nAutoCore_Handle))
+                                 WAIT SEC 0.024
+                              ENDWHILE
+                        ENDSWITCH
+                     ENDIF
+                  ENDLOOP
+               ;ENDFOLD (Dialog)
+         ENDSWITCH
+         
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (AC_DropOffCheck)
+
+GLOBAL DEF AC_ZoneLogic(nZone :IN, bState :IN )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL INT nZone
+         DECL BOOL bState
+         DECL BOOL bMsgRelease
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         bMsgRelease=FALSE
+         SWITCH nZone
+            CASE 1
+               do026RobotClearZone1 = bState
+            CASE 2
+               do027RobotClearZone2 = bState
+            CASE 3
+               do028RobotClearZone3 = bState
+            CASE 4
+               do029RobotClearZone4 = bState
+            CASE 5
+               do030RobotClearZone5 = bState
+            CASE 6
+               do031RobotClearZone6 = bState
+            CASE 7
+               do032RobotClearZone7 = bState
+            DEFAULT
+               do004ProcessFault=TRUE
+               ;FOLD Dialog "Zone %1 is invalid.  Reprogram with Zone 1 - 7."
+                  REPEAT
+                     AutoCore_MsgPar[1]={par_type #value, par_int 0}
+                     AutoCore_MsgPar[1].par_int=nZone
+                     nAutoCore_Handle = Set_KrlDlg (AutomationCore_Msg[11], AutoCore_MsgPar[], AC_SK_DIAG[], AutoCore_MsgOpt_Stop)
+                     IF (nAutoCore_Handle > 0) THEN
+                        WHILE (Exists_KrlDlg(nAutoCore_Handle, nAutoCore_Key))
+                           do004ProcessFault=TRUE
+                           IF ($ERR.Int_Prio>0) THEN
+                              BRAKE
+                           ENDIF
+                           WAIT SEC 0.024
+                        ENDWHILE
+                        do004ProcessFault=FALSE
+                        SWITCH nAutoCore_Key
+                           CASE 1 ; Diagnostic
+                              do004ProcessFault=FALSE
+                              nAutoCore_Handle = Set_Krlmsg (#QUIT, AutomationCore_Msg[2], AutoCore_MsgPar[], AutoCore_MsgOpt_Stop)
+                              WHILE (Exists_KrlMsg(nAutoCore_Handle))
+                                 WAIT SEC 0.024
+                              ENDWHILE
+                        ENDSWITCH
+                     ENDIF
+                  UNTIL (bMsgRelease==TRUE)
+                  bMsgRelease=FALSE
+               ;ENDFOLD (Dialog)
+         ENDSWITCH
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (AC_ZoneEnter)
+
+GLOBAL DEF AC_ZoneCheck(nZone :IN )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL INT nZone
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         SWITCH nZone
+            CASE 1
+               ;FOLD Dialog "Waiting for Zone %1 permission to enter (DI-%2)."
+                  AutoCore_MsgPar[1]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[1].par_int=nZone
+                  AutoCore_MsgPar[2]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[2].par_int=nZone + 25
+                  SetWaitingMessage(AutomationCore_Msg[12], di026Zone1ClearToEnter, TRUE )
+               ;ENDFOLD (Dialog)
+            CASE 2
+               ;FOLD Dialog "Waiting for Zone %1 permission to enter (DI-%2)."
+                  AutoCore_MsgPar[1]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[1].par_int=nZone
+                  AutoCore_MsgPar[2]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[2].par_int=nZone + 25
+                  SetWaitingMessage(AutomationCore_Msg[12], di027Zone2ClearToEnter, TRUE )
+               ;ENDFOLD (Dialog)
+            CASE 3
+               ;FOLD Dialog "Waiting for Zone %1 permission to enter (DI-%2)."
+                  AutoCore_MsgPar[1]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[1].par_int=nZone
+                  AutoCore_MsgPar[2]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[2].par_int=nZone + 25
+                  SetWaitingMessage(AutomationCore_Msg[12], di028Zone3ClearToEnter, TRUE )
+               ;ENDFOLD (Dialog)
+            CASE 4
+               ;FOLD Dialog "Waiting for Zone %1 permission to enter (DI-%2)."
+                  AutoCore_MsgPar[1]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[1].par_int=nZone
+                  AutoCore_MsgPar[2]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[2].par_int=nZone + 25
+                  SetWaitingMessage(AutomationCore_Msg[12], di029Zone4ClearToEnter, TRUE )
+               ;ENDFOLD (Dialog)
+            CASE 5
+               ;FOLD Dialog "Waiting for Zone %1 permission to enter (DI-%2)."
+                  AutoCore_MsgPar[1]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[1].par_int=nZone
+                  AutoCore_MsgPar[2]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[2].par_int=nZone + 25
+                  SetWaitingMessage(AutomationCore_Msg[12], di030Zone5ClearToEnter, TRUE )
+               ;ENDFOLD (Dialog)
+            CASE 6
+               ;FOLD Dialog "Waiting for Zone %1 permission to enter (DI-%2)."
+                  AutoCore_MsgPar[1]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[1].par_int=nZone
+                  AutoCore_MsgPar[2]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[2].par_int=nZone + 25
+                  SetWaitingMessage(AutomationCore_Msg[12], di031Zone6ClearToEnter, TRUE )
+               ;ENDFOLD (Dialog)
+            CASE 7
+               ;FOLD Dialog "Waiting for Zone %1 permission to enter (DI-%2)."
+                  AutoCore_MsgPar[1]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[1].par_int=nZone
+                  AutoCore_MsgPar[2]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[2].par_int=nZone + 25
+                  SetWaitingMessage(AutomationCore_Msg[12], di032Zone7ClearToEnter, TRUE )
+               ;ENDFOLD (Dialog)
+            DEFAULT
+               do004ProcessFault=TRUE
+               ;FOLD Dialog "Zone %1 is invalid.  Reprogram with Zone 1 - 7."
+                  LOOP
+                     AutoCore_MsgPar[1]={par_type #value, par_int 0}
+                     AutoCore_MsgPar[1].par_int=nZone
+                     nAutoCore_Handle = Set_KrlDlg (AutomationCore_Msg[11], AutoCore_MsgPar[], AC_SK_DIAG[], AutoCore_MsgOpt_Stop)
+                     IF (nAutoCore_Handle > 0) THEN
+                        WHILE (Exists_KrlDlg(nAutoCore_Handle, nAutoCore_Key))
+                           do004ProcessFault=TRUE
+                           IF ($ERR.Int_Prio>0) THEN
+                              BRAKE
+                           ENDIF
+                           WAIT SEC 0.024
+                        ENDWHILE
+                        do004ProcessFault=FALSE
+                        SWITCH nAutoCore_Key
+                           CASE 1 ; Diagnostic
+                              do004ProcessFault=FALSE
+                              nAutoCore_Handle = Set_Krlmsg (#QUIT, AutomationCore_Msg[2], AutoCore_MsgPar[], AutoCore_MsgOpt_Stop)
+                              WHILE (Exists_KrlMsg(nAutoCore_Handle))
+                                 WAIT SEC 0.024
+                              ENDWHILE
+                        ENDSWITCH
+                     ENDIF
+                  ENDLOOP
+               ;ENDFOLD (Dialog)
+         ENDSWITCH
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (AC_ZoneCheck)
+
+GLOBAL DEF AC_Reposition(nRepo :IN, bState :IN )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL INT nRepo
+         DECL BOOL bState
+         DECL BOOL bMsgRelease
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         bMsgRelease=FALSE
+         SWITCH nRepo
+            CASE 1
+               do080RepositionTooling1 = bState
+            CASE 2
+               do081RepositionTooling2 = bState
+            CASE 3
+               do082RepositionTooling3 = bState
+            CASE 4
+               do083RepositionTooling4 = bState
+            CASE 5
+               do084RepositionTooling5 = bState
+            DEFAULT
+               do004ProcessFault=TRUE
+               ;FOLD Dialog "Reposition %1 is invalid.  Reprogram with Reposition 1 - 5."
+                  REPEAT
+                     AutoCore_MsgPar[1]={par_type #value, par_int 0}
+                     AutoCore_MsgPar[1].par_int=nRepo
+                     nAutoCore_Handle = Set_KrlDlg (AutomationCore_Msg[13], AutoCore_MsgPar[], AC_SK_DIAG[], AutoCore_MsgOpt_Stop)
+                     IF (nAutoCore_Handle > 0) THEN
+                        WHILE (Exists_KrlDlg(nAutoCore_Handle, nAutoCore_Key))
+                           do004ProcessFault=TRUE
+                           IF ($ERR.Int_Prio>0) THEN
+                              BRAKE
+                           ENDIF
+                           WAIT SEC 0.024
+                        ENDWHILE
+                        do004ProcessFault=FALSE
+                        SWITCH nAutoCore_Key
+                           CASE 1 ; Diagnostic
+                              do004ProcessFault=FALSE
+                              nAutoCore_Handle = Set_Krlmsg (#QUIT, AutomationCore_Msg[2], AutoCore_MsgPar[], AutoCore_MsgOpt_Stop)
+                              WHILE (Exists_KrlMsg(nAutoCore_Handle))
+                                 WAIT SEC 0.024
+                              ENDWHILE
+                        ENDSWITCH
+                     ENDIF
+                  UNTIL (bMsgRelease==TRUE)
+                  bMsgRelease=FALSE
+               ;ENDFOLD (Dialog)
+         ENDSWITCH
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (AC_Reposition)
+
+GLOBAL DEF AC_RepoCheck(nRepo :IN )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL INT nRepo
+         DECL BOOL bMsgRelease
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         bMsgRelease=FALSE
+         SWITCH nRepo
+            CASE 1
+               ;FOLD Dialog "Waiting for Tool %1 repositioned (DI-%2)."
+                  AutoCore_MsgPar[1]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[1].par_int=nRepo
+                  AutoCore_MsgPar[2]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[2].par_int=nRepo + 79
+                  SetWaitingMessage(AutomationCore_Msg[14], di080ToolRepositioned1, TRUE )
+               ;ENDFOLD (Dialog)
+            CASE 2
+               ;FOLD Dialog "Waiting for Tool %1 repositioned (DI-%2)."
+                  AutoCore_MsgPar[1]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[1].par_int=nRepo
+                  AutoCore_MsgPar[2]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[2].par_int=nRepo + 79
+                  SetWaitingMessage(AutomationCore_Msg[14], di081ToolRepositioned2, TRUE )
+               ;ENDFOLD (Dialog)
+            CASE 3
+               ;FOLD Dialog "Waiting for Tool %1 repositioned (DI-%2)."
+                  AutoCore_MsgPar[1]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[1].par_int=nRepo
+                  AutoCore_MsgPar[2]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[2].par_int=nRepo + 79
+                  SetWaitingMessage(AutomationCore_Msg[14], di082ToolRepositioned3, TRUE )
+               ;ENDFOLD (Dialog)
+            CASE 4
+               ;FOLD Dialog "Waiting for Tool %1 repositioned (DI-%2)."
+                  AutoCore_MsgPar[1]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[1].par_int=nRepo
+                  AutoCore_MsgPar[2]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[2].par_int=nRepo + 79
+                  SetWaitingMessage(AutomationCore_Msg[14], di083ToolRepositioned4, TRUE )
+               ;ENDFOLD (Dialog)
+            CASE 5
+               ;FOLD Dialog "Waiting for Tool %1 repositioned (DI-%2)."
+                  AutoCore_MsgPar[1]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[1].par_int=nRepo
+                  AutoCore_MsgPar[2]={par_type #value, par_int 0}
+                  AutoCore_MsgPar[2].par_int=nRepo + 79
+                  SetWaitingMessage(AutomationCore_Msg[14], di084ToolRepositioned5, TRUE )
+               ;ENDFOLD (Dialog)
+            DEFAULT
+               do004ProcessFault=TRUE
+               ;FOLD Dialog "Reposition %1 is invalid.  Reprogram with Reposition 1 - 5."
+                  REPEAT
+                     AutoCore_MsgPar[1]={par_type #value, par_int 0}
+                     AutoCore_MsgPar[1].par_int=nRepo
+                     nAutoCore_Handle = Set_KrlDlg (AutomationCore_Msg[13], AutoCore_MsgPar[], AC_SK_DIAG[], AutoCore_MsgOpt_Stop)
+                     IF (nAutoCore_Handle > 0) THEN
+                        WHILE (Exists_KrlDlg(nAutoCore_Handle, nAutoCore_Key))
+                           do004ProcessFault=TRUE
+                           IF ($ERR.Int_Prio>0) THEN
+                              BRAKE
+                           ENDIF
+                           WAIT SEC 0.024
+                        ENDWHILE
+                        do004ProcessFault=FALSE
+                        SWITCH nAutoCore_Key
+                           CASE 1 ; Diagnostic
+                              do004ProcessFault=FALSE
+                              nAutoCore_Handle = Set_Krlmsg (#QUIT, AutomationCore_Msg[2], AutoCore_MsgPar[], AutoCore_MsgOpt_Stop)
+                              WHILE (Exists_KrlMsg(nAutoCore_Handle))
+                                 WAIT SEC 0.024
+                              ENDWHILE
+                        ENDSWITCH
+                     ENDIF
+                  UNTIL (bMsgRelease==TRUE)
+                  bMsgRelease=FALSE
+               ;ENDFOLD (Dialog)
+         ENDSWITCH
+         AC_Reposition(nRepo, FALSE) ; Reset Reposition Request
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (AC_RepoCheck)
+
+GLOBAL DEF AC_PointArrival( )
+   ;FOLD Details
+      ;FOLD Declaration
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         IF ((doCriticalWZ==FALSE) AND (di006RequestToEnter==TRUE)) THEN
+            REPEAT
+               BRAKE
+               IF ((Exists_KrlMsg(nReqEnter_Handle))==FALSE) THEN
+                  nReqEnter_Handle=Set_Krlmsg (#STATE, AutomationCore_Msg[25], AutoCore_MsgPar[], AutoCore_MsgOpt_NoStop)
+               ENDIF
+               HALT
+               WAIT SEC 0.012
+            UNTIL (di006RequestToEnter==FALSE)
+            bAutoCore_Clear=Clear_KRLMsg(nReqEnter_Handle)
+         ENDIF
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (AC_PointArrival)
+
+DEF AC_ProcessReset( )
+   ;FOLD Details
+      ;FOLD Declaration
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         do004ProcessFault=TRUE
+         bResetProcessCount=TRUE
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (AC_ProcessReset)
+
+GLOBAL DEF StartCycTime( )
+   ;FOLD Details
+      ;FOLD Declaration
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         $TIMER_STOP[nCycleTimer]=TRUE
+         $TIMER[nCycleTimer]=0
+         $TIMER_STOP[nCycleTimer]=FALSE
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (StartCycTime)
+
+GLOBAL DEF StopCycTime( )
+   ;FOLD Details
+      ;FOLD Declaration
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         $TIMER_STOP[nCycleTimer]=TRUE
+         nCycleTime=$TIMER[nCycleTimer]/1000
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (StopCycTime)
+
+GLOBAL DEF GetCycTime( )
+   ;FOLD Details
+      ;FOLD Declaration
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         StopCycTime( )
+         IF ((nCycleTime>0) AND (Exists_KrlMsg(nCycTime_Handle)==FALSE)) THEN
+            AutoCore_MsgPar[1]={par_type #value, par_int 0}
+            AutoCore_MsgPar[1].par_int=nCycleTime
+            nCycTime_Handle=Set_Krlmsg (#STATE, AutomationCore_Msg[7], AutoCore_MsgPar[], AutoCore_MsgOpt_NoStop)
+         ENDIF
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (GetCycTime)
+
+DEFFCT REAL AC_POW(rBase:IN, iExponent:IN)
+   
+   DECL REAL rBase, rResult
+   DECL INT iExponent, i
+   
+   IF iExponent == 0 THEN
+      rResult = 1.0
+   ELSE
+      IF iExponent < 0 THEN
+         IF rBase == 0 THEN
+            ; Ungueltige Eingabe, da Division durch 0
+            WAIT FOR FALSE
+            ; error, division by 0
+         ENDIF
+         iExponent = iExponent * (-1)
+         rResult = rBase
+         FOR i = 1 TO (iExponent - 1)
+            rResult = rResult * rBase
+         ENDFOR
+         rResult = 1 / rResult
+      ELSE
+         rResult = rBase
+         FOR i = 1 TO (iExponent - 1)
+            rResult = rResult * rBase
+         ENDFOR
+      ENDIF
+   ENDIF
+   
+   RETURN rResult
+   
+ENDFCT
+
+GLOBAL DEFFCT BOOL AC_CheckSphWZ (pCenter: IN, nRadius: IN )
+   ;FOLD Details
+      ;FOLD Declaration
+         E6POS pCenter
+         INT nRadius
+         BOOL bResult
+         REAL pdx, pdy, pdz
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         IF ((VARSTATE("pCenter") == #INITIALIZED) AND (VARSTATE("nRadius") == #INITIALIZED))THEN
+            pdx = PosCheck.x - pCenter.x;		// vector from pt1 to test point.
+            pdy = PosCheck.y - pCenter.y;
+            pdz = PosCheck.z - pCenter.z;
+            
+            bResult = (((pdx*pdx) + (pdy*pdy) + (pdz*pdz)) <= (nRadius*nRadius))
+            RETURN (bResult)
+         ELSE
+            RETURN (FALSE)
+         ENDIF
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+ENDFCT ; (AC_CheckSphWZ)
+
+GLOBAL DEF AC_DeleteLine(nMsg :IN, nOpt1 :IN, nOpt2 :IN, nOpt3 :IN )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL INT nMsg
+         DECL INT nOpt1
+         DECL INT nOpt2
+         DECL INT nOpt3
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         LOOP
+            IF (VARSTATE("nMsg")<>#INITIALIZED) THEN
+               nMsg=1
+            ENDIF
+            IF (VARSTATE("nOpt1")==#INITIALIZED) THEN
+               AutoCore_MsgPar[1]={par_type #value, par_int 0}
+               AutoCore_MsgPar[1].par_int=nOpt1
+            ENDIF
+            IF (VARSTATE("nOpt2")==#INITIALIZED) THEN
+               AutoCore_MsgPar[2]={par_type #value, par_int 0}
+               AutoCore_MsgPar[2].par_int=nOpt2
+            ENDIF
+            IF (VARSTATE("nOpt3")==#INITIALIZED) THEN
+               AutoCore_MsgPar[3]={par_type #value, par_int 0}
+               AutoCore_MsgPar[3].par_int=nOpt3
+            ENDIF
+            nAutoCore_Handle = Set_Krlmsg (#QUIT, AutomationCore_Msg[nMsg], AutoCore_MsgPar[], AutoCore_MsgOpt_Stop)
+            WHILE (Exists_KrlMsg(nAutoCore_Handle))
+               WAIT SEC 0.024
+            ENDWHILE
+         ENDLOOP
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (AC_DeleteLine)
+
+GLOBAL DEF AC_Erase( )
+   ;FOLD Details
+      ;FOLD Declaration
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         bAutoCore_Clear=Clear_KRLMsg(-99)
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (AC_Erase)
+
+DEF SetWaitingMessage(KrlmsgDisplay :IN, bCondition :OUT, bState :IN )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL KRLMSG_T KrlmsgDisplay
+         DECL BOOL bCondition
+         DECL BOOL bState
+         DECL BOOL bMsgExt
+         DECL BOOL bMsgSimulate
+         DECL BOOL bMsgClear
+         DECL KRLMSG_T SimulateMsg
+         DECL INT nMsgLength
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         bMsgSimulate = FALSE
+         bAutoCoreSubmit_Clear=FALSE
+         IF ($MODE_OP==#EX) THEN
+            nWaitMsg_Handle = Set_Krlmsg (#STATE, KrlmsgDisplay, AutoCore_MsgPar[], AutoCore_MsgOpt_NoStop)
+            bMsgExt=TRUE
+         ELSE
+            nWaitMsg_Handle = Set_Krlmsg (#WAITING, KrlmsgDisplay, AutoCore_MsgPar[], AutoCore_MsgOpt_NoStop)
+            bMsgExt=FALSE
+         ENDIF
+         WHILE ((bCondition <> bState) AND (bMsgSimulate==FALSE))
+            IF (nWaitMsg_Handle > 0) THEN
+               IF ($ERR.Int_Prio>0) THEN
+                  BRAKE
+               ENDIF
+               WAIT SEC 0.012
+               IF ((Exists_KrlMsg(nWaitMsg_Handle)==FALSE) AND (bAutoCoreSubmit_Clear==FALSE)) THEN
+                  nWaitMsg_Handle = 0
+                  bMsgSimulate=TRUE
+                  bMsgClear = StrClear(SimulateMsg.Msg_Txt[])
+                  nMsgLength = StrAdd(SimulateMsg.Msg_Txt[],"{")
+                  nMsgLength = StrAdd(SimulateMsg.Msg_Txt[],KrlmsgDisplay.Msg_Txt[])
+                  nMsgLength = StrAdd(SimulateMsg.Msg_Txt[],"}")
+                  nMsgLength = StrAdd(SimulateMsg.Msg_Txt[]," has been simulated.")
+                  bMsgClear = StrCopy(SimulateMsg.Modul[],KrlmsgDisplay.Modul[])
+                  SimulateMsg.Nr = 1001
+                  IF (nMsgLength==0) THEN
+                     bMsgClear = StrClear(SimulateMsg.Msg_Txt[])
+                     SimulateMsg.Msg_Txt[] = "Signal wait condition has been simulated"
+                  ENDIF
+                  nLogOnlyMsg_Handle = Set_Krlmsg (#STATE, SimulateMsg, AutoCore_MsgPar[], AutoCore_MsgOpt_NoStop)
+                  IF (Exists_KrlMsg(nLogOnlyMsg_Handle)==TRUE) THEN
+                     bMsgClear=Clear_KRLMsg(nLogOnlyMsg_Handle)
+                  ENDIF
+               ELSE
+                  IF (($MODE_OP<>#EX) AND ((bMsgExt==TRUE) OR (Exists_KrlMsg(nWaitMsg_Handle)==FALSE))) THEN
+                     bAutoCoreSubmit_Clear=FALSE
+                     bMsgClear=Clear_KRLMsg(nWaitMsg_Handle)
+                     bMsgExt=FALSE
+                     nWaitMsg_Handle = Set_Krlmsg (#WAITING, KrlmsgDisplay, AutoCore_MsgPar[], AutoCore_MsgOpt_NoLog)
+                  ENDIF
+                  IF (($MODE_OP==#EX) AND ((bMsgExt==FALSE) OR (Exists_KrlMsg(nWaitMsg_Handle)==FALSE))) THEN
+                     bAutoCoreSubmit_Clear=FALSE
+                     bMsgClear=Clear_KRLMsg(nWaitMsg_Handle)
+                     bMsgExt=TRUE
+                     nWaitMsg_Handle = Set_Krlmsg (#STATE, KrlmsgDisplay, AutoCore_MsgPar[], AutoCore_MsgOpt_NoLog)
+                  ENDIF
+               ENDIF
+            ENDIF
+         ENDWHILE
+         bMsgSimulate=FALSE
+         IF (Exists_KrlMsg(nWaitMsg_Handle)==TRUE) THEN
+            bMsgClear=Clear_KRLMsg(nWaitMsg_Handle)
+            nWaitMsg_Handle = 0
+         ENDIF
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (SetWaitingMessage)
+
+;FOLD Check ToolID
+   GLOBAL DEFFCT BOOL ToolID (iToolNo:IN)
+      
+      INT iToolNo
+      INT maxToolNo
+      maxToolNo = 2
+      IF (NOT (VARSTATE("iToolNo")==#INITIALIZED)) THEN
+         RETURN(FALSE)
+      ENDIF
+      IF (NOT ((iToolNo>=0) AND (iToolNo<=maxToolNo))) THEN
+         RETURN(FALSE)
+      ENDIF
+      IF (iToolNo==go123ToolID) THEN
+         RETURN(TRUE)
+      ELSE
+         RETURN(FALSE)
+      ENDIF
+      
+   ENDFCT
+   
+;ENDFOLD (Check ToolID)
+
+GLOBAL DEF AC_Request_to_enter( )
+   ;FOLD Details
+      ;FOLD Declaration
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         
+         IF di006RequestToEnter AND NOT (dipw1_GunAtWork OR dipw2_GunAtWork OR dipw3_GunAtWork OR do932GripperInProcess OR do931BrakeTestInProcess OR do930MasterRefInProcess) THEN     ;NUT / GRIPPER / BRAKETEST / MASTERREF  
+            doCriticalWZ = FALSE     ; request to enter allowed!            
+            WAIT FOR (di006RequestToEnter)==FALSE
+         ELSE
+            doCriticalWZ = TRUE     ; request to enter not allowed!          
+         ENDIF
+         
+         IF (doCriticalWZ AND NOT $MOVE_ENABLE) THEN
+            $LOOP_MSG[] = " Critical Process interrupted by General Motion enable                                                                          "
+         ENDIF
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (AC_Request_to_enter)
+
+GLOBAL DEF AC_Process_Count(eProcessCount:IN)
+   ;FOLD Details
+   ; INIT: Reset the current Process Counter
+   ; Count1up: add 1 after a successful weld, clinch or rivet
+   ; Check: verify all process points are done, otherwise set do047QualityFault
+      ;FOLD Declaration
+         DECL MyCountCmd eProcessCount
+         INT ResetStyle, ResetOption 
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+      geProcessCount=eProcessCount
+         SWITCH eProcessCount
+            CASE #INIT
+               do047QualityFault = FALSE
+               IF bResetProcessCount THEN
+                  FOR ResetStyle = 1 TO 31
+                     FOR ResetOption = 1 TO 255
+                        WeldCount[ResetStyle,ResetOption] = 0 
+                     ENDFOR
+                  ENDFOR
+                  bResetProcessCount=FALSE
+               ENDIF
+            CASE #Count1up
+               SWITCH  nStyle 
+                  CASE 1   ; select with nStyle
+                     SWITCH  nOption 
+                        CASE 1,2,3,4,5,6,7,8,9   ; select with nOption
+                           WeldCount[nStyle,nOption] = WeldCount[nStyle,nOption] + 1 
+                        DEFAULT
+                           ; wrong option selected
+                           do047QualityFault = TRUE
+                     ENDSWITCH
+                  DEFAULT
+                     ; wrong style selected
+                     do047QualityFault = TRUE
+               ENDSWITCH
+            CASE #Check
+               WAIT FOR TRUE
+               IF ((nStyle>0) AND (nOption>0)) THEN
+                  do047QualityFault = (WeldCount[nStyle,nOption]<>WeldNoRequired[nStyle,nOption]) 
+               ELSE
+                  ; nStyle or nOption invalid
+                  do047QualityFault =TRUE
+               ENDIF         
+               IF do047QualityFault THEN
+                  WAIT SEC 5
+               ENDIF
+               bResetProcessCount=TRUE
+         ENDSWITCH
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (AC_Process_Count)
+
+GLOBAL DEF AutomationCore_Spare1( )
+   ;FOLD Details
+      ;FOLD Declaration
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (AutomationCore_Spare1)

@@ -1,0 +1,7 @@
+# Archive files are kept byte-for-byte as the KRC4 wrote them (CRLF, ANSI).
+# No end-of-line conversion of any kind.
+* -text
+
+# Documentation and tools are plain LF text.
+*.md text eol=lf
+*.py text eol=lf

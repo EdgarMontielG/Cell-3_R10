@@ -1,0 +1,62 @@
+&ACCESS REO
+&COMMENT Customized Subroutines
+&PARAM KUKATPGLUE_VERSION = 4.0.0
+DEF GLUE_USR()
+  ;FOLD MAIN PROGRAM
+  ;FOLD {H}
+  ; ---------------------------------------------
+  ; --- Created: 2003/01/24                   ---
+  ; ---                                       ---
+  ; --- GLUETECH User routines                ---
+  ; ---                                       ---
+  ; --- Changes:                              ---
+  ; ---                                       ---
+  ; ---                                       ---
+  ; ---------------------------------------------
+  ;ENDFOLD
+END
+;ENDFOLD MAIN PROGRAM
+;FOLD SUBROUTINES 
+;FOLD GLUE_UserPLCInit 
+GLOBAL DEF GLUE_UserPLCInit ()
+
+
+END
+;ENDFOLD (GLUE_UserPLCInit)
+;FOLD GLUE_UserPLC
+GLOBAL DEF GLUE_UserPLC ()
+
+
+END
+;ENDFOLD (GLUE_UserPLC)
+;FOLD GLUE_UserInit
+GLOBAL DEF GLUE_UserInit ()
+
+;do832GlueInProcess=TRUE
+
+END
+;ENDFOLD (GLUE_UserInit)
+;FOLD GLUE_UserBegin
+GLOBAL DEF GLUE_UserBegin ()
+
+
+END
+;ENDFOLD (GLUE_UserBegin)
+;FOLD GLUE_UserFinish
+GLOBAL DEF GLUE_UserFinish ()
+
+
+END
+;ENDFOLD (GLUE_UserFinish)
+;FOLD GLUE_UserTechStop
+GLOBAL DEF GLUE_UserTechStop ()
+
+
+END
+;ENDFOLD (GLUE_UserTechStop)
+;FOLD GLUE_UserRestart
+GLOBAL DEF GLUE_UserRestart ()
+
+
+END
+;ENDFOLD (GLUE_UserRestart)

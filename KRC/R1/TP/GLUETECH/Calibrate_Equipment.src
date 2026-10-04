@@ -1,0 +1,1959 @@
+&ACCESS RV
+&REL 1
+&COMMENT CALIBRATION OF DISPENSE EQUIPMENT
+&PARAM DISKPATH = KRC:\R1\TP\GlueTech
+&PARAM KUKATPGLUE_VERSION = 4.2.0
+DEF CALIBRATE_EQUIPMENT( )
+  ;FOLD {H}
+  ; ---------------------------------------------------
+  ; --- Created: 2000/07/28                         ---
+  ; ---                                             ---
+  ; --- GLUETECH Calibration Routines               ---
+  ; ---                                             ---
+  ; --- Changes: 2000/08/03 Equipment 2 added       ---
+  ; ---          2000/08/03 Beadshaping added       ---
+  ; ---          2000/11/08 Toolselection added     ---
+  ; ---          2002/12/17 Equipment 3 added       ---
+  ; ---          2002/12/17 Second, third gun added ---
+  ; ---          2007/02/26 Fourth gun added        ---
+  ; ---          2013/11/29 Equipment 4 added       ---
+  ; ---                                             ---
+  ; ---------------------------------------------------
+  ;ENDFOLD
+  ;FOLD Do not edit - press START button
+  ;ENDFOLD
+  ;FOLD System program to install dispense equipment
+    IF $PRO_STATE0<>#P_ACTIVE THEN
+      MsgNotifyGlue("SubmitNotActive", 1, 15)
+      WAIT FOR $PRO_STATE0==#P_ACTIVE
+    ENDIF
+    CloseAllGuns()
+    DoAbort = FALSE
+    bPointsTouched = FALSE
+    bPointsChecked = FALSE
+    bPointsMarked = FALSE
+    bFirstGunDefined = FALSE
+    AskDebugOpt()
+    iAnswer = SetMessage(#DIALOG, "GlueCal", "UseDefaultCalibrationSpeed", "skYes|skNo||||| ", 0)
+    DebugOptHalt()
+    SWITCH iAnswer
+      CASE 1
+        dCalibrationSpeed = 0.4
+      CASE 2
+        dCalibrationSpeed = GetCalibrationSpeed()
+      DEFAULT
+        iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+    ENDSWITCH
+    DebugOptHalt()
+    GetInitValues (#eAllValues)
+    ;FOLD Check installation settings
+      CheckInstallSettings()
+    ;ENDFOLD
+    LOOP
+      iAnswer = SetMessage(#DIALOG, "GlueCal", "WhatToDo", "skAll|skTestTCP|skGunOnOff|skAnaDelay|skAnaSwi||skEnd", 0)
+      SWITCH iAnswer
+        CASE 1
+          ;FOLD Verify TCP
+            VerifyTCP()
+            DebugOptHalt()
+          ;ENDFOLD
+          ;FOLD Define gun open and gun close delay
+            GunDelay()
+            DebugOptHalt()
+          ;ENDFOLD
+          ;FOLD Define equipment delay
+            EquipmentDelay()
+            DebugOptHalt()
+          ;ENDFOLD
+           ;FOLD Define equipment reaction for offset
+            AnalogOffset()
+            DebugOptHalt()
+          ;ENDFOLD
+        CASE 2
+          ;FOLD Verify TCP
+            VerifyTCP()
+          ;ENDFOLD
+        CASE 3
+          ;FOLD Define gun open and gun close delay
+            GunDelay()
+            bFirstGunDefined = TRUE
+          ;ENDFOLD
+        CASE 4
+           ;FOLD Define equipment delay
+            EquipmentDelay()
+          ;ENDFOLD
+        CASE 5
+           ;FOLD Define equipment reaction for offset
+            AnalogOffset()
+          ;ENDFOLD
+        CASE 6
+        CASE 7
+          DebugOptHalt()
+          ANALOG_IS_ACTIVE=FALSE
+          DoAbort = TRUE
+          HALT
+        DEFAULT
+          iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+      ENDSWITCH
+    ENDLOOP
+  ;ENDFOLD
+;FOLD END {H}
+  END
+;ENDFOLD
+
+;FOLD ---- Local Subroutines ----
+; -----------------------------------------
+; Local Subroutines and Functions
+; -----------------------------------------
+;ENDFOLD
+;FOLD Installation Setting {H}
+DEF CheckInstallSettings()
+  DebugOptHalt()
+  IF (bCheckInstallSettings == TRUE) THEN
+    iAnswer = SetMessage(#DIALOG, "GlueCal", "SettingsAlreadyChecked", "skYes|skNo||||| ", 0)
+    SWITCH iAnswer
+      CASE 1
+        ; Do nothing and continue
+      CASE 2
+        ; Exit from routine
+        RETURN
+      DEFAULT
+        iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+    ENDSWITCH
+  ENDIF
+  bCheckInstallSettings = FALSE
+  DebugOptHalt()
+  IF ($ACC_MA.CP < 10.0) THEN
+    iAnswer = SetMessage(#DIALOG, "GlueCal", "$ACC_MA.CP < 10.0 (/R1/$MACHINE.DAT)", "skOK|||||| ", 0)
+  ENDIF
+  IF ($ACC_MA.ORI1 < 1000) THEN
+    iAnswer = SetMessage(#DIALOG, "GlueCal", "$ACC_MA.ORI1 < 1000 (/R1/$MACHINE.DAT)", "skOK|||||| ", 0)
+  ENDIF
+  IF ($ACC_MA.ORI2 < 1000) THEN
+    iAnswer = SetMessage(#DIALOG, "GlueCal", "$ACC_MA.ORI2 < 1000 (/R1/$MACHINE.DAT)", "skOK|||||| ", 0)
+  ENDIF
+  IF ($GEARTORQ_MON <> TRUE) THEN
+    iAnswer = SetMessage(#DIALOG, "GlueCal", "$GEARTORQ_MON <> TRUE (/R1/$MACHINE.DAT)", "skOK|||||| ", 0)
+  ENDIF
+  IF ($RED_ACC_CPC > 3) THEN
+    iAnswer = SetMessage(#DIALOG, "GlueCal", "$RED_ACC_CPC > 3 (/R1/$MACHINE.DAT)", "skOK|||||| ", 0)
+  ENDIF
+  bCheckInstallSettings = TRUE
+END
+;ENDFOLD
+;FOLD Verify TCP {H}
+  DEF VerifyTCP()
+    DECL INT n
+    DECL BOOL bIsToolCalibrated
+    DECL BOOL bEndCheckTool
+    DECL INT iSelectedTool
+
+    AskDebugOpt()
+    DebugOptHalt()
+    IF (bVerifyTCP == TRUE) THEN
+      iAnswer = SetMessage(#DIALOG, "GlueCal", "CheckToolsAgain", "skYes|skNo||||| ", 0)
+      SWITCH iAnswer
+        CASE 1
+          ; Do nothing and continue
+        CASE 2
+          ; Exit from routine
+          RETURN
+        DEFAULT
+          iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+      ENDSWITCH
+    ENDIF
+    DebugOptHalt()
+    bVerifyTCP = FALSE
+    BAS (#INITMOV,0 )
+    bEndCheckTool=FALSE
+    REPEAT 
+      iAnswer = SetMessage(#DIALOG, "GlueCal", "WhichTool", "1|2|3|4|5|skMore|skEnd", 0)
+      SWITCH iAnswer
+        CASE 6
+          ; more selected
+          iAnswer = SetMessage(#DIALOG, "GlueCal", "WhichTool", "6|7|8|9|10|skMore|skEnd", 0)
+          SWITCH iAnswer
+            CASE 6
+              ; more selected
+              iAnswer = SetMessage(#DIALOG, "GlueCal", "WhichTool", "11|12|13|14|15|16|skEnd", 0)
+              SWITCH iAnswer
+                CASE 7
+                  ; end selected
+                  bEndCheckTool = TRUE
+                DEFAULT
+                  iSelectedTool = iAnswer + 10
+              ENDSWITCH
+            CASE 7
+              ; end selected
+              bEndCheckTool = TRUE
+            DEFAULT
+              iSelectedTool = iAnswer + 5
+          ENDSWITCH
+        CASE 7
+          ; end selected
+          bEndCheckTool=TRUE
+        DEFAULT
+          iSelectedTool = iAnswer
+      ENDSWITCH
+      IF NOT bEndCheckTool THEN
+        bIsToolCalibrated = IsToolCalibrated (iSelectedTool )
+        IF (bIsToolCalibrated == FALSE) THEN
+          iAnswer = SetMessage(#DIALOG, "GlueCal", "VerifyTCP_CalibrateToolFirst", "skOK|||||| ", 0)
+          DoAbort = TRUE
+          HALT
+        ENDIF
+        IF (bIsToolCalibrated == FALSE) THEN
+          iAnswer = SetMessage(#DIALOG, "GlueCal", "VerifyTCP_CalibrateToolFirst", "skOK|||||| ", 0)
+          DoAbort = TRUE
+          HALT
+        ENDIF
+        DebugOptHalt()
+        SWITCH UsedTools[iSelectedTool]
+          CASE #eRobotTool
+            iAnswer = SetMessage(#DIALOG, "GlueCal", "VerifyTCP_MoveTCPtoRefPos", "skOK|||||| ", iSelectedTool)
+            DoCheckMotion(iSelectedTool)
+          CASE #eExtTool
+            iAnswer = SetMessage(#DIALOG, "GlueCal", "VerifyTCP_MovePartToTCP", "skOK|||||| ", iSelectedTool)
+            DoCheckMotion(iSelectedTool)
+          CASE #eNotUsed
+            ; nothing to do here
+          DEFAULT
+            iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+        ENDSWITCH
+      ENDIF
+    UNTIL bEndCheckTool==TRUE 
+    bVerifyTCP = TRUE
+  END
+;ENDFOLD
+
+;FOLD {H}
+ DEF GunDelay()
+;ENDFOLD
+;FOLD {H}
+;    DECL eGunDelay WhatToDo
+  DECL INT OldOvPro
+  DECL INT iMultiplier
+  DECL INT iPosOn
+  DECL INT iPosOff
+  DECL INT iCnt
+
+  ANALOG_IS_ACTIVE=TRUE
+  AskDebugOpt()
+  DebugOptHalt()
+  IF (bGunDelay == TRUE) THEN
+    iAnswer = SetMessage(#DIALOG, "GlueCal", "CalibrateGunDelaysAgain", "skYes|skNo||||| ", 0)
+    SWITCH iAnswer
+      CASE 1
+        ; Do nothing and continue
+      CASE 2
+        ; Exit from routine
+        RETURN
+      DEFAULT
+        iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+    ENDSWITCH
+  ENDIF
+  iRun = 0
+  DebugOptHalt()
+
+  SelectSystem()
+      
+  SWITCH iAnswer
+    CASE 1,2,3,4
+      DebugOptHalt()
+      
+      FOR iCnt=1 TO 4
+        SystemActive[iCnt]=FALSE
+      ENDFOR
+      SystemActive[iAnswer]=TRUE
+      GlueActData.SystemNo=iAnswer
+      iActualSystemNo=iAnswer
+      CheckGluingSystem(#YES)
+      SelectGun()
+      IF iSelectedGun == -1 THEN
+        ;cancel pressed
+        RETURN
+      ENDIF
+
+      SWITCH iNumberOfDispenseSystems
+        CASE 1
+          FOR iCnt=2 TO 4
+            bGunDelayMat[iCnt,1] = TRUE
+            bGunDelayMat[iCnt,2] = TRUE
+            bGunDelayMat[iCnt,3] = TRUE
+            bGunDelayMat[iCnt,4] = TRUE
+            bGunDelayAir[iCnt] = TRUE
+          ENDFOR
+        CASE 2
+          FOR iCnt=3 TO 4
+            bGunDelayMat[iCnt,1] = TRUE
+            bGunDelayMat[iCnt,2] = TRUE
+            bGunDelayMat[iCnt,3] = TRUE
+            bGunDelayMat[iCnt,4] = TRUE
+            bGunDelayAir[iCnt] = TRUE
+          ENDFOR
+        CASE 3
+          bGunDelayMat[4,1] = TRUE
+          bGunDelayMat[4,2] = TRUE
+          bGunDelayMat[4,3] = TRUE
+          bGunDelayMat[4,4] = TRUE
+          bGunDelayAir[4] = TRUE
+        CASE 4
+      ENDSWITCH
+      
+      IF (SettingData[iActualSystemNo].BeadShaping == #AIR) THEN
+        iAnswer = SetMessage(#DIALOG, "GlueCal", "CalibrateMaterialOrAir", "skMat|skAir|||||skCancel", 0)
+        DebugOptHalt()
+        SWITCH iAnswer
+          CASE 1
+            ; Calibrate gun on delay for material of equipment 1
+            WhatToDo[iActualSystemNo] = #eMaterialEquip
+            bGunDelayMat[iActualSystemNo,iSelectedGun] = FALSE
+            GunOnDelay = GunOnDelayMat
+            GunOffDelay = GunOffDelayMat
+          CASE 2
+            ; Calibrate gun on delay for air of equipment 1
+            IF (bGunDelayMat[iActualSystemNo,iSelectedGun] == FALSE) THEN
+              iAnswer = SetMessage(#DIALOG, "GlueCal", "CalibrateMaterialFirst", "skOK|||||| ", 0)
+              DebugOptHalt()
+              RETURN
+            ELSE
+              WhatToDo[iActualSystemNo] = #eAirEquip
+              bGunDelayAir[iActualSystemNo] = FALSE
+              GunOnDelay = GunOnDelayAir
+              GunOffDelay = GunOffDelayAir
+            ENDIF
+          CASE 7  
+            ; Exit from routine
+            RETURN
+          DEFAULT
+            iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+        ENDSWITCH
+      ELSE
+        WhatToDo[iActualSystemNo] = #eMaterialEquip
+        bGunDelayMat[iActualSystemNo,iSelectedGun] = FALSE
+        GunOnDelay = GunOnDelayMat
+        GunOffDelay = GunOffDelayMat
+      ENDIF
+      
+    CASE 7
+      ; Cancel selected
+      RETURN
+    DEFAULT
+      iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+  ENDSWITCH
+    
+  bGunDelay = FALSE
+  bGunOpenOK = FALSE
+  bGunCloseOK = FALSE
+  
+  FOR iCnt=1 TO 4
+    AoMatFlowInit(iCnt, dGunOnMaterial[iCnt])
+    AoBeadShpInit(iCnt, dGunOnAir[iCnt])
+  ENDFOR
+
+  IF NOT bPointsTouched THEN
+    iAnswer = SetMessage(#DIALOG, "GlueCal", "FindGunOnAndGunOffDelay", "skOK|||||| ", 0)
+    bPointsTouched=TRUE
+  ENDIF
+  OldOvPro = $OV_PRO
+  WHILE   ($MODE_OP <> #T2) 
+    iAnswer = SetMessage(#DIALOG, "GlueCal", "SwitchModeOPtoT2", "skOK|||||| ", 0)
+    WAIT SEC 0.5
+  ENDWHILE
+  IF ($MODE_OP == #T2) THEN
+    $OV_PRO = 10
+  ENDIF
+  BAS (#INITMOV,0 )
+  DebugOptHalt()
+  PTP $POS_ACT
+  IF bPointsChecked THEN
+    GOTO NoMovement
+  ENDIF
+;ENDFOLD
+
+;FOLD LIN StartPath  Vel= 0.8 m/s CalDat Tool[1] Base[0];%{PE}%R 4.1.7,%MKUKATPBASIS,%CMOVE,%VLIN,%P 1:LIN, 2:StartPath, 3:, 5:0.8, 7:CalDat
+$BWDSTART = FALSE
+LDAT_ACT=LCalDat
+BAS(#CP_DAT)
+FDAT_ACT=FStartPath
+BAS(#FRAMES)
+BAS(#VEL_CP,0.8)
+LIN XStartPath 
+;ENDFOLD
+;FOLD LIN EndPath  Vel= 0.8 m/s CalDat Tool[1] Base[0];%{PE}%R 4.1.7,%MKUKATPBASIS,%CMOVE,%VLIN,%P 1:LIN, 2:EndPath, 3:, 5:0.8, 7:CalDat
+$BWDSTART = FALSE
+LDAT_ACT=LCalDat
+BAS(#CP_DAT)
+FDAT_ACT=FEndPath
+BAS(#FRAMES)
+BAS(#VEL_CP,0.8)
+LIN XEndPath 
+;ENDFOLD
+  
+;FOLD {H}
+  NoMovement:
+  REPEAT
+    DebugOptHalt()
+    SWITCH iRun
+      CASE 0
+        DebugOptHalt()
+      CASE 1
+        DebugOptHalt()
+        WAIT FOR TRUE
+        IF NOT ($DISTANCE > iMinimumDistance) THEN
+          iAnswer = SetMessage(#DIALOG, "GlueCal", "DistanceTooShort", "skOK|||||| ", 0)
+          DebugOptHalt()
+          iRun = 0
+        ELSE
+          bPointsChecked = TRUE 
+          ;iPosOn = $DISTANCE/20*(-11)
+          IF NOT bPointsMarked THEN
+            iPosOn = $DISTANCE*(-1) + iPosOnDistance
+            TRIGGER WHEN PATH = iPosOn DELAY = 0 DO GetGunPos() PRIO = -1
+          ENDIF
+        ENDIF
+      CASE 2
+        DebugOptHalt()
+        ;iPosOff = $DISTANCE/20*(-7)
+        IF NOT bPointsMarked THEN
+          iPosOff = - iPosOffDistance
+          TRIGGER WHEN PATH = iPosOff DELAY = 0 DO GetGunPos() PRIO = -1
+          bPointsMarked = TRUE
+        ENDIF 
+      CASE 3
+        DebugOptHalt()
+        IF (SystemActive[1] == TRUE) THEN
+          DoProgNoUp(1, iCalibProg)
+          DoStartSysUp(1, TRUE)
+        ELSE
+          IF (SystemActive[2] == TRUE) THEN
+            DoProgNoUp(2, iCalibProg)
+            DoStartSysUp(2, TRUE)
+          ELSE
+            IF (SystemActive[3] == TRUE) THEN
+              DoProgNoUp(3, iCalibProg)
+              DoStartSysUp(3, TRUE)
+            ELSE
+              DoProgNoUp(4, iCalibProg)
+              DoStartSysUp(4, TRUE)
+            ENDIF
+          ENDIF
+        ENDIF
+        WAIT SEC 0.5
+        SWITCH WhatToDo[iActualSystemNo]
+          CASE #eMaterialEquip
+            SysGunTriggerUp(iActualSystemNo, iSelectedGun, 0, GunOnDelay, TRUE)
+          CASE #eAirEquip
+            SysGunTriggerUp(iActualSystemNo, 1, 0, GunOnDelayMat, TRUE)
+            AirTriggerUp(iActualSystemNo, 0, GunOnDelay, TRUE)
+          DEFAULT
+            iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+        ENDSWITCH
+        $APO.CDIS = 200.0
+        BAS(#VEL_CP, dCalibrationSpeed)
+        BAS (#ACC_GLUE, 100.0)
+        DebugOptHalt()
+        LIN XGunOn C_DIS
+        SWITCH WhatToDo[iActualSystemNo]
+          CASE #eMaterialEquip
+            SysGunTriggerUp(iActualSystemNo, iSelectedGun, 0, GunOffDelay, FALSE)
+          CASE #eAirEquip
+            SysGunTriggerUp(iActualSystemNo, 1, 0, GunOffDelay, FALSE)
+            AirTriggerUp(iActualSystemNo, 0, GunOffDelay, FALSE)
+          DEFAULT
+            iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+        ENDSWITCH
+        $APO.CDIS = 200.0
+        BAS(#VEL_CP, dCalibrationSpeed)
+        BAS (#ACC_GLUE, 100.0)
+        DebugOptHalt()
+        LIN XGunOff C_DIS
+      DEFAULT
+        iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+    ENDSWITCH
+    BAS(#VEL_CP, dCalibrationSpeed)
+    BAS(#ACC_GLUE, 100.0)
+    DebugOptHalt()
+    IF NOT bFirstGunDefined THEN
+      LIN XEndPath
+    ELSE
+      IF iRun == 3 THEN
+        LIN XEndPath
+      ENDIF
+    ENDIF
+;ENDFOLD
+
+;FOLD {H}
+    WAIT FOR TRUE
+    SWITCH iRun
+      CASE 0
+        DebugOptHalt()
+        iRun = 1
+      CASE 1
+        DebugOptHalt()
+        iRun = 2
+      CASE 2
+        IF SettingData[GlueActData.SystemNo].BeadShaping==#E_SWIRL THEN
+          DoAirOnUp(GlueActData.SystemNo, TRUE)
+        ENDIF  
+        iRun = 3
+        IF $OV_PRO < 100 THEN
+          iAnswer = SetMessage(#DIALOG, "GlueCal", "AckSetOvProTo100", "skOK|||||| ", 0)
+        ENDIF
+        DebugOptHalt()
+        $OV_PRO = 100
+      CASE 3
+        DebugOptHalt()
+        FillDoser()
+        IF (bGunOpenOK == FALSE) THEN
+          iAnswer = SetMessage(#DIALOG, "GlueCal", "IsGunOpenOK", "skYes|skNo|skRepeat|||| ", 0)
+          SWITCH iAnswer
+            CASE 1
+              bGunOpenOK = TRUE
+              DebugOptHalt()
+            CASE 2
+              bGunOpenOK = FALSE
+              iAnswer = SetMessage(#DIALOG, "GlueCal", "ShiftWhichDirection", "skEarlier|skLater||||| ", 0)
+              DebugOptHalt()
+              SWITCH iAnswer
+                CASE 1
+                  iMultiplier = -1
+                CASE 2
+                  iMultiplier = 1
+                DEFAULT
+                  iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+              ENDSWITCH
+              iAnswer = SetMessage(#DIALOG, "GlueCal", "ShiftOpenBy", "sk1mm|sk2mm|sk5mm|sk10mm|sk20mm|sk25mm|sk50mm", 0)
+              DebugOptHalt()
+              SWITCH iAnswer
+                CASE 1
+                  GunOnDelay = GunOnDelay + CalcDelayTime (iMultiplier * 1)
+                CASE 2
+                  GunOnDelay = GunOnDelay + CalcDelayTime (iMultiplier * 2)
+                CASE 3
+                  GunOnDelay = GunOnDelay + CalcDelayTime (iMultiplier * 5)
+                CASE 4
+                  GunOnDelay = GunOnDelay + CalcDelayTime (iMultiplier * 10)
+                CASE 5
+                  GunOnDelay = GunOnDelay + CalcDelayTime (iMultiplier * 20)
+                CASE 6
+                  GunOnDelay = GunOnDelay + CalcDelayTime (iMultiplier * 25)
+                CASE 7
+                  GunOnDelay = GunOnDelay + CalcDelayTime (iMultiplier * 50)
+                DEFAULT
+                  iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+              ENDSWITCH
+            CASE 3
+              ; Repeat with same parameters
+            DEFAULT
+              iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+          ENDSWITCH
+        ENDIF
+        IF (bGunCloseOK == FALSE) THEN
+          iAnswer = SetMessage(#DIALOG, "GlueCal", "IsGunCloseOK", "skYes|skNo|skRepeat|||| ", 0)
+          SWITCH iAnswer
+            CASE 1 
+              DebugOptHalt()
+              bGunCloseOK = TRUE
+            CASE 2
+              bGunCloseOK = FALSE
+              iMultiplier = 0
+              iAnswer = SetMessage(#DIALOG, "GlueCal", "ShiftWhichDirection", "skEarlier|skLater||||| ", 0)
+              DebugOptHalt()
+              SWITCH iAnswer
+                CASE 1
+                  iMultiplier = -1
+                CASE 2
+                  iMultiplier = 1
+                DEFAULT
+                  iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+              ENDSWITCH
+              iAnswer = SetMessage(#DIALOG, "GlueCal", "ShiftCloseBy", "sk1mm|sk2mm|sk5mm|sk10mm|sk20mm|sk25mm|sk50mm", 0)
+              SWITCH iAnswer
+                CASE 1
+                  GunOffDelay = GunOffDelay + CalcDelayTime (iMultiplier * 1)
+                CASE 2
+                  GunOffDelay = GunOffDelay + CalcDelayTime (iMultiplier * 2)
+                CASE 3
+                  GunOffDelay = GunOffDelay + CalcDelayTime (iMultiplier * 5)
+                CASE 4
+                  GunOffDelay = GunOffDelay + CalcDelayTime (iMultiplier * 10)
+                CASE 5
+                  GunOffDelay = GunOffDelay + CalcDelayTime (iMultiplier * 20)
+                CASE 6
+                  GunOffDelay = GunOffDelay + CalcDelayTime (iMultiplier * 25)
+                CASE 7
+                  GunOffDelay = GunOffDelay + CalcDelayTime (iMultiplier * 50)
+                DEFAULT
+                  iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+              ENDSWITCH
+            CASE 3
+              ; Repeat with same parameters
+            DEFAULT
+              iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+          ENDSWITCH
+        ENDIF
+      DEFAULT
+        iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+    ENDSWITCH
+    BAS(#VEL_CP, dCalibrationSpeed)
+    DebugOptHalt()
+    IF NOT bFirstGunDefined THEN
+      LIN XStartPath
+    ELSE
+      IF iRun == 3 THEN
+        LIN XStartPath
+      ENDIF
+    ENDIF
+  UNTIL (bGunCloseOK == TRUE) AND (bGunOpenOK == TRUE)
+  DebugOptHalt()
+  IF (VARSTATE ("OldOvPro") <> #INITIALIZED) THEN
+    OldOvPro = 10
+  ENDIF
+  $OV_PRO = OldOvPro
+  ResetOutputs()
+  iResult = GunOnDelay
+  iAnswer = SetMessage(#DIALOG, "GlueCal", "AssignResultGunOnDelay", "skYes|skNo||||| ", iResult)
+  DebugOptHalt()
+  SWITCH iAnswer
+    CASE 1
+      SWITCH WhatToDo[iActualSystemNo]
+        CASE #eMaterialEquip
+          Equipment[iActualSystemNo,iSelectedGun].GunOnDelay = GunOnDelay
+          bGunDelayMat[iActualSystemNo,iSelectedGun] = TRUE
+        CASE #eAirEquip
+          Equipment[iActualSystemNo,1].AirOnDelay = GunOnDelay
+          bGunDelayAir[iActualSystemNo] = TRUE
+        DEFAULT
+          iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+      ENDSWITCH
+    CASE 2
+      iAnswer = SetMessage(#DIALOG, "GlueCal", "KeepOldDelay", "skOK|||||| ", 0)
+    DEFAULT
+      iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+  ENDSWITCH
+  iResult = GunOffDelay
+  iAnswer = SetMessage(#DIALOG, "GlueCal", "AssignResultGunOffDelay", "skYes|skNo||||| ", iResult)
+  DebugOptHalt()
+  SWITCH iAnswer
+    CASE 1
+      SWITCH WhatToDo[iActualSystemNo]
+        CASE #eMaterialEquip
+          Equipment[iActualSystemNo,iSelectedGun].GunOffDelay = GunOffDelay
+          bGunDelayMat[iActualSystemNo,iSelectedGun] = bGunDelayMat[iActualSystemNo,iSelectedGun] AND TRUE
+        CASE #eAirEquip
+          Equipment[iActualSystemNo,1].AirOffDelay = GunOffDelay
+          bGunDelayAir[iActualSystemNo] = bGunDelayAir[iActualSystemNo] AND TRUE
+        DEFAULT
+          iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+      ENDSWITCH
+    CASE 2
+      iAnswer = SetMessage(#DIALOG, "GlueCal", "KeepOldDelay", "skOK|||||| ", 0)
+    DEFAULT
+      iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+  ENDSWITCH
+  bGunDelay = bGunDelayMat[1,1] AND bGunDelayMat[1,2] AND bGunDelayMat[1,3] AND bGunDelayMat[1,4] AND bGunDelayMat[2,1] AND bGunDelayMat[2,2] AND bGunDelayMat[2,3] AND bGunDelayMat[2,4] AND bGunDelayMat[3,1] AND bGunDelayMat[3,2] AND bGunDelayMat[3,3] AND bGunDelayMat[3,4] AND bGunDelayMat[4,1] AND bGunDelayMat[4,2] AND bGunDelayMat[4,3] AND bGunDelayMat[4,4] AND bGunDelayAir[1] AND bGunDelayAir[2] AND bGunDelayAir[3] AND bGunDelayAir[4]
+;ENDFOLD
+;FOLD {H}
+  END
+;ENDFOLD
+
+;FOLD Equipment Delay {H}
+  DEF EquipmentDelay()
+;ENDFOLD
+  ;FOLD {H}
+;    DECL eGunDelay WhatToDo
+    DECL INT OldOvPro
+    DECL INT iMultiplier
+    DECL REAL dGunOpenAir
+    DECL REAL dGunCloseAir
+    DECL INT iCnt
+    
+    ANALOG_IS_ACTIVE=TRUE
+    AskDebugOpt()
+    DebugOptHalt()
+    IF (bEquipmentDelay == TRUE) THEN
+      iAnswer = SetMessage(#DIALOG, "GlueCal", "CalibrateEquipmentDelaysAgain", "skYes|skNo||||| ", 0)
+      SWITCH iAnswer
+        CASE 1
+          ; Do nothing and continue
+        CASE 2
+          ; Exit from routine
+          RETURN
+        DEFAULT
+          iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+      ENDSWITCH
+    ENDIF
+    DebugOptHalt()
+
+    SelectSystem()
+    
+    SWITCH iAnswer
+      CASE 1,2,3,4
+        DebugOptHalt()
+        FOR iCnt=1 TO 4
+          SystemActive[iCnt]=FALSE
+        ENDFOR
+        SystemActive[iAnswer]=TRUE
+        GlueActData.SystemNo=iAnswer
+        iActualSystemNo=iAnswer
+        CheckGluingSystem(#YES)
+        SelectGun()
+        IF iSelectedGun == -1 THEN
+          ;cancel pressed
+          RETURN
+        ENDIF
+        InitGunTimesEquip(iActualSystemNo)
+
+        SWITCH iNumberOfDispenseSystems
+          CASE 1
+            FOR iCnt=2 TO 4
+              bMatEquipmentDelay[iCnt,1] = TRUE
+              bMatEquipmentDelay[iCnt,2] = TRUE
+              bMatEquipmentDelay[iCnt,3] = TRUE
+              bMatEquipmentDelay[iCnt,4] = TRUE
+              bAirEquipmentDelay[iCnt] = TRUE
+            ENDFOR
+          CASE 2
+            FOR iCnt=3 TO 4
+              bMatEquipmentDelay[iCnt,1] = TRUE
+              bMatEquipmentDelay[iCnt,2] = TRUE
+              bMatEquipmentDelay[iCnt,3] = TRUE
+              bMatEquipmentDelay[iCnt,4] = TRUE
+              bAirEquipmentDelay[iCnt] = TRUE
+            ENDFOR
+          CASE 3
+            bMatEquipmentDelay[4,1] = TRUE
+            bMatEquipmentDelay[4,2] = TRUE
+            bMatEquipmentDelay[4,3] = TRUE
+            bMatEquipmentDelay[4,4] = TRUE
+            bAirEquipmentDelay[4] = TRUE
+          CASE 4
+        ENDSWITCH
+        
+        IF (SettingData[iActualSystemNo].BeadShaping == #AIR) THEN
+          dGunOpenAir = Equipment[iActualSystemNo,1].AirOnDelay
+          dGunCloseAir = Equipment[iActualSystemNo,1].AirOffDelay
+          iAnswer = SetMessage(#DIALOG, "GlueCal", "CalibrateMaterialOrAir", "skMat|skAir|||||skCancel", 0)
+          DebugOptHalt()
+          SWITCH iAnswer
+            CASE 1
+              ; Calibrate material delay of equipment
+              WhatToDo[iActualSystemNo] = #eMaterialEquip
+              bMatEquipmentDelay[iActualSystemNo,iSelectedGun] = FALSE
+              AnalogDelay = MaterialDelay
+            CASE 2
+              ; Calibrate air delay of equipment
+              IF (bMatEquipmentDelay[iActualSystemNo,iSelectedGun] == FALSE) THEN
+                iAnswer = SetMessage(#DIALOG, "GlueCal", "CalibrateMaterialFirst", "skOK|||||| ", 0)
+                DebugOptHalt()
+                RETURN
+              ELSE
+                WhatToDo[iActualSystemNo] = #eAirEquip
+                bAirEquipmentDelay[iActualSystemNo] = FALSE
+                AnalogDelay = AirDelay
+              ENDIF
+            CASE 7  
+              ; Exit from routine
+              RETURN
+            DEFAULT
+              iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+          ENDSWITCH
+        ELSE
+          WhatToDo[iActualSystemNo] = #eMaterialEquip
+          bMatEquipmentDelay[iActualSystemNo,iSelectedGun] = FALSE
+          AnalogDelay = MaterialDelay
+        ENDIF
+      CASE 7
+        ; Cancel selected
+        RETURN
+      DEFAULT
+        iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+    ENDSWITCH
+
+    bEquipmentDelay = FALSE
+    bEquipDelayOK = FALSE
+    IF (SystemActive[1] == TRUE) THEN
+      MaterialFactor = dEquipDelayMat[1] / dCalibrationSpeed
+      AirFactor = dEquipDelayAir[1] / dCalibrationSpeed
+    ELSE
+      IF (SystemActive[2] == TRUE) THEN
+        MaterialFactor = dEquipDelayMat[2] / dCalibrationSpeed
+        AirFactor = dEquipDelayAir[2] / dCalibrationSpeed
+      ELSE
+        IF (SystemActive[3] == TRUE) THEN
+          MaterialFactor = dEquipDelayMat[3] / dCalibrationSpeed
+          AirFactor = dEquipDelayAir[3] / dCalibrationSpeed
+        ELSE
+          MaterialFactor = dEquipDelayMat[4] / dCalibrationSpeed
+          AirFactor = dEquipDelayAir[4] / dCalibrationSpeed
+        ENDIF
+      ENDIF
+    ENDIF
+    MaterialOffset = 0.0
+    AirOffset = 0.0
+    DebugOptHalt()
+    IF (SystemActive[1] == TRUE) THEN
+      DoProgNoUp(1, iCalibProg)
+      IF SettingData[1].BeadShaping<>#E_SWIRL THEN
+        DoStartSysUp(1, TRUE)
+      ENDIF
+    ELSE
+      IF (SystemActive[2] == TRUE) THEN
+        DoProgNoUp(2, iCalibProg)
+        IF SettingData[2].BeadShaping<>#E_SWIRL THEN
+          DoStartSysUp(2, TRUE)
+        ENDIF
+      ELSE
+        IF (SystemActive[3] == TRUE) THEN
+          DoProgNoUp(3, iCalibProg)
+          IF SettingData[3].BeadShaping<>#E_SWIRL THEN
+            DoStartSysUp(3, TRUE)
+          ENDIF
+        ELSE
+          DoProgNoUp(4, iCalibProg)
+          IF SettingData[4].BeadShaping<>#E_SWIRL THEN
+            DoStartSysUp(4, TRUE)
+          ENDIF
+        ENDIF
+      ENDIF
+    ENDIF
+    
+    FOR iCnt=1 TO 4
+      AoMatFlowInit(iCnt, 0.0)
+      IF SettingData[iCnt].BeadShaping<>#E_SWIRL THEN
+        AoBeadShpInit(iCnt, 0.0)
+      ELSE
+        AoBeadShpInit(iCnt, 0.8)
+        DoAirOnUp(iCnt, TRUE)
+        MaterialOffset = 0.1
+      ENDIF
+    ENDFOR
+
+    iAnswer = SetMessage(#DIALOG, "GlueCal", "FindMaterialDelay", "skOK|||||| ", 0)
+    IF (bCalibrateDebugOpt == TRUE) THEN
+      HALT
+    ENDIF
+    OldOvPro = $OV_PRO
+    WHILE ($MODE_OP <> #T2) 
+      iAnswer = SetMessage(#DIALOG, "GlueCal", "SwitchModeOPtoT2", "skOK|||||| ", 0)
+      WAIT SEC 0.5
+    ENDWHILE
+    BAS (#INITMOV,0 )
+    DebugOptHalt()
+    PTP $POS_ACT
+    IF ($MODE_OP == #T2) THEN
+      $OV_PRO = 10
+    ENDIF
+    IF NOT bIRAtStartPos() THEN
+      iAnswer = SetMessage(#DIALOG, "GlueCal", "AckRobotMotion", "skOK|||||| ", 0)
+    ENDIF
+    LDAT_ACT=LCalDat
+    BAS(#CP_DAT)
+    FDAT_ACT=FStartPath
+    BAS(#FRAMES)
+    BAS(#VEL_CP, dCalibrationSpeed)
+    DebugOptHalt()
+    LIN XStartPath
+    IF $OV_PRO < 100 THEN
+      iAnswer = SetMessage(#DIALOG, "GlueCal", "AckSetOvProTo100", "skOK|||||| ", 0)
+    ENDIF
+    DebugOptHalt()
+    OldOvPro = $OV_PRO
+    $OV_PRO = 100
+    SWITCH WhatToDo[iActualSystemNo]
+      CASE #eMaterialEquip
+        AoMatFlowOn(iActualSystemNo,MaterialFactor, MaterialOffset, AnalogDelay)
+      CASE #eAirEquip
+        AoMatFlowOn(iActualSystemNo,MaterialFactor, MaterialOffset, MaterialDelay)
+        AoBeadShpOn(iActualSystemNo,AirFactor, AirOffset, AnalogDelay)
+      DEFAULT
+        iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+    ENDSWITCH
+    REPEAT
+      DebugOptHalt()
+      SWITCH WhatToDo[iActualSystemNo]
+        CASE #eMaterialEquip
+          SysGunTriggerUp(iActualSystemNo, iSelectedGun, -300, dGunOpenMat, TRUE)
+          SysGunTriggerUp(iActualSystemNo, iSelectedGun, 200, dGunCloseMat, FALSE)
+          IF SettingData[iActualSystemNo].BeadShaping==#E_SWIRL THEN
+            StartSysTriggerUp(iActualSystemNo, -500, dGunOpenMat, TRUE)
+          ENDIF
+        CASE #eAirEquip
+          SysGunTriggerUp(iActualSystemNo, 1, -300, dGunOpenMat, TRUE)
+          SysGunTriggerUp(iActualSystemNo, 1, 200, dGunCloseMat, FALSE)
+          AirTriggerUp(iActualSystemNo, -300, dGunOpenAir, TRUE)
+          AirTriggerUp(iActualSystemNo, 200, dGunCloseAir, FALSE)
+        DEFAULT
+          iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+      ENDSWITCH
+      $APO.CDIS = dCalibrationSpeed * 6.25*7
+      BAS(#VEL_CP, dCalibrationSpeed)
+      BAS (#ACC_GLUE, 20.0)
+      DebugOptHalt()
+      LIN XGunOff C_DIS
+      DebugOptHalt()
+      LIN XEndPath
+      WAIT FOR TRUE
+      FillDoser()
+      IF (bEquipDelayOK == FALSE) THEN
+        iAnswer = SetMessage(#DIALOG, "GlueCal", "IsEquipmentDelayOK", "skYes|skNo|skRepeat|||| ", 0)
+        DebugOptHalt()
+        SWITCH iAnswer
+          CASE 1
+            bEquipDelayOK = TRUE
+          CASE 2
+            bEquipDelayOK = FALSE
+            iAnswer = SetMessage(#DIALOG, "GlueCal", "ShiftWhichDirection", "skEarlier|skLater||||| ", 0)
+            DebugOptHalt()
+            SWITCH iAnswer
+              CASE 1
+                iMultiplier = -1
+              CASE 2
+                iMultiplier = 1
+              DEFAULT
+                iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+            ENDSWITCH
+            iAnswer = SetMessage(#DIALOG, "GlueCal", "ShiftEquipmentDelayBy", "sk1mm|sk2mm|sk5mm|sk10mm|sk20mm|sk25mm|sk50mm", 0)
+            DebugOptHalt()
+            SWITCH iAnswer
+              CASE 1
+                AnalogDelay = AnalogDelay + (CalcDelayTime (iMultiplier * 1)) / 1000
+              CASE 2
+                AnalogDelay = AnalogDelay + (CalcDelayTime (iMultiplier * 2)) / 1000
+              CASE 3
+                AnalogDelay = AnalogDelay + (CalcDelayTime (iMultiplier * 5)) / 1000
+              CASE 4
+                AnalogDelay = AnalogDelay + (CalcDelayTime (iMultiplier * 10)) / 1000
+              CASE 5
+                AnalogDelay = AnalogDelay + (CalcDelayTime (iMultiplier * 20)) / 1000
+              CASE 6
+                AnalogDelay = AnalogDelay + (CalcDelayTime (iMultiplier * 25)) / 1000
+              CASE 7
+                AnalogDelay = AnalogDelay + (CalcDelayTime (iMultiplier * 50)) / 1000
+              DEFAULT
+                iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+            ENDSWITCH
+          CASE 3
+            ; Repeat with same parameters
+          DEFAULT
+            iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+        ENDSWITCH
+      ENDIF
+      SWITCH WhatToDo[iActualSystemNo]
+        CASE #eMaterialEquip
+          AoMatFlowOn(iActualSystemNo, MaterialFactor, MaterialOffset, AnalogDelay)
+         CASE #eAirEquip
+          AoMatFlowOn(iActualSystemNo, MaterialFactor, MaterialOffset, MaterialDelay)
+          AoBeadShpOn(iActualSystemNo, AirFactor, AirOffset, AnalogDelay)
+        DEFAULT
+          iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+      ENDSWITCH
+      WAIT FOR TRUE
+      IF (SystemActive[1] == TRUE) THEN
+        DoStartSysUp(1, TRUE)
+      ELSE
+        IF (SystemActive[2] == TRUE) THEN
+          DoStartSysUp(2, TRUE)
+        ELSE
+          IF (SystemActive[3] == TRUE) THEN
+            DoStartSysUp(3, TRUE)
+          ELSE
+            DoStartSysUp(4, TRUE)
+          ENDIF
+        ENDIF
+      ENDIF
+      iAnswer = SetMessage(#DIALOG, "GlueCal", "AckRobotMotion", "skOK|||||| ", 0)
+      BAS(#VEL_CP, dCalibrationSpeed)
+      BAS (#ACC_GLUE, 20.0)
+      DebugOptHalt()
+      LIN XStartPath
+    UNTIL (bEquipDelayOK == TRUE)
+    DebugOptHalt()
+    IF (VARSTATE ("OldOvPro") <> #INITIALIZED) THEN
+      OldOvPro = 10
+    ENDIF
+    $OV_PRO = OldOvPro
+    ResetOutputs()
+    iResult = AnalogDelay * 1000
+    iAnswer = SetMessage(#DIALOG, "GlueCal", "AssignResultEquipmentDelay", "skYes|skNo||||| ", iResult)
+    DebugOptHalt()
+    SWITCH iAnswer
+      CASE 1
+        SWITCH WhatToDo[iActualSystemNo]
+          CASE #eMaterialEquip
+            Equipment[iActualSystemNo,iSelectedGun].MaterialDelay = AnalogDelay*1000.
+            bMatEquipmentDelay[iActualSystemNo,iSelectedGun] = TRUE
+          CASE #eAirEquip
+            Equipment[iActualSystemNo,1].AirDelay = AnalogDelay*1000.
+            bAirEquipmentDelay[iActualSystemNo] = TRUE
+          DEFAULT
+            iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+        ENDSWITCH
+      CASE 2
+        iAnswer = SetMessage(#DIALOG, "GlueCal", "KeepOldDelay", "skOK|||||| ", 0)
+      DEFAULT
+        iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+    ENDSWITCH
+    bEquipmentDelay = bMatEquipmentDelay[1,1] AND bMatEquipmentDelay[1,2] AND bMatEquipmentDelay[1,3] AND bMatEquipmentDelay[1,4] AND bMatEquipmentDelay[2,1] AND bMatEquipmentDelay[2,2] AND bMatEquipmentDelay[2,3] AND bMatEquipmentDelay[2,4] AND bMatEquipmentDelay[3,1] AND bMatEquipmentDelay[3,2] AND bMatEquipmentDelay[3,3] AND bMatEquipmentDelay[3,4] AND bMatEquipmentDelay[4,1] AND bMatEquipmentDelay[4,2] AND bMatEquipmentDelay[4,3] AND bMatEquipmentDelay[4,4] AND bAirEquipmentDelay[1] AND bAirEquipmentDelay[2] AND bAirEquipmentDelay[3] AND bAirEquipmentDelay[4]
+  ;ENDFOLD
+;FOLD {H}
+  END
+;ENDFOLD
+
+;FOLD Define equipment reaction for offset {H}
+  DEF AnalogOffset()
+;ENDFOLD
+  ;FOLD {H}
+;    DECL eGunDelay WhatToDo
+    DECL INT OldOvPro
+    DECL INT iMultiplier
+    DECL INT iPos
+    DECL REAL dGunOpenAir
+    DECL REAL dGunCloseAir
+    DECL INT iCnt
+
+    ANALOG_IS_ACTIVE=TRUE
+    IF (bAnalogOffset == TRUE) THEN
+      iAnswer = SetMessage(#DIALOG, "GlueCal", "CalibrateOffsetReactionAgain", "skYes|skNo||||| ", 0)
+      SWITCH iAnswer
+        CASE 1
+          ; Do nothing and continue
+        CASE 2
+          ; Exit from routine
+          RETURN
+        DEFAULT
+          iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+      ENDSWITCH
+    ENDIF
+    AskDebugOpt()
+    DebugOptHalt()
+
+    SelectSystem()
+    
+    SWITCH iAnswer
+      CASE 1,2,3,4
+        DebugOptHalt()
+        FOR iCnt=1 TO 4
+          SystemActive[iCnt]=FALSE
+        ENDFOR
+        SystemActive[iAnswer]=TRUE
+        GlueActData.SystemNo=iAnswer
+        iActualSystemNo=iAnswer
+        CheckGluingSystem(#YES)
+        SelectGun()
+        IF iSelectedGun == -1 THEN
+          ;cancel pressed
+          RETURN
+        ENDIF
+        InitGunTimesEquip(iActualSystemNo)
+        
+        SWITCH iNumberOfDispenseSystems
+          CASE 1
+            FOR iCnt=2 TO 4
+              bAnalogOffsetMat[iCnt,1] = TRUE
+              bAnalogOffsetMat[iCnt,2] = TRUE
+              bAnalogOffsetMat[iCnt,3] = TRUE
+              bAnalogOffsetMat[iCnt,4] = TRUE
+              bAnalogOffsetAir[iCnt] = TRUE
+            ENDFOR
+          CASE 2
+            FOR iCnt=3 TO 4
+              bAnalogOffsetMat[iCnt,1] = TRUE
+              bAnalogOffsetMat[iCnt,2] = TRUE
+              bAnalogOffsetMat[iCnt,3] = TRUE
+              bAnalogOffsetMat[iCnt,4] = TRUE
+              bAnalogOffsetAir[iCnt] = TRUE
+            ENDFOR
+          CASE 3
+            bAnalogOffsetMat[4,1] = TRUE
+            bAnalogOffsetMat[4,2] = TRUE
+            bAnalogOffsetMat[4,3] = TRUE
+            bAnalogOffsetMat[4,4] = TRUE
+            bAnalogOffsetAir[4] = TRUE
+          CASE 4
+        ENDSWITCH
+        
+        MaterialDelay = Equipment[iActualSystemNo,iSelectedGun].MaterialDelay/1000.
+        AirDelay = Equipment[iActualSystemNo,1].AirDelay/1000.
+        IF (SettingData[iActualSystemNo].BeadShaping == #AIR) THEN
+          dGunOpenAir = Equipment[iActualSystemNo,1].AirOnDelay
+          dGunCloseAir = Equipment[iActualSystemNo,1].AirOffDelay
+          iAnswer = SetMessage(#DIALOG, "GlueCal", "CalibrateMaterialOrAir", "skMat|skAir|||||skCancel", 0)
+          DebugOptHalt()
+          SWITCH iAnswer
+            CASE 1
+              ; Calibrate material offset reaction of equipment 1
+              WhatToDo[iActualSystemNo] = #eMaterialEquip
+              bAnalogOffsetMat[iActualSystemNo,iSelectedGun] = FALSE
+              PosOffs = MaterialReactionPosOffs
+              NegOffs = MaterialReactionNegOffs
+            CASE 2
+              ; Calibrate air offset reaction of equipment 1
+              IF (bAnalogOffsetMat[iActualSystemNo,iSelectedGun] == FALSE) THEN
+                iAnswer = SetMessage(#DIALOG, "GlueCal", "CalibrateMaterialFirst", "skOK|||||| ", 0)
+                IF (bCalibrateDebugOpt == TRUE) THEN
+                  HALT
+                ENDIF
+                RETURN
+              ELSE
+                WhatToDo[iActualSystemNo] = #eAirEquip
+                bAnalogOffsetAir[iActualSystemNo] = FALSE
+                PosOffs = AirReactionPosOffs
+                NegOffs = AirReactionNegOffs
+              ENDIF
+            CASE 7  
+              ; Exit from routine
+              RETURN
+            DEFAULT
+              iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+          ENDSWITCH
+        ELSE
+          WhatToDo[iActualSystemNo] = #eMaterialEquip
+          bAnalogOffsetMat[iActualSystemNo,iSelectedGun] = FALSE
+          PosOffs = MaterialReactionPosOffs
+          NegOffs = MaterialReactionNegOffs
+        ENDIF
+      CASE 7
+        ; Cancel selected
+        RETURN
+      DEFAULT
+        iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+    ENDSWITCH
+
+    DebugOptHalt()
+    
+    bAnalogOffset = FALSE
+    bAnalogPosOffsetOK = FALSE
+    bAnalogNegOffsetOK = FALSE
+    IF (SystemActive[1] == TRUE) THEN
+      DoProgNoUp(1, iCalibProg)
+      IF SettingData[1].BeadShaping<>#E_SWIRL THEN
+        DoStartSysUp(1, TRUE)
+      ELSE
+        AoBeadShpInit(1, 0.6)
+        DoAirOnUp(1, TRUE)
+        WAIT SEC 1.0
+        DoStartSysUp(1, TRUE)
+      ENDIF
+      AoMatFlowInit(1, dAnalogOffsetLow[1])
+      IF (WhatToDo[1] == #eAirEquip) THEN
+        AoMatFlowInit(1, dAnalogOffsetHigh[1])
+        AoBeadShpInit(1, dAnalogOffsetLow[1])
+      ENDIF
+    ELSE
+      IF (SystemActive[2] == TRUE) THEN
+        DoProgNoUp(2, iCalibProg)
+        IF SettingData[2].BeadShaping<>#E_SWIRL THEN
+          DoStartSysUp(2, TRUE)
+        ELSE
+          AoBeadShpInit(2, 0.6)
+          DoAirOnUp(2, TRUE)
+          WAIT SEC 1.0
+          DoStartSysUp(2, TRUE)
+        ENDIF
+        AoMatFlowInit(2, dAnalogOffsetLow[2])
+        IF (WhatToDo[2] == #eAirEquip) THEN
+          AoMatFlowInit(2, dAnalogOffsetHigh[2])
+          AoBeadShpInit(2, dAnalogOffsetLow[2])
+        ENDIF
+      ELSE
+        IF (SystemActive[3] == TRUE) THEN
+          DoProgNoUp(3, iCalibProg)
+          IF SettingData[3].BeadShaping<>#E_SWIRL THEN
+            DoStartSysUp(3, TRUE)
+          ELSE
+            AoBeadShpInit(3, 0.6)
+            DoAirOnUp(3, TRUE)
+            WAIT SEC 1.0
+            DoStartSysUp(3, TRUE)
+          ENDIF
+          AoMatFlowInit(3, dAnalogOffsetLow[3])
+          IF (WhatToDo[3] == #eAirEquip) THEN
+            AoMatFlowInit(3, dAnalogOffsetHigh[3])
+            AoBeadShpInit(3, dAnalogOffsetLow[3])
+          ENDIF
+        ELSE
+          DoProgNoUp(4, iCalibProg)
+          IF SettingData[4].BeadShaping<>#E_SWIRL THEN
+            DoStartSysUp(4, TRUE)
+          ELSE
+            AoBeadShpInit(4, 0.6)
+            DoAirOnUp(4, TRUE)
+            WAIT SEC 1.0
+            DoStartSysUp(4, TRUE)
+          ENDIF
+          AoMatFlowInit(4, dAnalogOffsetLow[4])
+          IF (WhatToDo[4] == #eAirEquip) THEN
+            AoMatFlowInit(4, dAnalogOffsetHigh[4])
+            AoBeadShpInit(4, dAnalogOffsetLow[4])
+          ENDIF
+        ENDIF
+      ENDIF
+    ENDIF
+    iAnswer = SetMessage(#DIALOG, "GlueCal", "FindAnalogOffsetReaction", "skOK|||||| ", 0)
+    DebugOptHalt()
+    OldOvPro = $OV_PRO
+    ;WHILE   (($MODE_OP == #AUT) OR ($MODE_OP == #EX))
+    WHILE   ($MODE_OP <> #T2) 
+      iAnswer = SetMessage(#DIALOG, "GlueCal", "SwitchModeOPtoT2", "skOK|||||| ", 0)
+      WAIT SEC 0.5
+    ENDWHILE
+    DebugOptHalt()
+    BAS (#INITMOV,0 )
+    PTP $POS_ACT
+    IF ($MODE_OP == #T2) THEN
+      $OV_PRO = 10
+    ENDIF
+    IF NOT bIRAtStartPos() THEN
+      iAnswer = SetMessage(#DIALOG, "GlueCal", "AckRobotMotion", "skOK|||||| ", 0)
+    ENDIF
+    LDAT_ACT = LCalDat
+    BAS (#CP_DAT)
+    FDAT_ACT = FStartPath
+    BAS (#FRAMES)
+    BAS (#VEL_CP, dCalibrationSpeed)
+    DebugOptHalt()
+    LIN XStartPath
+    IF $OV_PRO < 100 THEN
+      iAnswer = SetMessage(#DIALOG, "GlueCal", "AckSetOvProTo100", "skOK|||||| ", 0)
+    ENDIF
+    OldOvPro = $OV_PRO
+    $OV_PRO = 100
+    REPEAT
+      DebugOptHalt()
+      $APO.CDIS = 200.0
+      BAS (#VEL_CP, dCalibrationSpeed)
+      BAS (#ACC_GLUE, 100.0)
+      iPos=-iPosOnDistance
+      SWITCH WhatToDo[iActualSystemNo]
+        CASE #eMaterialEquip
+          SysGunTriggerUp(iActualSystemNo, iSelectedGun, iPos, dGunOpenMat, TRUE)
+          AoMatFlowTrigger(iActualSystemNo, 0, PosOffs, dAnalogOffsetHigh[iActualSystemNo])
+        CASE #eAirEquip
+          SysGunTriggerUp(iActualSystemNo, 1, iPos, dGunOpenMat, TRUE)
+          AirTriggerUp(iActualSystemNo, iPos, dGunOpenAir, TRUE)
+          AoBeadShpTrigger(iActualSystemNo, 0, PosOffs, dAnalogOffsetHigh[iActualSystemNo])
+        DEFAULT
+          iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+      ENDSWITCH
+      LIN XGunOn C_DIS
+      DebugOptHalt()
+      iPos=iPosOffDistance
+      SWITCH WhatToDo[iActualSystemNo]
+        CASE #eMaterialEquip
+          SysGunTriggerUp(iActualSystemNo, iSelectedGun, iPos, dGunCloseMat, FALSE)
+          AoMatFlowTrigger(iActualSystemNo, 0, NegOffs, dAnalogOffsetLow[iActualSystemNo])
+        CASE #eAirEquip
+          AoBeadShpTrigger(iActualSystemNo, 0, NegOffs, dAnalogOffsetLow[iActualSystemNo])
+          SysGunTriggerUp(iActualSystemNo, 1, iPos, dGunCloseMat, FALSE)
+          AirTriggerUp(iActualSystemNo, iPos, dGunCloseAir, FALSE)
+        DEFAULT
+          iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+      ENDSWITCH
+      LIN XGunOff C_DIS
+      DebugOptHalt()
+      LIN XEndPath
+      WAIT FOR TRUE
+      FillDoser()
+      IF (bAnalogPosOffsetOK == FALSE) THEN
+        iAnswer = SetMessage(#DIALOG, "GlueCal", "IsPosOffsetReactionOK", "skYes|skNo|skRepeat|||| ", 0)
+        DebugOptHalt()
+        SWITCH iAnswer
+          CASE 1
+            bAnalogPosOffsetOK = TRUE
+          CASE 2
+            bAnalogPosOffsetOK = FALSE
+            iAnswer = SetMessage(#DIALOG, "GlueCal", "ShiftWhichDirection", "skEarlier|skLater||||| ", 0)
+            DebugOptHalt()
+            SWITCH iAnswer
+              CASE 1
+                iMultiplier = -1
+              CASE 2
+                iMultiplier = 1
+              DEFAULT
+                iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+            ENDSWITCH
+            iAnswer = SetMessage(#DIALOG, "GlueCal", "ShiftPosOffsetBy", "sk1mm|sk2mm|sk5mm|sk10mm|sk20mm|sk25mm|sk50mm", 0)
+            DebugOptHalt()
+            SWITCH iAnswer
+              CASE 1
+                PosOffs = PosOffs + CalcDelayTime (iMultiplier * 1)
+              CASE 2
+                PosOffs = PosOffs + CalcDelayTime (iMultiplier * 2)
+              CASE 3
+                PosOffs = PosOffs + CalcDelayTime (iMultiplier * 5)
+              CASE 4
+                PosOffs = PosOffs + CalcDelayTime (iMultiplier * 10)
+              CASE 5
+                PosOffs = PosOffs + CalcDelayTime (iMultiplier * 20)
+              CASE 6
+                PosOffs = PosOffs + CalcDelayTime (iMultiplier * 25)
+              CASE 7
+                PosOffs = PosOffs + CalcDelayTime (iMultiplier * 50)
+              DEFAULT
+                iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+            ENDSWITCH
+          CASE 3
+            ; Repeat with same parameters
+          DEFAULT
+            iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+        ENDSWITCH
+      ENDIF
+      IF (bAnalogNegOffsetOK == FALSE) THEN
+        iAnswer = SetMessage(#DIALOG, "GlueCal", "IsNegOffsetReactionOK", "skYes|skNo|skRepeat|||| ", 0)
+        DebugOptHalt()
+        SWITCH iAnswer
+          CASE 1
+            bAnalogNegOffsetOK = TRUE
+          CASE 2
+            bAnalogNegOffsetOK = FALSE
+            iAnswer = SetMessage(#DIALOG, "GlueCal", "ShiftWhichDirection", "skEarlier|skLater||||| ", 0)
+            DebugOptHalt()
+            SWITCH iAnswer
+              CASE 1
+                iMultiplier = -1
+              CASE 2
+                iMultiplier = 1
+              DEFAULT
+                iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+            ENDSWITCH
+            iAnswer = SetMessage(#DIALOG, "GlueCal", "ShiftNegOffsetBy", "sk1mm|sk2mm|sk5mm|sk10mm|sk20mm|sk25mm|sk50mm", 0)
+            DebugOptHalt()
+            SWITCH iAnswer
+              CASE 1
+                NegOffs = NegOffs + CalcDelayTime (iMultiplier * 1)
+              CASE 2
+                NegOffs = NegOffs + CalcDelayTime (iMultiplier * 2)
+              CASE 3
+                NegOffs = NegOffs + CalcDelayTime (iMultiplier * 5)
+              CASE 4
+                NegOffs = NegOffs + CalcDelayTime (iMultiplier * 10)
+              CASE 5
+                NegOffs = NegOffs + CalcDelayTime (iMultiplier * 20)
+              CASE 6
+                NegOffs = NegOffs + CalcDelayTime (iMultiplier * 25)
+              CASE 7
+                NegOffs = NegOffs + CalcDelayTime (iMultiplier * 50)
+              DEFAULT
+                iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+            ENDSWITCH
+          CASE 3
+            ; Repeat with same parameters
+          DEFAULT
+            iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+        ENDSWITCH
+      ENDIF
+      DebugOptHalt()
+      IF (SystemActive[1] == TRUE) THEN
+        DoStartSysUp(1, TRUE)
+        AoMatFlowInit(1, dAnalogOffsetLow[1])
+        IF SettingData[1].BeadShaping<>#E_SWIRL THEN
+          AoBeadShpInit(1, dAnalogOffsetLow[1])
+        ENDIF
+      ELSE
+        IF (SystemActive[2] == TRUE) THEN
+          DoStartSysUp(2, TRUE)
+          AoMatFlowInit(2, dAnalogOffsetLow[2])
+          IF SettingData[2].BeadShaping<>#E_SWIRL THEN
+            AoBeadShpInit(2, dAnalogOffsetLow[2])
+          ENDIF
+        ELSE
+          IF (SystemActive[2] == TRUE) THEN
+            DoStartSysUp(3, TRUE)
+            AoMatFlowInit(3, dAnalogOffsetLow[3])
+            IF SettingData[3].BeadShaping<>#E_SWIRL THEN
+              AoBeadShpInit(3, dAnalogOffsetLow[3])
+            ENDIF
+          ELSE
+            DoStartSysUp(4, TRUE)
+            AoMatFlowInit(4, dAnalogOffsetLow[4])
+            IF SettingData[4].BeadShaping<>#E_SWIRL THEN
+              AoBeadShpInit(4, dAnalogOffsetLow[4])
+            ENDIF
+          ENDIF
+        ENDIF
+      ENDIF
+      iAnswer = SetMessage(#DIALOG, "GlueCal", "AckRobotMotion", "skOK|||||| ", 0)
+      BAS(#VEL_CP, dCalibrationSpeed)
+      BAS (#ACC_GLUE, 100.0)
+      LIN XStartPath
+    UNTIL ((bAnalogPosOffsetOK == TRUE) AND (bAnalogNegOffsetOK == TRUE))
+    DebugOptHalt()
+    IF (VARSTATE ("OldOvPro") <> #INITIALIZED) THEN
+      OldOvPro = 10
+    ENDIF
+    $OV_PRO = OldOvPro
+    ResetOutputs()
+    iResult = PosOffs
+    iAnswer = SetMessage(#DIALOG, "GlueCal", "AssignResultPosAnalogOffset", "skYes|skNo||||| ", iResult)
+    DebugOptHalt()
+    SWITCH iAnswer
+      CASE 1
+        SWITCH WhatToDo[iActualSystemNo]
+          CASE #eMaterialEquip
+            Equipment[iActualSystemNo,iSelectedGun].MaterialReactionPosOffs = PosOffs
+            bAnalogOffsetMat[iActualSystemNo,iSelectedGun] = TRUE
+          CASE #eAirEquip
+            Equipment[iActualSystemNo,1].AirReactionPosOffs = PosOffs
+            bAnalogOffsetAir[iActualSystemNo] = TRUE
+          DEFAULT
+            iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+        ENDSWITCH
+      CASE 2
+        iAnswer = SetMessage(#DIALOG, "GlueCal", "KeepOldDelay", "skOK|||||| ", 0)
+      DEFAULT
+        iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+    ENDSWITCH
+    iResult = NegOffs
+    iAnswer = SetMessage(#DIALOG, "GlueCal", "AssignResultNegAnalogOffset", "skYes|skNo||||| ", iResult)
+    DebugOptHalt()
+    SWITCH iAnswer
+      CASE 1
+        SWITCH WhatToDo[iActualSystemNo]
+          CASE #eMaterialEquip
+            Equipment[iActualSystemNo,iSelectedGun].MaterialReactionNegOffs = NegOffs
+            bAnalogOffsetMat[iActualSystemNo,iSelectedGun] = bAnalogOffsetMat[iActualSystemNo,iSelectedGun] AND TRUE
+          CASE #eAirEquip
+            Equipment[iActualSystemNo,1].AirReactionNegOffs = NegOffs
+            bAnalogOffsetAir[iActualSystemNo] = bAnalogOffsetAir[1] AND TRUE
+          DEFAULT
+            iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+        ENDSWITCH
+      CASE 2
+        iAnswer = SetMessage(#DIALOG, "GlueCal", "KeepOldDelay", "skOK|||||| ", 0)
+      DEFAULT
+        iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+    ENDSWITCH
+    bAnalogOffset = bAnalogOffsetMat[1,1] AND bAnalogOffsetMat[1,2] AND bAnalogOffsetMat[1,3] AND bAnalogOffsetMat[1,4] AND bAnalogOffsetMat[2,1] AND bAnalogOffsetMat[2,2] AND bAnalogOffsetMat[2,3] AND bAnalogOffsetMat[2,4] AND bAnalogOffsetMat[3,1] AND bAnalogOffsetMat[3,2] AND bAnalogOffsetMat[3,3] AND bAnalogOffsetMat[3,4] AND bAnalogOffsetMat[4,1] AND bAnalogOffsetMat[4,2] AND bAnalogOffsetMat[4,3] AND bAnalogOffsetMat[4,4] AND bAnalogOffsetAir[1] AND bAnalogOffsetAir[2] AND bAnalogOffsetAir[3] AND bAnalogOffsetAir[4]
+    IF (bCalibrateDebugOpt == TRUE) THEN
+      HALT
+    ENDIF
+  ;ENDFOLD
+;FOLD {H}
+  END
+;ENDFOLD
+
+;FOLD {H}
+DEFFCT REAL CalcDelayTime (iDistance : IN)
+  DECL INT iDistance
+  DECL REAL rTime
+
+  IF $MODE_OP==#T2 THEN
+    rTime = iDistance / (dCalibrationSpeed * ($OV_PRO/100.))
+  ELSE
+    rTime = iDistance / (dCalibrationSpeed * ($OV_PRO/100.) * ($RED_T1/100.))
+  ENDIF        
+  RETURN (rTime)
+ENDFCT
+
+DEFFCT REAL GetCalibrationSpeed ( )
+  DECL REAL dSpeed
+  
+  iAnswer = SetMessage(#DIALOG, "GlueCal", "DefineCalibrationSpeed", "0.1|0.2|0.4|0.6|0.8||skDefault", 0)
+  DebugOptHalt()
+  SWITCH iAnswer
+    CASE 1
+      dSpeed = 0.1
+    CASE 2
+      dSpeed = 0.2
+    CASE 3
+      dSpeed = 0.4
+    CASE 4
+      dSpeed = 0.6
+    CASE 5
+      dSpeed = 0.8
+    CASE 6
+    CASE 7
+      dSpeed = 0.4
+    DEFAULT
+      iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+  ENDSWITCH
+  RETURN (dSpeed)
+ENDFCT
+
+DEF GetGunPos()
+  BRAKE
+  WAIT FOR (NOT $PRO_MOVE)
+  DebugOptHalt()
+  LIN $POS_INT
+  IF (iRun == 1) THEN
+    XGunOn = $POS_ACT
+  ELSE
+    XGunOff = $POS_ACT
+  ENDIF
+  iAnswer = SetMessage(#DIALOG, "GlueCal", "MarkRobotPosition", "skOK|||||| ", 0)
+  DebugOptHalt()
+  LIN $POS_RET
+END
+
+DEF DoCheckMotion(ToolNo : OUT)
+  DECL INT ToolNo
+  DECL INT OldOvPro
+  DECL FRAME OldToolData
+  DECL FRAME OldBaseData
+  DECL IPO_MODE OldIpoMode
+  DECL POS BackPos
+
+  DebugOptHalt()
+  IF (VARSTATE ("$TOOL") <> #INITIALIZED) THEN
+    $TOOL = $NULLFRAME
+  ENDIF
+  IF (VARSTATE ("$BASE") <> #INITIALIZED) THEN
+    $BASE = $NULLFRAME
+  ENDIF
+  IF (VARSTATE ("$IPO_MODE") <> #INITIALIZED) THEN
+    $IPO_MODE = #BASE
+  ENDIF
+
+  OldTooldata = $TOOL
+  OldBaseData = $BASE
+  OldIpoMode = $IPO_MODE
+  OldOvPro = $OV_PRO
+  BAS (#INITMOV,0 )
+  WHILE   (($MODE_OP == #AUT) OR ($MODE_OP == #EX))
+    iAnswer = SetMessage(#DIALOG, "GlueCal", "SwitchModeOPtoManual", "skOK|||||| ", 0)
+    IF (bCalibrateDebugOpt == TRUE) THEN
+      HALT
+    ENDIF
+    WAIT SEC 0.5
+  ENDWHILE
+  IF ($MODE_OP == #T2) THEN
+    $OV_PRO = 10
+  ENDIF
+  iAnswer = SetMessage(#DIALOG, "GlueCal", "ConfirmRobotReadyToTestTCP", "skOK|||||| ", 0)
+  DebugOptHalt()
+  IF (UsedTools[ToolNo] == #eRobotTool) THEN
+    $TOOL = TOOL_DATA[ToolNo]
+    $BASE = $NULLFRAME
+    $IPO_MODE = #BASE
+  ELSE
+    IF (UsedTools[ToolNo] == #eExtTool) THEN
+      $TOOL = $NULLFRAME
+      $BASE = BASE_DATA[ToolNo]
+      $IPO_MODE = #TCP
+    ELSE
+      iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+    ENDIF
+  ENDIF
+  DebugOptHalt()
+  PTP $POS_ACT
+  BackPos=$POS_ACT
+  DebugOptHalt()
+  LIN_REL {A 5.0, B 5.0, C 5.0}
+  DebugOptHalt()
+  LIN_REL {A -10.0, B -10.0, C -10.0}
+  DebugOptHalt()
+  ;LIN_REL {A 5.0, B 5.0, C 5.0}
+  LIN BackPos
+  iAnswer = SetMessage(#DIALOG, "GlueCal", "IsTCP_Okey", "skYes|skNo||||| ", 0)
+  DebugOptHalt()
+  $TOOL = OldTooldata
+  $BASE = OldBaseData
+  $IPO_MODE = OldIpoMode
+  $OV_PRO = OldOvPro
+  SWITCH iAnswer
+    CASE 1
+      ; YES pressed continue with next tool
+    CASE 2
+      ; NO pressed
+      iAnswer = SetMessage(#DIALOG, "GlueCal", "RecalibrateTool", "skRecal|skCont", 0)
+      SWITCH iAnswer
+        CASE 1
+          ; Recalibrate tool
+          IF (bCalibrateDebugOpt == TRUE) THEN
+            HALT
+          ENDIF
+          DoAbort = TRUE
+          HALT
+        CASE 2
+          ; Continue with other tools
+        DEFAULT
+          iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+      ENDSWITCH
+    DEFAULT
+      iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+  ENDSWITCH
+END
+
+DEF GetInitValues(eWhichValues : IN)
+  DECL eRoutines eWhichValues
+  DECL INT iSelectedSys ;Selected System from Softkey
+  DECL BOOL bResetOrUseData ;Selected function: TRUE=Reset, FALSE=UseData
+  DECL INT iCnt
+  
+  SWITCH iNumberOfDispenseSystems
+    CASE 1
+      ; 1 equipment available
+      iAnswer = SetMessage(#DIALOG, "GlueCal", "WhichDefaultValuesToUse", "skResetEq1|skEquip1||||| ", 0)
+    CASE 2
+      ; 2 equipment available
+      iAnswer = SetMessage(#DIALOG, "GlueCal", "WhichDefaultValuesToUse", "skResetEq1|skEquip1|skResetEq2|skEquip2|skReset12|| ", 0)
+    CASE 3
+      ; 3 equipment available
+      iAnswer = SetMessage(#DIALOG, "GlueCal", "WhichDefaultValuesToUse", "skResetEq1|skEquip1|skResetEq2|skEquip2|skResetEq3|skEquip3|skReset123", 0)
+    CASE 4
+      ; 4 equipment available
+      iAnswer = SetMessage(#DIALOG, "GlueCal", "WhichDefaultValuesToUse", "skResetEq1|skEquip1|skResetEq2|skEquip2|skResetEq3|skEquip3|skResetEq4|skEquip4|skReset1234", 0)
+    DEFAULT
+      iAnswer = 1
+  ENDSWITCH
+  
+  DebugOptHalt()
+  
+  SWITCH iAnswer
+    CASE 1 ;skResetEq1
+      iSelectedSys=1
+      bResetOrUseData=TRUE
+    CASE 2 ;skEquip1
+      iSelectedSys=1
+      bResetOrUseData=FALSE
+    CASE 3 ;skResetEq2
+      iSelectedSys=2
+      bResetOrUseData=TRUE
+    CASE 4 ;skEquip2
+      iSelectedSys=2
+      bResetOrUseData=FALSE
+    CASE 5 ;skResetEq3
+      iSelectedSys=3
+      bResetOrUseData=TRUE
+    CASE 6 ;skEquip3
+      iSelectedSys=3
+      bResetOrUseData=FALSE
+    CASE 7 ;skResetEq4
+      iSelectedSys=4
+      bResetOrUseData=TRUE
+    CASE 8 ;skEquip4
+      iSelectedSys=4
+      bResetOrUseData=FALSE
+    CASE 9 ;skResetEq1234
+      iSelectedSys=9 ;Reset all
+      bResetOrUseData=TRUE
+    DEFAULT
+      iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+  ENDSWITCH
+  
+  SWITCH iSelectedSys
+    CASE 1,2,3,4
+      IF bResetOrUseData==FALSE THEN
+        ; Use values of equipment 1
+        SelectGunTimes()
+        IF iSelectedGun == -1 THEN
+          ;cancel pressed
+          RETURN
+        ENDIF
+      ENDIF
+      SWITCH eWhichValues
+        CASE #eCheckInstallSettings
+          ; Nothing to do
+        CASE #eVerifyTCP
+          ; Nothing to do
+        CASE #eGunDelay
+        CASE #eEquipmentDelay
+        CASE #eAnalogOffset
+        CASE #eAllValues
+          IF bResetOrUseData==TRUE THEN
+            ; Reset values of selected equipment
+            ResetData(iSelectedSys)
+          ELSE
+            ; Use values of selected equipment
+            UseData (iSelectedSys)
+          ENDIF
+        DEFAULT
+          iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+      ENDSWITCH
+    CASE 5
+      IF (iNumberOfDispenseSystems == 3) THEN
+        ; Reset values of equipment 3
+        SWITCH eWhichValues
+          CASE #eCheckInstallSettings
+            ; Nothing to do
+          CASE #eVerifyTCP
+            ; Nothing to do
+          CASE #eGunDelay
+          CASE #eEquipmentDelay
+          CASE #eAnalogOffset
+          CASE #eAllValues
+            ResetData (3)
+          DEFAULT
+            iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+        ENDSWITCH
+      ELSE
+        ; Reset values of equipment 1 and 2
+        SWITCH eWhichValues
+          CASE #eCheckInstallSettings
+            ; Nothing to do
+          CASE #eVerifyTCP
+            ; Nothing to do
+          CASE #eGunDelay
+          CASE #eEquipmentDelay
+          CASE #eAnalogOffset
+          CASE #eAllValues
+            ResetData (1)
+            ResetData (2)
+          DEFAULT
+            iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+        ENDSWITCH
+      ENDIF
+    CASE 6
+      ; Use values of equipment 3
+      SelectGunTimes ( )
+      IF iSelectedGun == -1 THEN
+        ;cancel pressed
+        RETURN
+      ENDIF
+      SWITCH eWhichValues
+        CASE #eCheckInstallSettings
+          ; Nothing to do
+        CASE #eVerifyTCP
+          ; Nothing to do
+        CASE #eGunDelay
+        CASE #eEquipmentDelay
+        CASE #eAnalogOffset
+        CASE #eAllValues
+          UseData (3)
+        DEFAULT
+          iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+      ENDSWITCH
+    CASE 9 ;7
+      ; Reset values of equipment 1, 2, 3, 4
+      SWITCH eWhichValues
+        CASE #eCheckInstallSettings
+          ; Nothing to do
+        CASE #eVerifyTCP
+          ; Nothing to do
+        CASE #eGunDelay
+        CASE #eEquipmentDelay
+        CASE #eAnalogOffset
+        CASE #eAllValues
+          FOR iCnt=1 TO 4
+            ResetData (iCnt)
+          ENDFOR
+        DEFAULT
+          iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+      ENDSWITCH
+    DEFAULT
+      iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+  ENDSWITCH
+END
+
+DEF AskDebugOpt()
+  IF (bCalibrateDebugOpt == TRUE) THEN
+    iAnswer = SetMessage(#DIALOG, "GlueCal", "ResetDebugOption", "skYes|skNo||||| ", 0)
+    SWITCH iAnswer
+      CASE 1
+        bCalibrateDebugOpt = FALSE
+        GlueDryMode = FALSE
+      CASE 2
+        bCalibrateDebugOpt = TRUE
+        GlueDryMode = TRUE
+        iAnswer = SetMessage(#DIALOG, "GlueCal", "SetDebugOption", "skOK|||||| ", 0)
+      DEFAULT
+        iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+    ENDSWITCH
+  ENDIF
+END
+
+DEF SelectSystem()
+  SWITCH iNumberOfDispenseSystems
+    CASE 1
+      ; 1 equipment available
+      iAnswer=1
+    CASE 2
+      ; 2 equipment available
+      iAnswer = SetMessage(#DIALOG, "GlueCal", "WhichEquipment", "skEquip1|skEquip2|||||skCancel", 0)
+    CASE 3
+      ; 3 equipment available
+      iAnswer = SetMessage(#DIALOG, "GlueCal", "WhichEquipment", "skEquip1|skEquip2|skEquip3||||skCancel", 0)
+    CASE 4
+;TODO: skEquip4
+      ; 4 equipment available
+      iAnswer = SetMessage(#DIALOG, "GlueCal", "WhichEquipment", "skEquip1|skEquip2|skEquip3|skEquip4|||skCancel", 0)
+    DEFAULT
+      iAnswer = 1
+  ENDSWITCH
+END
+
+DEF SelectGun()
+  iAnswer = SetMessage(#DIALOG, "GlueCal", "WhichGun", "skGun1|skGun2|skGun3|skGun4|||skCancel", 0)
+  SWITCH iAnswer
+    CASE 1
+      ; Gun 1 selected
+      iSelectedGun = 1
+    CASE 2
+      ; Gun 2 selected
+      iSelectedGun = 2
+    CASE 3
+      ; Gun 3 selected
+      iSelectedGun = 3
+    CASE 4
+      ; Gun 4 selected
+      iSelectedGun = 4
+    CASE 7  
+      ; Exit from routine
+      iSelectedGun = -1
+      RETURN
+    DEFAULT
+      iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+  ENDSWITCH
+END
+
+DEF SelectGunTimes()
+  iAnswer = SetMessage(#DIALOG, "GlueCal", "TimesOfWhichGunShouldBeUsed", "skGun1|skGun2|skGun3|skGun4|||skCancel", 0)
+  SWITCH iAnswer
+    CASE 1
+      ; Gun 1 selected
+      iSelectedGun = 1
+    CASE 2
+      ; Gun 2 selected
+      iSelectedGun = 2
+    CASE 3
+      ; Gun 3 selected
+      iSelectedGun = 3
+    CASE 4
+      ; Gun 4 selected
+      iSelectedGun = 4
+    CASE 7  
+      ; Exit from routine
+      iSelectedGun = -1
+      RETURN
+    DEFAULT
+      iAnswer = SetMessage(#QUIT, "GlueCal", "InternalError", "nothing", 0)
+  ENDSWITCH
+END
+
+DEF InitGunTimesEquip(iSystemNo :IN)
+INT iSystemNo
+
+  dGunOpenMat = Equipment[iSystemNo,iSelectedGun].GunOnDelay
+  dGunCloseMat = Equipment[iSystemNo,iSelectedGun].GunOffDelay
+END
+
+DEF UseData(iEquipNo :IN)
+  INT iEquipNo
+
+  GunOnDelayMat = Equipment[iEquipNo,iSelectedGun].GunOnDelay
+  GunOffDelayMat = Equipment[iEquipNo,iSelectedGun].GunOffDelay
+  MaterialDelay = Equipment[iEquipNo,iSelectedGun].MaterialDelay/1000.
+  MaterialReactionPosOffs = Equipment[iEquipNo,iSelectedGun].MaterialReactionPosOffs
+  MaterialReactionNegOffs = Equipment[iEquipNo,iSelectedGun].MaterialReactionNegOffs
+  AirReactionPosOffs = Equipment[iEquipNo,1].AirReactionPosOffs
+  AirReactionNegOffs = Equipment[iEquipNo,1].AirReactionNegOffs
+END
+
+DEF ResetData(iEquipNo :IN)
+  INT iEquipNo, i
+
+  bGunDelay = FALSE
+  bEquipmentDelay = FALSE
+  GunOnDelay = 0.0
+  GunOffDelay = 0.0
+  GunOnDelayMat = 0.0
+  GunOffDelayMat = 0.0
+  GunOnDelayAir = 0.0
+  GunOffDelayAir = 0.0
+  FOR i = 1 TO 4
+    Equipment[iEquipNo,i].GunOnDelay = 0.0
+    Equipment[iEquipNo,i].GunOffDelay = 0.0
+    Equipment[iEquipNo,i].MaterialDelay = 0.0
+    Equipment[iEquipNo,i].MaterialReactionPosOffs = 0.0
+    Equipment[iEquipNo,i].MaterialReactionNegOffs = 0.0
+  ENDFOR
+  Equipment[iEquipNo,1].AirOnDelay = 0.0
+  Equipment[iEquipNo,1].AirOffDelay = 0.0
+  Equipment[iEquipNo,1].AirDelay = 0.0
+  Equipment[iEquipNo,1].AirReactionPosOffs = 0.0
+  Equipment[iEquipNo,1].AirReactionNegOffs = 0.0
+  MaterialDelay = 0.0
+  AirDelay = 0.0
+  MaterialReactionPosOffs = 0.0
+  MaterialReactionNegOffs = 0.0
+  AirReactionPosOffs = 0.0
+  AirReactionNegOffs = 0.0
+END
+
+DEFFCT BOOL IsToolCalibrated(n :IN )
+  ; Function finds all used robot mounted
+  ; and external tools which are programmed
+  ; and returns FALSE in case of no tools
+  ; programmed
+  DECL BOOL bNoTools
+  DECL INT n
+
+  DebugOptHalt()
+  bNoTools = FALSE
+  IF (TOOL_TYPE[n] == #NONE) AND (BASE_TYPE[n] == #NONE) THEN
+    UsedTools[n] = #eNotUsed
+  ELSE
+    IF (TOOL_TYPE[n] == #BASE) THEN
+      UsedTools[n] = #eRobotTool
+      bNoTools = TRUE
+    ELSE
+      IF (BASE_TYPE[n] == #TCP) THEN
+        UsedTools[n] = #eExtTool
+        bNoTools = TRUE
+      ELSE
+        UsedTools[n] = #eNotUsed
+      ENDIF
+    ENDIF
+  ENDIF
+  DebugOptHalt()
+  RETURN (bNoTools)
+ENDFCT
+
+DEF ResetOutputs()
+  INT iCnt
+
+  AllAnoutOff()
+  ANALOG_IS_ACTIVE=FALSE
+  FOR iCnt=1 TO 4
+    DoStartSysUp(iCnt, FALSE)
+    DoAirOnUp(iCnt,FALSE)
+    DoProgNoUp(iCnt, 0)
+  ENDFOR
+  CloseAllGuns()
+  ResetAllAnout()
+END
+
+DEFFCT BOOL bIRAtStartPos()
+  BOOL bIRAtPos
+  
+  bIRAtPos = FALSE
+  IF ((XStartPath.X - 0.1) < $POS_ACT.X) AND ($POS_ACT.X < (XStartPath.X + 0.1)) THEN
+    IF ((XStartPath.Y - 0.1) < $POS_ACT.Y) AND ($POS_ACT.Y < (XStartPath.Y + 0.1)) THEN
+      IF ((XStartPath.Z - 0.1) < $POS_ACT.Z) AND ($POS_ACT.Z < (XStartPath.Z + 0.1)) THEN
+        bIRAtPos=TRUE
+      ENDIF
+    ENDIF
+  ENDIF
+  RETURN (bIRAtPos)
+ENDFCT 
+
+
+DEFFCT INT SetMessage(MessageType : IN, Modul[] : IN, MessageText[] : IN, SoftKeys[] : IN, iParameter : IN)
+  DECL MessageType MessageType
+  DECL CHAR Modul[]       ; [12]
+  DECL CHAR MessageText[] ; [40]
+  DECL CHAR SoftKeys[]    ; [70]
+  DECL INT iParameter
+  DECL INT ANSWER
+
+  SWITCH MessageType
+    CASE #NOTIFY
+    CASE #STATE
+    CASE #QUIT
+      MsgQuitGlue(MessageText[],99)
+    CASE #DIALOG
+      ANSWER=MsgDialogGlue(MessageText[],Modul[],iParameter,,SoftKeys[],1)
+    DEFAULT
+  ENDSWITCH
+  RETURN (ANSWER) 
+ENDFCT
+
+DEF DebugOptHalt()
+  IF (bCalibrateDebugOpt == TRUE) THEN
+    HALT
+  ENDIF
+END
+
+;ENDFOLD

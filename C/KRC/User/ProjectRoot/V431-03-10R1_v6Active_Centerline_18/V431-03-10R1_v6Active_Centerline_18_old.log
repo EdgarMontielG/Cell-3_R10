@@ -1,0 +1,9 @@
+19/09/2026 20:02:18.80 [Information] -------------------------------
+19/09/2026 20:02:18.80 [Information] *** Begin Prepare ''!
+19/09/2026 20:02:18.81 [Information] *** Begin prepare project 'V431-03-10R1_v6Active_Centerline_18 V1.186.0.0'!
+19/09/2026 20:02:18.86 [Information] Execute Global.UserPermission(), 1000, 0. User does not agree!
+19/09/2026 20:02:18.86 [Error] ### Failed to Prepare 'V431-03-10R1_v6Active_Centerline_18 V1.186.0.0'! Reason: Wrong UserMode for activation
+19/09/2026 20:02:18.89 [Warning] *** Start Rollback.
+19/09/2026 20:02:18.89 [Information] Restore current project -> V431-03-10R1_v6Active_Centerline_18 V1.184.0
+19/09/2026 20:02:18.90 [Warning] *** End Rollback.
+19/09/2026 20:02:18.90 [Information] #----------------o0o---------------#

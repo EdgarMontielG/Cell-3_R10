@@ -1,0 +1,18 @@
+&ACCESS RVO1
+&REL 2
+&COMMENT Mastering Reference Main Task
+&PARAM EDITMASK = *
+&PARAM DISKPATH = KRC:\R1\System
+DEFDAT  masref_main
+;FOLD EXTERNAL DECLARATIONS;%{PE}%MKUKATPBASIS,%CEXT,%VCOMMON,%P
+;FOLD BASISTECH EXT;%{PE}%MKUKATPBASIS,%CEXT,%VEXT,%P
+EXT  BAS (BAS_COMMAND  :IN,REAL  :IN )
+;ENDFOLD (BASISTECH EXT)
+;FOLD USER EXT;%{E}%MKUKATPUSER,%CEXT,%VEXT,%P
+;ENDFOLD (USER EXT)
+;ENDFOLD (EXTERNAL DECLERATIONS)
+INT nLapsedTime
+INT nLapsedTimeout=30
+INT PerformMasterReference=0 ; index for $flag to trigger mastering reference
+DECL BASIS_SUGG_T LAST_BASIS={POINT1[] "P0                      ",POINT2[] "P0                      ",CP_PARAMS[] "CPDAT0                  ",PTP_PARAMS[] "PDAT0                   ",CONT[] "                        ",CP_VEL[] "2.0                     ",PTP_VEL[] " 100                    ",SYNC_PARAMS[] "SYNCDAT                 ",SPL_NAME[] "S0                      ",A_PARAMS[] "ADAT0                   "}
+ENDDAT

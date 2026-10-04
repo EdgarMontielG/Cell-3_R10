@@ -1,0 +1,8 @@
+&ACCESS  RV
+DEF  Request_next_nut ( )
+  
+   NEXT_NUT_READY=false
+   NEXT_NUT_REQUEST=TRUE
+   NUT_STAR=TRUE
+  
+END

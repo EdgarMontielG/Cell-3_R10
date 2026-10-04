@@ -1,0 +1,3052 @@
+&ACCESS REO
+&REL 4
+&COMMENT GlueTech MAIN PROGRAM
+&PARAM KUKATPGLUE_VERSION = 4.2.0
+&PARAM GLUE_BUILD = 4SYS
+&PARAM GLUE_DATE = 29.11.2013
+&PARAM DISKPATH = KRC:\R1\TP\GLUETECH
+DEF GLUE()
+  ;FOLD MAIN PROGRAM
+END
+;ENDFOLD MAIN PROGRAM
+;FOLD SUBROUTINES 
+;FOLD INITSYSTEM 
+GLOBAL DEF InitSystem(eFillDoser :IN, iScheduleNo :IN )
+  DECL ANSWER_TYPE eFillDoser
+  INT iAnswer, iSystemNo, iScheduleNo,iCnt
+
+  GlueDataConsCheck()
+  
+  bSimulate=FALSE
+  bGunOff=FALSE
+  bGunOpen=FALSE
+  bRestartTimer=FALSE
+  bPassiveStop=FALSE
+  bWasStopMess=FALSE
+  FOR iCnt=1 TO 4
+    bMeasurementActive[iCnt]=FALSE 
+    bSysActive[iCnt]=FALSE
+  ENDFOR
+  ResetPurgeStates()
+  GlueActData.ScheduleNo=1
+  GlueActData.Disp_Gun=1
+  
+  ;clear state message if necessary
+  ReleaseStateMessage()
+  IF  (bWithOutMaterial==FALSE)  THEN        
+    IF $PRO_STATE0<>#P_ACTIVE THEN
+     ; MsgNotifyGlue("SubmitNotActive", " ", 15)
+      WAIT FOR $PRO_STATE0==#P_ACTIVE
+    ENDIF
+
+    GlueActData.ScheduleNo=iScheduleNo
+
+    GlueActData.Disp_Gun=1
+    GlueActData.Answer=#NO
+    GlueActData.PurgeMode=#STANDARD
+    GlueActData.Complete=FALSE
+    GlueActData.TriggerDistance=0.0
+    GlueActData.Mat_Flow_Type=BeadData[GlueActData.ScheduleNo].MatFlowType
+    GlueActData.Air_Flow_Type=BeadData[GlueActData.ScheduleNo].AirFlowType
+    LastBeadData=GlueActData.ScheduleNo
+    ANALOG_IS_ACTIVE=FALSE
+    bParamNoChanged=FALSE
+    WriteCounter=0
+    ReadCounter=0
+    iWriteParamNo=0
+    iReadParamNo=0
+    IF BeadData[GlueActData.ScheduleNo].MaterialFactor==0 THEN
+      IF BeadData[GlueActData.ScheduleNo].MatFlowType<>#SPEED_INDEP THEN
+        MsgQuitGlue("MaterialFactorNotInitialized",,7)
+      ENDIF
+    ELSE
+      MaterialFactor=(BeadData[GlueActData.ScheduleNo].MaterialFactor/100.)
+    ENDIF
+    IF SettingData[GlueActData.SystemNo].BeadShaping<>#NONE THEN
+      IF BeadData[GlueActData.ScheduleNo].AirFactor==0 THEN
+        IF BeadData[GlueActData.ScheduleNo].AirFlowType<>#SPEED_INDEP THEN
+          MsgQuitGlue("AirFactorNotInitialized",,8 )
+        ENDIF
+      ELSE
+        AirFactor=(BeadData[GlueActData.ScheduleNo].AirFactor/100.0)
+      ENDIF
+    ENDIF
+    MaterialOffset=(BeadData[GlueActData.ScheduleNo].MaterialOffset)/100.0
+    MaterialDelay=(Equipment[GlueActData.SystemNo,1].MaterialDelay)/1000.
+    AirOffset=(BeadData[GlueActData.ScheduleNo].AirOffset)/100.0
+    AirDelay=(Equipment[GlueActData.SystemNo,1].AirDelay)/1000.
+    SWITCH  GlueActData.SystemNo
+      CASE 1,2,3,4 ; system 1..4 active
+        IF ((bWithOutMaterialSys[GlueActData.SystemNo])==TRUE) THEN
+          IF SettingData[GlueActData.SystemNo].bNegMatLogic THEN
+            OutputSet(GlueSysOut[GlueActData.SystemNo].WithoutMaterial, TRUE)
+          ELSE
+            OutputSet(GlueSysOut[GlueActData.SystemNo].WithoutMaterial, FALSE)
+          ENDIF
+          OutputSet(GlueSysOut[GlueActData.SystemNo].StartSys, FALSE)
+          AoMatFlowInit(GlueActData.SystemNo, 0.0)
+          AoBeadShpInit(GlueActData.SystemNo, 0.0)
+          AoPrePressureInit(GlueActData.SystemNo, 0.0)
+        ELSE
+          bSysCompleted[GlueActData.SystemNo]=FALSE
+          IF SettingData[GlueActData.SystemNo].bWithMeasurementActive THEN
+            IF InputState(GlueSysIn[GlueActData.SystemNo].MeasurementActive) THEN
+              GluePULSE(GlueSysOut[GlueActData.SystemNo].FinishMeasure, TRUE, 0.5)
+              WAIT FOR NOT InputState(GlueSysIn[GlueActData.SystemNo].MeasurementActive)
+            ENDIF
+          ENDIF
+          AoMatFlowInit(GlueActData.SystemNo, 0.0)
+          AoBeadShpInit(GlueActData.SystemNo, 0.0)
+          AoPrePressureInit(GlueActData.SystemNo, 0.0)
+          GluePULSE(GlueSysStateOut[GlueActData.SystemNo].SingleFaultAckn, TRUE, 0.2)
+          GluePULSE(GlueSysStateOut[GlueActData.SystemNo].FaultAckn, TRUE, 0.2)
+          ;//TMPOutputSet(GlueSysOut[GlueActData.SystemNo].StartSys, FALSE)
+          WAIT SEC 0.05
+          CloseGunsSystem(GlueActData.SystemNo)
+          OutputSet(GlueSysDoserOut[GlueActData.SystemNo].Fill, FALSE)
+          OutputSet(GlueSysDoserOut[GlueActData.SystemNo].AirOn, FALSE)
+          OutputSet(GlueSysDoserOut[GlueActData.SystemNo].Purge, FALSE)
+          OutputSet(GlueSysDoserOut[GlueActData.SystemNo].PurgeEnable, FALSE)
+          OutputSet(GlueSysDoserOut[GlueActData.SystemNo].PressDischarge, FALSE )
+          GluePULSE(GlueSysOut[GlueActData.SystemNo].HeatingUnitReset,TRUE,0.3)
+          GluePULSE(GlueSysOut[GlueActData.SystemNo].PumpReset, TRUE, 0.2)
+          GluePULSE(GlueSysOut[GlueActData.SystemNo].CirculationReset,TRUE,0.2)
+          IF SettingData[GlueActData.SystemNo].bNegMatLogic THEN
+            OutputSet(GlueSysOut[GlueActData.SystemNo].WithoutMaterial, FALSE)
+          ELSE
+            OutputSet(GlueSysOut[GlueActData.SystemNo].WithoutMaterial, TRUE)
+          ENDIF
+          OutputSet(GlueSysOut[GlueActData.SystemNo].FinishMeasure, FALSE)
+          CheckGluingSystem(eFillDoser )
+          IF SettingData[GlueActData.SystemNo].BeadShaping==#E_SWIRL THEN
+            GluePULSE(GlueSysStateOut[GlueActData.SystemNo].SingleFaultAckn,TRUE,0.2)
+            GluePULSE(GlueSysStateOut[GlueActData.SystemNo].FaultAckn,TRUE,0.2)
+            OutputSet(GlueSysDoserOut[GlueActData.SystemNo].SwirlCoolingAir, TRUE)
+          ENDIF
+          IF (((bCheckSystem[GlueActData.SystemNo]==TRUE) and ($TIMER_FLAG[iTimerSystem[GlueActData.SystemNo]]==TRUE)) OR (InputState(GlueSysDoserGenIn[GlueActData.SystemNo].PurgeRequest))) AND $IN_HOME THEN
+            MoveToPurge(GlueActData.SystemNo)
+            $TIMER_STOP[iTimerSystem[GlueActData.SystemNo]]=TRUE
+            bCheckSystem[GlueActData.SystemNo]=FALSE
+          ENDIF
+          IF SettingData[GlueActData.SystemNo].GlueType==#GLUE_2K THEN
+            CheckMixture()
+          ENDIF
+          IF (NOT ANALOG_IS_ACTIVE) and (NOT bWithOutMaterialSys[GlueActData.SystemNo]) THEN
+            ANALOG_IS_ACTIVE=TRUE
+            WAIT FOR TRUE                 ; STOP ADVANCE RUN
+            AoPrePressureInit(GlueActData.SystemNo, BeadData[GlueActData.ScheduleNo].PrePressure/100.0)
+            SWITCH GlueActData.MAT_FLOW_TYPE
+              CASE #TCP_SPEED
+                IF bAnalogWithoutOffset THEN
+                  AoMatFlowOn(GlueActData.SystemNo, MaterialFactor, 0.0, MaterialDelay)
+                ELSE 
+                  AoMatFlowOn(GlueActData.SystemNo, MaterialFactor, MaterialOffset, MaterialDelay)
+                ENDIF
+              CASE #SPEED_INDEP
+                AoMatFlowOn(GlueActData.SystemNo, 0.0, MaterialOffset, 0)
+              DEFAULT
+                MsgQuitGlue("InternalError", ,99 )
+            ENDSWITCH
+            IF SettingData[GlueActData.SystemNo].BeadShaping<>#NONE THEN
+              SWITCH SettingData[GlueActData.SystemNo].BeadShaping
+                CASE #AIR
+                  SWITCH GlueActData.AIR_FLOW_TYPE
+                    CASE #TCP_SPEED
+                      IF bAnalogWithoutOffset THEN
+                        AoBeadShpOn(GlueActData.SystemNo, AirFactor, 0.0, AirDelay)
+                      ELSE 
+                        AoBeadShpOn(GlueActData.SystemNo, AirFactor, AirOffset, AirDelay)
+                      ENDIF
+                    CASE #SPEED_INDEP
+                      AoBeadShpOn(GlueActData.SystemNo, 0.0, AirOffset, 0)
+                    DEFAULT
+                      MsgQuitGlue("InternalError", ,99 )
+                  ENDSWITCH
+                CASE #E_SWIRL
+                  bSwirlSwitchedOn[GlueActData.SystemNo]=TRUE
+                  bSwitchOnSwirl[GlueActData.SystemNo]=FALSE
+                  AoBeadShpInit(GlueActData.SystemNo, AirOffset)
+                  SwirlSpeedAnalogOut[GlueActData.SystemNo]=GlueSysOutA[GlueActData.SystemNo].BeadShp
+                  OutputSet(GlueSysDoserOut[GlueActData.SystemNo].SwirlCoolingAir, TRUE)
+                  WAIT SEC dWaitSwirlCoolingAir
+                  WAIT FOR InputState(GlueSysIn[GlueActData.SystemNo].SwirlReady)
+                  OutputSet(GlueSysDoserOut[GlueActData.SystemNo].AirOn, TRUE)
+                  WAIT SEC 0.1
+                  WAIT FOR InputState(GlueSysIn[GlueActData.SystemNo].SwirlSpeedOk)
+                DEFAULT
+                  MsgQuitGlue("InternalError", ,99 )
+              ENDSWITCH
+            ENDIF
+          ENDIF
+        ENDIF
+        IF NOT bWithOutMaterialSys[GlueActData.SystemNo] THEN 
+          OutputSet(GlueSysOut[GlueActData.SystemNo].StartSys, TRUE)
+          WAIT FOR InputState(GlueSysIn[GlueActData.SystemNo].PrePressOK)
+          bSysActive[GlueActData.SystemNo]=TRUE
+          TRIGGER WHEN DISTANCE=1 DELAY=0.0 DO  iActualSystemNo=1
+        ENDIF
+        
+      DEFAULT
+        MsgQuitGlue("InternalError", ,99 )
+    ENDSWITCH
+    Glue_UserInit ()
+  ENDIF
+  CloseAllGuns()
+END
+;ENDFOLD (InitSystem)
+;FOLD SETPROGNO
+GLOBAL DEF SetProgNo(iSystemNo :IN, iProgNo :IN, iParamNo :IN)
+  INT iSystemNo
+  INT iProgNo
+  INT iParamNo
+
+  IF iSystemNo > 0 THEN
+    GlueActData.SystemNo=iSystemNo
+  ENDIF
+  IF  (bWithOutMaterial==FALSE)  THEN
+    RemoteStart()
+    LastParamNo=iParamNo
+    IF iProgNo>255 THEN
+      iProgNo=255
+    ENDIF
+    IF iProgNo<0 THEN
+      iProgNo=0
+    ENDIF
+    IF iParamNo>255 THEN
+      iParamNo=255
+    ENDIF
+    IF iParamNo<0 THEN
+      iParamNo=0
+    ENDIF
+    SWITCH  GlueActData.SystemNo
+      CASE 1,2,3,4
+        IF (((diSL1AutoMode==FALSE) AND (GlueActData.SystemNo==1)) OR ((diSL2AutoMode==FALSE) AND (GlueActData.SystemNo==2))) THEN
+					REPEAT
+						GLU_MsgPar[1]={par_type #value, par_int 0}
+						GLU_MsgPar[1].par_int=GlueActData.SystemNo
+						nGLU_Handle = Set_Krlmsg (#QUIT, GlueTech_Msg[5], GLU_MsgPar[], GLU_MsgOpt_Stop)
+						WHILE (Exists_KrlMsg(nGLU_Handle))
+							WAIT SEC 0.024
+						ENDWHILE
+					UNTIL (((diSL1AutoMode==FALSE) AND (GlueActData.SystemNo==1)) OR ((diSL2AutoMode==FALSE) AND (GlueActData.SystemNo==2)))
+      	ENDIF
+        WAIT FOR InputState(GlueSysIn[GlueActData.SystemNo].Ready); Added for Nordson (Dispenser Ready)
+        IF ((NOT bSysActive[GlueActData.SystemNo]) AND (SettingData[GlueActData.SystemNo].bWithMeasurementActive)) THEN
+          IF InputState(GlueSysIn[GlueActData.SystemNo].MeasurementActive) THEN 
+            GluePULSE(GlueSysOut[GlueActData.SystemNo].FinishMeasure, TRUE, 0.5)
+            WAIT FOR NOT InputState(GlueSysIn[GlueActData.SystemNo].MeasurementActive)
+          ENDIF
+        ENDIF
+        OutputSet(GlueSysOut[GlueActData.SystemNo].StartSys, TRUE); Moved here for Nordson System (Robot in Process)
+        WAIT SEC 0.050
+        OutputBSet(GlueActData.SystemNo, #eProgNo, iProgNo) ; (Part ID Bits)
+        WAIT SEC 0.050
+        OutputBSet(GlueActData.SystemNo, #eParamNo, iParamNo)
+        IF ((SettingData[GlueActData.SystemNo].MirrorPgno) AND (NOT GlueSetupMode)) THEN
+          WAIT FOR InputB(GlueActData.SystemNo, #eProgRecieved)==iProgNo
+          WAIT FOR InputB(GlueActData.SystemNo, #eParamRecieved)==iParamNo
+        ENDIF
+        OutputSet(GlueCustomOut[GlueActData.SystemNo].ProgStrobe, TRUE); Created for Nordson (Style Strobe)
+        ; OutputSet(GlueSysOut[GlueActData.SystemNo].StartSys, TRUE); Moved prior to part id setting
+        ;WAIT FOR InputState(GlueSysIn[GlueActData.SystemNo].MeasurementActive); Added for Nordson (Dispense in Process)
+        ;OutputBSet(GlueActData.SystemNo, #eProgNo, 0) ; Reset (Part ID Bits)
+        ;OutputSet(GlueCustomOut[GlueActData.SystemNo].ProgStrobe, FALSE); Created for Nordson (Style Strobe)
+        WAIT FOR InputState(GlueSysIn[GlueActData.SystemNo].PrePressOk); Added for Nordson (Dispense in Process)
+      DEFAULT
+        MsgQuitGlue("InternalError", ,99 )
+    ENDSWITCH
+  ENDIF
+END
+;ENDFOLD (SetProgNo)
+;FOLD BEGIN 
+;--------------------------------------
+;-- SEAL START WITH PATH-TRIGGER ------
+;--------------------------------------
+GLOBAL DEF BEGIN()
+  REAL GunDelay
+  REAL SelectDelay
+  REAL AirDelay
+  REAL T_DISTANCE
+  REAL CheckDelay
+  REAL StartDelay
+
+  T_DISTANCE=GlueActData.TriggerDistance
+  IF ((bWithOutMaterial==FALSE) AND (bGLU_ContOff==FALSE))  THEN
+    IF BeadData[GlueActData.ScheduleNo].MaterialFactor==0 THEN
+      MsgQuitGlue("MaterialFactorNotInitialized",,7)
+    ELSE
+      BeginFactor=(BeadData[GlueActData.ScheduleNo].MaterialFactor/100.)
+    ENDIF
+    GunDelay=Equipment[GlueActData.SystemNo,GlueActData.DISP_GUN].GunOnDelay
+    AirDelay=Equipment[GlueActData.SystemNo,GlueActData.DISP_GUN].AirOnDelay
+    CheckDelay=GunDelay-iCheckDelay
+    SelectDelay=GunDelay-iSelectDelay
+    SWITCH  GlueActData.SystemNo
+      CASE 1,2,3,4 ; active system
+        IF NOT bWithoutMaterialSys[GlueActData.SystemNo] THEN 
+          IF SystemGroup[GlueActData.SystemNo] == #A THEN
+            TRIGGER WHEN PATH=T_DISTANCE DELAY=GunDelay DO BeginUp(GlueActData.SystemNo,GlueActData.DISP_GUN) PRIO=-1
+          ELSE
+            TRIGGER WHEN PATH=T_DISTANCE DELAY=SelectDelay DO SelectSysGun(GlueActData.SystemNo,GlueActData.DISP_GUN) PRIO=-1
+            TRIGGER WHEN PATH=T_DISTANCE DELAY=GunDelay DO BeginUp(GlueActData.SystemNo,GlueActData.DISP_GUN) PRIO=-1
+          ENDIF
+          IF GlueActData.Answer==#YES THEN
+            GlueActData.Answer=#NO
+            TRIGGER WHEN PATH=T_DISTANCE DELAY=CheckDelay DO BeginRoutines(GlueActData.SystemNo,#YES) PRIO=-1
+          ELSE
+            TRIGGER WHEN PATH=T_DISTANCE DELAY=CheckDelay DO BeginRoutines(GlueActData.SystemNo,#NO) PRIO=-1
+          ENDIF
+          IF SettingData[GlueActData.SystemNo].BeadShaping==#AIR THEN
+            TRIGGER WHEN PATH=T_DISTANCE DELAY=AirDelay DO OutputSet(GlueSysDoserOut[GlueActData.SystemNo].AirOn, TRUE) PRIO=-1
+          ENDIF
+        ENDIF
+
+      DEFAULT
+          MsgQuitGlue("InternalError", ,99 )
+    ENDSWITCH
+  ENDIF
+END
+;ENDFOLD (BEGIN)
+;FOLD BeginUp
+DEF BeginUp(iSystemNo :IN,iGunNo :IN)
+  INT iSystemNo, iGunNo
+  
+  SWITCH iGunNo
+    CASE 1,2,3,4	
+      OpenSysGun(iSystemNo, iGunNo, TRUE)
+      iActualGunNo=iGunNo
+    DEFAULT
+      MsgQuitGlue("InternalError", ,99 )
+  ENDSWITCH
+
+  SWITCH iSystemNo
+    CASE 1,2,3,4
+      IF bParamNoChanged THEN
+        OutputBSet(iSystemNo, #eParamNo, iSavedParamNo)
+      ENDIF
+    DEFAULT
+      MsgQuitGlue("InternalError", ,99 )
+  ENDSWITCH
+
+  bGunOpen=TRUE
+  MaterialFactor=BeginFactor
+END
+;ENDFOLD (BEGIN)
+;FOLD SWITCHBEADDATA
+GLOBAL DEF SwitchBeadData()
+  REAL T_Distance
+
+  IF  (bWithOutMaterial==FALSE)  THEN
+    IF WriteCounter == 5 THEN
+      WriteCounter=1
+    ELSE
+      WriteCounter=WriteCounter+1
+    ENDIF
+    InitAnalogValues()
+    IF LastBeadData<>GlueActData.ScheduleNo THEN
+      T_DISTANCE=GlueActData.TriggerDistance
+      IF BeadData[LastBeadData].MatFlowType==BeadData[GlueActData.ScheduleNo].MatFlowType THEN
+        IF BeadData[GlueActData.ScheduleNo].MatFlowType<>#SPEED_INDEP THEN
+          NewMaterialFactor[WriteCounter]=MFactor
+          TRIGGER WHEN PATH=T_DISTANCE DELAY=MDelay DO MaterialFactor=NewMaterialFactor[WriteCounter]
+          TRIGGER WHEN PATH=T_DISTANCE DELAY=MDelay DO MaterialOffset=MOffset
+        ELSE
+          NewMaterialOffset[WriteCounter]=MOffset
+          TRIGGER WHEN PATH=T_DISTANCE DELAY=MDelay DO MaterialOffset=NewMaterialOffset[WriteCounter]
+        ENDIF
+      ELSE
+        TRIGGER WHEN PATH=T_DISTANCE DELAY=MDelay DO SWITCHBEAD (GlueActData.ScheduleNo) PRIO=-1
+      ENDIF
+      IF SettingData[GlueActData.SystemNo].BeadShaping<>#NONE THEN
+        IF BeadData[GlueActData.ScheduleNo].AirFlowType<>#SPEED_INDEP THEN
+          NewAirFactor[WriteCounter]=AFactor
+          TRIGGER WHEN PATH=T_DISTANCE DELAY=ADelay DO AirFactor=NewAirFactor[WriteCounter]
+        ENDIF 
+        TRIGGER WHEN PATH=T_DISTANCE DELAY=ADelay DO AirOffset=AOffset
+      ENDIF
+      LastBeadData=GlueActData.ScheduleNo
+    ENDIF
+  ENDIF
+END
+;ENDFOLD (SwitchBeadData)
+;FOLD SwitchBead
+GLOBAL DEF SWITCHBEAD(iScheduleNo :IN)
+  INT iScheduleNo
+   
+  IF ReadCounter == 5 THEN
+    ReadCounter=1
+  ELSE
+    ReadCounter=ReadCounter+1
+  ENDIF
+   
+  NewMaterialFactorSwitch[ReadCounter]=MFactor
+  NewMaterialOffsetSwitch[ReadCounter]=MOffset
+  
+  SWITCH GlueActData.SystemNo
+    CASE 1,2,3,4 ; system 1 active
+      SWITCH BeadData[iScheduleNo].MatFlowType
+        CASE #TCP_SPEED
+          MaterialFactor=NewMaterialFactorSwitch[ReadCounter]
+          AoMatFlowOn(GlueActData.SystemNo, MaterialFactor, 0.0, MaterialDelay)
+        CASE #SPEED_INDEP 
+          MaterialOffset=NewMaterialOffsetSwitch[ReadCounter]
+          AoMatFlowOn(GlueActData.SystemNo, 0.0, MaterialOffset, 0)
+        DEFAULT
+          MsgQuitGlue("InternalError", ,99 )
+      ENDSWITCH
+    DEFAULT
+      MsgQuitGlue("InternalError", ,99 )
+  ENDSWITCH
+END
+;ENDFOLD (SwitchBead)
+;FOLD FINISH 
+GLOBAL DEF FINISH()
+  REAL GunDelay
+  REAL SelectDelay
+  REAL AirDelay
+  REAL T_DISTANCE
+  
+  T_DISTANCE=GlueActData.TriggerDistance
+  IF  ((bWithOutMaterial==FALSE)  AND (bGLU_ContOff==FALSE))  THEN        
+    GunDelay=Equipment[GlueActData.SystemNo,GlueActData.DISP_GUN].GunOffDelay
+    AirDelay=Equipment[GlueActData.SystemNo,1].AirOffDelay  
+    SWITCH  GlueActData.SystemNo
+    CASE 1,2,3,4 ; system 1 active
+      IF NOT bWithoutMaterialSys[GlueActData.SystemNo] THEN  
+        SWITCH GlueActData.DISP_GUN
+          CASE 1,2,3,4
+            TRIGGER WHEN PATH=T_DISTANCE DELAY=GunDelay DO OpenSysGun(GlueActData.SystemNo,GlueActData.DISP_GUN,FALSE) PRIO=-1
+          DEFAULT
+            MsgQuitGlue("InternalError", ,99 )
+        ENDSWITCH
+        IF SettingData[GlueActData.SystemNo].BeadShaping==#AIR THEN
+          TRIGGER WHEN PATH=T_DISTANCE DELAY=AirDelay DO OutputSet(GlueSysDoserOut[GlueActData.SystemNo].AirOn, FALSE) PRIO=-1
+        ENDIF
+        IF GlueActData.Answer==#YES THEN
+          GlueActData.Answer=#NO
+          TRIGGER WHEN PATH=T_DISTANCE DELAY=0 DO FinishMeasure(GlueActData.SystemNo) PRIO=-1
+        ENDIF
+      ENDIF
+    DEFAULT
+      MsgQuitGlue("InternalError", ,99 )
+    ENDSWITCH
+    TRIGGER WHEN PATH=T_DISTANCE DELAY=GunDelay DO bGunOpen=FALSE
+    IF GlueActData.ChangeDoser==#YES THEN
+      TRIGGER WHEN PATH=T_DISTANCE DELAY=GunDelay DO ChangeDoser() PRIO=-1
+    ENDIF
+  ENDIF
+END
+;ENDFOLD (FINISH)
+;FOLD DISPENSE COMPLETE 
+;--------------------------------------
+;-- SET SIGNAL FOR DISPENSE -----------
+;-- COMPLETE CLOSE ALL GUNS -----------
+;-- RESET START, RESET ANALOG-VALUES --
+;--------------------------------------
+GLOBAL DEF COMPLETE()
+  SWITCH  GlueActData.SystemNo
+    CASE 1,2,3,4
+      IF (bWithoutMaterialSys[GlueActData.SystemNo]==FALSE)  THEN
+        TRIGGER WHEN DISTANCE=0 DELAY=0 DO SUB_COMPLETE(GlueActData.SystemNo) PRIO=-1
+        ;FOLD CYCLE END'do172CycleEnd'
+      PULSE($OUT[172], TRUE,0.5)
+      WAIT SEC 0.5
+      ;ENDFOLD
+;do832GlueInProcess=FALSE
+      ENDIF
+    DEFAULT
+      MsgQuitGlue("InternalError", ,99 )
+  ENDSWITCH
+END
+;ENDFOLD (COMPLETE)
+;FOLD RELOAD
+;--------------------------------------
+;----- BEGIN OF RELOAD DOSER  ---------
+;--------------------------------------
+DEF Reload(iSystemNo :IN )
+; called from Sub_Complete()
+  INT iSystemNo
+  
+  IF (varstate("iSystemNo")==#declared) THEN
+    iSystemNo=GlueActData.SystemNo
+  ENDIF
+  
+  ReloadDoser(iSystemNo, #RELOAD_COMPL, 0.0)
+  
+END
+;ENDFOLD (RELOAD)
+;FOLD RELOADWAIT
+GLOBAL DEF ReloadWait(iSystemNo :IN )
+; called from CheckGluingSystem()
+;             ReloadFull() trigger
+  INT iSystemNo
+  
+  IF (varstate("iSystemNo")==#declared) THEN
+    iSystemNo=GlueActData.SystemNo
+  ENDIF
+  
+  ReloadDoser(iSystemNo, #RELOAD_WAIT, 0.0)
+
+END
+;ENDFOLD (RELOADWAIT)
+;FOLD RELOADFULL
+GLOBAL DEF ReloadFull()
+  IF  (bWithOutMaterial==FALSE)  THEN
+    ReloadFullStart=TRUE 
+    TRIGGER WHEN DISTANCE=1 DELAY=-10 DO ReloadWait(GlueActData.SystemNo) PRIO=-1
+  ENDIF
+END
+;ENDFOLD (RELOADFULL)
+;FOLD RELOADTIME
+GLOBAL DEF ReloadTime(dReloadTime :IN )
+; called from ILF
+  REAL dReloadTime
+  
+  ReloadDoser(GlueActData.SystemNo, #RELOAD_TIME, dReloadTime)
+
+END
+;ENDFOLD (RELOADTIME)
+;FOLD RELOADDOSER
+DEF ReloadDoser(iSystemNo :IN, eReloadType :IN, dReloadTime :IN)
+  DECL RELOAD_TYPE eReloadType
+  REAL dReloadTime
+  REAL dSavedAnout
+  BOOL bSavedStartSys
+  INT iSystemNo
+
+  IF (varstate("iSystemNo")==#declared) THEN
+    iSystemNo=GlueActData.SystemNo
+  ENDIF
+  bSavedStartSys=FALSE
+  IF  (bWithOutMaterial==FALSE)  THEN
+    SWITCH iSystemNo
+      CASE 1,2,3,4
+        IF NOT bWithoutMaterialSys[iSystemNo] THEN 
+          IF NOT InputState(GlueSysStateIn[iSystemNo].FaultApplication) THEN
+            dSavedAnout=$ANOUT[GlueSysOutA[iSystemNo].PrePressure]
+            AoPrePressureInit(iSystemNo, 0.0)
+            IF OutputState(GlueSysOut[iSystemNo].StartSys) THEN
+              bSavedStartSys=TRUE
+              OutputSet(GlueSysOut[iSystemNo].StartSys, FALSE)
+            ENDIF
+            IF InputState(GlueSysDoserGenIn[iSystemNo].ReferenceRequest) THEN
+              MasterDoser(iSystemNo)
+            ENDIF
+            
+            IF (eReloadType==#RELOAD_WAIT) OR (eReloadType==#RELOAD_TIME) THEN
+              iMsgParams[1]=iSystemNo
+              MsgStateGlue(iHandle, "DoserWillBeFilled", iMsgParams[], 4)
+            ENDIF
+            
+            ;called from Reload()
+            IF eReloadType==#RELOAD_COMPL THEN
+              GluePULSE(GlueSysDoserOut[iSystemNo].Fill,TRUE,0.5)
+            ENDIF
+
+            ;called from ReloadTime()
+            IF eReloadType==#RELOAD_TIME THEN
+              $TIMER[iTimerGlueTech]=dReloadTime*(-1000)
+              $TIMER_STOP[iTimerGlueTech]=FALSE
+              OutputSet(GlueSysDoserOut[iSystemNo].Fill, TRUE)
+              REPEAT
+                CONTINUE
+                WAIT SEC 0.05
+              UNTIL $TIMER_Flag[iTimerGlueTech]==TRUE OR InputState(GlueSysDoserSepIn[iSystemNo,1].Full)
+              OutputSet(GlueSysDoserOut[iSystemNo].Fill, FALSE)
+              $TIMER_STOP[iTimerGlueTech]=TRUE
+            ENDIF
+            
+            ;called from ReloadWait()
+            IF eReloadType==#RELOAD_WAIT THEN
+              IF ReloadFullStart THEN
+                GluePULSE(GlueSysDoserOut[iSystemNo].Fill,TRUE,1.5)
+                ReloadFullStart=FALSE
+              ELSE
+                OutputSet(GlueSysDoserOut[iSystemNo].Fill, TRUE)
+                WAIT FOR InputState(GlueSysDoserSepIn[iSystemNo,1].Full)
+                OutputSet(GlueSysDoserOut[iSystemNo].Fill, FALSE)
+              ENDIF
+            ENDIF
+            
+            AoPrePressureInit(iSystemNo, dSavedAnout)
+            IF bSavedStartSys THEN
+              OutputSet(GlueSysOut[iSystemNo].StartSys, TRUE)
+            ENDIF
+          ENDIF
+        ENDIF
+      DEFAULT
+        MsgQuitGlue("InternalError", ,99 )
+    ENDSWITCH
+    
+    ;called from Reload()
+    IF eReloadType==#RELOAD_COMPL THEN
+      CloseAllGuns()
+    ENDIF
+
+    ;ReloadTime(), ReloadWait()
+    ON_ERROR_PROCEED
+    IF (iHandle > 0) THEN
+      SWITCH($ERR.NUMBER)
+        CASE 0
+          bDummy=Clear_KrlMsg(iHandle) 
+        CASE 1422
+          ERR_CLEAR($ERR)
+        DEFAULT
+          ERR_RAISE($ERR)
+      ENDSWITCH    
+    ENDIF 
+  ENDIF
+
+END
+;ENDFOLD (RELOADDOSER)
+;--------------------------------------
+;------ END OF RELOAD DOSER  ----------
+;--------------------------------------
+;FOLD PURGE 
+;--------------------------------------
+;-- PURGE GUN ACCORDING TO TIME -------
+;--------------------------------------
+GLOBAL DEF PurgeTime(iPurgeTime :IN,iSystemNo :IN,ePurgeWithAir :IN,ePurgeMode :IN, iGunNo :IN)
+  INT iPurgeTime,iSystemNo, iGunNo
+  DECL ANSWER_TYPE ePurgeWithAir
+  DECL PURGE_TYPE ePurgeMode
+  
+  bStatePurgeTime=TRUE
+  Purge(iSystemNo, iPurgeTime, ePurgeWithAir, ePurgeMode, iGunNo, #PURGE_TIME)
+  bStatePurgeTime=FALSE
+END
+;ENDFOLD (PURGETIME)
+;FOLD PURGECOMPLETE
+GLOBAL DEF PurgeComplete(iSystemNo :IN ,ePurgeWithAir :IN,ePurgeMode :IN, iGunNo :IN)
+  INT iSystemNo, iGunNo
+  DECL ANSWER_TYPE ePurgeWithAir
+  DECL PURGE_TYPE ePurgeMode
+  
+  bStatePurge=TRUE
+  Purge(iSystemNo, 0, ePurgeWithAir, ePurgeMode, iGunNo, #PURGE_COMPL)
+  bStatePurge=FALSE
+END
+;ENDFOLD (PURGECOMPLETE)
+;FOLD PURGE
+DEF Purge(iSystemNo :IN, iPurgeTime :IN, ePurgeWithAir :IN,ePurgeMode :IN, iGunNo :IN, ePurgeVariant :IN)
+  INT iPurgeTime,iSystemNo, iGunNo
+  DECL ANSWER_TYPE ePurgeWithAir
+  DECL PURGE_TYPE ePurgeMode
+  DECL PURGEVARIANT_TYPE ePurgeVariant
+  
+  GlueActData.SystemNo=iSystemNo
+  iActualGunNo=iGunNo
+  bShowMessage=TRUE
+  bReleaseMessage=FALSE
+  
+  IF  (bWithOutMaterial==FALSE)  THEN
+    ResetGlueOut()
+    
+    SWITCH  iSystemNo
+      CASE 1,2,3,4
+        IF NOT bWithoutMaterialSys[iSystemNo] THEN 
+          IF InputState(GlueSysDoserGenIn[iSystemNo].ReferenceRequest) THEN
+            MasterDoser(iSystemNo)
+          ENDIF
+          GluePULSE(GlueSysOut[iSystemNo].HeatingUnitReset,TRUE,0.3)
+          GluePULSE(GlueSysOut[iSystemNo].PumpReset,TRUE,0.2)
+          IF (NOT InputState(GlueSysIn[iSystemNo].Ready)) THEN
+            iMsgParams[1]=iSystemNo
+            iMsgParams[2]=GlueSysIn[iSystemNo].Ready
+            MsgStateGlue(iHandle, "SystemNotReady", iMsgParams[], 1)
+            WHILE  (NOT InputState(GlueSysIn[iSystemNo].Ready) AND NOT bSimulate)
+              WAIT SEC 0.1
+            ENDWHILE
+            IF (iHandle > 0) THEN
+              bDummy=Clear_KrlMsg(iHandle) 
+            ENDIF 
+          ENDIF
+          bSimulate=FALSE
+          OutputSet(GlueSysDoserOut[iSystemNo].PurgeEnable, TRUE)
+          WAIT SEC 0.1
+          
+          IF (ePurgeVariant==#PURGE_TIME) AND (iPurgeTime<>0) THEN
+            $TIMER[iTimerGlueTech]=iPurgeTime*(-1000)
+            $TIMER_STOP[iTimerGlueTech]=FALSE
+          ENDIF
+          SWITCH iGunNo
+            CASE 1,2,3,4
+              IF SystemGroup[iSystemNo]==#B THEN
+                SelectSysGun(iSystemNo, iGunNo)
+                WAIT SEC iSelectDelay/1000.
+              ENDIF
+              OpenSysGun(iSystemNo, iGunNo, TRUE)				
+            DEFAULT
+              MsgQuitGlue("InternalError", ,99 )
+          ENDSWITCH
+          SWITCH SettingData[iSystemNo].GlueType
+            CASE #GLUE_1K
+              OutputSet(GlueSysDoserOut[iSystemNo].Purge, TRUE)
+            CASE #GLUE_2K
+              SWITCH ePurgeMode     
+                CASE #A
+                  OutputSet(GlueSysDoserOut[iSystemNo].PurgeA, TRUE)
+                CASE #B
+                  OutputSet(GlueSysDoserOut[iSystemNo].PurgeB, TRUE)
+                CASE #AB
+                  OutputSet(GlueSysDoserOut[iSystemNo].Purge, TRUE)
+                DEFAULT
+                  MsgQuitGlue("InternalError", ,99 )
+              ENDSWITCH     
+            DEFAULT
+              MsgQuitGlue("InternalError", ,99 )
+          ENDSWITCH
+          IF (ePurgeVariant==#PURGE_TIME) AND (iPurgeTime<>0) THEN
+            WAIT FOR InputState(GlueSysDoserGenIn[iSystemNo].PurgePassed) OR $TIMER_Flag[iTimerGlueTech]
+          ENDIF
+          IF (ePurgeVariant==#PURGE_COMPL) OR ((ePurgeVariant==#PURGE_TIME) AND (iPurgeTime==0)) THEN
+            WAIT SEC 0.1
+            WAIT FOR InputState(GlueSysDoserGenIn[iSystemNo].PurgePassed)
+          ENDIF
+          SWITCH SettingData[iSystemNo].GlueType
+            CASE #GLUE_1K    
+              OutputSet(GlueSysDoserOut[iSystemNo].Purge, FALSE)
+              IF (ePurgeVariant==#PURGE_TIME) AND (iPurgeTime<>0) THEN
+                OutputSet(GlueSysDoserOut[iSystemNo].PurgeEnable, FALSE)
+              ENDIF
+            CASE #GLUE_2K
+              SWITCH ePurgeMode     
+                CASE #A
+                  OutputSet(GlueSysDoserOut[iSystemNo].PurgeA, FALSE)
+                CASE #B
+                  OutputSet(GlueSysDoserOut[iSystemNo].PurgeB, FALSE)
+                CASE #AB
+                  OutputSet(GlueSysDoserOut[iSystemNo].Purge, FALSE)
+                DEFAULT
+                  MsgQuitGlue("InternalError", ,99 )
+              ENDSWITCH     
+            DEFAULT
+              MsgQuitGlue("InternalError", ,99 )
+          ENDSWITCH
+          IF (ePurgeVariant==#PURGE_TIME) AND (iPurgeTime<>0) THEN
+            $TIMER_STOP[iTimerGlueTech]=TRUE
+          ENDIF
+          IF ePurgeWithAir==#YES THEN
+            $TIMER[iTimerGlueTech]=dBlowTime*(-1000)
+            $TIMER_STOP[iTimerGlueTech]=FALSE
+            OutputSet(GlueSysDoserOut[iSystemNo].AirOn, TRUE)
+            WAIT FOR $TIMER_FLAG[iTimerGlueTech]
+            $TIMER_STOP[iTimerGlueTech]=TRUE
+            OutputSet(GlueSysDoserOut[iSystemNo].AirOn, FALSE)
+          ELSE
+            IF SettingData[iSystemNo].BeadShaping==#E_SWIRL THEN
+              WAIT SEC dWaitIfESwirl
+            ENDIF
+          ENDIF
+          SWITCH iGunNo
+            CASE 1,2,3,4
+              OpenSysGun(iSystemNo, iGunNo, FALSE)			
+            DEFAULT
+              MsgQuitGlue("InternalError", ,99 )
+          ENDSWITCH
+          OutputSet(GlueSysDoserOut[iSystemNo].PurgeEnable, FALSE)
+          IF bCheckSystem[iSystemNo] THEN
+            bRestartTimer=TRUE
+            StartTimer(iSystemNo, iTimerSystemValue[iSystemNo])
+          ENDIF
+          IF bReleaseMessage THEN
+            ReleaseStateMessage()
+          ENDIF
+        ENDIF
+      DEFAULT
+        MsgQuitGlue("InternalError", ,99 )
+    ENDSWITCH
+  ENDIF
+END ;(PURGE)
+;ENDFOLD (PURGE)
+;FOLD PURGEENABLE
+GLOBAL DEF PurgeEnable(ePurgeEnable :IN)
+; called from ILF
+  DECL ANSWER_TYPE ePurgeEnable
+  
+  IF ePurgeEnable==#YES THEN
+    SWITCH GlueActData.SystemNo
+      CASE 1,2,3,4
+        OutputSet(GlueSysDoserOut[GlueActData.SystemNo].PurgeEnable, TRUE)
+      DEFAULT
+        MsgQuitGlue("InternalError", ,99 )
+    ENDSWITCH
+  ELSE
+    SWITCH GlueActData.SystemNo
+      CASE 1,2,3,4
+        OutputSet(GlueSysDoserOut[GlueActData.SystemNo].PurgeEnable, FALSE)
+      DEFAULT
+        MsgQuitGlue("InternalError", ,99 )
+    ENDSWITCH
+  ENDIF
+END
+;ENDFOLD (PURGEENABLE)
+
+;FOLD STARTTIMER
+GLOBAL DEF StartTimer(iSysNo :IN,iSysTime :IN)
+  INT iSysNo, iSysTime
+  
+  IF  (bWithOutMaterial==FALSE)  THEN
+    IF iSysTime > 0 THEN
+      $TIMER_STOP[iTimerSystem[iSysNo]]=TRUE
+      iTimerSystemValue[iSysNo]=iSysTime
+      $TIMER[iTimerSystem[iSysNo]]=iSysTime*(-60000)
+      $TIMER_STOP[iTimerSystem[iSysNo]]=FALSE
+      bCheckSystem[iSysNo]=TRUE
+    ELSE
+      IF NOT bRestartTimer THEN
+        $TIMER_STOP[iTimerSystem[iSysNo]]=TRUE
+        bCheckSystem[iSysNo]=FALSE
+      ENDIF
+    ENDIF
+    bRestartTimer=FALSE
+  ENDIF
+END
+;ENDFOLD (STARTTIMER)
+;FOLD SUB_COMPLETE 
+;--------------------------------------
+;-- SUB_COMP TO SEND COMPLETE SIGNAL --
+;--------------------------------------
+GLOBAL DEF SUB_COMPLETE(iSystemNo :IN )
+  INT iSystemNo
+  
+  INTERRUPT OFF 3
+  ANALOG_IS_ACTIVE=FALSE
+  SWITCH iSystemNo
+    CASE 1,2,3,4
+      bSysCompleted[iSystemNo]=TRUE
+      OutputBSet(iSystemNo, #eReturnValueToPLC, GlueSysIn[iSystemNo].MaterialReturnValue)
+      OutputSet(GlueSysOut[iSystemNo].ReturnValueValid, TRUE)
+      IF GlueSysIn[iSystemNo].ReturnValueAckn > 0 THEN
+        WAIT FOR InputState(GlueSysIn[iSystemNo].ReturnValueAckn)
+      ENDIF
+      bMeasurementActive[iSystemNo]=FALSE
+      OutputSet(GlueSysOut[iSystemNo].ReturnValueValid, FALSE)
+      OutputSet(GlueSysOut[iSystemNo].StartSys, FALSE)
+      CloseGunsSystem(iSystemNo)
+      OutputSet(GlueSysDoserOut[iSystemNo].SwirlCoolingAir, FALSE)
+      AoMatFlowOff(iSystemNo)
+      AoMatFlowInit(iSystemNo, 0.0)
+      AoPrePressureInit(iSystemNo, 0.0)
+      IF SettingData[iSystemNo].BeadShaping<>#NONE THEN
+        OutputSet(GlueSysDoserOut[iSystemNo].AirOn, FALSE)
+        AoBeadShpOff(iSystemNo)
+        AoBeadShpInit(iSystemNo, 0.0)
+      ENDIF
+      bSysActive[iSystemNo]=FALSE
+      bGLU_ContOff=FALSE      
+    DEFAULT
+      MsgQuitGlue("InternalError", ,99 )
+  ENDSWITCH
+  Reload(iSystemNo )
+  INTERRUPT ON 3
+END
+;ENDFOLD (SUB_COMPLETE)
+;FOLD ERRORCHECK
+GLOBAL DEF ErrorCheck(iSystemNo :IN )
+  INT iSystemNo
+  
+  IF (bWithOutMaterial==FALSE) THEN
+    IF SystemGroup[iSystemNo]==#A THEN
+    SWITCH  iSystemNo
+      CASE 1,2,3,4 ; system 1 active
+        IF (bWithoutMaterialSys[iSystemNo]==FALSE) THEN 
+          IF InputState(GlueSysStateIn[iSystemNo].AccumulationError) THEN
+            WHILE InputState(GlueSysStateIn[iSystemNo].AccumulationError)
+              SWITCH SettingData[iSystemNo].QuitFault
+                CASE #SINGLE
+                  DisplaySCAMessage(InputB(iSystemNo, #eErrorNo),TRUE)
+                  OutputSet(GlueSysStateOut[iSystemNo].SingleFaultAckn, TRUE)
+                  WHILE NOT InputState(GlueSysIn[iSystemNo].HandShake)
+                    WAIT SEC 0.05
+                  ENDWHILE
+                  OutputSet(GlueSysStateOut[iSystemNo].SingleFaultAckn, FALSE)
+                CASE #ALL
+                  MsgQuitGlue("AccumulationFaultController",1,16 )
+                  OutputSet(GlueSysStateOut[iSystemNo].FaultAckn, TRUE)
+                  WHILE NOT InputState(GlueSysIn[iSystemNo].HandShake)
+                    WAIT SEC 0.05
+                  ENDWHILE
+                  OutputSet(GlueSysStateOut[iSystemNo].FaultAckn, FALSE)
+                CASE #SPS
+                  OutputSet(GlueSysStateOut[iSystemNo].FaultToPLC, TRUE)
+                  IF bErrorNoToPLC THEN
+                    OutputBSet(iSystemNo, #eErrorNo, InputB(iSystemNo, #eErrorNo))
+                  ENDIF
+                  DisplaySCAMessage(InputB(iSystemNo, #eErrorNo),FALSE)
+                  WAIT FOR InputState(GlueSysStateIn[iSystemNo].QuitByPLC)
+                  OutputSet(GlueSysStateOut[iSystemNo].FaultToPLC, FALSE)
+                  OutputSet(GlueSysStateOut[iSystemNo].SingleFaultAckn, TRUE)
+                  WHILE NOT InputState(GlueSysIn[iSystemNo].HandShake)
+                    WAIT SEC 0.05
+                  ENDWHILE
+                  OutputSet(GlueSysStateOut[iSystemNo].SingleFaultAckn, FALSE)
+                DEFAULT
+                  MsgQuitGlue("InternalError", ,99 )
+              ENDSWITCH
+            ENDWHILE
+          ENDIF
+          IF ((InputState(GlueSysStateIn[iSystemNo].FaultApplication)) OR (InputState(GlueSysStateIn[iSystemNo].MatHigh)) OR (InputState(GlueSysStateIn[iSystemNo].MatLow)) OR (InputState(GlueSysStateIn[iSystemNo].MixtureHigh)) OR (InputState(GlueSysStateIn[iSystemNo].MixtureLow))) THEN
+            MsgNotifyGlue("FaultController",iSystemNo, 3)
+            IF InputState(GlueSysStateIn[iSystemNo].MatHigh) THEN
+              MsgNotifyGlue("FaultMaterialHigh",iSystemNo, 5)
+              IF SettingData[iSystemNo].bSingleFaultToPLC THEN
+                OutputSet(GlueSysStateOut[iSystemNo].FaultToPLC, TRUE)
+                WAIT FOR NOT InputState(GlueSysStateIn[iSystemNo].MatHigh)
+                OutputSet(GlueSysStateOut[iSystemNo].FaultToPLC, FALSE)
+              ELSE
+                WAIT FOR NOT InputState(GlueSysStateIn[iSystemNo].MatHigh)
+              ENDIF
+            ENDIF
+            IF InputState(GlueSysStateIn[iSystemNo].MatLow) THEN
+              MsgNotifyGlue("FaultMaterialLow",iSystemNo, 6)
+              IF SettingData[iSystemNo].bSingleFaultToPLC THEN
+                OutputSet(GlueSysStateOut[iSystemNo].FaultToPLC, TRUE)
+                WAIT FOR NOT InputState(GlueSysStateIn[iSystemNo].MatLow)
+                OutputSet(GlueSysStateOut[iSystemNo].FaultToPLC, FALSE)
+              ELSE
+                WAIT FOR NOT InputState(GlueSysStateIn[iSystemNo].MatLow)
+              ENDIF
+            ENDIF
+            IF InputState(GlueSysStateIn[iSystemNo].MixtureHigh) THEN
+              MsgNotifyGlue("FaultMixtureHigh",iSystemNo, 13)
+              IF SettingData[iSystemNo].bSingleFaultToPLC THEN
+                OutputSet(GlueSysStateOut[iSystemNo].FaultToPLC, TRUE)
+                WAIT FOR NOT InputState(GlueSysStateIn[iSystemNo].MixtureHigh)
+                OutputSet(GlueSysStateOut[iSystemNo].FaultToPLC, FALSE)
+              ELSE
+                WAIT FOR NOT InputState(GlueSysStateIn[iSystemNo].MixtureHigh)
+              ENDIF
+            ENDIF
+            IF InputState(GlueSysStateIn[iSystemNo].MixtureLow) THEN
+              MsgNotifyGlue("FaultMixtureLow",iSystemNo, 14)
+              IF SettingData[iSystemNo].bSingleFaultToPLC THEN
+                OutputSet(GlueSysStateOut[iSystemNo].FaultToPLC, TRUE)
+                WAIT FOR NOT InputState(GlueSysStateIn[iSystemNo].MixtureLow)
+                OutputSet(GlueSysStateOut[iSystemNo].FaultToPLC, FALSE)
+              ELSE
+                WAIT FOR NOT InputState(GlueSysStateIn[iSystemNo].MixtureLow)
+              ENDIF
+            ENDIF
+          ENDIF
+        ENDIF
+      DEFAULT
+        MsgQuitGlue("InternalError", ,99 )
+    ENDSWITCH
+    ENDIF
+
+    IF SystemGroup[iSystemNo]==#B THEN
+    SWITCH  iSystemNo
+      CASE 1,2,3,4 ; active system
+        IF ((NOT InputState(GlueSysStateIn[iSystemNo].FaultApplication)) OR (NOT InputState(GlueSysStateIn[iSystemNo].MatHigh)) OR (NOT InputState(GlueSysStateIn[iSystemNo].MatLow)) OR (NOT InputState(GlueSysStateIn[iSystemNo].MixtureHigh))  OR (NOT InputState(GlueSysStateIn[iSystemNo].MixtureLow))) Then
+          MsgNotifyGlue("FaultController",iSystemNo, 3)
+          IF NOT InputState(GlueSysStateIn[iSystemNo].MatHigh) THEN
+            MsgNotifyGlue("FaultMaterialHigh",iSystemNo, 5)
+          ENDIF
+          IF NOT InputState(GlueSysStateIn[iSystemNo].MatLow) THEN
+            MsgNotifyGlue("FaultMaterialLow",iSystemNo, 6)
+          ENDIF
+          OutputSet(GlueSysOut[iSystemNo].FinishMeasure, FALSE)
+          IF SettingData[iSystemNo].QuitFault == #SPS THEN
+            OutputSet(GlueSysStateOut[iSystemNo].FaultToPLC, TRUE)
+          ELSE
+            GluePULSE(GlueSysStateOut[iSystemNo].FaultAckn,TRUE,0.2)
+          ENDIF
+          WHILE NOT InputState(GlueSysStateIn[iSystemNo].FaultApplication)
+            WAIT SEC 0.05
+          ENDWHILE
+          OutputSet(GlueSysStateOut[iSystemNo].FaultToPLC, FALSE)
+        ENDIF
+      DEFAULT
+        MsgQuitGlue("InternalError", ,99 ) ; internal error
+    ENDSWITCH
+    ENDIF
+  ENDIF
+END
+;ENDFOLD (ERRORCHECK)
+;FOLD SETCPPARAMETER
+GLOBAL DEF SetCPParameter(CP_ACC :IN,ORI_ACC :IN )
+  ;Set parameters for high constant velocity.
+  REAL CP_ACC,ORI_ACC
+  
+  DEF_ACC_CP=$ACC_MA.CP*CP_ACC/100.
+  DEF_ACC_ORI1=$ACC_MA.ORI1*ORI_ACC/100.
+  DEF_ACC_ORI2=$ACC_MA.ORI2*ORI_ACC/100.
+  DEF_VEL_ORI1=$VEL_MA.ORI1*ORI_ACC/100.
+  DEF_VEL_ORI2=$VEL_MA.ORI2*ORI_ACC/100.
+  $VEL.ORI1=DEF_VEL_ORI1 ;$VEL_MA.ORI1*ORI_ACC/100.
+  $VEL.ORI2=DEF_VEL_ORI2 ;$VEL_MA.ORI2*ORI_ACC/100.
+  $ACC.ORI1=DEF_ACC_ORI1 ;$ACC_MA.ORI1*ORI_ACC/100.
+  $ACC.ORI2=DEF_ACC_ORI2 ;$ACC_MA.ORI2*ORI_ACC/100.
+END
+;ENDFOLD (SETCPPARAMETER)
+;FOLD RESETCPPARAMETER
+GLOBAL DEF ReSetCPParameter()
+  ;Reset of parameters for high constant velocity.
+  DEF_ACC_CP=2.3
+  DEF_ACC_ORI1=100.0
+  DEF_ACC_ORI2=100.0
+  DEF_VEL_ORI1=200.0
+  DEF_VEL_ORI2=200.0
+END
+;ENDFOLD (RESETCPPARAMETER)
+;FOLD GLUE_PLC_INIT
+GLOBAL DEF GLUE_PLC_Init()
+  INT iCnt
+
+  GlueBackgroundInit()
+  bGunOff=FALSE
+  bGunOpen=FALSE
+  bRobotMustWait=FALSE
+  
+  FOR iCnt= 1 TO 4
+    bSwitchOnSwirl[iCnt]=FALSE
+    OutputSet(GlueSysOut[iCnt].On, TRUE)
+    OutputSet(GlueSysOut[iCnt].EnHeating, TRUE)
+    OutputSet(GlueSysOut[iCnt].EnPump, TRUE)
+    OutputSet(GlueSysOut[iCnt].EnHydr, TRUE)
+    OutputSet(GlueSysOut[iCnt].EnTimerHeating, TRUE)
+  ENDFOR
+  
+  Glue_UserPLCInit()
+END
+;ENDFOLD (GLUE_PLC_Init)
+;FOLD GLUE_PLC
+GLOBAL DEF GLUE_PLC()
+  INT iCnt
+
+  IF $MODE_OP == #EX THEN
+    FOR iCnt=1 TO 4
+      IF SettingData[iCnt].bNegMatLogic THEN
+        bWithoutMaterialSys[iCnt]=NOT InputState(GlueSysIn[iCnt].DryByPLC)
+      ELSE
+        bWithoutMaterialSys[iCnt]=InputState(GlueSysIn[iCnt].DryByPLC)
+      ENDIF
+    ENDFOR
+    
+    IF iNumberOfDispenseSystems == 2 THEN
+      bWithOutMaterial=(bWithOutMaterialSys[1] AND bWithOutMaterialSys[2])
+    ELSE
+      IF iNumberOfDispenseSystems == 3 THEN
+        bWithOutMaterial=(bWithOutMaterialSys[1] AND bWithOutMaterialSys[2] AND bWithOutMaterialSys[3])
+      ELSE
+				IF iNumberOfDispenseSystems == 4 THEN
+				  bWithOutMaterial=(bWithOutMaterialSys[1] AND bWithOutMaterialSys[2] AND bWithOutMaterialSys[3] AND bWithOutMaterialSys[4])
+				ELSE
+			    bWithOutMaterial=(bWithOutMaterialSys[1])
+				ENDIF
+      ENDIF
+    ENDIF
+  ELSE
+    FOR iCnt=1 TO 4
+      bWithoutMaterialSys[iCnt]=GlueDryMode
+    ENDFOR
+    bWithOutMaterial=GlueDryMode
+  ENDIF
+
+	IF (VARSTATE("$PRO_NAME1[]")==#INITIALIZED) THEN
+		IF (StrComp($PRO_NAME1[],"CELL",#NOT_CASE_SENS)==TRUE) THEN
+			IF (($MODE_OP == #EX) AND ($PRO_ACT==TRUE) AND (bGLU_StartOS==FALSE)) THEN
+				bGLU_StartOS=TRUE
+			ELSE
+				IF ((bGLU_StartOS==TRUE) AND (($MODE_OP <> #EX) OR ($PRO_ACT==FALSE))) THEN
+					bGlu_StartOS=FALSE
+					bGlU_RemoteStart=FALSE
+					;doSL1RemoteStart=FALSE
+					doSL2RemoteStart=FALSE
+				ENDIF
+			ENDIF
+			
+			IF ((bGLU_StartOS==TRUE) AND (bGlU_RemoteStart==FALSE)) THEN
+				IF (InputState(GlueSysIn[1].Ready)==FALSE) THEN
+					;doSL1RemoteStart=TRUE
+				ELSE
+					;doSL1RemoteStart=FALSE
+				ENDIF
+				IF (InputState(GlueSysIn[2].Ready)==FALSE) THEN
+					doSL2RemoteStart=TRUE
+				ELSE
+					doSL2RemoteStart=FALSE
+				ENDIF
+				bGlU_RemoteStart=TRUE
+			ENDIF
+		
+			IF ((bGLU_StartOS==TRUE) AND (bGlU_RemoteStart==TRUE)) THEN
+				;IF (((doSL1RemoteStart==TRUE) AND (diSL1RmtStrtInProc==TRUE)) OR (InputState(GlueSysIn[1].Ready)==TRUE)) THEN
+				;	doSL1RemoteStart=FALSE
+				;ENDIF
+				IF (((doSL2RemoteStart==TRUE) AND (diSL2RmtStrtInProc==TRUE)) OR (InputState(GlueSysIn[2].Ready)==TRUE)) THEN
+					doSL2RemoteStart=FALSE
+				ENDIF
+			ENDIF
+		ELSE
+			bGlu_StartOS=FALSE
+			bGlU_RemoteStart=FALSE
+			;doSL1RemoteStart=FALSE
+			doSL2RemoteStart=FALSE
+		ENDIF
+	ELSE
+		bGlu_StartOS=FALSE
+		bGlU_RemoteStart=FALSE
+		;doSL1RemoteStart=FALSE
+		doSL2RemoteStart=FALSE
+	ENDIF
+	
+  FOR iCnt=1 TO iNumberOfDispenseSystems
+    SwitchSystem(iCnt)
+  ENDFOR
+  
+  IF (($PRO_STATE1==#P_FREE) AND (bGLU_pFree_OS==FALSE)) THEN
+  	bGLU_pFree_OS=TRUE
+  	ResetGlueOut()
+  	nGLU_Handle = Set_Krlmsg (#NOTIFY, GlueTech_Msg[6], GLU_MsgPar[], GLU_MsgOpt_Stop) ; Program canceled.  All Dispense values reset.
+  ENDIF
+
+  IF (($PRO_STATE1<>#P_FREE) AND (bGLU_pFree_OS==TRUE)) THEN
+  	bGLU_pFree_OS=FALSE
+  ENDIF
+  
+  IF (($PRO_STATE1==#P_STOP) OR $ROB_STOPPED) AND (bGunOpen==FALSE) THEN
+    IF (IsMessageSet (209)) THEN
+      bPassiveStop=TRUE
+    ENDIF
+  ENDIF
+
+  IF (($PRO_STATE1==#P_STOP) OR $ROB_STOPPED) AND (bGunOpen == TRUE) AND (NOT bPTPGlue) THEN
+    IF NOT bGlueRestart THEN
+      SwitchOff (NOT $ALARM_STOP)
+      bGunOff=TRUE
+    ENDIF
+  ENDIF
+  
+  IF (NOT $ROB_STOPPED) AND (bGunOff == TRUE) AND (eGlueRestartMode==#GLUE_OFF) AND (NOT STOPM_FLAG) THEN
+    FOR iCnt=1 TO 4
+      OutputSet(GlueSysOut[iCnt].StartSys, FALSE)
+    ENDFOR
+  ENDIF
+  
+  IF (NOT $ROB_STOPPED) AND (NOT $MOVE_BCO) AND (bGunOff == TRUE) AND (eGlueRestartMode==#GLUE_CONT) AND (NOT STOPM_FLAG)  THEN
+    IF (NOT (SettingData[iActualSystemNo].BeadShaping==#NONE)) THEN
+      IF (iMaterialAnswer==1) THEN
+        OutputSet(GlueSysDoserOut[iActualSystemNo].AirOn, FALSE)
+      ELSE
+        SwitchOnSwirlSystem(iActualSystemNo)
+      ENDIF
+    ENDIF    
+  ENDIF
+  
+  IF (NOT $ROB_STOPPED) AND (NOT $MOVE_BCO) AND (bGunOff == TRUE) AND (bGunOpen == TRUE) AND (eGlueRestartMode==#GLUE_CONT) AND (NOT STOPM_FLAG) THEN
+    SWITCH iActualSystemNo
+      CASE 1,2,3,4
+        IF NOT bWithoutMaterialSys[iActualSystemNo] THEN 
+          OutputSet(GlueSysOut[iActualSystemNo].StartSys, TRUE)
+          IF NOT (InputState(GlueSysIn[iActualSystemNo].Ready) AND InputState(GlueSysIn[iActualSystemNo].PrePressOk)) THEN
+            iMsgParams[1]=iActualSystemNo
+            iMsgParams[2]=GlueSysIn[iActualSystemNo].Ready
+            ;;;JTH 9/13/18 Message Disabled MsgStateGlue(iHandle, "SystemNotReady", iMsgParams[], 1)
+          ENDIF
+          IF $MODE_OP==#EX THEN
+            OpenGunSystem(iActualSystemNo)
+          ELSE
+            IF NOT bWasStopMess THEN
+              OpenGunSystem(iActualSystemNo)
+            ELSE
+              IF (iMaterialAnswer==2) THEN
+                OpenGunSystem(iActualSystemNo)
+                iMaterialAnswer=0
+                bWasStopMess=FALSE
+              ENDIF
+            ENDIF
+          ENDIF
+          bGunOff=FALSE
+        ENDIF
+    ENDSWITCH
+  ENDIF
+
+  GlueDataMapping()
+  
+  Glue_UserPLC()
+END
+;ENDFOLD (GLUE_PLC)
+;FOLD CHECKGLUINGSYSTEM
+GLOBAL DEF CheckGluingSystem(eFillDoser :IN)
+  DECL ANSWER_TYPE eFillDoser
+
+  bShowMessage=TRUE
+  bReleaseMessage=FALSE
+  IF  (bWithOutMaterial==FALSE)  THEN
+    SWITCH  GlueActData.SystemNo
+      CASE 1,2,3,4
+        IF NOT bWithoutMaterialSys[GlueActData.SystemNo] THEN 
+          IF (NOT InputState(GlueSysIn[GlueActData.SystemNo].Ready)) THEN
+            iMsgParams[1]=GlueActData.SystemNo
+            iMsgParams[2]=GlueSysIn[GlueActData.SystemNo].Ready
+            MsgStateGlue(iHandle, "SystemNotReady", iMsgParams[], 1)
+            WHILE  (NOT InputState(GlueSysIn[GlueActData.SystemNo].Ready) AND NOT bSimulate)
+              WAIT SEC 0.1
+            ENDWHILE
+            IF (iHandle > 0) THEN
+              bDummy=Clear_KrlMsg(iHandle) 
+            ENDIF 
+          ENDIF
+          bSimulate=FALSE
+          IF ((NOT InputState(GlueSysDoserSepIn[GlueActData.SystemNo,1].Full) AND NOT InputState(GlueSysDoserSepIn[GlueActData.SystemNo,2].Full)) AND (SettingData[GlueActData.SystemNo].iNumberOfDoser<>0) AND (eFillDoser==#YES)) THEN
+            ReloadWait(1)
+          ENDIF
+          IF (NOT (InputState(GlueSysIn[GlueActData.SystemNo].HydraulicIsOn) AND InputState(GlueSysIn[GlueActData.SystemNo].HeatingIsOn))) THEN
+            iMsgParams[1]=GlueSysIn[GlueActData.SystemNo].PumpIsOn
+            iMsgParams[2]=GlueSysIn[GlueActData.SystemNo].HeatingIsOn
+            iMsgParams[3]=GlueSysIn[GlueActData.SystemNo].HydraulicIsOn
+            SWITCH  GlueActData.SystemNo
+              CASE 1
+                MsgStateGlue(iHandle, "PeripherySys1NotReady", iMsgParams[], 10)
+              CASE 2
+                MsgStateGlue(iHandle, "PeripherySys2NotReady", iMsgParams[], 10)
+              CASE 3
+                MsgStateGlue(iHandle, "PeripherySys3NotReady", iMsgParams[], 10)
+              CASE 4
+                MsgStateGlue(iHandle, "PeripherySys4NotReady", iMsgParams[], 10)
+            ENDSWITCH
+            WHILE (NOT (InputState(GlueSysIn[GlueActData.SystemNo].PumpIsOn) AND InputState(GlueSysIn[GlueActData.SystemNo].HydraulicIsOn) AND InputState(GlueSysIn[GlueActData.SystemNo].HeatingIsOn)) AND NOT bSimulate)
+              WAIT SEC 0.1
+            ENDWHILE
+            IF (iHandle > 0) THEN
+              bDummy=Clear_KrlMsg(iHandle) 
+            ENDIF 
+          ENDIF
+          bSimulate=FALSE
+          IF SettingData[GlueActData.SystemNo].BeadShaping==#E_SWIRL THEN
+            IF (NOT (InputState(GlueSysIn[GlueActData.SystemNo].SwirlReady))) THEN
+              iMsgParams[1]=GlueActData.SystemNo
+              iMsgParams[2]=GlueSysIn[GlueActData.SystemNo].SwirlReady
+              MsgStateGlue(iHandle, "SwirlNotReady", iMsgParams[], 17)
+              WHILE (NOT (InputState(GlueSysIn[GlueActData.SystemNo].SwirlReady)) AND NOT bSimulate)
+                WAIT SEC 0.1
+              ENDWHILE
+              IF (iHandle > 0) THEN
+                bDummy=Clear_KrlMsg(iHandle) 
+              ENDIF 
+            ENDIF
+            bSimulate=FALSE
+          ENDIF
+        ENDIF
+      DEFAULT
+        MsgQuitGlue("InternalError", ,99 )
+    ENDSWITCH
+  ENDIF
+END
+;ENDFOLD (CheckGluingSystem)
+;FOLD GLUE_TECHSTOP
+GLOBAL DEF GLUE_TechStop()
+  IF (NOT bPassiveStop) THEN
+    BRAKE
+    SwitchOff (NOT $ALARM_STOP)
+    IF bGunOpen==TRUE THEN    ;APP// Merker fuer "Auf der Bahn", beim Wiederanlauf Merker fuer Pistole wieder aufmachen setzen
+      bGunOff=TRUE
+    ENDIF
+  ELSE
+    IF bPassiveStop THEN
+      bPassiveStop=FALSE
+    ENDIF
+  ENDIF
+END
+;ENDFOLD (GLUE_TechStop)
+;FOLD GLUE_RESTART
+GLOBAL DEF GLUE_Restart()
+  INT iCnt, iAnswer
+  BOOL bAnswer
+
+  iMaterialAnswer=0
+  bAnswer=FALSE
+  bOpenGunAgain=TRUE
+  bGlueRestart=TRUE
+  bReleaseMessage=FALSE
+  IF  (bWithOutMaterial==FALSE)  THEN
+    IF bRobotMustWait AND NOT (bStatePurge OR bStatePurgeTime) THEN
+      iMsgParams[1]=iActualSystemNo
+      SWITCH iActualSystemNo
+        CASE 1,2,3,4
+        DEFAULT
+          MsgQuitGlue("InternalError", ,99 )
+      ENDSWITCH
+      iMsgParams[2]=GlueSysIn[iActualSystemNo].SwirlReady
+      MsgStateGlue(iHandle, "SwirlNotReady", iMsgParams[], 17)
+      bReleaseMessage=TRUE
+      WAIT FOR NOT bRobotMustWait
+      IF bReleaseMessage THEN
+        ReleaseStateMessage()
+      ENDIF
+    ENDIF
+  ENDIF
+  IF  (bGunOpen==TRUE) THEN
+    SWITCH  eGlueRestartMode
+      CASE #GLUE_OFF
+        FOR iCnt=1 TO 4
+          OutputSet(GlueSysDoserOut[iCnt].SwirlCoolingAir, FALSE)
+          OutputSet(GlueSysDoserOut[iCnt].AirOn, FALSE)
+          OutputSet(GlueSysOut[iCnt].StartSys, FALSE)
+        ENDFOR
+      CASE #GLUE_CONT
+        IF NOT ($MODE_OP==#EX) THEN
+          iAnswer = MsgDialogGlue( "WhereTheProcessShouldBeContinued", "GLUE", , , "skGlueOn|skBCO|skGlueOff|||| ", 20)
+          REPEAT
+            SWITCH iAnswer
+              CASE 1            ; GlueOn pressed continue GunOff
+                iMaterialAnswer=1
+                bAnswer=TRUE
+                bWasStopMess=TRUE
+                MsgNotifyGlue ("GlueOnSelected", , 18)
+              CASE 2            ; BCO pressed continue GunOpen
+                iMaterialAnswer=2
+                bAnswer=TRUE
+                bWasStopMess=TRUE
+                MsgNotifyGlue ("BCOSelected", , 19)
+              CASE 3            ; BCO pressed continue GunOpen
+                iMaterialAnswer=3
+                bAnswer=TRUE
+                bWasStopMess=TRUE
+                bGLU_ContOff=TRUE
+				        OutputSet(GlueSysOut[GlueActData.SystemNo].FinishMeasure, TRUE)
+				        WAIT SEC 0.050
+				        OutputSet(GlueSysOut[GlueActData.SystemNo].FinishMeasure, FALSE)
+				        WAIT SEC 0.050
+				        OutputSet(GlueSysOut[GlueActData.SystemNo].StartSys, FALSE)
+				        GluePULSE(GlueSysStateOut[GlueActData.SystemNo].SingleFaultAckn, TRUE, 0.150)
+                MsgNotifyGlue ("GlueOffSelected", , 20)
+              DEFAULT
+                iMaterialAnswer=3
+                MsgQuitGlue("InternalError", ,99 )
+            ENDSWITCH
+          UNTIL bAnswer==TRUE
+          IF ((bAnswer==TRUE) AND (iMaterialAnswer==1)) THEN
+            CloseAllGuns()           
+            bOpenGunAgain=FALSE
+            bGunOff=FALSE
+          ENDIF
+        ENDIF
+        IF bOpenGunAgain THEN
+          SWITCH  iActualSystemNo
+            CASE 1,2,3,4
+              IF NOT (InputState(GlueSysIn[iActualSystemNo].Ready) AND InputState(GlueSysIn[iActualSystemNo].PrePressOk)) THEN
+                iMsgParams[1]=iActualSystemNo
+                iMsgParams[2]=GlueSysIn[iActualSystemNo].Ready
+                MsgStateGlue(iHandle, "SystemNotReady", iMsgParams[], 1)
+                WHILE NOT (InputState(GlueSysIn[iActualSystemNo].Ready) AND InputState(GlueSysIn[iActualSystemNo].PrePressOk))
+                  WAIT SEC 0.1
+                ENDWHILE
+                IF (iHandle > 0) THEN
+                  bDummy=Clear_KrlMsg(iHandle) 
+                ENDIF 
+              ENDIF
+              GluePULSE(GlueSysStateOut[iActualSystemNo].SingleFaultAckn,TRUE,0.2)
+              GluePULSE(GlueSysStateOut[iActualSystemNo].FaultAckn,TRUE,0.2)
+              IF (SettingData[iActualSystemNo].BeadShaping<>#NONE) THEN
+                SwitchOnSwirlSystem(iActualSystemNo)
+              ENDIF
+            DEFAULT
+              MsgQuitGlue("InternalError", ,99 )
+          ENDSWITCH
+        ENDIF
+      CASE #GLUE_USER
+        GLUE_UserRestart ()
+      DEFAULT
+        MsgQuitGlue("InternalError", ,99 )
+    ENDSWITCH
+  ELSE
+    IF eGlueRestartMode==#GLUE_OFF THEN
+      FOR iCnt=1 TO 4
+        OutputSet(GlueSysDoserOut[iCnt].SwirlCoolingAir, FALSE)
+        OutputSet(GlueSysDoserOut[iCnt].AirOn, FALSE)
+        OutputSet(GlueSysOut[iCnt].StartSys, FALSE)
+      ENDFOR
+    ENDIF
+  ENDIF
+  IF  (bWithOutMaterial==FALSE AND (bGunOpen==FALSE) AND (eGlueRestartMode==#GLUE_CONT)) THEN
+    SWITCH  iActualSystemNo
+      CASE 1,2,3,4
+        IF ((NOT bSysCompleted[iActualSystemNo]) AND (NOT bMeasurementActive[iActualSystemNo]) AND (NOT bWithoutMaterialSys[iActualSystemNo])) THEN 
+          OutputSet(GlueSysOut[iActualSystemNo].StartSys, TRUE)
+          IF NOT (InputState(GlueSysIn[iActualSystemNo].Ready) AND InputState(GlueSysIn[iActualSystemNo].PrePressOk)) THEN
+            iMsgParams[1]=iActualSystemNo
+            iMsgParams[2]=GlueSysIn[iActualSystemNo].Ready
+            MsgStateGlue(iHandle, "SystemNotReady", iMsgParams[], 1)
+            WHILE NOT (InputState(GlueSysIn[iActualSystemNo].Ready) AND InputState(GlueSysIn[iActualSystemNo].PrePressOK))
+              WAIT SEC 0.1
+            ENDWHILE
+            IF (iHandle > 0) THEN
+              bDummy=Clear_KrlMsg(iHandle) 
+            ENDIF 
+          ENDIF
+          GluePULSE(GlueSysStateOut[iActualSystemNo].SingleFaultAckn,TRUE,0.2)
+          GluePULSE(GlueSysStateOut[iActualSystemNo].FaultAckn,TRUE,0.2)
+          IF (SettingData[iActualSystemNo].BeadShaping<>#NONE) THEN
+            SwitchOnSwirlSystem(iActualSystemNo)
+          ENDIF
+        ENDIF
+      DEFAULT
+        MsgQuitGlue("InternalError", ,99 )
+    ENDSWITCH
+  ENDIF
+  IF $ROB_STOPPED AND (bStatePurge OR bStatePurgeTime) THEN      ;APP// UC: Restart after TechStop while purging
+    IF (bWithOutMaterial==FALSE) THEN
+      SWITCH iActualSystemNo
+        CASE 1,2,3,4
+          IF (NOT bWithoutMaterialSys[iActualSystemNo]) THEN 
+            OutputSet(GlueSysDoserOut[iActualSystemNo].PurgeEnable, TRUE)
+            OpenGunSystem(iActualSystemNo)
+          ENDIF
+        DEFAULT
+          MsgQuitGlue("InternalError", ,99 )
+      ENDSWITCH
+      IF bStatePurgeTime==TRUE THEN
+        $TIMER_STOP[iTimerGlueTech]=FALSE
+      ENDIF
+    ENDIF
+  ENDIF
+  IF (bOpenGunAgain==FALSE) THEN 
+    bGunOff=FALSE
+    bGunOpen=FALSE
+  ENDIF
+  bGlueRestart=FALSE
+END
+;ENDFOLD (GLUE_Restart)
+;FOLD SWITCHPARAMNO
+GLOBAL DEF SwitchParamNo()
+  REAL T_Distance
+
+  IF  (bWithOutMaterial==FALSE)  THEN
+    IF LastParamNo<>GlueActData.ParamNo THEN
+      T_DISTANCE=GlueActData.TriggerDistance
+      IF iWriteParamNo == 5 THEN
+        iWriteParamNo=1
+      ELSE
+        iWriteParamNo=iWriteParamNo+1
+      ENDIF
+      
+      LastParamNo=GlueActData.ParamNo
+      NewParamNo[iWriteParamNo]=GlueActData.ParamNo
+      SWITCH  GlueActData.SystemNo
+        CASE 1,2,3,4
+          TRIGGER WHEN PATH=T_DISTANCE DELAY=MDelay DO SwitchParamNoUp(GlueActData.SystemNo, TRUE) PRIO=-1
+        DEFAULT
+          MsgQuitGlue("InternalError", ,99 )
+      ENDSWITCH
+    ELSE
+      bParamNoChanged=FALSE
+    ENDIF
+  ENDIF
+END
+DEF SwitchParamNoUp(iSystemNo :IN, bSetParamNo :IN)
+  INT iSystemNo, iParamNo
+  BOOL bSetParamNo
+  
+  IF bSetParamNo THEN
+    IF iReadParamNo == 5 THEN
+      iReadParamNo=1
+    ELSE
+      iReadParamNo=iReadParamNo+1
+    ENDIF
+    bParamNoChanged=TRUE
+    iSavedParamNo=NewParamNo[iReadParamNo]
+    SWITCH iSystemNo
+      CASE 1,2,3,4
+        OutputBSet(iSystemNo, #eParamNo, NewParamNo[iReadParamNo])
+      DEFAULT
+        MsgQuitGlue("InternalError", ,99 )
+    ENDSWITCH
+  ENDIF    
+END
+;ENDFOLD (SWITCHPARAMNO)
+;FOLD PTPGLUEON
+GLOBAL DEF PTPGlueOn(iGunNo :IN, dPeriod :IN, iPressure :IN, bTriggerUP :IN )
+  INT iGunNo
+  REAL dPeriod
+  INT iPressure
+  BOOL bTriggerUP
+  
+  IF  (bWithOutMaterial==FALSE)  THEN
+    dOldMaterialOffset=MaterialOffset
+    MaterialOffset=iPressure/100.
+    SWITCH  iActualSystemNo
+      CASE 1,2,3,4
+        IF (NOT bWithoutMaterialSys[iActualSystemNo]) THEN 
+          IF NOT bTriggerUP THEN
+            bPTPGlue=TRUE
+            $TIMER[iTimerGlueTech]=dPeriod*(-1000)
+            $TIMER_STOP[iTimerGlueTech]=FALSE
+          ENDIF
+          SWITCH iGunNo
+            CASE 1,2,3,4
+              OpenSysGun(iActualSystemNo, iGunNo, TRUE)
+            DEFAULT
+              MsgQuitGlue("InternalError", ,99 )
+          ENDSWITCH
+          IF NOT bTriggerUP THEN
+            WAIT FOR $TIMER_FLAG[iTimerGlueTech]
+            $TIMER_STOP[iTimerGlueTech]=TRUE
+            CloseGunsSystem(iActualSystemNo)
+            MaterialOffset=dOldMaterialOffset 
+            bPTPGlue=FALSE
+          ENDIF
+        ENDIF
+      DEFAULT
+        MsgQuitGlue("InternalError", ,99 )
+    ENDSWITCH
+  ENDIF
+END
+;ENDFOLD (PTPGLUEON)
+;FOLD PTPGLUEOFF
+GLOBAL DEF PTPGlueOff()
+
+  IF  (bWithOutMaterial==TRUE)  THEN
+    SWITCH  GlueActData.SystemNo
+      CASE 1,2,3,4
+        CloseGunsSystem(GlueActData.SystemNo)
+      DEFAULT
+        MsgQuitGlue("InternalError", ,99 )
+    ENDSWITCH
+    MaterialOffset=dOldMaterialOffset
+    bPTPGlue=FALSE
+  ENDIF
+END
+;ENDFOLD (PTPGLUEOFF)
+;FOLD RESETGLUEOUT
+GLOBAL DEF ResetGlueOut()
+  INT iCnt
+
+  FOR iCnt=1 TO 4
+    OutputSet(GlueSysOut[iCnt].FinishMeasure, FALSE)
+    OutputSet(GlueSysOut[iCnt].StartSys, FALSE)
+    Outputset(GlueCustomOut[iCnt].ProgStrobe, FALSE)
+  ENDFOR
+  CloseAllGuns()
+  FOR iCnt=1 TO 4
+    AoMatFlowOff(iCnt)
+    AoMatFlowInit(iCnt, 0.0)
+    AoPrePressureInit(iCnt, 0.0)
+    IF SettingData[iCnt].BeadShaping<>#NONE THEN
+      OutputSet(GlueSysDoserOut[iCnt].AirOn, FALSE)
+      AoBeadShpOff(iCnt)
+      AoBeadShpInit(iCnt, 0.0)
+    ENDIF
+    bSysActive[iCnt]=FALSE
+  ENDFOR
+  ResetPurgeStates()
+
+  ReleaseStateMessage()
+END
+;ENDFOLD (RESETGLUEOUT)
+;FOLD ReleaseStateMessage
+GLOBAL DEF ReleaseStateMessage()
+  bDummy = Clear_KrlMsg(-99)
+END
+;ENDFOLD (ReleaseStateMessage)
+;FOLD BEGINROUTINES
+DEF BeginRoutines(iSystemNo :IN,eCheckPrePressure :IN )
+  INT iSystemNo
+  DECL ANSWER_TYPE eCheckPrePressure
+
+  iActualSystemNo=iSystemNo
+  bMeasurementActive[iSystemNo]=FALSE
+  IF eCheckPrePressure==#YES THEN
+    CheckPressure(iSystemNo)
+  ENDIF
+END
+;ENDFOLD (BEGINROUTINES)
+;FOLD CHANGEDOSER
+DEF ChangeDoser()
+  SWITCH iActualSystemNo
+    CASE 1,2,3,4
+      OutputSet(GlueSysDoserOut[iActualSystemNo].Change, TRUE)
+      WAIT FOR InputState(GlueSysDoserGenIn[iActualSystemNo].ChangeAckn)
+      OutputSet(GlueSysDoserOut[iActualSystemNo].Change, FALSE)
+    DEFAULT
+      MsgQuitGlue("InternalError", ,99 )
+  ENDSWITCH
+END
+;ENDFOLD (CHANGEDOSER)
+;FOLD FINISHMEASURE
+GLOBAL DEF FinishMeasure(iSystemNo :IN)
+  INT iSystemNo
+
+  SWITCH iSystemNo
+    CASE 1,2,3,4
+      IF ((bWithoutMaterialSys[iSystemNo]==FALSE) AND (bGLU_ContOff==FALSE))  THEN
+        OutputSet(GlueSysOut[iSystemNo].FinishMeasure, TRUE)
+        ;FOLD Finish Measure Messaging Construct, System X
+        nGLU_Handle_Measure=Set_Krlmsg (#STATE, GlueTech_Msg[7], GLU_MsgPar[], GLU_MsgOpt_Stop) ; Waiting on Measure Results.
+      	bGLU_Clear=Clear_KRLMsg(nGLU_Handle_Measure)
+        WHILE ((InputState(GlueSysIn[iSystemNo].MeasurePassed)==FALSE) AND (InputState(GlueSysStateIn[iSystemNo].FaultApplication)==FALSE))
+        	WAIT SEC 0.024
+      	ENDWHILE
+      	IF ((InputState(GlueSysIn[iSystemNo].MeasurePassed)==TRUE) AND (InputState(GlueSysStateIn[iSystemNo].FaultApplication)==FALSE) AND (InputState(GlueSysStateIn[iSystemNo].Warning)==FALSE)) THEN
+      		;Measure pass
+      		nGLU_Handle_Measure=Set_Krlmsg (#STATE, GlueTech_Msg[8], GLU_MsgPar[], GLU_MsgOpt_Stop) ; Measure Passed
+      	ENDIF
+      	IF (InputState(GlueSysStateIn[iSystemNo].FaultApplication)==TRUE) THEN
+      		;Major fault during dispensing
+      		nGLU_Handle_Measure=Set_Krlmsg (#STATE, GlueTech_Msg[9], GLU_MsgPar[], GLU_MsgOpt_Stop) ; Major Fault during dispensing
+      		GluePULSE(GlueSysStateOut[GlueActData.SystemNo].SingleFaultAckn, TRUE, 0.150)
+      	ENDIF
+      	IF ((InputState(GlueSysIn[iSystemNo].MeasurePassed)==FALSE) AND (InputState(GlueSysStateIn[iSystemNo].FaultApplication)==FALSE) AND (InputState(GlueSysStateIn[iSystemNo].Warning)==TRUE)) THEN
+      		;Measure failed
+      		nGLU_Handle_Measure=Set_Krlmsg (#STATE, GlueTech_Msg[10], GLU_MsgPar[], GLU_MsgOpt_Stop) ; Measure failed
+      		GluePULSE(GlueSysStateOut[GlueActData.SystemNo].SingleFaultAckn, TRUE, 0.150)
+      	ENDIF
+      	WAIT SEC 0.050
+      	bGLU_Clear=Clear_KRLMsg(nGLU_Handle_Measure)
+      	;ENDFOLD (Finish Measure Messaging Construct, System X)
+        OutputSet(GlueSysOut[iSystemNo].FinishMeasure, FALSE)
+        WAIT SEC 0.050
+        OutputSet(GlueSysOut[iSystemNo].StartSys, FALSE)
+        bMeasurementActive[iSystemNo]=TRUE 
+        WAIT SEC dWaitAfterResetStartSys
+        IF NOT bSingleSeam THEN
+          OutputSet(GlueSysOut[iSystemNo].StartSys, TRUE)
+        ENDIF
+      ENDIF
+    DEFAULT
+      MsgQuitGlue("InternalError", ,99 )
+  ENDSWITCH
+END
+;ENDFOLD (FINISHMEASURE)
+;FOLD INITANALOGVALUES
+DEF InitAnalogValues()
+
+  IF BeadData[GlueActData.ScheduleNo].MaterialFactor==0 THEN
+    IF BeadData[GlueActData.ScheduleNo].MatFlowType<>#SPEED_INDEP THEN
+      MsgQuitGlue("MaterialFactorNotInitialized", ,7)
+    ELSE
+      MOffset=(BeadData[GlueActData.ScheduleNo].MaterialOffset)/100.0
+      CalcTriggerDelay(BeadData[LastBeadData].MaterialOffset,BeadData[GlueActData.ScheduleNo].MaterialOffset)
+    ENDIF
+  ELSE
+    MFactor=(BeadData[GlueActData.ScheduleNo].MaterialFactor/100.)
+    MOffset=(BeadData[GlueActData.ScheduleNo].MaterialOffset)/100.0
+    CalcTriggerDelay(BeadData[LastBeadData].MaterialFactor,BeadData[GlueActData.ScheduleNo].MaterialFactor)
+  ENDIF
+  IF SettingData[GlueActData.SystemNo].BeadShaping<>#NONE THEN
+    IF BeadData[GlueActData.ScheduleNo].AirFactor==0 THEN
+      IF BeadData[GlueActData.ScheduleNo].AirFlowType<>#SPEED_INDEP THEN
+        MsgQuitGlue("AirFactorNotInitialized", ,8)
+      ELSE
+        AOffset=(BeadData[GlueActData.ScheduleNo].AirOffset)/100.0
+        ADelay=(Equipment[GlueActData.SystemNo,1].AirDelay)
+      ENDIF
+    ELSE
+      AFactor=(BeadData[GlueActData.ScheduleNo].AirFactor/100.)
+      AOffset=(BeadData[GlueActData.ScheduleNo].AirOffset)/100.0
+      IF BeadData[LastBeadData].AirFactor<BeadData[GlueActData.ScheduleNo].AirFactor THEN
+        ADelay=(Equipment[GlueActData.SystemNo,1].AirReactionPosOffs)
+      ELSE
+        IF BeadData[LastBeadData].AirFactor>BeadData[GlueActData.ScheduleNo].AirFactor THEN
+          ADelay=(Equipment[GlueActData.SystemNo,1].AirReactionNegOffs)
+        ELSE
+          ADelay=(Equipment[GlueActData.SystemNo,1].AirDelay)
+        ENDIF
+      ENDIF
+    ENDIF
+  ENDIF
+END
+;ENDFOLD ( INITANALOGVALUES)
+;FOLD CALCTRIGGERDELAY
+DEF CalcTriggerDelay(iInput1 :IN,iInput2 :IN)
+  INT iInput1, iInput2
+
+  IF iInput1<iInput2 THEN
+    MDelay=Equipment[GlueActData.SystemNo,GlueActData.DISP_GUN].MaterialReactionPosOffs
+  ELSE
+    IF iInput1>iInput2 THEN
+      MDelay=Equipment[GlueActData.SystemNo,GlueActData.DISP_GUN].MaterialReactionNegOffs
+    ELSE
+      MDelay=Equipment[GlueActData.SystemNo,GlueActData.DISP_GUN].MaterialDelay
+    ENDIF            
+  ENDIF
+END
+;ENDFOLD (CALCTRIGGERDELAY)
+;FOLD SETBEADDATA
+GLOBAL DEF SetBeadData(iScheduleNo :IN )
+  INT iScheduleNo
+
+  GlueActData.ScheduleNo=iScheduleNo
+  IF  (bWithOutMaterial==FALSE)  THEN
+    IF WriteCounter == 5 THEN
+      WriteCounter=1
+    ELSE
+      WriteCounter=WriteCounter+1
+    ENDIF
+    InitAnalogValues()
+
+    IF LastBeadData<>GlueActData.ScheduleNo THEN
+      LastBeadData=GlueActData.ScheduleNo
+      IF BeadData[GlueActData.ScheduleNo].MatFlowType<>#SPEED_INDEP THEN
+        NewMaterialFactor[WriteCounter]=MFactor
+        TRIGGER WHEN DISTANCE=1 DELAY=MDelay DO MaterialFactor=NewMaterialFactor[WriteCounter]
+        TRIGGER WHEN DISTANCE=1 DELAY=MDelay DO MaterialOffset=MOffset
+      ELSE
+        NewMaterialOffset[WriteCounter]=MOffset
+        TRIGGER WHEN DISTANCE=1 DELAY=MDelay DO MaterialOffset=NewMaterialOffset[WriteCounter]
+      ENDIF
+      IF SettingData[GlueActData.SystemNo].BeadShaping<>#NONE THEN
+        IF BeadData[GlueActData.ScheduleNo].AirFlowType<>#SPEED_INDEP THEN
+          NewAirFactor[WriteCounter]=AFactor
+          TRIGGER WHEN DISTANCE=1 DELAY=ADelay DO AirFactor=NewAirFactor[WriteCounter]
+        ENDIF 
+        TRIGGER WHEN DISTANCE=1 DELAY=ADelay DO AirOffset=AOffset
+      ENDIF
+      TRIGGER WHEN DISTANCE=1 DELAY=ADelay DO SWITCHBEAD (GlueActData.ScheduleNo) PRIO=-1
+    ENDIF
+  ENDIF
+END
+;ENDFOLD (SetBeadData)
+;FOLD CHECKMIXTURE
+DEF CheckMixture()
+
+  SWITCH  GlueActData.SystemNo
+    CASE 1,2,3,4 ; system 1 active
+      IF InputState(GlueSysStateIn[GlueActData.SystemNo].MixtureUndefined) THEN
+        OutputSet(GlueSysDoserOut[GlueActData.SystemNo].Purge, TRUE)
+        WAIT FOR InputState(GlueSysDoserGenIn[GlueActData.SystemNo].PurgePassed)
+        OutputSet(GlueSysDoserOut[GlueActData.SystemNo].Purge, FALSE)
+      ENDIF
+      IF InputState(GlueSysDoserGenIn[GlueActData.SystemNo].AInMixer) OR InputState(GlueSysDoserGenIn[GlueActData.SystemNo].BInMixer) THEN
+        OutputSet(GlueSysDoserOut[GlueActData.SystemNo].Purge, TRUE)
+        WAIT FOR InputState(GlueSysDoserGenIn[GlueActData.SystemNo].ABInMixer)
+        OutputSet(GlueSysDoserOut[GlueActData.SystemNo].Purge, FALSE)
+      ENDIF
+    DEFAULT
+      MsgQuitGlue("InternalError", ,99 )
+  ENDSWITCH
+END
+;ENDFOLD (CheckMixture)
+;FOLD MASTERDOSER
+GLOBAL DEF MasterDoser(iSystemNo :IN)
+  INT iSystemNo
+
+  SWITCH iSystemNo
+    CASE 1,2,3,4
+      OutputSet(GlueSysDoserOut[iSystemNo].EnableReference, TRUE)
+      WAIT FOR NOT InputState(GlueSysDoserGenIn[iSystemNo].ReferenceRequest)
+      OutputSet(GlueSysDoserOut[iSystemNo].EnableReference, FALSE)
+    DEFAULT
+      MsgQuitGlue("InternalError", ,99 )
+  ENDSWITCH
+END
+;ENDFOLD (MASTERDOSER)
+;FOLD DISPLAYSCAMESSAGE
+DEF DisplaySCAMessage(iMessageNo :IN,bUserQuit :IN)
+  DECL CHAR sText[80]  
+  INT iMessageNo
+  INT iGroupNo
+  BOOL bUserQuit
+
+  iGroupNo=0
+
+  IF (51 <= iMessageNo) AND (iMessageNo <= 101) THEN ; general error ecodrive
+    iGroupNo=1
+  ENDIF
+  IF (2 <= iMessageNo) AND (iMessageNo <= 37) THEN ; general error doser
+    iGroupNo=2
+  ENDIF
+  IF (323 <= iMessageNo) AND (iMessageNo <= 324) THEN ; valve error gun
+    iGroupNo=3
+  ENDIF
+  IF (321 <= iMessageNo) AND (iMessageNo <= 322) OR (iMessageNo==534) THEN ; valve error doser
+    iGroupNo=4
+  ENDIF
+  IF (535 <= iMessageNo) AND (iMessageNo <= 536) OR (iMessageNo==533) OR (iMessageNo==870) THEN ; pressure error doser
+    iGroupNo=5
+  ENDIF
+  IF (529 <= iMessageNo) AND (iMessageNo <= 531) THEN ; error material volume
+    iGroupNo=6
+  ENDIF
+  IF (527 <= iMessageNo) AND (iMessageNo <= 528) OR (iMessageNo==524) OR (iMessageNo==733) THEN ; internal parameter error SCA
+    iGroupNo=7
+  ENDIF
+  IF (711 <= iMessageNo) AND (iMessageNo <= 713) OR (iMessageNo==733) THEN ; internal parameter error SCA
+    iGroupNo=7
+  ENDIF
+  IF (525 <= iMessageNo) AND (iMessageNo <= 526) THEN ; application error
+    iGroupNo=8
+  ENDIF
+  IF (521 <= iMessageNo) AND (iMessageNo <= 522) THEN ; timeout doser
+    iGroupNo=9
+  ENDIF
+  IF (750 <= iMessageNo) AND (iMessageNo <= 753) THEN ; error program selection
+    iGroupNo=10
+  ENDIF
+  IF (721 <= iMessageNo) AND (iMessageNo <= 732) THEN ; system error SCA
+    iGroupNo=11
+  ENDIF
+  IF (iMessageNo == 856) OR (iMessageNo==871) THEN ; error material supply
+    iGroupNo=12
+  ENDIF
+  IF (853 <= iMessageNo) AND (iMessageNo <= 855) OR (iMessageNo==850) THEN ; communication error PCU
+    iGroupNo=13
+  ENDIF
+  IF (iMessageNo == 851) OR (iMessageNo==852) THEN ; parametrization error PCU
+    iGroupNo=14
+  ENDIF
+  IF (iMessageNo == 832) OR (iMessageNo==833) THEN ; initialization error TCU
+    iGroupNo=15
+  ENDIF
+  IF (iMessageNo == 830) OR (iMessageNo==831) THEN ; communication error TCU
+    iGroupNo=16
+  ENDIF
+  IF (800 <= iMessageNo) AND (iMessageNo <= 801) THEN ; bus error
+    iGroupNo=17
+  ENDIF
+  SWITCH iGroupNo
+    CASE 0
+      sText[]="UnknownSCAErrorMessage"
+    CASE 1
+      sText[]="GeneralErrorEcodrive"
+    CASE 2
+      sText[]="GeneralErrorDoser"
+    CASE 3
+      sText[]="ValveErrorGun"
+    CASE 4
+      sText[]="ValveErrorDoser"
+    CASE 5
+      sText[]="PressureErrorDoser"
+    CASE 6
+      sText[]="ErrorMaterialVolume"
+    CASE 7
+      sText[]="InternalParameterErrorSCA"
+    CASE 8
+      sText[]="ApplicationError"
+    CASE 9
+      sText[]="TimeoutDoser"
+    CASE 10
+      sText[]="ErrorProgramSelection"
+    CASE 11
+      sText[]="SystemErrorSCA"
+    CASE 12
+      sText[]="ErrorMaterialSupply"
+    CASE 13
+      sText[]="CommunicationErrorPCU"
+    CASE 14
+      sText[]="ParametrizationErrorPCU"
+    CASE 15
+      sText[]="InitializationErrorTCU"
+    CASE 16
+      sText[]="CommunicationErrorTCU"
+    CASE 17
+      sText[]="BusError"
+    DEFAULT
+      MsgQuitGlue("InternalError", 99)
+  ENDSWITCH
+  IF bUserQuit THEN
+    MsgQuitGlue(sText[], , 100)
+  ELSE
+    MsgNotifyGlue(sText[], , 100)
+  ENDIF
+END
+;ENDFOLD (DISPLAYSCAMESSAGE)
+;FOLD CloseGunsSystem
+DEF CloseGunsSystem(iSystemNo: IN)
+  INT iSystemNo
+  
+  OpenSysGun(iSystemNo, 1, FALSE)
+END
+;ENDFOLD CloseGunsSystem
+;FOLD SWITCHOFF
+DEF SwitchOff(bSwitchOffSwirl :IN)
+  BOOL bSwitchOffSwirl
+  INT iCnt
+
+  ;stop PurgeComplete
+  IF bStatePurge THEN
+    OutputSet(GlueSysDoserOut[GlueActData.SystemNo].PurgeEnable, FALSE)
+  ENDIF
+  ;stop PurgeTime
+  IF bStatePurgeTime==TRUE THEN
+    $TIMER_STOP[iTimerGlueTech]=TRUE
+    OutputSet(GlueSysDoserOut[GlueActData.SystemNo].PurgeEnable, FALSE)
+  ENDIF
+  CloseAllGuns()
+  IF bSwitchOffSwirl THEN
+    FOR iCnt=1 TO 4
+      bSwitchOnSwirl[1]=TRUE
+      bSwitchOnSwirl[2]=TRUE
+      bSwitchOnSwirl[3]=TRUE
+      bSwitchOnSwirl[4]=TRUE
+    ENDFOR
+    OutputSet(GlueSysDoserOut[GlueActData.SystemNo].SwirlCoolingAir, FALSE)
+    OutputSet(GlueSysDoserOut[GlueActData.SystemNo].AirOn, FALSE)
+    FOR iCnt=1 TO 4
+      bSwirlSwitchedOn[1]=FALSE
+      bSwirlSwitchedOn[2]=FALSE
+      bSwirlSwitchedOn[3]=FALSE
+      bSwirlSwitchedOn[4]=FALSE
+    ENDFOR
+  ENDIF
+END
+;ENDFOLD (SWITCHOFF)
+;FOLD DORESETVARIABLES
+GLOBAL DEF DoResetVariables()
+  INTERRUPT OFF 90
+  bGunOff=FALSE
+  ;bGunOpen=FALSE
+  ReleaseStateMessage()
+  INTERRUPT ON 90
+END
+;ENDFOLD (DORESETVARIABLES)
+;FOLD OPENGUNSYSTEM
+DEF OpenGunSystem(iSystemNo: IN)
+  INT iSystemNo
+  
+  IF  (bWithoutMaterialSys[iSystemNo]==FALSE)  THEN
+    SWITCH iActualGunNo
+      CASE 1,2,3,4
+        OpenSysGun(iSystemNo, iActualGunNo, TRUE)	
+      DEFAULT
+        MsgQuitGlue("InternalError", ,99 )
+    ENDSWITCH
+  ENDIF
+  SWITCH iSystemNo
+    CASE 1
+      CloseGunsSystem(2)
+      CloseGunsSystem(3)
+      CloseGunsSystem(4)
+    CASE 2
+      CloseGunsSystem(1)
+      CloseGunsSystem(3)
+      CloseGunsSystem(4)
+    CASE 3
+      CloseGunsSystem(1)
+      CloseGunsSystem(2)
+      CloseGunsSystem(4)
+    CASE 4
+      CloseGunsSystem(1)
+      CloseGunsSystem(2)
+      CloseGunsSystem(3)
+    DEFAULT
+      MsgQuitGlue("InternalError", ,99 )
+  ENDSWITCH
+END
+;ENDFOLD (OPENGUNSYSTEM1)
+;FOLD SWITCHONSWIRLSYSTEM
+DEF SwitchOnSwirlSystem(iSystemNo: IN)
+INT iSystemNo
+  IF NOT (bSwirlSwitchedOn[iSystemNo] OR bSysCompleted[iSystemNo]) THEN
+    IF NOT (bStatePurge OR bStatePurgeTime) THEN
+      bSwirlSwitchedOn[iSystemNo]=TRUE
+      AoBeadShpInit(iSystemNo, SwirlSpeedAnalogOut[iSystemNo])
+      OutputSet(GlueSysDoserOut[iSystemNo].SwirlCoolingAir, TRUE)
+      WAIT SEC dWaitSwirlCoolingAir
+      WAIT FOR InputState(GlueSysIn[iSystemNo].SwirlReady)
+      OutputSet(GlueSysDoserOut[iSystemNo].AirOn, TRUE)
+      WAIT SEC dWaitSwirlCoolingAir
+      WAIT FOR InputState(GlueSysIn[iSystemNo].SwirlSpeedOk)
+      bSwitchOnSwirl[iSystemNo]=FALSE
+    ENDIF
+  ENDIF
+END
+;ENDFOLD (SWITCHONSWIRLSYSTEM)
+;FOLD SWITCHSYSTEM
+DEF SwitchSystem(iSystemNo: IN)
+  INT iSystemNo
+  OutputSet(GlueSysOut[iSystemNo].On, $ALARM_STOP)
+  IF SettingData[iSystemNo].bWithPeltier THEN
+    OutputSet(GlueSysOut[iSystemNo].EnHeating, $ALARM_STOP)
+  ELSE
+    OutputSet(GlueSysOut[iSystemNo].EnHeating, $ALARM_STOP)
+  ENDIF
+  OutputSet(GlueSysOut[iSystemNo].EnPump, $ALARM_STOP)
+  OutputSet(GlueSysOut[iSystemNo].EnHydr, $ALARM_STOP)
+  OutputSet(GlueSysOut[iSystemNo].EnTimerHeating, $ALARM_STOP)
+  IF (SettingData[iSystemNo].BeadShaping==#E_SWIRL)THEN
+    IF $ALARM_STOP THEN
+      IF bSwitchOnSwirl[iSystemNo] THEN
+        IF (bWithoutMaterialSys[iSystemNo]==FALSE) THEN
+          bRobotMustWait=TRUE
+          SwitchOnSwirlSystem(iSystemNo)
+        ENDIF
+        bRobotMustWait=FALSE
+      ENDIF  
+    ELSE
+      IF NOT $ALARM_STOP AND OutputState(GlueSysDoserOut[iSystemNo].AirOn) THEN
+        OutputSet(GlueSysDoserOut[iSystemNo].AirOn, FALSE)
+        bSwitchOnSwirl[iSystemNo]=TRUE
+        bSwirlSwitchedOn[iSystemNo]=FALSE
+      ENDIF
+    ENDIF
+  ELSE
+    IF iActualSystemNo==1 THEN
+      bRobotMustWait=FALSE
+    ENDIF
+  ENDIF
+  OutputSet(GlueSysOut[iSystemNo].AutoExt, ((bWithoutMaterialSys[iSystemNo])==FALSE))
+  IF SettingData[iSystemNo].bNegMatLogic THEN
+    OutputSet(GlueSysOut[iSystemNo].WithoutMaterial, (NOT((bWithoutMaterialSys[iSystemNo])==FALSE)))
+  ELSE
+    OutputSet(GlueSysOut[iSystemNo].WithoutMaterial, (bWithoutMaterialSys[iSystemNo]==FALSE))
+  ENDIF
+END
+;ENDFOLD (SWITCHSYSTEM)
+;FOLD ResetPurgeStates
+DEF ResetPurgeStates()
+INT iCnt
+  ;reset purge states
+  bStatePurge=FALSE
+  bStatePurgeTime=FALSE
+  ;doSL1RemoteStart=FALSE
+  doSL2RemoteStart=FALSE
+  FOR iCnt=1 TO 4
+    OutputSet(GlueSysDoserOut[iCnt].PurgeEnable, FALSE)
+    OutputSet(GlueSysDoserOut[iCnt].Purge, FALSE)
+    OutputSet(GlueSysDoserOut[iCnt].PurgeA, FALSE)
+    OutputSet(GlueSysDoserOut[iCnt].PurgeB, FALSE)
+  ENDFOR
+END
+;ENDFOLD ResetPurgeStates
+;FOLD MsgNotifyGlue
+GLOBAL DEF MsgNotifyGlue(sKey[]:IN, nNumPar :IN, nMsgNr:IN)
+  DECL KRLMSG_T MSG
+  DECL KRLMSGPAR_T MsgPar[1]
+  DECL KRLMSGOPT_T Opt
+  BOOL bResult
+  CHAR sKey[]
+  INT nHandle
+  INT nMsgNr
+  INT nNumPar
+  INT Offset
+  DECL STATE_T State 
+
+  bResult = STRCOPY(MSG.MSG_TXT[], sKey[])
+  MSG.Nr = nMsgNr
+  MSG.MODUL[] = "GLUE"
+  Offset=0
+  MsgPar[1].Par_Txt[]=" "
+  SWRITE(MsgPar[1].Par_Txt[], State, Offset, "%d", nNumPar)
+  MsgPar[1].Par_type=#Value
+  Opt = {VL_STOP TRUE, CLEAR_P_RESET TRUE, LOG_TO_DB TRUE}
+  nHandle = SET_KRLMSG(#Notify,MSG,MsgPar[],Opt)
+END
+;ENDFOLD (MsgNotifyGlue)
+;FOLD MsgQuitGlue
+GLOBAL DEF MsgQuitGlue(sKey[]:IN, nNumPar :IN, nMsgNr:IN)
+  DECL KRLMSG_T MSG
+  DECL KRLMSGPAR_T MsgPar[1]
+  DECL KRLMSGOPT_T Opt
+  BOOL bResult
+  CHAR sKey[]
+  INT nHandle
+  INT nMsgNr
+  INT nNumPar
+  INT Offset
+  DECL STATE_T State 
+
+  bResult = STRCOPY(MSG.MSG_TXT[], sKey[])
+  MSG.Nr = nMsgNr
+  MSG.MODUL[] = "GLUE"
+  Offset=0
+  MsgPar[1].Par_Txt[]=" "
+  SWRITE(MsgPar[1].Par_Txt[], State, Offset, "%d", nNumPar)
+  MsgPar[1].Par_type=#Value
+  Opt = {VL_STOP TRUE, CLEAR_P_RESET TRUE, LOG_TO_DB TRUE}
+  nHandle = SET_KRLMSG(#Quit,MSG,MsgPar[],Opt)
+  IF nHANDLE > 0 THEN
+    WHILE (Exists_KrlMsg(nHandle)) 
+      WAIT SEC 0.1
+    ENDWHILE
+  ENDIF
+END
+;ENDFOLD (MsgQuitGlue)
+;FOLD MsgStateGlue
+GLOBAL DEF MsgStateGlue(nHandle :OUT, sKey[]:IN, nNumPar[] :OUT, nMsgNr:IN)
+  DECL KRLMSG_T MSG
+  DECL KRLMSGPAR_T MsgPar[4]
+  DECL KRLMSGOPT_T Opt
+  BOOL bResult
+  CHAR sKey[]
+  INT nHandle
+  INT nMsgNr
+  INT nNumPar[]
+  INT Offset
+  DECL STATE_T State 
+
+  bResult = STRCOPY(MSG.MSG_TXT[], sKey[])
+  MSG.Nr = nMsgNr
+  MSG.MODUL[] = "GLUE"
+  Offset=0
+  MsgPar[1].Par_Txt[]=" "
+  SWRITE(MsgPar[1].Par_Txt[], State, Offset, "%d", nNumPar[1])
+  MsgPar[1].Par_type=#Value
+  Offset=0
+  MsgPar[2].Par_Txt[]=" "
+  SWRITE(MsgPar[2].Par_Txt[], State, Offset, "%d", nNumPar[2])
+  MsgPar[2].Par_type=#Value
+  Offset=0
+  MsgPar[3].Par_Txt[]=" "
+  SWRITE(MsgPar[3].Par_Txt[], State, Offset, "%d", nNumPar[3])
+  MsgPar[3].Par_type=#Value
+  Offset=0
+  MsgPar[4].Par_Txt[]=" "
+  SWRITE(MsgPar[4].Par_Txt[], State, Offset, "%d", nNumPar[4])
+  MsgPar[4].Par_type=#Value
+  Opt = {VL_STOP TRUE, CLEAR_P_RESET TRUE, LOG_TO_DB TRUE}
+  nHandle = SET_KRLMSG(#State,MSG,MsgPar[],Opt)
+END
+;ENDFOLD MsgStateGlue()
+;FOLD MsgDialogGlue
+GLOBAL DEFFCT INT MsgDialogGlue(sKey[]:IN, sModul[]:IN, nNumPar:IN, sTextPar[]:IN, sSoftkey[]:IN, nMsgNr:IN)
+
+  DECL CHAR sKey[], sModul[], sTextPar[]
+  DECL CHAR sSoftkey[]
+  DECL KrlMsg_T Msg
+  DECL KrlMsgParType_T MsgParType
+  DECL KrlMsgPar_T MsgPar[3]
+  DECL KrlMsgOpt_T MsgOpt
+  DECL KrlMsgDlgSk_T sSoftkeys[7] 
+  DECL State_T State
+  DECL INT count, len, offset, nNumPar, nHandle, nAnswer
+  DECL INT nStart, nEnd, nStartAt, nFound, nIndex, iCnt
+  BOOL bResult
+  INT nMsgNr
+
+  MSG.Nr = nMsgNr
+  bResult = STRCOPY(MSG.MODUL[], sModul[])
+  bResult = STRCOPY(MSG.MSG_TXT[], sKey[])
+  offset=0
+  MsgPar[1].Par_Txt[]=" "
+  SWRITE(MsgPar[1].Par_Txt[], State, offset, "%d", nNumPar)
+  MsgPar[1].Par_type=#Value
+
+  nFound=1
+  nStart=0
+
+  FOR iCnt=1 TO 7
+    nStart=nStart+nFound
+    nStartAt=nStart
+    nIndex=1
+    nFound=StrFind(nStartAt,sSoftkey[],"|",#Case_Sens)
+    IF nFound>0 THEN
+      nEnd=nStart+nFound-2
+    ELSE
+      nEnd=StrLen(sSoftkey[])
+    ENDIF
+    FOR count=nStart TO nEnd
+      IF (nIndex<=10) THEN
+        sSoftkeys[iCnt].sk_txt[nIndex]=sSoftkey[count]
+        nIndex=nIndex+1
+      ENDIF
+    ENDFOR
+    sSoftkeys[iCnt].Sk_Type=#key
+  ENDFOR
+
+  MsgOpt={ VL_Stop TRUE, Clear_P_Reset TRUE, Log_To_DB FALSE }
+  nHandle=Set_KrlDlg (Msg, MsgPar[], sSoftkeys[], MsgOpt)
+  IF (nHandle>0) THEN
+    WHILE (Exists_KrlDlg(nHandle, nAnswer))
+      WAIT SEC 0.1
+    ENDWHILE
+  ENDIF  
+  RETURN (nAnswer)
+ENDFCT 
+;ENDFOLD (MsgDialogGlue)
+;FOLD GlueOnUp
+GLOBAL DEF GlueOnUp(iGunNo :IN)
+  INT iGunNo
+
+  SWITCH iActualSystemNo
+    CASE 1,2,3,4
+      IF  (bWithoutMaterialSys[iActualSystemNo]==FALSE)  THEN
+        SWITCH iGunNo
+          CASE 1,2,3,4
+            OpenSysGun(iActualSystemNo, iGunNo, TRUE)
+            iActualGunNo=iGunNo
+          DEFAULT
+            MsgQuitGlue("InternalError", ,99 )
+        ENDSWITCH
+        IF bParamNoChanged THEN
+          OutputBSet(iActualSystemNo, #eParamNo, iSavedParamNo)
+        ENDIF
+      ENDIF
+    DEFAULT
+      MsgQuitGlue("InternalError", ,99 )
+  ENDSWITCH
+  bGunOpen=TRUE
+END
+;ENDFOLD (GlueOnUp)
+;FOLD GlueOffUp
+GLOBAL DEF GlueOffUp(eChangeDoser :IN)
+
+  DECL ANSWER_TYPE eChangeDoser 
+
+  SWITCH iActualSystemNo
+    CASE 1,2,3,4
+      SWITCH iActualGunNo
+        CASE 1,2,3,4
+          OpenSysGun(iActualSystemNo, iActualGunNo, FALSE)
+        DEFAULT
+          MsgQuitGlue("InternalError", ,99 )
+      ENDSWITCH
+    DEFAULT
+      MsgQuitGlue("InternalError", ,99 )
+  ENDSWITCH
+  bGunOpen=FALSE
+  IF eChangeDoser==#YES THEN
+    ChangeDoser()
+  ENDIF
+END
+;ENDFOLD (GlueOffUp)
+;FOLD CheckPressureDelay
+GLOBAL DEFFCT INT CheckPressureDelay (iSystemNo :IN, iGunNo :IN)
+
+  INT iSystemNo, iGunNo
+  INT iCheckPressureDelay
+
+  iCheckPressureDelay = Equipment[iSystemNo, iGunNo].GunOnDelay - iCheckDelay
+  RETURN (iCheckPressureDelay)
+ENDFCT
+;ENDFOLD (CheckPressureDelay)
+;FOLD CheckPressure
+GLOBAL DEF CheckPressure(iSystemNo :IN)
+
+  INT iSystemNo
+
+  bMeasurementActive[iSystemNo]=FALSE
+  SWITCH  iSystemNo
+    CASE 1,2,3,4
+      IF  (bWithoutMaterialSys[iSystemNo]==FALSE)  THEN
+        IF NOT InputState(GlueSysIn[iSystemNo].PrePressOk) THEN
+          BRAKE
+          iMsgParams[1]=iSystemNo
+          iMsgParams[2]=GlueSysIn[iSystemNo].PrePressOk
+          MsgStateGlue(iHandle, "SystemNotReady", iMsgParams[], 1)
+          WAIT FOR InputState(GlueSysIn[iSystemNo].PrePressOk)
+        ENDIF
+        IF SystemGroup[iSystemNo]==#A THEN
+          IF (NOT (InputState(GlueSysDoserSepIn[iSystemNo,1].PrePressOk) OR InputState(GlueSysDoserSepIn[iSystemNo,2].PrePressOk))) AND (NOT (OutputState(GlueSysGunOut[iSystemNo,1].On) OR OutputState(GlueSysGunOut[iSystemNo,2].On) OR OutputState(GlueSysGunOut[iSystemNo,3].On) OR OutputState(GlueSysGunOut[iSystemNo,4].On))) THEN
+            IF bDisplayMessage THEN
+              MsgNotifyGlue ("PrePressureNotOK",iSystemNo,2)
+            ENDIF  
+          ENDIF
+        ENDIF
+        IF SystemGroup[iSystemNo]==#B THEN
+          IF (NOT (InputState(GlueSysDoserSepIn[iSystemNo,1].PrePressOk) OR InputState(GlueSysDoserSepIn[iSystemNo,2].PrePressOk))) AND (NOT (OutputState(GlueSysGunOut[iSystemNo,1].On))) THEN
+            IF bDisplayMessage THEN
+              MsgNotifyGlue ("PrePressureNotOK",iSystemNo,2)
+            ENDIF  
+          ENDIF
+        ENDIF		
+      ENDIF
+    DEFAULT
+      MsgQuitGlue("InternalError", ,99 )
+  ENDSWITCH
+END
+;ENDFOLD (CheckPressure)
+;FOLD EndMeasurementDelay
+GLOBAL DEFFCT INT EndMeasurementDelay (iSystemNo :IN, iGunNo :IN)
+
+  INT iSystemNo, iGunNo
+  INT iEndMeasurementDelay
+
+  iEndMeasurementDelay = Equipment[iSystemNo, iGunNo].GunOffDelay + iMeasurementDelay
+  RETURN (iEndMeasurementDelay)
+ENDFCT
+;ENDFOLD (EndMeasurementDelay)
+;FOLD GlueMoveUpDelay
+GLOBAL DEFFCT INT GlueMoveUpDelay (iScheduleNo :IN)
+
+  INT iScheduleNo
+  INT iGlueMoveUpDelay
+
+  IF BeadData[iScheduleNo].MatFlowType<>#SPEED_INDEP THEN
+    IF BeadData[iScheduleNo].MaterialFactor > BeadData[LastBeadData].MaterialFactor THEN
+      iGlueMoveUpDelay = Equipment[GlueActData.SystemNo, GlueActData.DISP_GUN].MaterialReactionPosOffs
+    ELSE
+      IF BeadData[iScheduleNo].MaterialFactor < BeadData[LastBeadData].MaterialFactor THEN
+        iGlueMoveUpDelay = Equipment[GlueActData.SystemNo, GlueActData.DISP_GUN].MaterialReactionNegOffs
+      ELSE
+        iGlueMoveUpDelay = Equipment[GlueActData.SystemNo, GlueActData.DISP_GUN].MaterialDelay
+      ENDIF
+    ENDIF
+  ELSE
+    IF BeadData[iScheduleNo].MaterialOffset > BeadData[LastBeadData].MaterialOffset THEN
+      iGlueMoveUpDelay = Equipment[GlueActData.SystemNo, GlueActData.DISP_GUN].MaterialReactionPosOffs
+    ELSE
+      IF BeadData[iScheduleNo].MaterialOffset < BeadData[LastBeadData].MaterialOffset THEN
+        iGlueMoveUpDelay = Equipment[GlueActData.SystemNo, GlueActData.DISP_GUN].MaterialReactionNegOffs
+      ELSE
+        iGlueMoveUpDelay = Equipment[GlueActData.SystemNo, GlueActData.DISP_GUN].MaterialDelay
+      ENDIF
+    ENDIF
+  ENDIF
+
+  RETURN (iGlueMoveUpDelay)
+ENDFCT
+;ENDFOLD (GlueMoveUpDelay)
+;FOLD GlueOnUpDelay
+GLOBAL DEFFCT INT GlueOnUpDelay (iSystemNo :IN, iGunNo :IN)
+
+  INT iSystemNo, iGunNo
+  INT iGlueOnUpDelay
+
+  GlueActData.DISP_GUN = iGunNo
+  iGlueOnUpDelay = Equipment[iSystemNo, iGunNo].GunOnDelay
+  RETURN (iGlueOnUpDelay)
+ENDFCT
+;ENDFOLD (GlueOnUpDelay)
+;FOLD ChangeProgNo
+DEF ChangeProgNo(iProgNo :IN)
+  INT iProgNo
+  BOOL bSavedStartSys
+
+  bSavedStartSys=FALSE
+  IF  (bWithOutMaterial==FALSE)  THEN
+    IF iProgNo<0 THEN
+      iProgNo=0
+    ENDIF
+    IF iProgNo>255 THEN
+      iProgNo=255
+    ENDIF
+    SWITCH  GlueActData.SystemNo
+      CASE 1,2,3,4
+        IF OutputState(GlueSysOut[GlueActData.SystemNo].StartSys) THEN
+          bSavedStartSys=TRUE
+          OutputSet(GlueSysOut[GlueActData.SystemNo].StartSys, FALSE)
+        ENDIF
+        IF ((NOT bSysActive[GlueActData.SystemNo]) AND (SettingData[GlueActData.SystemNo].bWithMeasurementActive)) THEN
+          IF InputState(GlueSysIn[GlueActData.SystemNo].MeasurementActive) THEN 
+            GluePULSE(GlueSysOut[GlueActData.SystemNo].FinishMeasure, TRUE, 0.5)
+            WAIT FOR NOT InputState(GlueSysIn[GlueActData.SystemNo].MeasurementActive)
+          ENDIF
+        ENDIF
+        OutputBSet(GlueActData.SystemNo, #eProgNo, iProgNo)
+        IF bSavedStartSys THEN
+          OutputSet(GlueSysOut[GlueActData.SystemNo].StartSys, TRUE)
+        ENDIF
+      DEFAULT
+        MsgQuitGlue("InternalError", ,99 )
+    ENDSWITCH
+  ENDIF
+END
+;ENDFOLD (ChangeProgNo)
+;FOLD GlueMoveUp
+GLOBAL DEF GlueMoveUp(iSystemNo :IN, iScheduleNo :IN, iParamNo :IN)
+  INT iSystemNo, iScheduleNo, iParamNo
+  REAL dAnalogMaterialDelay
+
+  IF LastBeadData<>iScheduleNo THEN
+    LastBeadData=iScheduleNo
+    IF BeadData[LastBeadData].MatFlowType==BeadData[iScheduleNo].MatFlowType THEN
+      IF BeadData[GlueActData.ScheduleNo].MatFlowType<>#SPEED_INDEP THEN
+        MaterialFactor=BeadData[iScheduleNo].MaterialFactor/100.
+        MaterialOffset=BeadData[iScheduleNo].MaterialOffset/100.
+      ELSE
+        MaterialOffset=BeadData[iScheduleNo].MaterialOffset/100.
+      ENDIF
+    ELSE
+      MaterialFactor=BeadData[iScheduleNo].MaterialFactor/100.
+      MaterialOffset=BeadData[iScheduleNo].MaterialOffset/100.
+      dAnalogMaterialDelay=Equipment[iSystemNo,1].MaterialDelay/1000.
+      SWITCH iSystemNo
+        CASE 1,2,3,4
+          SWITCH BeadData[iScheduleNo].MatFlowType
+            CASE #TCP_SPEED
+              IF bAnalogWithoutOffset THEN
+                AoMatFlowOn(iSystemNo,MaterialFactor, 0.0, dAnalogMaterialDelay)
+              ELSE 
+                AoMatFlowOn(iSystemNo,MaterialFactor, MaterialOffset, dAnalogMaterialDelay)
+              ENDIF
+            CASE #SPEED_INDEP
+              ; nothing todo
+            DEFAULT
+              MsgQuitGlue("InternalError", ,99 )
+          ENDSWITCH
+        DEFAULT
+          MsgQuitGlue("InternalError", ,99 )
+      ENDSWITCH
+
+    ENDIF
+  ENDIF
+
+  IF LastParamNo<>iParamNo THEN
+    LastParamNo=iParamNo
+    SWITCH iSystemNo
+      CASE 1,2,3,4
+        OutputBSet(iSystemNo, #eParamNo, iParamNo)
+      DEFAULT
+        MsgQuitGlue("InternalError", ,99 )
+    ENDSWITCH
+  ENDIF
+
+END
+;ENDFOLD (GlueMoveUp)
+;FOLD OpenSysGun
+DEF OpenSysGun(iSystemNo: IN, iGunNo: IN, bValue: IN)
+  INT iSystemNo, iGunNo
+  BOOL bValue
+  SWITCH iSystemNo
+    CASE 1,2,3,4
+      IF bValue==FALSE THEN
+        ;Close all guns 
+        OutputSet(GlueSysGunOut[iSystemNo,1].On, FALSE)
+        IF SystemGroup[iSystemNo]==#A THEN
+          OutputSet(GlueSysGunOut[iSystemNo,2].On, FALSE)
+          OutputSet(GlueSysGunOut[iSystemNo,3].On, FALSE)
+          OutputSet(GlueSysGunOut[iSystemNo,4].On, FALSE)
+        ENDIF
+      ELSE
+        IF SystemGroup[iSystemNo]==#A THEN
+          SWITCH iGunNo
+          CASE 1,2,3,4
+            OutputSet(GlueSysGunOut[iSystemNo,iGunNo].On, TRUE)
+          ENDSWITCH
+        ELSE
+          OutputSet(GlueSysGunOut[iSystemNo,1].On, TRUE)
+        ENDIF
+      ENDIF       
+    DEFAULT
+      MsgQuitGlue("InternalError", ,99 )
+  ENDSWITCH
+END
+;ENDFOLD (OpenSysGun)
+;FOLD SelectSysGun
+GLOBAL DEF SelectSysGun(iSystemNo: IN, iGunNo: IN)
+  INT iSystemNo, iGunNo
+  
+  SWITCH iSystemNo
+    CASE 1,2,3,4
+      SWITCH iGunNo
+        CASE 1
+          OutputSet(GlueSysGunOut[iSystemNo,2].On, FALSE)
+          OutputSet(GlueSysGunOut[iSystemNo,3].On, FALSE)
+        CASE 2
+          OutputSet(GlueSysGunOut[iSystemNo,2].On, TRUE)
+          OutputSet(GlueSysGunOut[iSystemNo,3].On, FALSE)
+        CASE 3
+          OutputSet(GlueSysGunOut[iSystemNo,2].On, FALSE)
+          OutputSet(GlueSysGunOut[iSystemNo,3].On, TRUE)
+        CASE 4
+          MsgQuitGlue("InternalError", ,99 )
+        DEFAULT
+      ENDSWITCH
+    DEFAULT
+  ENDSWITCH
+END
+;ENDFOLD (SelectSysGun)
+;FOLD AoMatFlowInit
+GLOBAL DEF AoMatFlowInit(iSystemNo :IN, dValue :IN)
+  INT iSystemNo
+  REAL dValue
+  
+  $ANOUT[GlueSysOutA[iSystemNo].MatFlow] = dValue
+END
+;ENDFOLD (AoMatFlowInit)
+;FOLD AoMatFlowOn
+GLOBAL DEF AoMatFlowOn(iSystemNo :IN, dFactor :IN, dOffset :IN, dDelay :IN)
+  INT iSystemNo
+  REAL dFactor, dOffset, dDelay
+  
+  MaterialFactor = dFactor
+  MaterialOffset = dOffset
+  MaterialDelay = MaterialDelay
+  SWITCH iSystemNo
+    CASE 1
+      IF bAnalogWithoutOffset THEN
+        ANOUT ON aoSL1MatFlow = MaterialFactor * $VEL_ACT + 0.0  DELAY = MaterialDelay
+      ELSE
+        ANOUT ON aoSL1MatFlow = MaterialFactor * $VEL_ACT + MaterialOffset  DELAY = MaterialDelay
+      ENDIF
+    CASE 2
+      IF bAnalogWithoutOffset THEN
+        ANOUT ON aoSL2MatFlow = MaterialFactor * $VEL_ACT + 0.0  DELAY = MaterialDelay
+      ELSE
+        ANOUT ON aoSL2MatFlow = MaterialFactor * $VEL_ACT + MaterialOffset  DELAY = MaterialDelay
+      ENDIF
+    CASE 3
+      IF bAnalogWithoutOffset THEN
+        ANOUT ON aoSL3MatFlow = MaterialFactor * $VEL_ACT + 0.0  DELAY = MaterialDelay
+      ELSE
+        ANOUT ON aoSL3MatFlow = MaterialFactor * $VEL_ACT + MaterialOffset  DELAY = MaterialDelay
+      ENDIF
+    CASE 4
+      IF bAnalogWithoutOffset THEN
+        ANOUT ON aoSL4MatFlow = MaterialFactor * $VEL_ACT + 0.0  DELAY = MaterialDelay
+      ELSE
+        ANOUT ON aoSL4MatFlow = MaterialFactor * $VEL_ACT + MaterialOffset  DELAY = MaterialDelay
+      ENDIF
+    DEFAULT
+      MsgQuitGlue("InternalError", ,99 )
+  ENDSWITCH
+END
+;ENDFOLD (AoMatFlowOn)
+;FOLD AoMatFlowOff
+GLOBAL DEF AoMatFlowOff(iSystemNo :IN)
+  INT iSystemNo
+  
+  SWITCH iSystemNo
+    CASE 1
+      ANOUT OFF aoSL1MatFlow
+    CASE 2
+      ANOUT OFF aoSL2MatFlow
+    CASE 3
+      ANOUT OFF aoSL3MatFlow
+    CASE 4
+      ANOUT OFF aoSL4MatFlow
+    DEFAULT
+      MsgQuitGlue("InternalError", ,99 )
+  ENDSWITCH
+END
+;ENDFOLD (AoMatFlowOff)
+;FOLD AoBeadShpInit
+GLOBAL DEF AoBeadShpInit(iSystemNo :IN, dValue :IN)
+  INT iSystemNo
+  REAL dValue
+  
+  $ANOUT[GlueSysOutA[iSystemNo].BeadShp] = dValue
+END
+;ENDFOLD (AoBeadShpInit)
+;FOLD AoBeadShpOn
+GLOBAL DEF AoBeadShpOn(iSystemNo :IN, dFactor :IN, dOffset :IN, dDelay :IN)
+  INT iSystemNo
+  REAL dFactor, dOffset, dDelay
+  
+  AirFactor = dFactor
+  AirOffset = AirOffset
+  AirDelay = dDelay
+  SWITCH iSystemNo
+    CASE 1
+      IF bAnalogWithoutOffset THEN
+        ANOUT ON aoSL1BeadShp = AirFactor * $VEL_ACT + 0.0  DELAY = AirDelay
+      ELSE
+        ANOUT ON aoSL1BeadShp = AirFactor * $VEL_ACT + AirOffset  DELAY = AirDelay
+      ENDIF
+    CASE 2
+      IF bAnalogWithoutOffset THEN
+        ANOUT ON aoSL2BeadShp = AirFactor * $VEL_ACT + 0.0  DELAY = AirDelay
+      ELSE
+        ANOUT ON aoSL2BeadShp = AirFactor * $VEL_ACT + AirOffset  DELAY = AirDelay
+      ENDIF
+    CASE 3
+      IF bAnalogWithoutOffset THEN
+        ANOUT ON aoSL3BeadShp = AirFactor * $VEL_ACT + 0.0  DELAY = AirDelay
+      ELSE
+        ANOUT ON aoSL3BeadShp = AirFactor * $VEL_ACT + AirOffset  DELAY = AirDelay
+      ENDIF
+    CASE 4
+      IF bAnalogWithoutOffset THEN
+        ANOUT ON aoSL4BeadShp = AirFactor * $VEL_ACT + 0.0  DELAY = AirDelay
+      ELSE
+        ANOUT ON aoSL4BeadShp = AirFactor * $VEL_ACT + AirOffset  DELAY = AirDelay
+      ENDIF
+    DEFAULT
+      MsgQuitGlue("InternalError", ,99 )
+  ENDSWITCH
+END
+;ENDFOLD (AoBeadShpOn)
+;FOLD AoBeadShpOff
+GLOBAL DEF AoBeadShpOff(iSystemNo :IN)
+  INT iSystemNo
+  
+  SWITCH iSystemNo
+    CASE 1
+      ANOUT OFF aoSL1BeadShp
+    CASE 2
+      ANOUT OFF aoSL2BeadShp
+    CASE 3
+      ANOUT OFF aoSL3BeadShp
+    CASE 4
+      ANOUT OFF aoSL4BeadShp
+    DEFAULT
+      MsgQuitGlue("InternalError", ,99 )
+  ENDSWITCH
+END
+;ENDFOLD (AoBeadShpOff)
+;FOLD AoPrePressureInit
+GLOBAL DEF AoPrePressureInit(iSystemNo :IN, dValue :IN)
+  INT iSystemNo
+  REAL dValue
+  $ANOUT[GlueSysOutA[iSystemNo].PrePressure] = dValue
+END
+;ENDFOLD (AoPrePressureInit)
+
+;FOLD RemoteStart
+DEF RemoteStart()
+IF (InputState(GlueSysIn[GlueActData.SystemNo].Ready)==FALSE) THEN
+  REPEAT
+	  SWITCH  GlueActData.SystemNo
+	    CASE 1 ; system 1 active
+	      IF (diSL1MajorFault==TRUE) THEN
+					GLU_MsgPar[1]={par_type #value, par_int 0}
+					GLU_MsgPar[1].par_int=GlueActData.SystemNo
+	        GluePULSE(GlueSysStateOut[GlueActData.SystemNo].SingleFaultAckn, TRUE, 0.150)
+	        ;doSL1RemoteStart=TRUE
+	        ;$TIMER_STOP[nGLUProcessTmr]=TRUE
+	        ;$TIMER[nGLUProcessTmr]=-10000
+	        ;$TIMER_STOP[nGLUProcessTmr]=FALSE
+	        ;WHILE (($TIMER_FLAG[nGLUProcessTmr]==FALSE) AND (diSL1RmtStrtInProc==FALSE) AND (diSL1MajorFault==TRUE))
+	        ;	WAIT SEC 0.024
+	        ;ENDWHILE
+	        ;$TIMER_STOP[nGLUProcessTmr]=TRUE
+	        WAIT SEC 0.250
+	        ;IF ((InputState(GlueSysIn[GlueActData.SystemNo].Ready)==FALSE) AND (diSL1RmtStrtInProc==TRUE) AND (diSL1MajorFault==TRUE)) THEN
+	        ;	nGLU_Handle_RemoteStrt = Set_Krlmsg (#STATE, GlueTech_Msg[3], GLU_MsgPar[], GLU_MsgOpt_Stop) ; Remote start of system {0} in process.
+	        ;	WAIT FOR (InputState(GlueSysIn[GlueActData.SystemNo].Ready)==TRUE)
+	        ;	bGLU_Clear=Clear_KRLMsg(nGLU_Handle_RemoteStrt)
+	        ;ELSE
+	        ;	doSL1RemoteStart=FALSE
+	        ;ENDIF
+	        IF (diSL1MajorFault==TRUE) THEN
+	        	nGLU_Handle_MajorFault = Set_KrlDlg (GlueTech_Msg[4], GLU_MsgPar[], GLU_SK_Retry[], GLU_MsgOpt_Stop) ; Major fault on system {0}.
+						IF (nGLU_Handle_MajorFault > 0) THEN
+							WHILE (Exists_KrlDlg(nGLU_Handle_MajorFault, nGLU_Key))
+								WAIT SEC 0.024
+								IF (diSL1MajorFault==TRUE) THEN
+									bGLU_AutoClear=Clear_KrlMsg(nGLU_Handle_MajorFault)
+								ENDIF
+							ENDWHILE
+							IF (bGLU_AutoClear==TRUE) THEN
+								nGLU_Key = 2
+								bGLU_AutoClear=FALSE
+							ENDIF
+							SWITCH nGLU_Key
+								CASE 1 ; Diagnostic
+									GLU_Diagnostic()
+								CASE 2 ; Retry
+									WAIT SEC 0.048 ; Slight pause, then loop around and recheck for faulted condition
+							ENDSWITCH
+						ENDIF
+	      	ENDIF
+	      ENDIF
+	    CASE 2 ; system 2 active
+	      IF (diSL2MajorFault==TRUE) THEN
+					GLU_MsgPar[1]={par_type #value, par_int 0}
+					GLU_MsgPar[1].par_int=GlueActData.SystemNo
+	        GluePULSE(GlueSysStateOut[GlueActData.SystemNo].SingleFaultAckn, TRUE, 0.150)
+	        ;doSL2RemoteStart=TRUE
+	        ;$TIMER_STOP[nGLUProcessTmr]=TRUE
+	        ;$TIMER[nGLUProcessTmr]=-10000
+	        ;$TIMER_STOP[nGLUProcessTmr]=FALSE
+	        ;WHILE (($TIMER_FLAG[nGLUProcessTmr]==FALSE) AND (diSL2RmtStrtInProc==FALSE) AND (diSL2MajorFault==TRUE))
+	        ;	WAIT SEC 0.024
+	        ;ENDWHILE
+	        ;$TIMER_STOP[nGLUProcessTmr]=TRUE
+	        WAIT SEC 0.250
+	        ;IF ((InputState(GlueSysIn[GlueActData.SystemNo].Ready)==FALSE) AND (diSL2RmtStrtInProc==TRUE) AND (diSL1MajorFault==TRUE)) THEN
+	        ;	nGLU_Handle_RemoteStrt = Set_Krlmsg (#STATE, GlueTech_Msg[3], GLU_MsgPar[], GLU_MsgOpt_Stop) ; Remote start in process
+	        ;	WAIT FOR (InputState(GlueSysIn[GlueActData.SystemNo].Ready)==TRUE)
+	        ;ELSE
+	        ;	doSL2RemoteStart=FALSE
+	        ;ENDIF
+	        IF (diSL2MajorFault==TRUE) THEN
+	        	nGLU_Handle_MajorFault = Set_KrlDlg (GlueTech_Msg[4], GLU_MsgPar[], GLU_SK_Retry[], GLU_MsgOpt_Stop)
+						IF (nGLU_Handle > 0) THEN
+							WHILE (Exists_KrlDlg(nGLU_Handle_MajorFault, nGLU_Key))
+								WAIT SEC 0.024
+								IF (diSL2MajorFault==TRUE) THEN
+									bGLU_AutoClear=Clear_KrlMsg(nGLU_Handle_MajorFault)
+								ENDIF
+							ENDWHILE
+							IF (bGLU_AutoClear==TRUE) THEN
+								nGLU_Key = 2
+								bGLU_AutoClear=FALSE
+							ENDIF
+							SWITCH nGLU_Key
+								CASE 1 ; Diagnostic
+									GLU_Diagnostic()
+								CASE 2 ; Retry
+									WAIT SEC 0.048 ; Slight pause, then loop around and recheck for faulted condition
+							ENDSWITCH
+						ENDIF
+	      	ENDIF
+	      ENDIF
+	    DEFAULT
+	      MsgQuitGlue("InternalError", ,99 )
+	  ENDSWITCH
+	UNTIL (InputState(GlueSysIn[GlueActData.SystemNo].Ready)==TRUE)
+ENDIF
+END
+;ENDFOLD (RemoteStart)
+;FOLD Routines used in Calibrate_Equipment
+GLOBAL DEF AoMatFlowTrigger(iSystemNo :IN, iPath :IN, iDelay :IN, dValue :IN)
+  INT iSystemNo, iPath, iDelay
+  REAL dValue
+  
+  TRIGGER WHEN PATH = iPath DELAY = iDelay DO $ANOUT[GlueSysOutA[iSystemNo].MatFlow] = dValue
+END
+GLOBAL DEF AoBeadShpTrigger(iSystemNo :IN, iPath :IN, iDelay :IN, dValue :IN)
+  INT iSystemNo, iPath, iDelay
+  REAL dValue
+  
+  TRIGGER WHEN PATH = iPath DELAY = iDelay DO $ANOUT[GlueSysOutA[iSystemNo].BeadShp] = dValue
+END
+GLOBAL DEF SysGunTriggerUp(iSystemNo :IN, iGunNo :IN, iPath :IN, iDelay :IN, bValue :IN)
+  INT iSystemNo, iGunNo, iPath, iDelay
+  BOOL bValue
+  
+  iActualSystemNo = iSystemNo
+  iActualGunNo = iGunNo
+  bGunOpen=bValue
+  SWITCH iSystemNo
+    CASE 1,2,3,4
+      SWITCH iGunNo
+        CASE 1,2,3,4
+          TRIGGER WHEN PATH = iPath DELAY = iDelay DO OpenSysGun(iActualSystemNo, iActualGunNo, bGunOpen) PRIO=-1
+        DEFAULT
+          MsgQuitGlue("InternalError", ,99 )
+      ENDSWITCH
+    DEFAULT
+      MsgQuitGlue("InternalError", ,99 )
+  ENDSWITCH
+END
+GLOBAL DEF AirTriggerUp(iSystemNo :IN, iPath :IN, iDelay :IN, bValue :IN)
+  INT iSystemNo, iPath, iDelay
+  BOOL bValue
+  
+  ;Save runtime variables for Trigger
+  SWITCH iSystemNo
+    CASE 1,2,3,4
+      AirTriggerUpVal[iSystemNo].SystemNo=iSystemNo
+      AirTriggerUpVal[iSystemNo].bValue=bValue
+    DEFAULT
+      MsgQuitGlue("InternalError", ,99 )
+  ENDSWITCH
+  ;Set Trigger conditions
+  SWITCH iSystemNo
+    CASE 1
+      TRIGGER WHEN PATH = iPath DELAY = iDelay DO OutputSet(GlueSysDoserOut[1].AirOn, AirTriggerUpVal[1].bValue) PRIO=-1
+    CASE 2
+      TRIGGER WHEN PATH = iPath DELAY = iDelay DO OutputSet(GlueSysDoserOut[2].AirOn, AirTriggerUpVal[2].bValue) PRIO=-1
+    CASE 3
+      TRIGGER WHEN PATH = iPath DELAY = iDelay DO OutputSet(GlueSysDoserOut[3].AirOn, AirTriggerUpVal[3].bValue) PRIO=-1
+    CASE 4
+      TRIGGER WHEN PATH = iPath DELAY = iDelay DO OutputSet(GlueSysDoserOut[4].AirOn, AirTriggerUpVal[4].bValue) PRIO=-1
+    DEFAULT
+      MsgQuitGlue("InternalError", ,99 )
+  ENDSWITCH
+END
+GLOBAL DEF StartSysTriggerUp(iSystemNo :IN, iPath :IN, iDelay :IN, bValue :IN)
+  INT iSystemNo, iPath, iDelay
+  BOOL bValue
+  
+  ;Save runtime variables for Trigger
+  SWITCH iSystemNo
+    CASE 1,2,3,4
+      StartSysTriggerUpVal[iSystemNo].SystemNo=iSystemNo
+      StartSysTriggerUpVal[iSystemNo].bValue=bValue
+    DEFAULT
+      MsgQuitGlue("InternalError", ,99 )
+  ENDSWITCH
+  ;Set Trigger conditions
+  SWITCH iSystemNo
+    CASE 1
+      TRIGGER WHEN PATH = iPath DELAY = iDelay DO OutputSet(GlueSysOut[1].StartSys, StartSysTriggerUpVal[1].bValue) PRIO=-1
+    CASE 2
+      TRIGGER WHEN PATH = iPath DELAY = iDelay DO OutputSet(GlueSysOut[2].StartSys, StartSysTriggerUpVal[2].bValue) PRIO=-1
+    CASE 3
+      TRIGGER WHEN PATH = iPath DELAY = iDelay DO OutputSet(GlueSysOut[3].StartSys, StartSysTriggerUpVal[3].bValue) PRIO=-1
+    CASE 4
+      TRIGGER WHEN PATH = iPath DELAY = iDelay DO OutputSet(GlueSysOut[4].StartSys, StartSysTriggerUpVal[4].bValue) PRIO=-1
+    DEFAULT
+      MsgQuitGlue("InternalError", ,99 )
+  ENDSWITCH
+END
+GLOBAL DEF DoProgNoUp(iSystemNo :IN, iProgNo :IN)
+  INT iSystemNo, iProgNo
+  
+  OutputBSet(iSystemNo, #eProgNo, iProgNo)
+END
+GLOBAL DEF DoStartSysUp(iSystemNo :IN, bValue :IN)
+  INT iSystemNo
+  BOOL bValue
+  
+  OutputSet(GlueSysOut[iSystemNo].StartSys, bValue)
+END 
+GLOBAL DEF DoAirOnUp(iSystemNo :IN, bValue :IN)
+  INT iSystemNo
+  BOOL bValue
+  
+  OutputSet(GlueSysDoserOut[iSystemNo].AirOn, bValue)
+END 
+
+GLOBAL DEF CloseAllGuns()
+INT iCnt
+  FOR iCnt=1 TO 4
+    CloseGunsSystem(iCnt)
+  ENDFOR
+END
+GLOBAL DEF AllAnoutOff()
+  ANOUT OFF aoSL1MatFlow
+  ANOUT OFF aoSL1BeadShp
+  ANOUT OFF aoSL2MatFlow
+  ANOUT OFF aoSL2BeadShp
+  ANOUT OFF aoSL3MatFlow
+  ANOUT OFF aoSL3BeadShp
+  ANOUT OFF aoSL4MatFlow
+  ANOUT OFF aoSL4BeadShp
+END
+GLOBAL DEF ResetAllAnout()
+INT iCnt
+  FOR iCnt=1 TO 4
+    $ANOUT[GlueSysOutA[iCnt].MatFlow] = 0.0
+    $ANOUT[GlueSysOutA[iCnt].BeadShp] = 0.0
+  ENDFOR
+END
+GLOBAL DEF FillDoser()
+  SWITCH GlueActData.SystemNo
+    CASE 1,2,3,4
+      OutputSet(GlueSysOut[GlueActData.SystemNo].StartSys, FALSE)
+      OutputSet(GlueSysOut[GlueActData.SystemNo].FinishMeasure, TRUE)
+      WAIT FOR InputState(GlueSysIn[GlueActData.SystemNo].MeasurePassed)
+      OutputSet(GlueSysOut[GlueActData.SystemNo].FinishMeasure, FALSE)
+      OutputSet(GlueSysDoserOut[GlueActData.SystemNo].Fill, TRUE)
+      WAIT FOR InputState(GlueSysDoserSepIn[GlueActData.SystemNo,1].Full)
+      OutputSet(GlueSysDoserOut[GlueActData.SystemNo].Fill, FALSE)
+    DEFAULT
+      MsgQuitGlue("InternalError", ,99 )
+  ENDSWITCH
+END
+;ENDFOLD (Routines used in Calibrate_Equipment)
+
+;FOLD Helper
+DEF OutputSet(iOutputNo :IN, bValue :IN)
+  INT iOutputNo
+  BOOL bValue
+  
+  IF iOutputNo>0 THEN
+    $OUT[iOutputNo]=bValue
+  ELSE
+    ;Output not configured
+  ENDIF
+END
+DEF OutputBSet(iSystemNo :IN, eBinOutParam :IN, iValue :IN)
+  INT iSystemNo, iValue
+  DECL GlueBinInOut_T eBinOutParam
+;GlueBinOutMap[1]={ProgNo 1, ParamNo 5, ReturnValueToPLC 9, ErrorNoToPLC 13}
+  
+  SWITCH eBinOutParam
+    CASE #eProgNo  ;GlueBinOutMap[].ProgNo: Index of $BIN_OUT[]
+      $B_OUT[GlueBinOutMap[iSystemNo].ProgNo]=iValue
+    CASE #eParamNo  ;GlueBinOutMap[].ParamNo: Index of $BIN_OUT[]
+      $B_OUT[GlueBinOutMap[iSystemNo].ParamNo]=iValue
+    CASE #eReturnValueToPLC  ;GlueBinOutMap[].ReturnValueToPLC: Index of $BIN_OUT[]
+      $B_OUT[GlueBinOutMap[iSystemNo].ReturnValueToPLC]=iValue
+    CASE #eErrorNoToPLC  ;GlueBinOutMap[].FaultToPLC: Index of $BIN_OUT[]
+      $B_OUT[GlueBinOutMap[iSystemNo].ErrorNoToPLC]=iValue
+    DEFAULT
+  ENDSWITCH
+END
+GLOBAL DEFFCT BOOL OutputState(iOutputNo :IN)
+  INT iOutputNo
+  BOOL bValue
+  
+  IF iOutputNo>0 THEN
+    bValue=$OUT[iOutputNo]
+  ELSE
+    ;Output not configured
+    bValue=FALSE
+  ENDIF
+
+  RETURN (bValue)
+ENDFCT
+GLOBAL DEFFCT BOOL InputState(iInputNo :IN)
+  INT iInputNo
+  BOOL bValue
+  
+  IF iInputNo>0 THEN
+    bValue=$IN[iInputNo]
+  ELSE
+    ;Input not configured
+    bValue=FALSE
+  ENDIF
+
+  RETURN (bValue)
+ENDFCT
+GLOBAL DEFFCT INT InputB(iSystemNo :IN, eBinInParam :IN)
+  INT iSystemNo, iValue
+  DECL GlueBinInOut_T eBinInParam
+;GlueBinInMap[1]={SystemNo 1, ProgRecieved 5, ParamRecieved 9, MaterialReturnValue 13, ErrorNo 17}
+
+  SWITCH eBinInParam
+    CASE #eSystemNo  ;GlueBinInMap[].SystemNo: Index of $BIN_IN[]
+      iValue=$B_IN[GlueBinInMap[iSystemNo].SystemNo]
+    CASE #eProgRecieved  ;GlueBinInMap[].ProgRecieved: Index of $BIN_IN[]
+      iValue=$B_IN[GlueBinInMap[iSystemNo].ProgRecieved]
+    CASE #eParamRecieved  ;GlueBinInMap[].ParamRecieved: Index of $BIN_IN[]
+      iValue=$B_IN[GlueBinInMap[iSystemNo].ParamRecieved]
+    CASE #eMaterialReturnValue  ;GlueBinInMap[].MaterialReturnValue: Index of $BIN_IN[]
+      iValue=$B_IN[GlueBinInMap[iSystemNo].MaterialReturnValue]
+    CASE #eErrorNo  ;GlueBinInMap[].ErrorNo: Index of $BIN_IN[]
+      iValue=$B_IN[GlueBinInMap[iSystemNo].ErrorNo]
+    DEFAULT
+  ENDSWITCH
+  
+  RETURN (iValue)
+ENDFCT
+GLOBAL DEF GluePULSE(iOutputNo :IN, bState :IN, nPulseTime :IN)
+  INT iOutputNo
+  BOOL bState
+  REAL nPulseTime
+  
+  IF (iOutputNo<>0) THEN
+    PULSE ($OUT[iOutputNo], bState, nPulseTime)
+  ELSE
+    ;Output not configured
+  ENDIF
+
+END
+DEF GlueDataMapping()
+;Data mapping called from GLUE_PLC()
+  INT iCnt
+  
+  ;Mapping Struct for Barrel-IOs
+  FOR iCnt=1 TO 4
+    ;GlueSysBarrelIn[].BarrelEmpty and .BarrelChangeActive for Systems 2-4 is identical with System 1
+    GlueSysBarrelIn[iCnt,2].BarrelEmpty=GlueSysBarrelIn[iCnt,1].BarrelEmpty
+    GlueSysBarrelIn[iCnt,2].BarrelChangeActive=GlueSysBarrelIn[iCnt,1].BarrelChangeActive
+    GlueSysBarrelIn[iCnt,3].BarrelEmpty=GlueSysBarrelIn[iCnt,1].BarrelEmpty
+    GlueSysBarrelIn[iCnt,3].BarrelChangeActive=GlueSysBarrelIn[iCnt,1].BarrelChangeActive
+    GlueSysBarrelIn[iCnt,4].BarrelEmpty=GlueSysBarrelIn[iCnt,1].BarrelEmpty
+    GlueSysBarrelIn[iCnt,4].BarrelChangeActive=GlueSysBarrelIn[iCnt,1].BarrelChangeActive
+  ENDFOR
+END
+DEF GlueDataConsCheck()
+;Data consistency check
+  INT iCnt
+  
+  ;Check configured Binary Inputs/Outputs information in $BIN_OUT[]/$BIN_IN[]
+  FOR iCnt=1 TO iNumberOfDispenseSystems
+    ;Binary Output for ProgNo
+    IF GlueSysOut[iCnt].ProgNo > 0 THEN
+      IF ($BIN_OUT[GlueBinOutMap[iCnt].ProgNo].F_BIT<>GlueSysOut[iCnt].ProgNo) THEN
+        GlueDataInconsistent=TRUE
+      ENDIF
+      IF ($BIN_OUT[GlueBinOutMap[iCnt].ProgNo].LEN<>GlueSysOut[iCnt].ProgNoLength) THEN
+        GlueDataInconsistent=TRUE
+      ENDIF
+      IF ($BIN_OUT[GlueBinOutMap[iCnt].ProgNo].PARITY<>#NONE) THEN
+        GlueDataInconsistent=TRUE
+      ENDIF
+    ENDIF
+    
+    ;Binary Output for ParamNo
+    IF GlueSysOut[iCnt].ParamNo > 0 THEN
+      IF ($BIN_OUT[GlueBinOutMap[iCnt].ParamNo].F_BIT<>GlueSysOut[iCnt].ParamNo) THEN
+        GlueDataInconsistent=TRUE
+      ENDIF
+      IF ($BIN_OUT[GlueBinOutMap[iCnt].ParamNo].LEN<>GlueSysOut[iCnt].ParamNoLength) THEN
+        GlueDataInconsistent=TRUE
+      ENDIF
+      IF ($BIN_OUT[GlueBinOutMap[iCnt].ParamNo].PARITY<>#NONE) THEN
+        GlueDataInconsistent=TRUE
+      ENDIF
+    ENDIF
+    
+    ;Binary Output for ReturnValueToPLC
+    IF GlueSysOut[iCnt].ReturnValueToPLC > 0 THEN
+      IF ($BIN_OUT[GlueBinOutMap[iCnt].ReturnValueToPLC].F_BIT<>GlueSysOut[iCnt].ReturnValueToPLC) THEN
+        GlueDataInconsistent=TRUE
+      ENDIF
+      IF ($BIN_OUT[GlueBinOutMap[iCnt].ReturnValueToPLC].LEN<>GlueSysOut[iCnt].ReturnValueLength) THEN
+        GlueDataInconsistent=TRUE
+      ENDIF
+      IF ($BIN_OUT[GlueBinOutMap[iCnt].ReturnValueToPLC].PARITY<>#NONE) THEN
+        GlueDataInconsistent=TRUE
+      ENDIF
+    ENDIF
+    
+    ;Binary Output for ErrorNoToPLC
+    IF GlueSysStateOut[iCnt].ErrorNoToPLC > 0 THEN
+      IF ($BIN_OUT[GlueBinOutMap[iCnt].ErrorNoToPLC].F_BIT<>GlueSysStateOut[iCnt].ErrorNoToPLC) THEN
+        GlueDataInconsistent=TRUE
+      ENDIF
+      IF ($BIN_OUT[GlueBinOutMap[iCnt].ErrorNoToPLC].LEN<>GlueSysStateOut[iCnt].ErrorNoLength) THEN
+        GlueDataInconsistent=TRUE
+      ENDIF
+      IF ($BIN_OUT[GlueBinOutMap[iCnt].ErrorNoToPLC].PARITY<>#NONE) THEN
+        GlueDataInconsistent=TRUE
+      ENDIF
+    ENDIF
+   
+    ;Binary Input for SystemNo
+    IF GlueSysIn[iCnt].SystemNo > 0 THEN
+      IF ($BIN_IN[GlueBinInMap[iCnt].SystemNo].F_BIT<>GlueSysIn[iCnt].SystemNo) THEN
+        GlueDataInconsistent=TRUE
+      ENDIF
+      IF ($BIN_IN[GlueBinInMap[iCnt].SystemNo].LEN<>GlueSysIn[iCnt].SystemNoLength) THEN
+        GlueDataInconsistent=TRUE
+      ENDIF
+      IF ($BIN_IN[GlueBinInMap[iCnt].SystemNo].PARITY<>#NONE) THEN
+        GlueDataInconsistent=TRUE
+      ENDIF
+    ENDIF
+    
+    ;Binary Input for ProgRecieved
+    IF GlueSysIn[iCnt].ProgRecieved > 0 THEN
+      IF ($BIN_IN[GlueBinInMap[iCnt].ProgRecieved].F_BIT<>GlueSysIn[iCnt].ProgRecieved) THEN
+        GlueDataInconsistent=TRUE
+      ENDIF
+      IF ($BIN_IN[GlueBinInMap[iCnt].ProgRecieved].LEN<>GlueSysIn[iCnt].ProgRecievedLength) THEN
+        GlueDataInconsistent=TRUE
+      ENDIF
+      IF ($BIN_IN[GlueBinInMap[iCnt].ProgRecieved].PARITY<>#NONE) THEN
+        GlueDataInconsistent=TRUE
+      ENDIF
+    ENDIF
+    
+    ;Binary Input for ParamRecieved
+    IF GlueSysIn[iCnt].ParamRecieved > 0 THEN
+      IF ($BIN_IN[GlueBinInMap[iCnt].ParamRecieved].F_BIT<>GlueSysIn[iCnt].ParamRecieved) THEN
+        GlueDataInconsistent=TRUE
+      ENDIF
+      IF ($BIN_IN[GlueBinInMap[iCnt].ParamRecieved].LEN<>GlueSysIn[iCnt].ParamRecievedLength) THEN
+        GlueDataInconsistent=TRUE
+      ENDIF
+      IF ($BIN_IN[GlueBinInMap[iCnt].ParamRecieved].PARITY<>#NONE) THEN
+        GlueDataInconsistent=TRUE
+      ENDIF
+    ENDIF
+    
+    ;Binary Input for MaterialReturnValue
+    IF GlueSysIn[iCnt].MaterialReturnValue > 0 THEN
+      IF ($BIN_IN[GlueBinInMap[iCnt].MaterialReturnValue].F_BIT<>GlueSysIn[iCnt].MaterialReturnValue) THEN
+        GlueDataInconsistent=TRUE
+      ENDIF
+      IF ($BIN_IN[GlueBinInMap[iCnt].MaterialReturnValue].LEN<>GlueSysIn[iCnt].ReturnValueLength) THEN
+        GlueDataInconsistent=TRUE
+      ENDIF
+      IF ($BIN_IN[GlueBinInMap[iCnt].MaterialReturnValue].PARITY<>#NONE) THEN
+        GlueDataInconsistent=TRUE
+      ENDIF
+    ENDIF
+    
+    ;Binary Input for ErrorNo
+    IF GlueSysStateIn[iCnt].ErrorNo > 0 THEN
+      IF ($BIN_IN[GlueBinInMap[iCnt].ErrorNo].F_BIT<>GlueSysStateIn[iCnt].ErrorNo) THEN
+        GlueDataInconsistent=TRUE
+      ENDIF
+      IF ($BIN_IN[GlueBinInMap[iCnt].ErrorNo].LEN<>GlueSysStateIn[iCnt].ErrorNoLength) THEN
+        GlueDataInconsistent=TRUE
+      ENDIF
+      IF ($BIN_IN[GlueBinInMap[iCnt].ErrorNo].PARITY<>#NONE) THEN
+        GlueDataInconsistent=TRUE
+      ENDIF
+    ENDIF
+  ENDFOR
+  
+  IF GlueDataInconsistent THEN
+    MsgQuitGlue("MsgGlueDataInconsistent",,99)
+    WAIT FOR NOT GlueDataInconsistent
+  ENDIF
+
+END
+
+;ENDFOLD (Helper)
+
+DEF GLU_Diagnostic( )
+;FOLD Details
+;FOLD Declaration
+;ENDFOLD (Declaration)
+;FOLD Implementation
+nGLU_Handle = Set_Krlmsg (#QUIT, GlueTech_Msg[2], GLU_MsgPar[], GLU_MsgOpt_Stop)
+WHILE (Exists_KrlMsg(nGLU_Handle))
+	WAIT SEC 0.024
+ENDWHILE
+;ENDFOLD (Implementation)
+;ENDFOLD (Details)
+END ; (GLU_Diagnostic)

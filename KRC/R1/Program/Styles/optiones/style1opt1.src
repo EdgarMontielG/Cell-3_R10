@@ -1,0 +1,65 @@
+&ACCESS RVO1
+&REL 40
+&COMMENT GE4_002
+DEF Style1Opt1 ( )
+   
+    IF di065PickupMachine1 AND NOT di066PickupMachine2 THEN
+      style1pick1opt1()      ;Pick ST1
+  
+   style1app1opt1()   ;PN1 Welding
+  
+   Style1App1Opt2()   ;PN2 Welding
+   
+   Style1App1Opt3()   ;PN3 Welding
+  
+   style1app2opt1()   ;Check Nut
+      IF bScrapGE4==true THEN
+      RejectGE4()
+      goto label10
+      ENDIF 
+    
+   style1app2opt2()   ;Check Nut camera
+      IF bScrapGE4==true THEN
+      RejectGE4()
+      goto label11
+      ENDIF
+   
+  Style1Drop1Opt1()  ;Drop GE4 Part
+      GOTO LABEL12
+      ENDIF 
+    
+    
+   IF di066PickupMachine2 AND NOT di065PickupMachine1 THEN
+    style1pick1opt2()      ;Pick ST2
+  style1app1opt1()   ;PN1 Welding
+  
+   Style1App1Opt2()   ;PN2 Welding
+   
+   Style1App1Opt3()   ;PN3 Welding
+  
+   style1app2opt1()   ;Check Nut
+      IF bScrapGE4 THEN
+      RejectGE4()
+      goto label10
+      ENDIF 
+    
+   style1app2opt2()   ;Check Nut camera
+      IF bScrapGE4 THEN
+      RejectGE4()
+      goto label11
+      ENDIF
+   
+  Style1Drop1Opt1()  ;Drop GE4 Part
+  ENDIF 
+  
+   ;FOLD LABEL
+   LABEL10:
+   LABEL11:
+   LABEL12:
+   PARTPRESENT1=FALSE
+   PARTPRESENT2=FALSE  
+   PARTPRESENT3=FALSE
+   
+   ;ENDFOLD
+   
+END

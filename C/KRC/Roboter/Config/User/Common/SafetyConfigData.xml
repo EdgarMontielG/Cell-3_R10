@@ -1,0 +1,645 @@
+<?xml version="1.0"?>
+<SafetyConfigData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <AxisRangeNameItems />
+  <ChangeLog>
+    <Entries>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-01-09T06:25:27.125-05:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_HardwareParameterChanged</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-01-09T06:26:19.6875-05:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ReferenceAdjustmentParameterChanged</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-01-09T06:26:19.75-05:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_AxisMonitoringParameterChanged</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-01-09T06:26:19.75-05:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_MachineDataUpdated</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-01-09T06:26:20.40625-05:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-01-09T06:26:20.59375-05:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_HardwareParameterChanged</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-03-24T13:39:54.8000335-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-03-24T13:40:48.0900335-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_SafeOperationMonitoringEnabled</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-04-19T01:19:53.5575403-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-04-19T01:20:04.4118959-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ToolParameterChanged</MessageKey>
+        <MessageParams>
+          <string>Tool 1</string>
+        </MessageParams>
+        <Timestamp>2017-04-19T01:22:05.3326923-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-04-19T01:22:19.9028335-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ToolParameterChanged</MessageKey>
+        <MessageParams>
+          <string>Tool 1</string>
+        </MessageParams>
+        <Timestamp>2017-04-19T01:24:12.8210122-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-04-19T01:24:28.2499287-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ToolParameterChanged</MessageKey>
+        <MessageParams>
+          <string>Tool 1</string>
+        </MessageParams>
+        <Timestamp>2017-04-19T01:25:53.866473-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-04-19T01:26:17.0866854-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_SafeOperationMonitoringDisabled</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-04-19T02:08:47.9188699-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-04-19T02:08:55.8318569-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_SafeOperationMonitoringEnabled</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-04-19T02:37:03.693305-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ToolParameterChanged</MessageKey>
+        <MessageParams>
+          <string>Tool 1</string>
+        </MessageParams>
+        <Timestamp>2017-04-19T02:37:10.7565113-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-04-19T02:38:05.6155884-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_MonitoringSpaceParameterChanged</MessageKey>
+        <MessageParams>
+          <string>Nest Workspace</string>
+        </MessageParams>
+        <Timestamp>2017-04-19T02:48:49.2977499-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_MonitoringSpaceParameterChanged</MessageKey>
+        <MessageParams>
+          <string>Turn Table</string>
+        </MessageParams>
+        <Timestamp>2017-04-19T02:51:19.9660727-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-04-19T02:51:47.9834729-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_MonitoringSpaceParameterChanged</MessageKey>
+        <MessageParams>
+          <string>Space 2</string>
+        </MessageParams>
+        <Timestamp>2017-04-19T02:57:50.1933287-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-04-19T02:57:57.2267688-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_MonitoringSpaceParameterChanged</MessageKey>
+        <MessageParams>
+          <string>Nest Workspace</string>
+        </MessageParams>
+        <Timestamp>2017-04-19T03:19:24.6735078-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-04-19T03:19:33.0568107-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_SafeOperationMonitoringDisabled</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-04-19T03:26:14.302511-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-04-19T03:26:23.4390412-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_SafeOperationMonitoringEnabled</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-04-19T03:36:34.1755749-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-04-19T03:37:18.7975841-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_MonitoringSpaceParameterChanged</MessageKey>
+        <MessageParams>
+          <string>Nest Workspace</string>
+        </MessageParams>
+        <Timestamp>2017-04-19T03:41:31.0554714-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-04-19T03:41:39.9687822-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_MonitoringSpaceParameterChanged</MessageKey>
+        <MessageParams>
+          <string>Nest Workspace</string>
+        </MessageParams>
+        <Timestamp>2017-04-19T04:23:16.4765004-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-04-19T04:23:25.0132809-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_MonitoringSpaceParameterChanged</MessageKey>
+        <MessageParams>
+          <string>Nest Workspace</string>
+        </MessageParams>
+        <Timestamp>2017-04-19T04:31:15.8351786-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-04-19T04:31:53.9022859-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_MonitoringSpaceParameterChanged</MessageKey>
+        <MessageParams>
+          <string>Nest Workspace</string>
+        </MessageParams>
+        <Timestamp>2017-04-19T05:14:21.2752056-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-04-19T05:15:12.8983797-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_SafeOperationMonitoringDisabled</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-04-19T08:18:03.183839-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-04-19T08:18:25.7502161-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_SafeOperationMonitoringEnabled</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-05-13T09:26:38.7026306-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-05-13T09:26:51.9745291-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ReferenceAdjustmentParameterChanged</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-05-13T10:35:28.8925779-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-05-13T10:35:41.9350674-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ReferenceAdjustmentParameterChanged</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-05-17T02:42:16.6080579-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-05-17T02:42:24.5160516-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-05-17T04:22:25.6978759-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ToolParameterChanged</MessageKey>
+        <MessageParams>
+          <string>Tool 1</string>
+        </MessageParams>
+        <Timestamp>2017-05-17T04:25:20.7168197-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-05-17T04:25:32.1398914-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_CellAreaParameterChanged</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-05-17T04:28:45.8315392-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-05-17T04:29:07.3670999-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ToolParameterChanged</MessageKey>
+        <MessageParams>
+          <string>Tool 1</string>
+        </MessageParams>
+        <Timestamp>2017-05-17T04:39:11.2493579-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-05-17T04:39:21.2279333-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ToolParameterChanged</MessageKey>
+        <MessageParams>
+          <string>Tool 1</string>
+        </MessageParams>
+        <Timestamp>2017-05-17T04:47:54.9184573-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-05-17T04:48:04.6634492-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ToolParameterChanged</MessageKey>
+        <MessageParams>
+          <string>Tool 1</string>
+        </MessageParams>
+        <Timestamp>2017-05-17T04:55:16.4799145-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-05-17T04:55:24.6128809-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ToolParameterChanged</MessageKey>
+        <MessageParams>
+          <string>Tool 1</string>
+        </MessageParams>
+        <Timestamp>2017-05-17T04:56:26.8619971-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-05-17T04:56:35.2273296-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_CellAreaParameterChanged</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-05-17T05:12:05.1948144-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-05-17T05:12:19.3303461-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_CellAreaParameterChanged</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-05-17T06:08:18.8713978-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-05-17T06:09:22.6649227-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_CellAreaParameterChanged</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-05-17T06:16:35.2770612-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-05-17T06:16:49.631826-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ReferenceAdjustmentParameterChanged</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-05-19T02:57:45.4393181-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-05-19T02:57:57.1738021-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_CellAreaParameterChanged</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-05-20T01:08:09.1351305-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-05-20T01:08:19.4004717-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_CellAreaParameterChanged</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-05-20T06:56:56.9015647-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-05-20T06:57:16.446586-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ReferenceAdjustmentParameterChanged</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-08-15T04:15:33.592316-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+        <MessageParams />
+        <Timestamp>2017-08-15T04:15:42.5393046-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_HardwareParameterChanged</MessageKey>
+        <MessageParams />
+        <Timestamp>2021-12-16T15:26:28.9616135-05:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+        <MessageParams />
+        <Timestamp>2021-12-16T15:26:47.2676605-05:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_HardwareParameterChanged</MessageKey>
+        <MessageParams />
+        <Timestamp>2021-12-16T18:35:12.0627268-05:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+        <MessageParams />
+        <Timestamp>2021-12-16T18:35:23.667918-05:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_HardwareParameterChanged</MessageKey>
+        <MessageParams />
+        <Timestamp>2026-07-24T08:48:55.3794508-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ReferenceAdjustmentParameterChanged</MessageKey>
+        <MessageParams />
+        <Timestamp>2026-07-24T08:48:55.4214132-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_AxisMonitoringParameterChanged</MessageKey>
+        <MessageParams />
+        <Timestamp>2026-07-24T08:48:55.4214132-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_MachineDataUpdated</MessageKey>
+        <MessageParams />
+        <Timestamp>2026-07-24T08:48:55.6094202-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+        <MessageParams />
+        <Timestamp>2026-07-24T08:48:55.6219846-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_HardwareParameterChanged</MessageKey>
+        <MessageParams />
+        <Timestamp>2026-07-24T09:12:26.8279026-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ReferenceAdjustmentParameterChanged</MessageKey>
+        <MessageParams />
+        <Timestamp>2026-07-24T09:12:26.86991-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_AxisMonitoringParameterChanged</MessageKey>
+        <MessageParams />
+        <Timestamp>2026-07-24T09:12:26.86991-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_MachineDataUpdated</MessageKey>
+        <MessageParams />
+        <Timestamp>2026-07-24T09:12:27.0329094-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+        <MessageParams />
+        <Timestamp>2026-07-24T09:12:27.0358107-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_MonitoringSpaceParameterChanged</MessageKey>
+        <MessageParams>
+          <string>Nest Workspace</string>
+        </MessageParams>
+        <Timestamp>2026-08-28T12:43:41.3382716-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+        <MessageParams />
+        <Timestamp>2026-08-28T12:43:52.1455966-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ToolParameterChanged</MessageKey>
+        <MessageParams>
+          <string>Tool 1</string>
+        </MessageParams>
+        <Timestamp>2026-08-30T09:52:16.8250848-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+        <MessageParams />
+        <Timestamp>2026-08-30T09:52:24.9063818-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ToolParameterChanged</MessageKey>
+        <MessageParams>
+          <string>Tool 1</string>
+        </MessageParams>
+        <Timestamp>2026-08-30T09:56:34.1401535-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+        <MessageParams />
+        <Timestamp>2026-08-30T09:56:47.5624233-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ToolParameterChanged</MessageKey>
+        <MessageParams>
+          <string>Tool 1</string>
+        </MessageParams>
+        <Timestamp>2026-08-30T10:00:18.0744743-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+        <MessageParams />
+        <Timestamp>2026-08-30T10:00:25.0085509-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_MonitoringSpaceParameterChanged</MessageKey>
+        <MessageParams>
+          <string>Nest Workspace</string>
+        </MessageParams>
+        <Timestamp>2026-08-30T10:03:14.2298887-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+        <MessageParams />
+        <Timestamp>2026-08-30T10:03:32.9934902-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ReferenceAdjustmentParameterChanged</MessageKey>
+        <MessageParams />
+        <Timestamp>2026-08-30T10:33:44.6139225-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+        <MessageParams />
+        <Timestamp>2026-08-30T10:33:59.5008137-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_MonitoringSpaceParameterChanged</MessageKey>
+        <MessageParams>
+          <string>Nest Workspace</string>
+        </MessageParams>
+        <Timestamp>2026-09-01T16:59:58.638186-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+        <MessageParams />
+        <Timestamp>2026-09-01T17:00:06.39068-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_MonitoringSpaceParameterChanged</MessageKey>
+        <MessageParams>
+          <string>Nest Workspace</string>
+        </MessageParams>
+        <Timestamp>2026-09-09T21:21:09.2787701-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+        <MessageParams />
+        <Timestamp>2026-09-09T21:21:19.6297439-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_MonitoringSpaceParameterChanged</MessageKey>
+        <MessageParams>
+          <string>Nest Workspace</string>
+        </MessageParams>
+        <Timestamp>2026-09-09T21:28:41.5622629-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+        <MessageParams />
+        <Timestamp>2026-09-09T21:28:52.0700877-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_MonitoringSpaceParameterChanged</MessageKey>
+        <MessageParams>
+          <string>Nest Workspace</string>
+        </MessageParams>
+        <Timestamp>2026-09-13T15:37:20.4355627-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+        <MessageParams />
+        <Timestamp>2026-09-13T15:37:34.9635866-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_MonitoringSpaceParameterChanged</MessageKey>
+        <MessageParams>
+          <string>Nest Workspace</string>
+        </MessageParams>
+        <Timestamp>2026-09-13T15:41:22.4244254-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+        <MessageParams />
+        <Timestamp>2026-09-13T15:44:01.4156976-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_MonitoringSpaceParameterChanged</MessageKey>
+        <MessageParams>
+          <string>Nest Workspace</string>
+        </MessageParams>
+        <Timestamp>2026-09-13T15:53:37.9032454-04:00</Timestamp>
+      </ProtocolEntry>
+      <ProtocolEntry>
+        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+        <MessageParams />
+        <Timestamp>2026-09-13T15:53:49.7715543-04:00</Timestamp>
+      </ProtocolEntry>
+    </Entries>
+  </ChangeLog>
+  <OverwriteEntries>
+    <Overwrites />
+  </OverwriteEntries>
+  <DevDescrRevision>589825</DevDescrRevision>
+  <LastModified>2026-09-13T15:53:49.8554787-04:00</LastModified>
+  <MachineDataLastModified>2026-07-24T09:12:27.0329094-04:00</MachineDataLastModified>
+  <ProjectName>-</ProjectName>
+  <ToolNameItems />
+  <Version>52</Version>
+  <WorksheetCrc>883113056</WorksheetCrc>
+  <MonitoringSpaceNameItems>
+    <string xsi:nil="true" />
+    <string>Nest Workspace</string>
+    <string>Space 2</string>
+  </MonitoringSpaceNameItems>
+  <WorkspaceNameItems />
+</SafetyConfigData>

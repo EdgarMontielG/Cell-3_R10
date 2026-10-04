@@ -1,0 +1,530 @@
+&ACCESS  R
+&COMMENT GlueTech MAIN PROGRAM
+&PARAM DISKPATH = TP/GLUETECH
+&PARAM KUKATPGLUE_VERSION = 4.2.0
+&PARAM GLUE_BUILD = 4SYS
+&PARAM GLUE_DATE = 29.11.2013
+&PARAM GLUE_BUILD = 4SYS
+&PARAM GLUE_BUILD = 4SYS
+&PARAM GLUE_DATE = 29.11.2013
+&REL 4
+DEFDAT  glue PUBLIC
+
+;FOLD GLUE ENUMs AND TYPs
+ENUM SYS_TYPE A,B
+ENUM RELOAD_TYPE RELOAD_COMPL,RELOAD_WAIT,RELOAD_TIME
+GLOBAL ENUM FLOW_TYPE_SEL TCP_SPEED,SPEED_INDEP
+GLOBAL ENUM ANSWER_TYPE NO,YES
+GLOBAL ENUM PURGE_TYPE STANDARD,A,B,AB
+GLOBAL ENUM PURGEVARIANT_TYPE PURGE_COMPL,PURGE_TIME
+GLOBAL ENUM APP_TYPE GLUE_1K,GLUE_2K
+GLOBAL ENUM GLUE_RESTART_MODE GLUE_OFF,GLUE_CONT,GLUE_USER
+GLOBAL ENUM AIR_TYPE NONE,AIR,E_SWIRL
+GLOBAL ENUM QUIT_FAULT_TYPE SINGLE,ALL,SPS
+GLOBAL ENUM GlueBinInOut_T eProgNo,eParamNo,eReturnValueToPLC,eErrorNoToPLC,eSystemNo,eProgRecieved,eParamRecieved,eMaterialReturnValue,eErrorNo
+GLOBAL STRUC GlueParamType INT EQUIP_NO,ANSWER_TYPE ANSWER,INT ScheduleNo,BOOL COMPLETE,REAL TriggerDistance,FLOW_TYPE_SEL MAT_FLOW_TYPE,INT SystemNo,ANSWER_TYPE PurgeWithAir,MonitoringPurge,INT Disp_Gun,FLOW_TYPE_SEL AIR_FLOW_TYPE,PURGE_TYPE PurgeMode,INT ParamNo,INT Pressure,REAL Period,ANSWER_TYPE ChangeDoser
+GLOBAL STRUC GlueTimingType REAL GunOnDelay,GunOffDelay,MaterialDelay,MaterialReactionPosOffs,MaterialReactionNegOffs,AirOnDelay,AirOffDelay,AirDelay,AirReactionPosOffs,AirReactionNegOffs
+GLOBAL STRUC BeadDataTyp INT PrePressure,MaterialFactor,MaterialOffset,AirFactor,AirOffset,REAL Speed,FLOW_TYPE_SEL MatFlowType,CHAR Comment[24],FLOW_TYPE_SEL AirFlowType
+GLOBAL STRUC SettingDataTyp APP_TYPE GlueType,AIR_TYPE BeadShaping,INT iNumberOfDoser,QUIT_FAULT_TYPE QuitFault,BOOL MirrorPgno,INT iPGNOLength,BOOL bSingleFaultToPLC,bWithMeasurementActive,bNegMatLogic,bWithPeltier
+GLOBAL STRUC Glue_Sugg_Type CHAR GLUE_BeadData[24],Cont[24]
+;IO-Interface: Outputs
+GLOBAL STRUC GlueSysOutA_Type INT MatFlow,BeadShp,PrePressure
+GLOBAL STRUC GlueSysOut_Type INT On,EnPump,EnHeating,EnHydr,EnTimerHeating,AutoExt,HandExt,FinishMeasure,PumpReset,HeatingUnitReset,HydraulicReset,CirculationReset,WithoutMaterial,StartSys,ProgNo,ProgNoLength,ParamNo,ParamNoLength,ReturnValueToPLC,ReturnValueLength,ReturnValueValid
+GLOBAL STRUC GlueSysStateOut_Type INT FaultAckn,SingleFaultAckn,FaultToPLC,ErrorNoToPLC,ErrorNoLength
+GLOBAL STRUC GlueSysDoserOut_Type INT Fill,CirculationOn,Change,AirOn,Purge,PurgeA,PurgeB,PrePurge,TriggerPrePressure,PurgeEnable,EnableDocking,EnableReference,EnableMixerChange,OneComponentAppl,SwirlLineMove,SwirlCoolingAir,PressDischarge
+GLOBAL STRUC GlueSysGunOut_Type INT On
+GLOBAL STRUC GlueCustomOut_Type INT ProgStrobe
+;IO-Interface: Inputs
+GLOBAL STRUC GlueSysIn_Type INT PrePressOk,Ready,DispOk,ToggleBit,MeasurePassed,PumpIsOn,HeatingStartPhase,HeatingIsOn,HeatingTimerActive,HydraulicStartPhase,HydraulicIsOn,MaterialEnabled,Handshake,OneComponentActive,MixerChangeRequest,MixerChangeAckn,CirculationRequest,CirculationActive,SwirlReady,SwirlSpeedOk,SystemNo,SystemNoLength,DoserNo,ProgRecieved,ProgRecievedLength,ParamRecieved,ParamRecievedLength,MaterialReturnValue,ReturnValueLength,DryByPLC,PressDischargeReq,ReturnValueAckn,MeasurementActive
+GLOBAL STRUC GlueSysStateIn_Type INT MixtureUndefined,FaultServo,FaultApplication,FaultPump,FaultHeating,FaultHydraulic,FaultFillingStation,MatHigh,MatLow,MixtureHigh,MixtureLow,NotQuitFault,Warning,AccumulationError,ErrorNo,ErrorNoLength,QuitByPLC
+GLOBAL STRUC GlueSysDoserGenIn_Type INT SingleMode,ChangeAckn,ReloadRequest,PurgeRequest,PrePurgeRequest,ReferenceRequest,LeaveFillingStation,PurgeActive,PurgeAActive,PurgeBActive,AInMixer,BInMixer,ABInMixer,PurgePassed
+GLOBAL STRUC GlueSysDoserSepIn_Type INT PrePressOk,Full,EmptyLimit
+GLOBAL STRUC GlueSysBarrelIn_Type INT RestAmount,BarrelEmpty,BarrelChangeActive
+;ENDFOLD (GLUE ENUMs AND TYPs)
+
+;FOLD IO-Interface
+;FOLD OUTPUTS
+;SYSTEM OUTPUTS ANALOG ($ANOUT[x]): GlueSysOutA[SystemNo]
+DECL GLOBAL GlueSysOutA_Type GlueSysOutA[4]
+GlueSysOutA[1]={MatFlow 1,BeadShp 2,PrePressure 3}
+GlueSysOutA[2]={MatFlow 4,BeadShp 5,PrePressure 6}
+GlueSysOutA[3]={MatFlow 7,BeadShp 8,PrePressure 9}
+GlueSysOutA[4]={MatFlow 10,BeadShp 11,PrePressure 12}
+
+;SYSTEM OUTPUTS Overall: GlueSysOut[SystemNo]
+DECL GLOBAL GlueSysOut_Type GlueSysOut[4]
+;System 1-4
+GlueSysOut[1]={On 168,EnPump 174,EnHeating 175,EnHydr 0,EnTimerHeating 0,AutoExt 1025,HandExt 0,FinishMeasure 0,PumpReset 176,HeatingUnitReset 0,HydraulicReset 0,CirculationReset 0,WithoutMaterial 0,StartSys 161,ProgNo 177,ProgNoLength 8,ParamNo 185,ParamNoLength 8,ReturnValueToPLC 0,ReturnValueLength 8,ReturnValueValid 0}
+GlueSysOut[2]={On 0,EnPump 0,EnHeating 0,EnHydr 0,EnTimerHeating 0,AutoExt 0,HandExt 0,FinishMeasure 0,PumpReset 0,HeatingUnitReset 0,HydraulicReset 0,CirculationReset 0,WithoutMaterial 0,StartSys 0,ProgNo 0,ProgNoLength 8,ParamNo 0,ParamNoLength 8,ReturnValueToPLC 0,ReturnValueLength 8,ReturnValueValid 0}
+GlueSysOut[3]={On 0,EnPump 0,EnHeating 0,EnHydr 0,EnTimerHeating 0,AutoExt 0,HandExt 0,FinishMeasure 0,PumpReset 0,HeatingUnitReset 0,HydraulicReset 0,CirculationReset 0,WithoutMaterial 0,StartSys 0,ProgNo 0,ProgNoLength 8,ParamNo 0,ParamNoLength 8,ReturnValueToPLC 0,ReturnValueLength 8,ReturnValueValid 0}
+GlueSysOut[4]={On 0,EnPump 0,EnHeating 0,EnHydr 0,EnTimerHeating 0,AutoExt 0,HandExt 0,FinishMeasure 0,PumpReset 0,HeatingUnitReset 0,HydraulicReset 0,CirculationReset 0,WithoutMaterial 0,StartSys 0,ProgNo 0,ProgNoLength 8,ParamNo 0,ParamNoLength 8,ReturnValueToPLC 0,ReturnValueLength 8,ReturnValueValid 0}
+
+;SYSTEM OUTPUTS System State: GlueSysStateOut[SystemNo]
+DECL GLOBAL GlueSysStateOut_Type GlueSysStateOut[4]
+;System 1-4
+GlueSysStateOut[1]={FaultAckn 173,SingleFaultAckn 0,FaultToPLC 0,ErrorNoToPLC 0,ErrorNoLength 10}
+GlueSysStateOut[2]={FaultAckn 0,SingleFaultAckn 0,FaultToPLC 0,ErrorNoToPLC 0,ErrorNoLength 10}
+GlueSysStateOut[3]={FaultAckn 0,SingleFaultAckn 0,FaultToPLC 0,ErrorNoToPLC 0,ErrorNoLength 10}
+GlueSysStateOut[4]={FaultAckn 0,SingleFaultAckn 0,FaultToPLC 0,ErrorNoToPLC 0,ErrorNoLength 10}
+
+;SYSTEM OUTPUTS Doser: GlueSysDoserOut[SystemNo]
+DECL GLOBAL GlueSysDoserOut_Type GlueSysDoserOut[4]
+;System 1-4
+GlueSysDoserOut[1]={Fill 165,CirculationOn 0,Change 0,AirOn 166,Purge 169,PurgeA 0,PurgeB 0,PrePurge 0,TriggerPrePressure 0,PurgeEnable 171,EnableDocking 0,EnableReference 0,EnableMixerChange 0,OneComponentAppl 0,SwirlLineMove 0,SwirlCoolingAir 0,PressDischarge 0}
+GlueSysDoserOut[2]={Fill 0,CirculationOn 0,Change 0,AirOn 0,Purge 0,PurgeA 0,PurgeB 0,PrePurge 0,TriggerPrePressure 0,PurgeEnable 0,EnableDocking 0,EnableReference 0,EnableMixerChange 0,OneComponentAppl 0,SwirlLineMove 0,SwirlCoolingAir 0,PressDischarge 0}
+GlueSysDoserOut[3]={Fill 0,CirculationOn 0,Change 0,AirOn 0,Purge 0,PurgeA 0,PurgeB 0,PrePurge 0,TriggerPrePressure 0,PurgeEnable 0,EnableDocking 0,EnableReference 0,EnableMixerChange 0,OneComponentAppl 0,SwirlLineMove 0,SwirlCoolingAir 0,PressDischarge 0}
+GlueSysDoserOut[4]={Fill 0,CirculationOn 0,Change 0,AirOn 0,Purge 0,PurgeA 0,PurgeB 0,PrePurge 0,TriggerPrePressure 0,PurgeEnable 0,EnableDocking 0,EnableReference 0,EnableMixerChange 0,OneComponentAppl 0,SwirlLineMove 0,SwirlCoolingAir 0,PressDischarge 0}
+
+;SYSTEM OUTPUTS GUN: GlueSysGunOut[SystemNo, GunNo]
+DECL GLOBAL GlueSysGunOut_Type GlueSysGunOut[4,4]
+;System 1-4, Gun 1-4
+GlueSysGunOut[1,1]={On 162}
+GlueSysGunOut[1,2]={On 0}
+GlueSysGunOut[1,3]={On 0}
+GlueSysGunOut[1,4]={On 0}
+GlueSysGunOut[2,1]={On 0}
+GlueSysGunOut[2,2]={On 0}
+GlueSysGunOut[2,3]={On 0}
+GlueSysGunOut[2,4]={On 0}
+GlueSysGunOut[3,1]={On 0}
+GlueSysGunOut[3,2]={On 0}
+GlueSysGunOut[3,3]={On 0}
+GlueSysGunOut[3,4]={On 0}
+GlueSysGunOut[4,1]={On 0}
+GlueSysGunOut[4,2]={On 0}
+GlueSysGunOut[4,3]={On 0}
+GlueSysGunOut[4,4]={On 0}
+;ENDFOLD (OUTPUTS)
+
+;Custom OUTPUTS Overall: GlueCustomOut[SystemNo]
+DECL GLOBAL GlueCustomOut_Type GlueCustomOut[4]
+;System 1-4
+GlueCustomOut[1]={ProgStrobe 0}
+GlueCustomOut[2]={ProgStrobe 0}
+GlueCustomOut[3]={ProgStrobe 0}
+GlueCustomOut[4]={ProgStrobe 0}
+
+;FOLD INPUTS
+;SYSTEM INPUTS Overall: GlueSysIn[SystemNo]
+DECL GLOBAL GlueSysIn_Type GlueSysIn[4]
+;System 1-4
+GlueSysIn[1]={PrePressOk 176,Ready 168,DispOk 167,ToggleBit 0,MeasurePassed 0,PumpIsOn 194,HeatingStartPhase 197,HeatingIsOn 196,HeatingTimerActive 0,HydraulicStartPhase 0,HydraulicIsOn 1025,MaterialEnabled 0,Handshake 0,OneComponentActive 0,MixerChangeRequest 0,MixerChangeAckn 0,CirculationRequest 0,CirculationActive 0,SwirlReady 1025,SwirlSpeedOk 0,SystemNo 1025,SystemNoLength 2,DoserNo 0,ProgRecieved 177,ProgRecievedLength 8,ParamRecieved 185,ParamRecievedLength 8,MaterialReturnValue 0,ReturnValueLength 16,DryByPLC 4,PressDischargeReq 0,ReturnValueAckn 0,MeasurementActive 1025}
+GlueSysIn[2]={PrePressOk 0,Ready 0,DispOk 0,ToggleBit 0,MeasurePassed 0,PumpIsOn 0,HeatingStartPhase 0,HeatingIsOn 0,HeatingTimerActive 0,HydraulicStartPhase 0,HydraulicIsOn 0,MaterialEnabled 0,Handshake 0,OneComponentActive 0,MixerChangeRequest 0,MixerChangeAckn 0,CirculationRequest 0,CirculationActive 0,SwirlReady 0,SwirlSpeedOk 0,SystemNo 0,SystemNoLength 2,DoserNo 0,ProgRecieved 0,ProgRecievedLength 8,ParamRecieved 0,ParamRecievedLength 8,MaterialReturnValue 0,ReturnValueLength 16,DryByPLC 0,PressDischargeReq 0,ReturnValueAckn 0,MeasurementActive 0}
+GlueSysIn[3]={PrePressOk 0,Ready 0,DispOk 0,ToggleBit 0,MeasurePassed 0,PumpIsOn 0,HeatingStartPhase 0,HeatingIsOn 0,HeatingTimerActive 0,HydraulicStartPhase 0,HydraulicIsOn 0,MaterialEnabled 0,Handshake 0,OneComponentActive 0,MixerChangeRequest 0,MixerChangeAckn 0,CirculationRequest 0,CirculationActive 0,SwirlReady 0,SwirlSpeedOk 0,SystemNo 0,SystemNoLength 2,DoserNo 0,ProgRecieved 0,ProgRecievedLength 8,ParamRecieved 0,ParamRecievedLength 8,MaterialReturnValue 0,ReturnValueLength 16,DryByPLC 0,PressDischargeReq 0,ReturnValueAckn 0,MeasurementActive 0}
+GlueSysIn[4]={PrePressOk 0,Ready 0,DispOk 0,ToggleBit 0,MeasurePassed 0,PumpIsOn 0,HeatingStartPhase 0,HeatingIsOn 0,HeatingTimerActive 0,HydraulicStartPhase 0,HydraulicIsOn 0,MaterialEnabled 0,Handshake 0,OneComponentActive 0,MixerChangeRequest 0,MixerChangeAckn 0,CirculationRequest 0,CirculationActive 0,SwirlReady 0,SwirlSpeedOk 0,SystemNo 0,SystemNoLength 2,DoserNo 0,ProgRecieved 0,ProgRecievedLength 8,ParamRecieved 0,ParamRecievedLength 8,MaterialReturnValue 0,ReturnValueLength 16,DryByPLC 0,PressDischargeReq 0,ReturnValueAckn 0,MeasurementActive 0}
+
+;SYSTEM INPUTS System State: GlueSysStateIn[SystemNo]
+DECL GLOBAL GlueSysStateIn_Type GlueSysStateIn[4]
+;System 1-4
+GlueSysStateIn[1]={MixtureUndefined 0,FaultServo 0,FaultApplication 164,FaultPump 200,FaultHeating 0,FaultHydraulic 0,FaultFillingStation 0,MatHigh 162,MatLow 163,MixtureHigh 0,MixtureLow 0,NotQuitFault 161,Warning 165,AccumulationError 0,ErrorNo 0,ErrorNoLength 10,QuitByPLC 0}
+GlueSysStateIn[2]={MixtureUndefined 0,FaultServo 0,FaultApplication 0,FaultPump 0,FaultHeating 0,FaultHydraulic 0,FaultFillingStation 0,MatHigh 0,MatLow 0,MixtureHigh 0,MixtureLow 0,NotQuitFault 0,Warning 0,AccumulationError 0,ErrorNo 0,ErrorNoLength 10,QuitByPLC 0}
+GlueSysStateIn[3]={MixtureUndefined 0,FaultServo 0,FaultApplication 0,FaultPump 0,FaultHeating 0,FaultHydraulic 0,FaultFillingStation 0,MatHigh 0,MatLow 0,MixtureHigh 0,MixtureLow 0,NotQuitFault 0,Warning 0,AccumulationError 0,ErrorNo 0,ErrorNoLength 10,QuitByPLC 0}
+GlueSysStateIn[4]={MixtureUndefined 0,FaultServo 0,FaultApplication 0,FaultPump 0,FaultHeating 0,FaultHydraulic 0,FaultFillingStation 0,MatHigh 0,MatLow 0,MixtureHigh 0,MixtureLow 0,NotQuitFault 0,Warning 0,AccumulationError 0,ErrorNo 0,ErrorNoLength 10,QuitByPLC 0}
+
+;SYSTEM INPUTS Doser: 
+;Doser Overall -> GlueSysDoserGenIn[SystemNo]
+DECL GLOBAL GlueSysDoserGenIn_Type GlueSysDoserGenIn[4]
+;System 1-4
+GlueSysDoserGenIn[1]={SingleMode 0,ChangeAckn 0,ReloadRequest 169,PurgeRequest 170,PrePurgeRequest 171,ReferenceRequest 0,LeaveFillingStation 0,PurgeActive 220,PurgeAActive 0,PurgeBActive 0,AInMixer 0,BInMixer 0,ABInMixer 0,PurgePassed 174}
+GlueSysDoserGenIn[2]={SingleMode 0,ChangeAckn 0,ReloadRequest 0,PurgeRequest 0,PrePurgeRequest 0,ReferenceRequest 0,LeaveFillingStation 0,PurgeActive 0,PurgeAActive 0,PurgeBActive 0,AInMixer 0,BInMixer 0,ABInMixer 0,PurgePassed 0}
+GlueSysDoserGenIn[3]={SingleMode 0,ChangeAckn 0,ReloadRequest 0,PurgeRequest 0,PrePurgeRequest 0,ReferenceRequest 0,LeaveFillingStation 0,PurgeActive 0,PurgeAActive 0,PurgeBActive 0,AInMixer 0,BInMixer 0,ABInMixer 0,PurgePassed 0}
+GlueSysDoserGenIn[4]={SingleMode 0,ChangeAckn 0,ReloadRequest 0,PurgeRequest 0,PrePurgeRequest 0,ReferenceRequest 0,LeaveFillingStation 0,PurgeActive 0,PurgeAActive 0,PurgeBActive 0,AInMixer 0,BInMixer 0,ABInMixer 0,PurgePassed 0}
+
+;Doser specific -> GlueSysDoserSepIn[SystemNo,DoserNo]
+DECL GLOBAL GlueSysDoserSepIn_Type GlueSysDoserSepIn[4,2]
+;System 1-4, Doser 1-2
+GlueSysDoserSepIn[1,1]={PrePressOk 1025,Full 173,EmptyLimit 0}
+GlueSysDoserSepIn[1,2]={PrePressOk 0,Full 0,EmptyLimit 0}
+GlueSysDoserSepIn[2,1]={PrePressOk 0,Full 0,EmptyLimit 0}
+GlueSysDoserSepIn[2,2]={PrePressOk 0,Full 0,EmptyLimit 0}
+GlueSysDoserSepIn[3,1]={PrePressOk 0,Full 0,EmptyLimit 0}
+GlueSysDoserSepIn[3,2]={PrePressOk 0,Full 0,EmptyLimit 0}
+GlueSysDoserSepIn[4,1]={PrePressOk 0,Full 0,EmptyLimit 0}
+GlueSysDoserSepIn[4,2]={PrePressOk 0,Full 0,EmptyLimit 0}
+
+;SYSTEM INPUTS Barrel: GlueSysBarrelIn[SystemNo]
+DECL GLOBAL GlueSysBarrelIn_Type GlueSysBarrelIn[4,4]
+;System 1-4, Barrel 1-4
+GlueSysBarrelIn[1,1]={RestAmount 201,BarrelEmpty 202,BarrelChangeActive 0}
+GlueSysBarrelIn[1,2]={RestAmount 203,BarrelEmpty 202,BarrelChangeActive 0}
+GlueSysBarrelIn[1,3]={RestAmount 0,BarrelEmpty 202,BarrelChangeActive 0}
+GlueSysBarrelIn[1,4]={RestAmount 0,BarrelEmpty 202,BarrelChangeActive 0}
+GlueSysBarrelIn[2,1]={RestAmount 0,BarrelEmpty 0,BarrelChangeActive 0}
+GlueSysBarrelIn[2,2]={RestAmount 0,BarrelEmpty 0,BarrelChangeActive 0}
+GlueSysBarrelIn[2,3]={RestAmount 0,BarrelEmpty 0,BarrelChangeActive 0}
+GlueSysBarrelIn[2,4]={RestAmount 0,BarrelEmpty 0,BarrelChangeActive 0}
+GlueSysBarrelIn[3,1]={RestAmount 0,BarrelEmpty 0,BarrelChangeActive 0}
+GlueSysBarrelIn[3,2]={RestAmount 0,BarrelEmpty 0,BarrelChangeActive 0}
+GlueSysBarrelIn[3,3]={RestAmount 0,BarrelEmpty 0,BarrelChangeActive 0}
+GlueSysBarrelIn[3,4]={RestAmount 0,BarrelEmpty 0,BarrelChangeActive 0}
+GlueSysBarrelIn[4,1]={RestAmount 0,BarrelEmpty 0,BarrelChangeActive 0}
+GlueSysBarrelIn[4,2]={RestAmount 0,BarrelEmpty 0,BarrelChangeActive 0}
+GlueSysBarrelIn[4,3]={RestAmount 0,BarrelEmpty 0,BarrelChangeActive 0}
+GlueSysBarrelIn[4,4]={RestAmount 0,BarrelEmpty 0,BarrelChangeActive 0}
+;ENDFOLD (INPUTS)
+
+;FOLD BIN_OUT/BIN_IN Mapping
+GLOBAL STRUC GlueBinOutMap_T INT ProgNo,ParamNo,ReturnValueToPLC,ErrorNoToPLC
+DECL GLOBAL GlueBinOutMap_T GlueBinOutMap[4]
+;GlueBinOutMap[SysNo].ProgNo = <Index of $BIN_OUT[] to use>
+;GlueBinOutMap[SysNo].ParamNo = <Index of $BIN_OUT[] to use>
+;GlueBinOutMap[SysNo].ReturnValueToPLC = <Index of $BIN_OUT[] to use>
+;GlueBinOutMap[SysNo].FaultToPLC = <Index of $BIN_OUT[] to use>
+GlueBinOutMap[1]={ProgNo 1,ParamNo 5,ReturnValueToPLC 9,ErrorNoToPLC 13}
+GlueBinOutMap[2]={ProgNo 2,ParamNo 6,ReturnValueToPLC 10,ErrorNoToPLC 14}
+GlueBinOutMap[3]={ProgNo 3,ParamNo 7,ReturnValueToPLC 11,ErrorNoToPLC 15}
+GlueBinOutMap[4]={ProgNo 4,ParamNo 8,ReturnValueToPLC 12,ErrorNoToPLC 16}
+
+GLOBAL STRUC GlueBinInMap_T INT SystemNo,ProgRecieved,ParamRecieved,MaterialReturnValue,ErrorNo
+DECL GLOBAL GlueBinInMap_T GlueBinInMap[4]
+;GlueBinInMap[SysNo].SystemNo = <Index of $BIN_IN[] to use>
+;GlueBinInMap[SysNo].ProgRecieved = <Index of $BIN_IN[] to use>
+;GlueBinInMap[SysNo].ParamRecieved = <Index of $BIN_IN[] to use>
+;GlueBinInMap[SysNo].MaterialReturnValue = <Index of $BIN_IN[] to use>
+;GlueBinInMap[SysNo].ErrorNo = <Index of $BIN_IN[] to use>
+GlueBinInMap[1]={SystemNo 1,ProgRecieved 5,ParamRecieved 9,MaterialReturnValue 13,ErrorNo 17}
+GlueBinInMap[2]={SystemNo 2,ProgRecieved 6,ParamRecieved 10,MaterialReturnValue 14,ErrorNo 18}
+GlueBinInMap[3]={SystemNo 3,ProgRecieved 7,ParamRecieved 11,MaterialReturnValue 15,ErrorNo 19}
+GlueBinInMap[4]={SystemNo 4,ProgRecieved 8,ParamRecieved 12,MaterialReturnValue 16,ErrorNo 20}
+;ENDFOLD (BIN_OUT/BIN_IN Pointer)
+;ENDFOLD (IO-Interface)
+;FOLD GLUE VARIABLES
+;VARIABLES
+GLOBAL BOOL GlueDataInconsistent=FALSE
+GLOBAL BOOL GlueDryMode=FALSE ; with/without material (statkey)
+BOOL bWithOutMaterial=FALSE ; with/without material (without=TRUE,with=FALSE)
+BOOL bWithOutMaterialSys[4] ; with/without material for System 1..4 (without=TRUE,with=FALSE)
+bWithOutMaterialSys[1]=FALSE
+bWithOutMaterialSys[2]=FALSE
+bWithOutMaterialSys[3]=FALSE
+bWithOutMaterialSys[4]=FALSE
+BOOL GlueSetupMode=FALSE ; with/without waiting for response of dispense controller
+GLOBAL BOOL SystemActive[4] ; System 1..4 selected
+SystemActive[1]=TRUE
+SystemActive[2]=TRUE
+SystemActive[3]=TRUE
+SystemActive[4]=TRUE
+GLOBAL BOOL bCheckSystem[4]
+bCheckSystem[1]=FALSE
+bCheckSystem[2]=FALSE
+bCheckSystem[3]=FALSE
+bCheckSystem[4]=FALSE
+BOOL bSimulate=FALSE
+GLOBAL BOOL ANALOG_IS_ACTIVE=FALSE
+DECL GLOBAL GlueParamType GlueActData
+DECL SYS_TYPE SystemGroup[4]
+SystemGroup[1]=#B ;Type of dispense system 1
+SystemGroup[2]=#A ;Type of dispense system 2
+SystemGroup[3]=#A ;Type of dispense system 3
+SystemGroup[4]=#A ;Type of dispense system 4
+; options and settings:
+GLOBAL INT iNumberOfDispenseSystems=1
+REAL dBlowTime=2.00000
+REAL dWaitForPrePressure=0.200000
+BOOL bDisplayMessage=TRUE
+
+DECL GLUE_RESTART_MODE eGlueRestartMode=#GLUE_CONT
+BOOL bAnalogWithoutOffset=TRUE
+BOOL bErrorNoToPLC=FALSE
+BOOL bSingleSeam=TRUE
+;ENDFOLD (GLUE VARIABLES)
+;FOLD GLUE SETTINGDATA
+DECL GLOBAL SettingDataTyp SettingData[4]
+;System 1-4
+SettingData[1]={GlueType #GLUE_1K,BeadShaping #NONE,iNumberOfDoser 1,QuitFault #ALL,MirrorPgno FALSE,iPGNOLength 0,bSingleFaultToPLC FALSE,bWithMeasurementActive FALSE,bNegMatLogic FALSE,bWithPeltier FALSE}
+SettingData[2]={GlueType #GLUE_1K,BeadShaping #NONE,iNumberOfDoser 0,QuitFault #ALL,MirrorPgno FALSE,iPGNOLength 0,bSingleFaultToPLC FALSE,bWithMeasurementActive FALSE,bNegMatLogic FALSE,bWithPeltier FALSE}
+SettingData[3]={GlueType #GLUE_1K,BeadShaping #NONE,iNumberOfDoser 0,QuitFault #ALL,MirrorPgno FALSE,iPGNOLength 0,bSingleFaultToPLC FALSE,bWithMeasurementActive FALSE,bNegMatLogic FALSE,bWithPeltier FALSE}
+SettingData[4]={GlueType #GLUE_1K,BeadShaping #NONE,iNumberOfDoser 0,QuitFault #ALL,MirrorPgno FALSE,iPGNOLength 0,bSingleFaultToPLC FALSE,bWithMeasurementActive FALSE,bNegMatLogic FALSE,bWithPeltier FALSE}
+;ENDFOLD (GLUE SETTINGDATA)
+;FOLD GLUETECH EQUIPMENT
+DECL GLOBAL GlueTimingType Equipment[4,4] ;[System 1-4,Pistol 1-4]
+Equipment[1,1]={GunOnDelay 0.0,GunOffDelay 0.0,MaterialDelay 0.0,MaterialReactionPosOffs 0.0,MaterialReactionNegOffs 0.0,AirOnDelay 0.0,AirOffDelay 0.0,AirDelay 0.0,AirReactionPosOffs 0.0,AirReactionNegOffs 0.0}
+Equipment[1,2]={GunOnDelay 0.0,GunOffDelay 0.0,MaterialDelay 0.0,MaterialReactionPosOffs 0.0,MaterialReactionNegOffs 0.0,AirOnDelay 0.0,AirOffDelay 0.0,AirDelay 0.0,AirReactionPosOffs 0.0,AirReactionNegOffs 0.0}
+Equipment[1,3]={GunOnDelay 0.0,GunOffDelay 0.0,MaterialDelay 0.0,MaterialReactionPosOffs 0.0,MaterialReactionNegOffs 0.0,AirOnDelay 0.0,AirOffDelay 0.0,AirDelay 0.0,AirReactionPosOffs 0.0,AirReactionNegOffs 0.0}
+Equipment[1,4]={GunOnDelay 0.0,GunOffDelay 0.0,MaterialDelay 0.0,MaterialReactionPosOffs 0.0,MaterialReactionNegOffs 0.0,AirOnDelay 0.0,AirOffDelay 0.0,AirDelay 0.0,AirReactionPosOffs 0.0,AirReactionNegOffs 0.0}
+Equipment[2,1]={GunOnDelay -150.000,GunOffDelay -145.000,MaterialDelay 0.0,MaterialReactionPosOffs 0.0,MaterialReactionNegOffs 0.0,AirOnDelay 0.0,AirOffDelay 0.0,AirDelay 0.0,AirReactionPosOffs 0.0,AirReactionNegOffs 0.0}
+Equipment[2,2]={GunOnDelay 0.0,GunOffDelay 0.0,MaterialDelay 0.0,MaterialReactionPosOffs 0.0,MaterialReactionNegOffs 0.0,AirOnDelay 0.0,AirOffDelay 0.0,AirDelay 0.0,AirReactionPosOffs 0.0,AirReactionNegOffs 0.0}
+Equipment[2,3]={GunOnDelay 0.0,GunOffDelay 0.0,MaterialDelay 0.0,MaterialReactionPosOffs 0.0,MaterialReactionNegOffs 0.0,AirOnDelay 0.0,AirOffDelay 0.0,AirDelay 0.0,AirReactionPosOffs 0.0,AirReactionNegOffs 0.0}
+Equipment[2,4]={GunOnDelay 0.0,GunOffDelay 0.0,MaterialDelay 0.0,MaterialReactionPosOffs 0.0,MaterialReactionNegOffs 0.0,AirOnDelay 0.0,AirOffDelay 0.0,AirDelay 0.0,AirReactionPosOffs 0.0,AirReactionNegOffs 0.0}
+Equipment[3,1]={GunOnDelay 0.0,GunOffDelay 0.0,MaterialDelay 0.0,MaterialReactionPosOffs 0.0,MaterialReactionNegOffs 0.0,AirOnDelay 0.0,AirOffDelay 0.0,AirDelay 0.0,AirReactionPosOffs 0.0,AirReactionNegOffs 0.0}
+Equipment[3,2]={GunOnDelay 0.0,GunOffDelay 0.0,MaterialDelay 0.0,MaterialReactionPosOffs 0.0,MaterialReactionNegOffs 0.0,AirOnDelay 0.0,AirOffDelay 0.0,AirDelay 0.0,AirReactionPosOffs 0.0,AirReactionNegOffs 0.0}
+Equipment[3,3]={GunOnDelay 0.0,GunOffDelay 0.0,MaterialDelay 0.0,MaterialReactionPosOffs 0.0,MaterialReactionNegOffs 0.0,AirOnDelay 0.0,AirOffDelay 0.0,AirDelay 0.0,AirReactionPosOffs 0.0,AirReactionNegOffs 0.0}
+Equipment[3,4]={GunOnDelay 0.0,GunOffDelay 0.0,MaterialDelay 0.0,MaterialReactionPosOffs 0.0,MaterialReactionNegOffs 0.0,AirOnDelay 0.0,AirOffDelay 0.0,AirDelay 0.0,AirReactionPosOffs 0.0,AirReactionNegOffs 0.0}
+Equipment[4,1]={GunOnDelay 0.0,GunOffDelay 0.0,MaterialDelay 0.0,MaterialReactionPosOffs 0.0,MaterialReactionNegOffs 0.0,AirOnDelay 0.0,AirOffDelay 0.0,AirDelay 0.0,AirReactionPosOffs 0.0,AirReactionNegOffs 0.0}
+Equipment[4,2]={GunOnDelay 0.0,GunOffDelay 0.0,MaterialDelay 0.0,MaterialReactionPosOffs 0.0,MaterialReactionNegOffs 0.0,AirOnDelay 0.0,AirOffDelay 0.0,AirDelay 0.0,AirReactionPosOffs 0.0,AirReactionNegOffs 0.0}
+Equipment[4,3]={GunOnDelay 0.0,GunOffDelay 0.0,MaterialDelay 0.0,MaterialReactionPosOffs 0.0,MaterialReactionNegOffs 0.0,AirOnDelay 0.0,AirOffDelay 0.0,AirDelay 0.0,AirReactionPosOffs 0.0,AirReactionNegOffs 0.0}
+Equipment[4,4]={GunOnDelay 0.0,GunOffDelay 0.0,MaterialDelay 0.0,MaterialReactionPosOffs 0.0,MaterialReactionNegOffs 0.0,AirOnDelay 0.0,AirOffDelay 0.0,AirDelay 0.0,AirReactionPosOffs 0.0,AirReactionNegOffs 0.0}
+;ENDFOLD (GLUETECH EQUIPMENT)
+
+;FOLD User Configurable
+GLOBAL INT nGLUFC_MeasFail=99
+GLOBAL INT nGLUFC_MajorFlt=101
+;ENDFOLD (User Configurable)
+
+;FOLD GLUE BEADDATA
+GLOBAL INT BeadDataMax=20
+DECL GLOBAL BeadDataTyp BeadData[99]
+BeadData[1]={PrePressure 100,MaterialFactor 100,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #TCP_SPEED,Comment[] "                        ",AirFlowType #TCP_SPEED}
+BeadData[2]={PrePressure 100,MaterialFactor 100,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #TCP_SPEED,Comment[] "                        ",AirFlowType #TCP_SPEED}
+BeadData[3]={PrePressure 100,MaterialFactor 100,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #TCP_SPEED,Comment[] "                        ",AirFlowType #TCP_SPEED}
+BeadData[4]={PrePressure 100,MaterialFactor 100,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #TCP_SPEED,Comment[] "                        ",AirFlowType #TCP_SPEED}
+BeadData[5]={PrePressure 100,MaterialFactor 100,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #TCP_SPEED,Comment[] "                        ",AirFlowType #TCP_SPEED}
+BeadData[6]={PrePressure 100,MaterialFactor 100,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #TCP_SPEED,Comment[] "                        ",AirFlowType #TCP_SPEED}
+BeadData[7]={PrePressure 100,MaterialFactor 100,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #TCP_SPEED,Comment[] "                        ",AirFlowType #TCP_SPEED}
+BeadData[8]={PrePressure 100,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #TCP_SPEED,Comment[] "                        ",AirFlowType #TCP_SPEED}
+BeadData[9]={PrePressure 100,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #TCP_SPEED,Comment[] "                        ",AirFlowType #TCP_SPEED}
+BeadData[10]={PrePressure 100,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #TCP_SPEED,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[11]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[12]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[13]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[14]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[15]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[16]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[17]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[18]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[19]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[20]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[21]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[22]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[23]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[24]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[25]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[26]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[27]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[28]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[29]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[30]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[31]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[32]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[33]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[34]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[35]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[36]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[37]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[38]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[39]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[40]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[41]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[42]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[43]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[44]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[45]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[46]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[47]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[48]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[49]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[50]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[51]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[52]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[53]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[54]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[55]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[56]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[57]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[58]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[59]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[60]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[61]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[62]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[63]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[64]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[65]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[66]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[67]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[68]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[69]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[70]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[71]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[72]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[73]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[74]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[75]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[76]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[77]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[78]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[79]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[80]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[81]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[82]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[83]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[84]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[85]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[86]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[87]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[88]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[89]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[90]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[91]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[92]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[93]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[94]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[95]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[96]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[97]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[98]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+BeadData[99]={PrePressure 0,MaterialFactor 0,MaterialOffset 0,AirFactor 0,AirOffset 0,Speed 0.0,MatFlowType #SPEED_INDEP,Comment[] "                        ",AirFlowType #SPEED_INDEP}
+;ENDFOLD (GLUE BEADDATA)
+
+;FOLD INTERNAL USE
+GLOBAL BOOL bCalibration=FALSE
+BOOL bGunOff=FALSE
+
+REAL MaterialDelay=0.0
+REAL MaterialOffset=0.0
+REAL MaterialFactor=1.00000
+REAL AirDelay=0.0
+REAL AirOffset=0.0
+REAL AirFactor=0.0
+REAL MFactor
+REAL MOffset
+REAL MDelay=0.0
+REAL AFactor
+REAL AOffset
+REAL ADelay=0.0
+REAL BeginFactor=1.00000
+REAL dOldMaterialOffset
+BOOL bShowMessage
+BOOL bReleaseMessage
+BOOL bDummy
+INT iHandle=11992
+
+INT LastBeadData=4
+INT LastParamNo=4
+INT WriteCounter=4
+INT iWriteParamNo=0
+INT iReadParamNo=0
+INT MaterialCounter=1 ;APP// eingefuegt fuer Change MatFlowType
+INT ReadCounter=3
+REAL NewMaterialFactorSwitch[5] ;APP// eingefuegt fuer Change MatFlowType during application
+NewMaterialFactorSwitch[1]=1.00000
+NewMaterialFactorSwitch[2]=1.00000
+NewMaterialFactorSwitch[3]=1.00000
+NewMaterialFactorSwitch[4]=1.00000
+NewMaterialFactorSwitch[5]=1.00000
+REAL NewMaterialFactor[5]
+NewMaterialFactor[1]=1.00000
+NewMaterialFactor[2]=1.00000
+NewMaterialFactor[3]=1.00000
+NewMaterialFactor[4]=1.00000
+NewMaterialFactor[5]=1.00000
+REAL NewMaterialOffsetSwitch[5] ;APP// eingefuegt fuer Change MatFlowType during application
+NewMaterialOffsetSwitch[1]=0.0
+NewMaterialOffsetSwitch[2]=0.0
+NewMaterialOffsetSwitch[3]=0.0
+NewMaterialOffsetSwitch[4]=0.0
+NewMaterialOffsetSwitch[5]=0.0
+REAL NewMaterialOffset[5]
+NewMaterialOffset[1]=0.0
+NewMaterialOffset[2]=0.0
+NewMaterialOffset[3]=0.0
+NewMaterialOffset[4]=0.0
+NewMaterialOffset[5]=0.0
+REAL NewAirFactor[5]
+NewAirFactor[1]=0.0
+NewAirFactor[2]=0.0
+NewAirFactor[3]=0.0
+NewAirFactor[4]=0.0
+NewAirFactor[5]=0.0
+INT NewParamNo[5]
+NewParamNo[1]=29
+NewParamNo[2]=30
+NewParamNo[3]=31
+NewParamNo[4]=32
+NewParamNo[5]=28
+BOOL bParamNoChanged=FALSE
+INT iSavedParamNo=32
+GLOBAL BOOL bGunOpen=FALSE
+BOOL bPTPGlue=FALSE
+BOOL bRestartTimer=FALSE
+GLOBAL INT iActualSystemNo=1
+INT iActualGunNo=1
+INT iTimerSystemValue[4]
+iTimerSystemValue[1]=0
+iTimerSystemValue[2]=0
+iTimerSystemValue[3]=0
+iTimerSystemValue[4]=0
+BOOL bOpenGunAgain=TRUE
+INT iMaterialAnswer=0
+GLOBAL BOOL ReloadFullStart=FALSE
+GLOBAL BOOL bSysCompleted[4]
+bSysCompleted[1]=TRUE
+bSysCompleted[2]=TRUE
+bSysCompleted[3]=TRUE
+bSysCompleted[4]=TRUE
+BOOL bPassiveStop=FALSE
+BOOL bRobotMustWait=FALSE
+BOOL bSwitchOnSwirl[4]
+bSwitchOnSwirl[1]=TRUE
+bSwitchOnSwirl[2]=TRUE
+bSwitchOnSwirl[3]=TRUE
+bSwitchOnSwirl[4]=TRUE
+BOOL bSwirlSwitchedOn[4]
+bSwirlSwitchedOn[1]=FALSE
+bSwirlSwitchedOn[2]=FALSE
+bSwirlSwitchedOn[3]=FALSE
+bSwirlSwitchedOn[4]=FALSE
+BOOL bWasStopMess=FALSE
+BOOL bGlueRestart=FALSE
+REAL SwirlSpeedAnalogOut[4]
+SwirlSpeedAnalogOut[1]=0.0
+SwirlSpeedAnalogOut[2]=0.0
+SwirlSpeedAnalogOut[3]=0.0
+SwirlSpeedAnalogOut[4]=0.0
+REAL MsgWaitTime=0.300000
+BOOL bStatePurge=FALSE
+BOOL bStatePurgeTime=FALSE
+GLOBAL BOOL bSysActive[4]
+bSysActive[1]=FALSE
+bSysActive[2]=FALSE
+bSysActive[3]=FALSE
+bSysActive[4]=FALSE
+BOOL bMeasurementActive[4]
+bMeasurementActive[1]=FALSE
+bMeasurementActive[2]=FALSE
+bMeasurementActive[3]=FALSE
+bMeasurementActive[4]=FALSE
+INT iMsgParams[4]
+iMsgParams[1]=1
+iMsgParams[2]=168
+iMsgParams[3]=1025
+iMsgParams[4]=0
+DECL SIGINF SignalInfo
+
+REAL dWaitIfESwirl=3.50000
+REAL dWaitSwirlCoolingAir=2.00000
+REAL dWaitAfterResetStartSys=0.0500000
+REAL dWaitBeforeSetStartSys=0.0500000
+INT iCheckDelay=50
+INT iSelectDelay=50
+INT iMeasurementDelay=0
+
+INT iTimerGlueTech=16
+INT iTimerSystem[4]
+iTimerSystem[1]=15
+iTimerSystem[2]=14
+iTimerSystem[3]=13
+iTimerSystem[4]=12
+
+;Var for AirTriggerUp() Trigger call with runtime variable
+;AirTriggerUpVal[SystemNo]
+GLOBAL STRUC GlueAirTriggerUpVal_Type INT SystemNo,BOOL bValue
+DECL GLOBAL GlueAirTriggerUpVal_Type AirTriggerUpVal[4]
+AirTriggerUpVal[1]={SystemNo 0,bValue FALSE}
+AirTriggerUpVal[2]={SystemNo 0,bValue FALSE}
+AirTriggerUpVal[3]={SystemNo 0,bValue FALSE}
+AirTriggerUpVal[4]={SystemNo 0,bValue FALSE}
+
+;Var for StartSysTriggerUp() Trigger call with runtime variable
+;StartSysTriggerUpVal[SystemNo]
+GLOBAL STRUC GlueStartSysTrigUpVal_T INT SystemNo,BOOL bValue
+DECL GLOBAL GlueStartSysTrigUpVal_T StartSysTriggerUpVal[4]
+StartSysTriggerUpVal[1]={SystemNo 0,bValue FALSE}
+StartSysTriggerUpVal[2]={SystemNo 0,bValue FALSE}
+StartSysTriggerUpVal[3]={SystemNo 0,bValue FALSE}
+StartSysTriggerUpVal[4]={SystemNo 0,bValue FALSE}
+
+DECL GLOBAL INT iSTK_Current_Cntrl=1
+DECL GLOBAL INT iSTK_Current_Gun=1
+;ENDFOLD (INTERNAL USE)
+
+ENDDAT

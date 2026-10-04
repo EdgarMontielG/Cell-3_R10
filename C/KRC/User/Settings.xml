@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<settings>
+  <setting path="BackupManager\Network\KopFileDirectory">D:\ProjectBackup</setting>
+  <setting path="BackupManager\Network\ArchiveHistoryCount">5</setting>
+  <setting path="BackupManager\Network\ArchiveDirectory">D:\ProjectBackup</setting>
+  <setting path="BackupManager\Network\ArchivePath">D:\ProjectBackup\0\WorkingProject.asz</setting>
+  <setting path="BackupManager\BackupAutomatically">True</setting>
+  <setting path="BackupManager\UseSubDirectoryWithRobotName">True</setting>
+  <setting path="BackupManager\OnlySaveActiveProject">False</setting>
+  <setting path="BackupManager\Network\Password"></setting>
+  <setting path="BackupManager\Network\Username"></setting>
+  <setting path="BackupManager\SuppressHistory">False</setting>
+  <setting path="BackupManager\SuppressOptions">False</setting>
+  <setting path="BackupManager\SuppressRdcData">False</setting>
+  <setting path="BackupManager\ProjectBackupDirectoryPath">\\172.16.192.6\data\backups\robots\Workvisual\V431-03</setting>
+  <setting path="BackupManager\KopBackupDirectoryPath">\\172.16.192.6\data\backups\robots\Workvisual\V431-03</setting>
+  <setting path="BackupManager\AutomaticBackup\Date">10/04/2026 16:00:00</setting>
+  <setting path="BackupManager\AutomaticBackup\BackupInterval">Weekly</setting>
+  <setting path="BackupManager\AutomaticBackup\Day">Sunday</setting>
+  <setting path="BackupManager\AutomaticBackup\Hours">16</setting>
+  <setting path="BackupManager\AutomaticBackup\Minutes">0</setting>
+  <setting path="BackupManager\HistoryCount">10</setting>
+  <setting path="BackupManager\OnlyLocally">False</setting>
+  <setting path="BackupManager\KopFileDirectoryFlag">\\172.16.192.6\data\backups\robots\Workvisual\V431-03</setting>
+  <setting path="BackupManager\ProjectDirectoryBackupPathFlag">\\172.16.192.6\data\backups\robots\Workvisual\V431-03</setting>
+  <setting path="BackupManager\SignalInterface\Enabled">False</setting>
+  <setting path="BackupManager\SignalInterface\OutputPulseLength">5000</setting>
+  <setting path="BackupManager\SignalInterface\WriteLongText">False</setting>
+</settings>

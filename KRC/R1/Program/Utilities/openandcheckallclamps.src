@@ -1,0 +1,66 @@
+&ACCESS RVO1
+&REL 4
+&PARAM EDITMASK = *
+&PARAM TEMPLATE = C:\KRC\TP\Nutweld\Template\NutWeld_Vorgabe
+&PARAM DISKPATH = Program/Utilities
+DEF OpenAndCheckAllClamps( )
+;FOLD INI
+  ;FOLD BASISTECH INI
+    GLOBAL INTERRUPT DECL 3 WHEN $STOPMESS==TRUE DO IR_STOPM ( )
+    INTERRUPT ON 3 
+    BAS (#INITMOV,0 )
+  ;ENDFOLD (BASISTECH INI)
+	;FOLD NutWeld
+	;ENDFOLD (NutWeld)
+  ;FOLD USER INI
+    ;Make your modifications here
+
+  ;ENDFOLD (USER INI)
+;ENDFOLD (INI)
+
+; Open And Check For Grippers Opened
+
+;FOLD Gripper SET [1]Gripper1 State=[1]OPEN Wait 0.2[s] Check with Strategy 1 ;%{PE}
+;FOLD Parameters Parameters ;%{h}
+;Params IlfProvider=GripperTech.GripperSet;setgripper=1;setstate=1;setcont=nocont;waittime=0.2;errorstrategy=1
+;ENDFOLD
+GRPg_SetStateAndCheck(1, 1, 0.2, 1)
+;ENDFOLD
+;FOLD Gripper SET [2]Gripper2 State=[1]OPEN Wait 0.5[s] Check with Strategy 1 ;%{PE}
+;FOLD Parameters Parameters ;%{h}
+;Params IlfProvider=GripperTech.GripperSet;setgripper=2;setstate=1;setcont=nocont;waittime=0.5;errorstrategy=1
+;ENDFOLD
+;============SL===========GRPg_SetStateAndCheck(2, 1, 0.5, 1)
+;ENDFOLD
+;FOLD Gripper SET [4]Gripper4 State=[1]OPEN Wait 0.2[s] Check with Strategy 1 ;%{PE}
+;FOLD Parameters Parameters ;%{h}
+;Params IlfProvider=GripperTech.GripperSet;setgripper=4;setstate=1;setcont=nocont;waittime=0.2;errorstrategy=1
+;ENDFOLD
+;============SL===========GRPg_SetStateAndCheck(4, 1, 0.2, 1)
+;ENDFOLD
+;FOLD Gripper CHECK [1]Gripper1 State=[1]OPEN with Strategy 1 ;%{PE}
+;FOLD Parameters Parameters ;%{h}
+;Params IlfProvider=GripperTech.GripperCheck;setgripper=1;setstate=1;setcont=nocont;checkstrategy=1
+;ENDFOLD
+GRPg_Check(1, 1, FALSE, 1)
+;ENDFOLD
+;FOLD Gripper CHECK [2]Gripper2 State=[1]OPEN with Strategy 1 ;%{PE}
+;FOLD Parameters Parameters ;%{h}
+;Params IlfProvider=GripperTech.GripperCheck;setgripper=2;setstate=1;setcont=nocont;checkstrategy=1
+;ENDFOLD
+;============SL===========GRPg_Check(2, 1, FALSE, 1)
+;ENDFOLD
+;FOLD Gripper CHECK [3]Gripper3 State=[2]CLOSE with Strategy 1 ;%{PE}
+;FOLD Parameters Parameters ;%{h}
+;Params IlfProvider=GripperTech.GripperCheck;setgripper=3;setstate=2;setcont=nocont;checkstrategy=1
+;ENDFOLD
+;============SL===========GRPg_Check(3, 2, FALSE, 1)
+;ENDFOLD
+;FOLD Gripper CHECK [4]Gripper4 State=[1]OPEN with Strategy 1 ;%{PE}
+;FOLD Parameters Parameters ;%{h}
+;Params IlfProvider=GripperTech.GripperCheck;setgripper=4;setstate=1;setcont=nocont;checkstrategy=1
+;ENDFOLD
+;============SL===========GRPg_Check(4, 1, FALSE, 1)
+;ENDFOLD
+
+END

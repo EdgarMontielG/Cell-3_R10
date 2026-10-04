@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<SpaceVisualizationConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <CameraLookDirection>
+    <X>35.557766583358692</X>
+    <Y>-26.471253869896032</Y>
+    <Z>32.977764433023978</Z>
+  </CameraLookDirection>
+  <CameraPosition>
+    <X>-10.557766583358692</X>
+    <Y>31.471253869896032</Y>
+    <Z>-25.977764433023978</Z>
+  </CameraPosition>
+  <FloorSize>300</FloorSize>
+  <CameraDistance>50</CameraDistance>
+  <SelectedModel xsi:type="ProtectedSpace">
+    <Id>1Nest Workspace</Id>
+    <IsMarkedAsViolated>false</IsMarkedAsViolated>
+    <IsSelected>true</IsSelected>
+  </SelectedModel>
+</SpaceVisualizationConfiguration>

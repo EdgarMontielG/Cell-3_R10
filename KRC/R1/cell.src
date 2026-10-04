@@ -1,0 +1,75 @@
+&ACCESS RVP
+&REL 20
+&COMMENT HANDLER on external automatic
+DEF  CELL ( )
+;FOLD Initialize System
+  DECL CHAR DMY[3]
+  DMY[]="---"
+  InitializeSystem()
+  HOME()
+  ;ENDFOLD (Initialize System)
+  LOOP
+    ;FOLD Maintain System
+    MaintainSystem()
+    ;ENDFOLD (Maintain System)
+    ;FOLD Check Style
+    nStyle=gdiStyle
+    gdoStyleAckn=nStyle
+    nOption=gdiOption
+    gdoOptionAckn=nOption
+    GetOptions( )
+    GetCycTime( )
+    ;FOLD State Message - Waiting for Cycle Start or Style Selection.
+    IF (Exists_KrlMsg(nCycleStart_Handle)==FALSE) THEN
+    	nCycleStart_Handle = Set_Krlmsg (#STATE, AutomationCore_Msg[24], AutoCore_MsgPar[], AutoCore_MsgOpt_NoStop)
+    ENDIF
+    ;ENDFOLD (State Message - Waiting for Cycle Start or Style Selection.)
+    ;ENDFOLD (Check Style)
+    IF ((di005InitiateCycle==TRUE) AND (nStyle>0) AND (nOption>0)) THEN
+	    ;FOLD Start Cycle
+	    AC_Erase( )
+	    HomeCheck( )
+	    do005RobotInCycle = TRUE
+	    StartCycTime( )
+	    ;ENDFOLD (Start Cycle)
+	    SWITCH  nStyle ; Select with Programnumber
+		    CASE 1
+             Style_1( ) ; User program call
+		    DEFAULT
+	    ENDSWITCH
+	    ;FOLD Finish Cycle
+       IF ((nStyle>0) AND (nOption>0)) THEN
+		    EndOfCycle( )
+		    StopCycTime( )
+        ENDIF
+	  	;ENDFOLD (Finish Cycle)
+  	ELSE
+		  ; Check General Routine Paths
+		  IF (di009GoToRepair==TRUE) THEN
+		  	HomeCheck( )
+		  	HomeToRepair( )
+;FOLD WAIT FOR ( IN 8 'di008ReturnFromRepair' );%{PE}%R 8.3.43,%MKUKATPBASIS,%CEXT_WAIT_FOR,%VEXT_WAIT_FOR,%P 2:, 4:, 5:$IN, 6:8, 7:di008ReturnFromRepair, 9:
+WAIT FOR  ( $IN[8] ) 
+;ENDFOLD
+		  		RepairToHome( )
+		  ENDIF
+		  IF (di022MstrRefRequest==TRUE) THEN
+           HomeCheck( )
+           masref_main( )
+;FOLD WAIT Time=5 sec;%{PE}%R 8.3.43,%MKUKATPBASIS,%CWAIT,%VWAIT,%P 3:5
+WAIT SEC 5
+;ENDFOLD
+		  ENDIF
+          IF (di021BrakeTestRequest==TRUE) THEN
+             HomeCheck( )
+           BrakeTestReq( )
+;FOLD WAIT Time=5 sec;%{PE}%R 8.3.43,%MKUKATPBASIS,%CWAIT,%VWAIT,%P 3:5
+WAIT SEC 5
+;ENDFOLD
+        ENDIF
+		  IF (do111Gun1ElectrodeChange==TRUE) OR (do112Gun2ElectrodeChange==TRUE) OR (do113Gun3ElectrodeChange==TRUE) THEN
+         GunElectrodeChange() 
+		  ENDIF
+     ENDIF
+  ENDLOOP
+END

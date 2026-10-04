@@ -1,0 +1,131 @@
+&ACCESS RVO1
+&REL 52
+&COMMENT St1_PICK_GE4
+&PARAM EDITMASK = *
+&PARAM DISKPATH = KRC:\R1\Program\StylePicks\Options
+DEF style1pick1opt1( )
+   ;FOLD INI
+      ;FOLD BASISTECH INI
+         GLOBAL INTERRUPT DECL 3 WHEN $STOPMESS==TRUE DO IR_STOPM ( )
+         INTERRUPT ON 3 
+         BAS (#INITMOV,0 )
+      ;ENDFOLD (BASISTECH INI)
+      ;FOLD USER INI
+         ;Make your modifications here
+         
+      ;ENDFOLD (USER INI)
+   ;ENDFOLD (INI)   
+   ;FOLD PickUp[1] Request
+      ;FOLD ;%{h}
+         ;Params IlfProvider=ac_zoneilf; AC_CmdZones=PickUp; AC_CmdParam=1; AC_ZoneRepo=False; AC_Blending=False
+      ;ENDFOLD
+      AC_pickUPCheck (1)
+   ;ENDFOLD  
+   ;FOLD Gripper SET [1]Gripper1 State=[1]OPEN Wait 0.2[s] Check with Strategy 1 ;%{PE}
+      ;FOLD Parameters Parameters ;%{h}
+         ;Params IlfProvider=GripperTech.GripperSet;setgripper=4;setstate=2;setcont=nocont;waittime=0.2;errorstrategy=1
+      ;ENDFOLD
+      GRPg_SetStateAndCheck(1, 1, 0.2, 1)
+   ;ENDFOLD
+;FOLD Gripper CHECK [1]Gripper 1 State=[1]OPEN with Strategy 1 ;%{PE}
+;FOLD Parameters Parameters ;%{h}
+;Params IlfProvider=GripperTech.GripperCheck;setgripper=1;setstate=1;setcont=nocont;checkstrategy=1
+;ENDFOLD
+GRPg_Check(1, 1, FALSE, 1)
+;ENDFOLD
+;FOLD WAIT FOR ( NOT IN 253 'di253PartPresent1' ) AND ( NOT IN 254 'di254PartPresent2' );%{PE}%R 8.3.43,%MKUKATPBASIS,%CEXT_WAIT_FOR,%VEXT_WAIT_FOR,%P 2:, 4:NOT, 5:$IN, 6:253, 7:di253PartPresent1, 9:AND, 10:, 12:NOT, 13:$IN, 14:254, 15:di254PartPresent2, 17:
+WAIT FOR  (  NOT $IN[253] ) AND (  NOT $IN[254]) 
+;ENDFOLD
+  
+;FOLD PTP P12 Vel=100 % PDAT15 Tool[1]:TOOL 1 Base[0];%{PE}%R 8.3.43,%MKUKATPBASIS,%CMOVE,%VPTP,%P 1:PTP, 2:P12, 3:, 5:100, 7:PDAT15
+$BWDSTART=FALSE
+PDAT_ACT=PPDAT15
+FDAT_ACT=FP12
+BAS(#PTP_PARAMS,100)
+TRIGGER WHEN DISTANCE = 0 DELAY = 0 DO NUT_STAR=TRUE 
+PTP XP12 
+;ENDFOLD
+;FOLD LIN P10 CONT Vel=2 m/s CPDAT5 Tool[1]:TOOL 1 Base[0];%{PE}%R 8.3.43,%MKUKATPBASIS,%CMOVE,%VLIN,%P 1:LIN, 2:P10, 3:C_DIS C_DIS, 5:2, 7:CPDAT5
+$BWDSTART=FALSE
+LDAT_ACT=LCPDAT5
+FDAT_ACT=FP10
+BAS(#CP_PARAMS,2)
+LIN XP10 C_DIS C_DIS
+;ENDFOLD
+   ;FOLD PTP P20 CONT Vel=100 % PDAT2 Tool[1]:GE4-002 Base[0];%{PE}%R 8.3.43,%MKUKATPBASIS,%CMOVE,%VPTP,%P 1:PTP, 2:P20, 3:C_DIS, 5:100, 7:PDAT2
+      $BWDSTART=FALSE
+      PDAT_ACT=PPDAT2
+      FDAT_ACT=FP20
+      BAS(#PTP_PARAMS,100)
+      PTP XP20 C_DIS
+   ;ENDFOLD
+   ;FOLD PTP P30AbovePick CONT Vel=100 % PDAT4 Tool[1]:GE4-002-LO-010-111 Base[0];%{PE}%R 8.3.43,%MKUKATPBASIS,%CMOVE,%VPTP,%P 1:PTP, 2:P30AbovePick, 3:C_DIS, 5:100, 7:PDAT4
+      $BWDSTART=FALSE
+      PDAT_ACT=PPDAT4
+      FDAT_ACT=FP30AbovePick
+      BAS(#PTP_PARAMS,100)
+      PTP XP30AbovePick C_DIS
+   ;ENDFOLD 
+   ;FOLD LIN AtPick1 Vel=2 m/s CPDAT1 Tool[1]:GE4-002-LO-010-111 Base[0];%{PE}%R 8.3.43,%MKUKATPBASIS,%CMOVE,%VLIN,%P 1:LIN, 2:AtPick3, 3:, 5:2, 7:CPDAT1
+      $BWDSTART=FALSE
+      LDAT_ACT=LCPDAT1
+      FDAT_ACT=FAtPick3
+      BAS(#CP_PARAMS,2)
+      LIN XAtPick3 
+   ;ENDFOLD
+
+   ;FOLD Gripper SET [1]Gripper1 State=[2]CLOSE Wait 0.2[s] Check with Strategy 1 ;%{PE}
+      ;FOLD Parameters Parameters ;%{h}
+         ;Params IlfProvider=GripperTech.GripperSet;setgripper=4;setstate=2;setcont=nocont;waittime=0.2;errorstrategy=1
+      ;ENDFOLD
+      GRPg_SetStateAndCheck(1, 2, 0.2, 1)
+   ;ENDFOLD
+;FOLD Gripper CHECK [1]Gripper 1 State=[2]CLOSE with Strategy 1 ;%{PE}
+;FOLD Parameters Parameters ;%{h}
+;Params IlfProvider=GripperTech.GripperCheck;setgripper=1;setstate=1;setcont=nocont;checkstrategy=1
+;ENDFOLD
+GRPg_Check(1, 2, FALSE, 1)
+;ENDFOLD
+
+IF di004UseDryCycle==TRUE THEN
+
+GOTO DRY
+ELSE
+;FOLD WAIT FOR ( IN 253 'di253PartPresent1' ) AND ( IN 254 'di254PartPresent2' );%{PE}%R 8.3.43,%MKUKATPBASIS,%CEXT_WAIT_FOR,%VEXT_WAIT_FOR,%P 2:, 4:, 5:$IN, 6:253, 7:di253PartPresent1, 9:AND, 10:, 12:, 13:$IN, 14:254, 15:di254PartPresent2, 17:
+WAIT FOR  ( $IN[253] ) AND ( $IN[254] ) 
+;ENDFOLD
+   ;FOLD OUT 18 'do018PartInGripper1' State=TRUE ;%{PE}%R 8.3.43,%MKUKATPBASIS,%COUT,%VOUTX,%P 2:18, 3:do018PartInGripper1, 5:TRUE, 6:
+      $OUT[18]=TRUE
+   ;ENDFOLD
+ENDIF
+
+   DRY:
+   ;FOLD LIN P40 Vel=2 m/s CPDAT2 Tool[1]:GE4-002-LO-010-111 Base[0];%{PE}%R 8.3.43,%MKUKATPBASIS,%CMOVE,%VLIN,%P 1:LIN, 2:P40, 3:, 5:2, 7:CPDAT2
+      $BWDSTART=FALSE
+      LDAT_ACT=LCPDAT2
+      FDAT_ACT=FP40
+      BAS(#CP_PARAMS,2)
+      LIN XP40 
+   ;ENDFOLD
+;FOLD PTP P9 Vel=100 % PDAT13 Tool[1]:TOOL 1 Base[0];%{PE}%R 8.3.43,%MKUKATPBASIS,%CMOVE,%VPTP,%P 1:PTP, 2:P9, 3:, 5:100, 7:PDAT13
+$BWDSTART=FALSE
+PDAT_ACT=PPDAT13
+FDAT_ACT=FP9
+BAS(#PTP_PARAMS,100)
+PTP XP9 
+;ENDFOLD
+;FOLD PTP P8 Vel=100 % PDAT12 Tool[1]:TOOL 1 Base[0];%{PE}%R 8.3.43,%MKUKATPBASIS,%CMOVE,%VPTP,%P 1:PTP, 2:P8, 3:, 5:100, 7:PDAT12
+$BWDSTART=FALSE
+PDAT_ACT=PPDAT12
+FDAT_ACT=FP8
+BAS(#PTP_PARAMS,100)
+PTP XP8 
+;ENDFOLD
+
+   ;FOLD PickUp[1] Reset
+      ;FOLD ;%{h}
+         ;Params IlfProvider=ac_zoneilf; AC_CmdZones=PickUp; AC_CmdParam=1; AC_ZoneRepo=True; AC_Blending=False
+      ;ENDFOLD
+      AC_pickUP (1,True)
+   ;ENDFOLD
+END

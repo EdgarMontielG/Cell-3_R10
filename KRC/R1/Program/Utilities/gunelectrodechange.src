@@ -1,0 +1,209 @@
+&ACCESS RVO1
+&REL 12
+&PARAM EDITMASK = *
+&PARAM TEMPLATE = C:\KRC\TP\Nutweld\Template\NutWeld_Vorgabe
+DEF GunElectrodeChange( )
+   ;FOLD DECL
+      DECL BOOL bMsgRelease
+      DECL BOOL bCapsChanged
+   ;ENDFOLD
+   ;FOLD INI
+      ;FOLD BASISTECH INI
+         GLOBAL INTERRUPT DECL 3 WHEN $STOPMESS==TRUE DO IR_STOPM ( )
+         INTERRUPT ON 3 
+         BAS (#INITMOV,0 )
+      ;ENDFOLD (BASISTECH INI)
+      ;FOLD NutWeld
+      ;ENDFOLD (NutWeld)
+      ;FOLD USER INI
+         ;Make your modifications here
+         bMsgRelease=FALSE
+         bCapsChanged=FALSE
+         bElectrChanged=FALSE
+      ;ENDFOLD (USER INI)
+   ;ENDFOLD (INI)
+   
+   ;FOLD PTP HOME  Vel= 100 % DEFAULT;%{PE}%MKUKATPBASIS,%CMOVE,%VPTP,%P 1:PTP, 2:HOME, 3:, 5:100, 7:DEFAULT
+      $BWDSTART = FALSE
+      PDAT_ACT=PDEFAULT
+      FDAT_ACT=FHOME
+      BAS (#PTP_PARAMS,100 )
+      $H_POS=XHOME
+      PTP  XHOME
+   ;ENDFOLD
+   
+   IF do111Gun1ElectrodeChange THEN  
+      ;FOLD Turn Water Off
+         dopw1_StartWater=FALSE
+      ;ENDFOLD
+      ;FOLD Have Electrodes been changed?
+           REPEAT
+           REPEAT 
+            do091RobotReadyCapChange=TRUE
+            nAutoCore_Handle = Set_KrlDlg (AutomationCore_Msg[26], AutoCore_MsgPar[], AC_SK_YesNoNav[], AutoCore_MsgOpt_Stop)
+            IF (nAutoCore_Handle > 0) THEN
+               WHILE (Exists_KrlDlg(nAutoCore_Handle, nAutoCore_Key))
+                  WAIT SEC 0.024
+                  IF (di092Caps1areChanged==TRUE) THEN
+                     bCapsChanged=TRUE
+                     bElectrchanged=TRUE
+                     bAutoCore_Clear=Clear_KRLMsg(nAutoCore_Handle)
+                  ENDIF
+               ENDWHILE
+               IF (bCapsChanged==TRUE) THEN
+                  nAutoCore_Key=2
+               ENDIF
+               SWITCH nAutoCore_Key
+                  CASE 1 ; Diagnostic
+                     nAutoCore_Handle = Set_Krlmsg (#QUIT, AutomationCore_Msg[2], AutoCore_MsgPar[], AutoCore_MsgOpt_Stop)
+                     WHILE (Exists_KrlMsg(nAutoCore_Handle))
+                        WAIT SEC 0.024
+                     ENDWHILE
+                     bMsgRelease = FALSE
+                  CASE 2 ; Yes
+                     IF (bElectrchanged == TRUE) THEN 
+                     bMsgRelease = TRUE
+                     bCapsChanged=TRUE
+                     do092RobotCapChg1Cmplt=TRUE
+                     PULSE(dopw1_StepperReset,TRUE,0.1)
+                     ENDIF
+                  CASE 3 ; No
+                     bMsgRelease = FALSE
+                     bCapsChanged=FALSE
+               ENDSWITCH
+            ENDIF
+         UNTIL bElectrChanged
+         UNTIL (bMsgRelease==TRUE)
+         do091RobotReadyCapChange=FALSE
+      ;ENDFOLD (Have Electrodes been changed?)
+      ;FOLD Reset Cap Change to PLC
+         IF (bCapsChanged AND NOT do111Gun1ElectrodeChange) THEN
+            do092RobotCapChg1Cmplt=False
+         ENDIF
+         bElectrChanged=FALSE
+      ;ENDFOLD
+      ;FOLD Start Water
+         dopw1_StartWater=TRUE
+      ;ENDFOLD Start Water
+   ENDIF
+   
+   IF do112Gun2ElectrodeChange THEN  
+      ;FOLD Turn Water Off
+         dopw2_StartWater=FALSE
+      ;ENDFOLD
+      ;FOLD Have Electrodes been changed?
+            REPEAT
+            REPEAT 
+            do091RobotReadyCapChange=TRUE
+            nAutoCore_Handle = Set_KrlDlg (AutomationCore_Msg[26], AutoCore_MsgPar[], AC_SK_YesNoNav[], AutoCore_MsgOpt_Stop)
+            IF (nAutoCore_Handle > 0) THEN
+               WHILE (Exists_KrlDlg(nAutoCore_Handle, nAutoCore_Key))
+                  WAIT SEC 0.024
+                  IF (di093Caps2areChanged==TRUE) THEN
+                     bCapsChanged=TRUE
+                     bElectrchanged=TRUE
+                     bAutoCore_Clear=Clear_KRLMsg(nAutoCore_Handle)
+                  ENDIF
+               ENDWHILE
+               IF (bCapsChanged==TRUE) THEN
+                  nAutoCore_Key=2
+               ENDIF
+               SWITCH nAutoCore_Key
+                  CASE 1 ; Diagnostic
+                     nAutoCore_Handle = Set_Krlmsg (#QUIT, AutomationCore_Msg[2], AutoCore_MsgPar[], AutoCore_MsgOpt_Stop)
+                     WHILE (Exists_KrlMsg(nAutoCore_Handle))
+                        WAIT SEC 0.024
+                     ENDWHILE
+                     bMsgRelease = FALSE
+                  CASE 2 ; Yes
+                     IF (bElectrchanged == TRUE) THEN 
+                     bMsgRelease = TRUE
+                     bCapsChanged=TRUE
+                     do093RobotCapChg2Cmplt=TRUE
+                     PULSE(dopw2_StepperReset,TRUE,0.1)
+                     ENDIF
+                  CASE 3 ; No
+                     bMsgRelease = FALSE
+                     bCapsChanged=FALSE
+               ENDSWITCH
+            ENDIF
+         UNTIL bElectrChanged
+         UNTIL (bMsgRelease==TRUE)
+         do091RobotReadyCapChange=FALSE
+      ;ENDFOLD (Have Electrodes been changed?)
+      ;FOLD Reset Cap Change to PLC
+         IF (bCapsChanged AND NOT do112Gun2ElectrodeChange) THEN
+            do093RobotCapChg2Cmplt=False
+         ENDIF
+         bElectrChanged=FALSE
+      ;ENDFOLD
+      ;FOLD Start Water
+         dopw2_StartWater=TRUE
+      ;ENDFOLD Start Water
+   ENDIF
+   
+   IF do113Gun3ElectrodeChange THEN  
+      ;FOLD Turn Water Off
+         dopw3_StartWater=FALSE
+      ;ENDFOLD
+      ;FOLD Have Electrodes been changed?
+            REPEAT
+            REPEAT 
+            do091RobotReadyCapChange=TRUE
+            nAutoCore_Handle = Set_KrlDlg (AutomationCore_Msg[26], AutoCore_MsgPar[], AC_SK_YesNoNav[], AutoCore_MsgOpt_Stop)
+            IF (nAutoCore_Handle > 0) THEN
+               WHILE (Exists_KrlDlg(nAutoCore_Handle, nAutoCore_Key))
+                  WAIT SEC 0.024
+                  IF (di094Caps3areChanged==TRUE) THEN
+                     bCapsChanged=TRUE
+                     bElectrchanged=TRUE
+                     bAutoCore_Clear=Clear_KRLMsg(nAutoCore_Handle)
+                  ENDIF
+               ENDWHILE
+               IF (bCapsChanged==TRUE) THEN
+                  nAutoCore_Key=2
+               ENDIF
+               SWITCH nAutoCore_Key
+                  CASE 1 ; Diagnostic
+                     nAutoCore_Handle = Set_Krlmsg (#QUIT, AutomationCore_Msg[2], AutoCore_MsgPar[], AutoCore_MsgOpt_Stop)
+                     WHILE (Exists_KrlMsg(nAutoCore_Handle))
+                        WAIT SEC 0.024
+                     ENDWHILE
+                     bMsgRelease = FALSE
+                  CASE 2 ; Yes
+                     IF (bElectrchanged == TRUE) THEN 
+                     bMsgRelease = TRUE
+                     bCapsChanged=TRUE
+                     do095RobotCapChg3Cmplt=TRUE
+                     PULSE(dopw3_StepperReset,TRUE,0.1)
+                     ENDIF
+                  CASE 3 ; No
+                     bMsgRelease = FALSE
+                     bCapsChanged=FALSE
+               ENDSWITCH
+            ENDIF
+         UNTIL bElectrChanged
+         UNTIL (bMsgRelease==TRUE)
+         do091RobotReadyCapChange=FALSE
+      ;ENDFOLD (Have Electrodes been changed?)
+      ;FOLD Reset Cap Change to PLC
+         IF (bCapsChanged AND NOT do113Gun3ElectrodeChange) THEN
+            do095RobotCapChg3Cmplt=False
+         ENDIF
+         bElectrChanged=FALSE
+      ;ENDFOLD
+      ;FOLD Start Water
+         dopw3_StartWater=TRUE
+      ;ENDFOLD Start Water
+   ENDIF
+   
+   ;FOLD PTP HOME  Vel= 100 % DEFAULT;%{PE}%MKUKATPBASIS,%CMOVE,%VPTP,%P 1:PTP, 2:HOME, 3:, 5:100, 7:DEFAULT
+      $BWDSTART = FALSE
+      PDAT_ACT=PDEFAULT
+      FDAT_ACT=FHOME
+      BAS (#PTP_PARAMS,100 )
+      $H_POS=XHOME
+      PTP  XHOME
+   ;ENDFOLD
+   bElectrChanged=FALSE
+END

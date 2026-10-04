@@ -1,0 +1,34 @@
+&ACCESS RVO1
+&REL 101
+&COMMENT GE4_002
+DEF Style_1( )
+   ;FOLD INI;%{PE}
+      ;FOLD BASISTECH INI
+         GLOBAL INTERRUPT DECL 3 WHEN $STOPMESS==TRUE DO IR_STOPM ( )
+         INTERRUPT ON 3 
+         BAS (#INITMOV,0 )
+      ;ENDFOLD (BASISTECH INI)
+      ;FOLD USER INI
+         ;Make your modifications here
+         
+         ; (USER INI)
+      ;ENDFOLD (INI)
+   ;ENDFOLD INI
+   SWITCH nOption     ; Initialize Tolerance
+      CASE 1                  ; GE_4_Pick1
+         Style1Opt1 ( )
+      CASE 2                  ; GE_4_Pick1
+         Style1Opt1 ( )
+      CASE 7                  ; GE_4_Pick1
+         Style1Opt1 ( )
+      CASE 8                  ; GE_4_Pick1
+         Style1Opt1 ( )
+      CASE 12                  ; REDRABBIT 
+         Style1Opt10AutoRR ( )
+      DEFAULT
+         WAIT FOR FALSE     ; wrong nOption selected
+   ENDSWITCH
+   
+
+   
+END

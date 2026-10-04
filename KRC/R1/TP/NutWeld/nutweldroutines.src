@@ -1,0 +1,2941 @@
+&ACCESS RVO3
+&REL 3482
+&PARAM DISKPATH = KRC:\R1\TP\NutWeld
+DEF NutWeldRoutines( )
+   ;*********************************
+   ;* Package:     NutWeldRoutines  *
+   ;* Release      V1.0.4           *
+   ;* Date:        01.2016          *
+   ;* GUI Version: > = V8.3         *
+   ;*********************************
+   ; Declare in NutWeldData.dat Line 460:
+   ;DECL REAL rSetUpperLVDT_CLS_W_NUT[3]
+   ;rSetUpperLVDT_CLS_W_NUT[1] = 0.0
+   ;rSetUpperLVDT_CLS_W_NUT[2] = 0.0
+   ;rSetUpperLVDT_CLS_W_NUT[3] = 0.0
+   ;DECL REAL rSetLowerLVDT_CLS_W_NUT[3]
+   ;rSetLowerLVDT_CLS_W_NUT[1]  = 0.0   
+   ;rSetLowerLVDT_CLS_W_NUT[2]  = 0.0  
+   ;rSetLowerLVDT_CLS_W_NUT[3]  = 0.0 
+   ;DECL BOOL bSaveCurrentValue1=FALSE
+   ;DECL BOOL bSaveCurrentValue2=FALSE
+   ;DECL BOOL bSaveCurrentValue3=FALSE 
+END
+
+GLOBAL DEF NutWeld_Bkg( )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL REAL rPrimaryValue, rSecondaryValue, rSensorSample
+         DECL INT nStepCnt
+         DECL BOOL bSensorRetry
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         dopw1_Hidraulyc_Valve = ($PERI_RDY==TRUE)
+         dopw2_Hidraulyc_Valve = (($PERI_RDY==TRUE) AND (nMaxGunNr>=2))
+         dopw3_Hidraulyc_Valve = (($PERI_RDY==TRUE) AND (nMaxGunNr>=3))
+         IF (($EXT==TRUE) AND (bNutWeld_InhibitWeld==TRUE)) THEN
+            bNutWeld_InhibitWeld=FALSE ; Weld Inhibit not allowed in Auto
+            nNutWeld_Handle_SPS=Set_Krlmsg (#NOTIFY, NutWeld_Msg[60], NutWeld_MsgPar[], NutWeld_MsgOpt_NoStop)
+         ENDIF
+         ;FOLD Program Reset/Cancel
+            IF ((($PRO_STATE1==#P_FREE) OR ($PRO_STATE1==#P_RESET)) AND (bNutWeldProcessReset==FALSE)) THEN
+               bNutWeldProcessReset=TRUE
+               NutWeld_ProcessReset( )
+            ELSE
+               IF (($PRO_STATE1<>#P_FREE) AND ($PRO_STATE1<>#P_RESET)) THEN
+                  bNutWeldProcessReset=FALSE
+               ENDIF
+            ENDIF
+         ;ENDFOLD (Program Reset/Cancel)
+         ;FOLD Status Key Control
+            ;FOLD USKB1 - Process Control
+               bNutWeldWOJoining = ((($MODE_OP==#EX) AND (di004UseDryCycle==TRUE)) OR ((($MODE_OP==#T1) OR ($MODE_OP==#T2)) AND (bNutWeldWOJoinSTK==TRUE)))
+               IF (($MODE_OP==#T1) OR ($MODE_OP==#T2)) THEN
+                  IF ((bNutWeldResetSTK==TRUE) AND ($OUT[Get_FaultResetNr(nNutWeldGunNrSTK)]==FALSE)) THEN
+                     bNutWeldResetSTK=FALSE
+                     PULSE($OUT[Get_FaultResetNr(nNutWeldGunNrSTK)],TRUE,0.25)
+                  ENDIF
+               ENDIF
+            ;ENDFOLD (USKB1 - Process Control)
+            ;FOLD USKB2 - Manual Control
+               IF (bNutWeldOpnGunSTK==TRUE) THEN
+                  dopw_GunWork(nNutWeldGunNrSTK,FALSE)
+                  bNutWeldOpnGunSTK=FALSE
+               ENDIF
+               IF (bNutWeldClsGunSTK==TRUE) THEN
+                  dopw_GunWork(nNutWeldGunNrSTK,TRUE)
+                  bNutWeldClsGunSTK=FALSE
+               ENDIF
+               IF (bNutWeldAdvRetPinSTK==TRUE) THEN
+                  dopw_PinAdv(nNutWeldGunNrSTK,dipw_PinReturn(nNutWeldGunNrSTK))
+                  bNutWeldAdvRetPinSTK=FALSE
+               ENDIF
+            ;ENDFOLD (USKB2 - Manual Control)
+            ;FOLD USKB3-4 Manual NutWeld
+               IF ((bNutWeld_ManWeld_Active==TRUE) AND (bNutWeld_ManWeld_Step[20]==TRUE)) THEN
+                  bNutWeld_ManWeld_Active=FALSE
+                  bNutWeldManWeldSTK=FALSE
+                  dopw_GunWork(nNutWeldGunNrSTK,FALSE)
+                  dopw_WeldInit(nNutWeldGunNrSTK,FALSE)
+                  dopw_NutIntensify(nNutWeldGunNrSTK,FALSE)
+                  dopw_StartFeed(nNutWeldGunNrSTK,FALSE)
+                  dopw_SetPrgNr(nNutWeldGunNrSTK, 0 )
+                  $TIMER_STOP[nNutWeldManWeldTmr]=TRUE
+                  FOR nStepCnt=1 to 20
+                     bNutWeld_ManWeld_Step[nStepCnt]=FALSE
+                  ENDFOR
+               ENDIF
+               IF ((bNutWeld_ManWeld_Active==TRUE) AND (bNutWeld_ManWeld_Step[11]==TRUE) AND (bNutWeld_ManWeld_Step[12]==FALSE)) THEN
+                  ; Open Gun
+                  dopw_GunWork(nNutWeldGunNrSTK,FALSE)
+                  bNutWeld_ManWeld_Step[20]=TRUE ; Reset Process
+               ENDIF
+               IF ((bNutWeld_ManWeld_Active==TRUE) AND (bNutWeld_ManWeld_Step[10]==TRUE) AND (bNutWeld_ManWeld_Step[11]==FALSE)) THEN
+                  ; Check for Weld Complete
+                  IF ($TIMER_FLAG[nNutWeldManWeldTmr]==TRUE) THEN
+                     bNutWeld_ManWeld_Step[20]=TRUE ; Reset Process
+                     nNutWeld_Handle_SPS=Set_Krlmsg (#NOTIFY, NutWeld_Msg[19], NutWeld_MsgPar[], NutWeld_MsgOpt_NoStop)
+                  ELSE
+                     IF (dipw_WeldComplete(nNutWeldGunNrSTK)==TRUE) THEN
+                        dopw_WeldInit(nNutWeldGunNrSTK,FALSE)
+                        dopw_NutIntensify(nNutWeldGunNrSTK,FALSE)
+                        bNutWeld_ManWeld_Step[11]=TRUE
+                     ENDIF
+                  ENDIF
+               ENDIF
+               IF ((bNutWeld_ManWeld_Active==TRUE) AND (bNutWeld_ManWeld_Step[9]==TRUE) AND (bNutWeld_ManWeld_Step[10]==FALSE)) THEN
+                  ; Weld Initiate
+                  dopw_WeldInit(nNutWeldGunNrSTK,TRUE)
+                  bNutWeld_ManWeld_Step[10]=TRUE
+               ENDIF
+               IF ((bNutWeld_ManWeld_Active==TRUE) AND (bNutWeld_ManWeld_Step[8]==TRUE) AND (bNutWeld_ManWeld_Step[9]==FALSE)) THEN
+                  ; Intensify Gun
+                  dopw_NutIntensify(nNutWeldGunNrSTK,TRUE)
+                  ; Check for Gun intensified
+                  IF ($TIMER_FLAG[nNutWeldManWeldTmr]==TRUE) THEN
+                     bNutWeld_ManWeld_Step[20]=TRUE ; Reset Process
+                     nNutWeld_Handle_SPS=Set_Krlmsg (#NOTIFY, NutWeld_Msg[18], NutWeld_MsgPar[], NutWeld_MsgOpt_NoStop)
+                  ELSE
+                     IF (dipw_IntensfPresOk(nNutWeldGunNrSTK)==TRUE) THEN
+                        bNutWeld_ManWeld_Step[9]=TRUE
+                     ENDIF
+                  ENDIF
+               ENDIF
+               IF ((bNutWeld_ManWeld_Active==TRUE) AND (bNutWeld_ManWeld_Step[7]==TRUE) AND (bNutWeld_ManWeld_Step[8]==FALSE)) THEN
+                  ; Check for Nut Present
+                  bSensorRetry=FALSE
+                  IF (bByPassSmartelec==TRUE) THEN
+                     bNutWeld_ManWeld_Step[8]=TRUE
+                  ELSE
+                     IF ($TIMER_FLAG[nNutWeldManWeldTmr]==TRUE) THEN
+                        bNutWeld_ManWeld_Step[20]=TRUE ; Reset Process
+                        nNutWeld_Handle_SPS=Set_Krlmsg (#NOTIFY, NutWeld_Msg[nManWeldFault], NutWeld_MsgPar[], NutWeld_MsgOpt_NoStop)
+                     ELSE
+                        rPrimaryValue = ABS(aiNutSensor(nNutWeldGunNrSTK));
+                        WAIT SEC rSensorSettleTime;
+                        rSecondaryValue = ABS(aiNutSensor(nNutWeldGunNrSTK));
+                        IF (ABS(rPrimaryValue - rSecondaryValue) <= 2) THEN
+                           rSensorSample=ABS(aiNutSensor(nNutWeldGunNrSTK))
+                           IF ((rSensorSample <= (rNutInvertedValueInUse + rNutSensorTolInUse)) AND (rSensorSample >= (rNutInvertedValueInUse - rNutSensorTolInUse))) THEN
+                              nManWeldFault=55
+                              bSensorRetry=TRUE
+                           ENDIF
+                           IF ((rSensorSample <= (rNoNutValueInUse + rNutSensorTolInUse)) AND (rSensorSample >= (rNoNutValueInUse - rNutSensorTolInUse)) AND (bSensorRetry == FALSE)) THEN
+                              nManWeldFault=54
+                              bSensorRetry=TRUE
+                           ENDIF
+                           IF ((rSensorSample <= (rNutPresentValueInUse - rNutSensorTol2InUse)) AND (bSensorRetry == FALSE)) THEN
+                              nManWeldFault=56
+                              bSensorRetry=TRUE
+                           ENDIF
+                           IF (bSensorRetry==FALSE) THEN
+                              nManWeldFault=0
+                              bNutWeld_ManWeld_Step[8]=TRUE
+                           ENDIF
+                        ENDIF
+                     ENDIF
+                  ENDIF
+               ENDIF
+               IF ((bNutWeld_ManWeld_Active==TRUE) AND (bNutWeld_ManWeld_Step[6]==TRUE) AND (bNutWeld_ManWeld_Step[7]==FALSE)) THEN
+                  ; Check for Gun Closed
+                  IF ($TIMER_FLAG[nNutWeldManWeldTmr]==TRUE) THEN
+                     bNutWeld_ManWeld_Step[20]=TRUE ; Reset Process
+                     nNutWeld_Handle_SPS=Set_Krlmsg (#NOTIFY, NutWeld_Msg[35], NutWeld_MsgPar[], NutWeld_MsgOpt_NoStop)
+                  ELSE
+                     IF (bpw_GunAtWork(nNutWeldGunNrSTK)==TRUE) THEN
+                        bNutWeld_ManWeld_Step[7]=TRUE
+                     ENDIF
+                  ENDIF
+               ENDIF
+               IF ((bNutWeld_ManWeld_Active==TRUE) AND (bNutWeld_ManWeld_Step[5]==TRUE) AND (bNutWeld_ManWeld_Step[6]==FALSE)) THEN
+                  ; Check for Nut Fed
+                  IF ($TIMER_FLAG[nNutWeldManWeldTmr]==TRUE) THEN
+                     bNutWeld_ManWeld_Step[20]=TRUE ; Reset Process
+                     nNutWeld_Handle_SPS=Set_Krlmsg (#NOTIFY, NutWeld_Msg[49], NutWeld_MsgPar[], NutWeld_MsgOpt_NoStop)
+                     dopw_StartFeed(nNutWeldGunNrSTK,FALSE)
+                  ELSE
+                     IF (dipw_FeedComplt(nNutWeldGunNrSTK)==TRUE) THEN
+                        bNutWeld_ManWeld_Step[6]=TRUE
+                        ; Close the gun
+                        dopw_StartFeed(nNutWeldGunNrSTK,FALSE)
+                        dopw_NutIntensify(nNutWeldGunNrSTK,FALSE)
+                        dopw_GunWork(nNutWeldGunNrSTK,TRUE)
+                     ENDIF
+                  ENDIF
+               ENDIF
+               IF ((bNutWeld_ManWeld_Active==TRUE) AND (bNutWeld_ManWeld_Step[4]==TRUE) AND (bNutWeld_ManWeld_Step[5]==FALSE)) THEN
+                  ; Feed a Nut
+                  dopw_StartFeed(nNutWeldGunNrSTK,TRUE)
+                  bNutWeld_ManWeld_Step[5]=TRUE
+               ENDIF
+               IF ((bNutWeld_ManWeld_Active==TRUE) AND (bNutWeld_ManWeld_Step[3]==TRUE) AND (bNutWeld_ManWeld_Step[4]==FALSE)) THEN
+                  ; Check for start conditions
+                  IF (dipw_XtfmrTempOk(nNutWeldGunNrSTK)==FALSE) THEN
+                     bNutWeld_ManWeld_Step[20]=TRUE ; Reset Process
+                     nNutWeld_Handle_SPS=Set_Krlmsg (#NOTIFY, NutWeld_Msg[50], NutWeld_MsgPar[], NutWeld_MsgOpt_NoStop)
+                  ENDIF
+                  IF (dipw_WaterOk(nNutWeldGunNrSTK)==FALSE) THEN
+                     bNutWeld_ManWeld_Step[20]=TRUE ; Reset Process
+                     nNutWeld_Handle_SPS=Set_Krlmsg (#NOTIFY, NutWeld_Msg[5], NutWeld_MsgPar[], NutWeld_MsgOpt_NoStop)
+                  ENDIF
+                  IF (dipw_IntensfPresOk(nNutWeldGunNrSTK)==TRUE) THEN
+                     bNutWeld_ManWeld_Step[20]=TRUE ; Reset Process
+                     nNutWeld_Handle_SPS=Set_Krlmsg (#NOTIFY, NutWeld_Msg[7], NutWeld_MsgPar[], NutWeld_MsgOpt_NoStop)
+                  ENDIF
+                  IF (dipw_Ready(nNutWeldGunNrSTK)==FALSE) THEN
+                     bNutWeld_ManWeld_Step[20]=TRUE ; Reset Process
+                     nNutWeld_Handle_SPS=Set_Krlmsg (#NOTIFY, NutWeld_Msg[8], NutWeld_MsgPar[], NutWeld_MsgOpt_NoStop)
+                  ENDIF
+                  IF (dipw_Fault(nNutWeldGunNrSTK)==TRUE) THEN
+                     bNutWeld_ManWeld_Step[20]=TRUE ; Reset Process
+                     nNutWeld_Handle_SPS=Set_Krlmsg (#NOTIFY, NutWeld_Msg[9], NutWeld_MsgPar[], NutWeld_MsgOpt_NoStop)
+                  ENDIF
+                  IF (dipw_SpearHome(nNutWeldGunNrSTK)==FALSE) THEN
+                     bNutWeld_ManWeld_Step[20]=TRUE ; Reset Process
+                     nNutWeld_Handle_SPS=Set_Krlmsg (#NOTIFY, NutWeld_Msg[47], NutWeld_MsgPar[], NutWeld_MsgOpt_NoStop)
+                  ENDIF
+                  IF (dipw_PinReturn(nNutWeldGunNrSTK)==FALSE) THEN
+                     bNutWeld_ManWeld_Step[20]=TRUE ; Reset Process
+                     nNutWeld_Handle_SPS=Set_Krlmsg (#NOTIFY, NutWeld_Msg[15], NutWeld_MsgPar[], NutWeld_MsgOpt_NoStop)
+                  ENDIF
+                  IF (bpw_GunAtHome(nNutWeldGunNrSTK)==FALSE) THEN
+                     bNutWeld_ManWeld_Step[20]=TRUE ; Reset Process
+                     nNutWeld_Handle_SPS=Set_Krlmsg (#NOTIFY, NutWeld_Msg[51], NutWeld_MsgPar[], NutWeld_MsgOpt_NoStop)
+                  ENDIF
+                  bNutWeld_ManWeld_Step[4]=TRUE
+               ENDIF
+               IF ((bNutWeld_ManWeld_Active==TRUE) AND (bNutWeld_ManWeld_Step[2]==TRUE) AND (bNutWeld_ManWeld_Step[3]==FALSE)) THEN
+                  IF (Exists_KrlDlg(nNutWeld_MWHandle, nNutWeld_MWKey)==FALSE) THEN
+                     IF (nNutWeld_MWKey==1) THEN
+                        bNutWeld_ManWeld_Step[3]=TRUE
+                        dopw_SetPrgNr(nNutWeldGunNrSTK, nNutWeldSpotNrSTK )
+                     ELSE
+                        bNutWeld_ManWeld_Step[20]=TRUE ; Reset Process
+                     ENDIF
+                  ENDIF
+                  nNutWeld_MWKey=0
+               ENDIF
+               IF ((bNutWeld_ManWeld_Active==TRUE) AND (bNutWeld_ManWeld_Step[1]==TRUE) AND (bNutWeld_ManWeld_Step[2]==FALSE)) THEN
+                  bNutWeld_ManWeld_Step[2]=TRUE
+                  NutWeld_MsgPar[1]={par_type #value, par_int 0}
+                  NutWeld_MsgPar[1].par_int=nNutWeldGunNrSTK
+                  NutWeld_MsgPar[2]={par_type #value, par_int 0}
+                  NutWeld_MsgPar[2].par_int=nNutWeldSpotNrSTK
+                  nNutWeld_MWHandle = Set_KrlDlg (NutWeld_Msg[34], NutWeld_MsgPar[], NutWeld_SK_OKCancel[], NutWeld_MsgOpt_NoStop)
+               ENDIF
+               IF ((bNutWeldManWeldSTK==TRUE) AND (bNutWeld_ManWeld_Step[1]==FALSE)) THEN
+                  IF (bNutWeldWOJoining==FALSE) THEN
+                     bNutWeld_ManWeld_Active=TRUE
+                     bNutWeld_ManWeld_Step[1]=TRUE
+                     dopw_GunWork(nNutWeldGunNrSTK,FALSE)
+                     dopw_StartFeed(nNutWeldGunNrSTK,FALSE)
+                     dopw_WeldInit(nNutWeldGunNrSTK,FALSE)
+                     dopw_NutIntensify(nNutWeldGunNrSTK,FALSE)
+                     NutWeldManual.GunNr=nNutWeldGunNrSTK
+                     NutWeldManual.SpotNr=nNutWeldSpotNrSTK
+                     PWInitUserIO(NutWeldManual)
+                     $TIMER_STOP[nNutWeldManWeldTmr]=TRUE
+                     $TIMER[nNutWeldManWeldTmr]=(nNutWeld_ManWeld_Timeout*(-1000))
+                     $TIMER_STOP[nNutWeldManWeldTmr]=FALSE
+                  ELSE
+                     nNutWeld_Handle_SPS=Set_Krlmsg (#NOTIFY, NutWeld_Msg[33], NutWeld_MsgPar[], NutWeld_MsgOpt_NoStop)
+                     bNutWeldManWeldSTK=FALSE
+                  ENDIF
+               ENDIF
+            ;ENDFOLD (USKB3-4 Manual NutWeld)
+            ;FOLD USKB4 - Gun Maintenance Actions
+               ;FOLD USKB4-2 Test Gun Force
+                  IF ((bNutWeld_TstFrce_Active==TRUE) AND (bNutWeld_TstFrce_Step[10]==TRUE)) THEN
+                     bNutWeld_TstFrce_Active=FALSE
+                     bNutWeldTstFrceSTK=FALSE
+                     dopw_GunWork(nNutWeldGunNrSTK,FALSE)
+                     dopw_WeldInit(nNutWeldGunNrSTK,FALSE)
+                     dopw_NutIntensify(nNutWeldGunNrSTK,FALSE)
+                     dopw_SetPrgNr(nNutWeldGunNrSTK, 0)
+                     $TIMER_STOP[nNutWeldManWeldTmr]=TRUE
+                     $TIMER_STOP[nNutWeldSignalTmr]=TRUE
+                     $TIMER[nNutWeldManWeldTmr]=-1000
+                     $TIMER[nNutWeldSignalTmr]=-750
+                     FOR nStepCnt=1 to 10
+                        bNutWeld_TstFrce_Step[nStepCnt]=FALSE
+                     ENDFOR
+                  ENDIF
+                  IF ((bNutWeld_TstFrce_Active==TRUE) AND (bNutWeld_TstFrce_Step[6]==TRUE) AND (bNutWeld_TstFrce_Step[7]==FALSE)) THEN
+                     ; Wait Intensify Time
+                     IF ($TIMER_FLAG[nNutWeldSignalTmr]==TRUE) THEN
+                        $TIMER_STOP[nNutWeldSignalTmr]=TRUE
+                        $TIMER[nNutWeldSignalTmr]=(-2000)
+                        dopw_NutIntensify(nNutWeldGunNrSTK,FALSE)
+                        dopw_GunWork(nNutWeldGunNrSTK,FALSE)
+                        bNutWeld_TstFrce_Step[10]=TRUE
+                        NutWeld_MsgPar[1]={par_type #value, par_int 0}
+                        NutWeld_MsgPar[1].par_int=nNutWeldGunNrSTK
+                        nNutWeld_Handle_SPS=Set_Krlmsg (#NOTIFY, NutWeld_Msg[44], NutWeld_MsgPar[], NutWeld_MsgOpt_NoStop)
+                     ENDIF
+                  ENDIF
+                  IF ((bNutWeld_TstFrce_Active==TRUE) AND (bNutWeld_TstFrce_Step[5]==TRUE) AND (bNutWeld_TstFrce_Step[6]==FALSE)) THEN
+                     ; Check for Gun Closed
+                     IF (($TIMER_FLAG[nNutWeldManWeldTmr]==TRUE) AND (bpw_GunAtHome(nNutWeldGunNrSTK)==TRUE)) THEN
+                        bNutWeld_TstFrce_Step[10]=TRUE ; Reset Process
+                        nNutWeld_Handle_SPS=Set_Krlmsg (#NOTIFY, NutWeld_Msg[35], NutWeld_MsgPar[], NutWeld_MsgOpt_NoStop)
+                     ELSE
+                        IF (($TIMER_FLAG[nNutWeldSignalTmr]==TRUE) AND (bpw_GunAtHome(nNutWeldGunNrSTK)==FALSE)) THEN
+                           ; Intensify Gun
+                           dopw_NutIntensify(nNutWeldGunNrSTK,TRUE)
+                           $TIMER_STOP[nNutWeldSignalTmr]=TRUE
+                           $TIMER[nNutWeldSignalTmr]=(-2000)
+                           $TIMER_STOP[nNutWeldSignalTmr]=FALSE
+                           bNutWeld_TstFrce_Step[6]=TRUE
+                        ENDIF
+                     ENDIF
+                  ENDIF
+                  IF ((bNutWeld_TstFrce_Active==TRUE) AND (bNutWeld_TstFrce_Step[4]==TRUE) AND (bNutWeld_TstFrce_Step[5]==FALSE)) THEN
+                     IF (Exists_KrlDlg(nNutWeld_TFHandle, nNutWeld_TFKey)==FALSE) THEN
+                        IF (nNutWeld_TFKey==1) THEN
+                           $TIMER_STOP[nNutWeldManWeldTmr]=FALSE
+                           dopw_NutIntensify(nNutWeldGunNrSTK,FALSE)
+                           dopw_GunWork(nNutWeldGunNrSTK,TRUE)
+                           $TIMER_STOP[nNutWeldSignalTmr]=TRUE
+                           $TIMER[nNutWeldSignalTmr]=(-2000)
+                           $TIMER_STOP[nNutWeldSignalTmr]=FALSE
+                           bNutWeld_TstFrce_Step[5]=TRUE
+                        ELSE
+                           bNutWeld_TstFrce_Step[10]=TRUE ; Reset Process
+                        ENDIF
+                     ENDIF
+                     nNutWeld_TFKey=0
+                  ENDIF
+                  IF ((bNutWeldTstFrceSTK==TRUE) AND (bNutWeld_TstFrce_Step[3]==TRUE) AND (bNutWeld_TstFrce_Step[4]==FALSE)) THEN
+                     bNutWeld_TstFrce_Active=TRUE
+                     bNutWeld_TstFrce_Step[4]=TRUE
+                     $TIMER_STOP[nNutWeldManWeldTmr]=TRUE
+                     $TIMER[nNutWeldManWeldTmr]=(nNutWeld_ManWeld_Timeout*(-1000))
+                     nNutWeld_TFKey=0
+                     NutWeld_MsgPar[1]={par_type #value, par_int 0}
+                     NutWeld_MsgPar[1].par_int=nNutWeldGunNrSTK
+                     nNutWeld_TFHandle = Set_KrlDlg (NutWeld_Msg[38], NutWeld_MsgPar[], NutWeld_SK_TstCncl[], NutWeld_MsgOpt_NoStop)
+                  ENDIF
+                  IF ((bNutWeld_TstFrce_Active==TRUE) AND (bNutWeld_TstFrce_Step[2]==TRUE) AND (bNutWeld_TstFrce_Step[3]==FALSE)) THEN
+                     ; Check for Gun Home
+                     IF ($TIMER_FLAG[nNutWeldManWeldTmr]==TRUE) THEN
+                        bNutWeld_TstFrce_Step[10]=TRUE ; Reset Process
+                        nNutWeld_Handle_SPS=Set_Krlmsg (#NOTIFY, NutWeld_Msg[32], NutWeld_MsgPar[], NutWeld_MsgOpt_NoStop)
+                     ELSE
+                        IF (($TIMER_FLAG[nNutWeldSignalTmr]==FALSE) AND (bpw_GunAtHome(nNutWeldGunNrSTK)==TRUE)) THEN
+                           ; Intensify Gun
+                           $TIMER_STOP[nNutWeldSignalTmr]=TRUE
+                           $TIMER[nNutWeldSignalTmr]=(-2000)
+                           bNutWeld_TstFrce_Step[3]=TRUE
+                        ENDIF
+                     ENDIF
+                  ENDIF
+                  IF ((bNutWeld_TstFrce_Active==TRUE) AND (bNutWeld_TstFrce_Step[1]==TRUE) AND (bNutWeld_TstFrce_Step[2]==FALSE)) THEN
+                     IF (Exists_KrlDlg(nNutWeld_TFHandle, nNutWeld_TFKey)==FALSE) THEN
+                        IF (nNutWeld_TFKey==1) THEN
+                           dopw_NutIntensify(nNutWeldGunNrSTK,FALSE)
+                           dopw_GunWork(nNutWeldGunNrSTK,FALSE)
+                           $TIMER_STOP[nNutWeldSignalTmr]=TRUE
+                           $TIMER[nNutWeldSignalTmr]=(-3000)
+                           $TIMER_STOP[nNutWeldSignalTmr]=FALSE
+                           bNutWeld_TstFrce_Step[2]=TRUE
+                        ELSE
+                           bNutWeld_TstFrce_Step[10]=TRUE ; Reset Process
+                        ENDIF
+                     ENDIF
+                     nNutWeld_TFKey=0
+                  ENDIF
+                  IF ((bNutWeldTstFrceSTK==TRUE) AND (bNutWeld_TstFrce_Step[1]==FALSE) AND (bpw_GunAtHome(nNutWeldGunNrSTK )==TRUE)) THEN
+                     bNutWeld_TstFrce_Active=TRUE
+                     bNutWeld_TstFrce_Step[1]=TRUE
+                     bNutWeld_TstFrce_Step[2]=TRUE
+                     bNutWeld_TstFrce_Step[3]=TRUE
+                     nNutWeld_TFKey=0
+                  ELSE
+                     IF ((bNutWeldTstFrceSTK==TRUE) AND (bNutWeld_TstFrce_Step[1]==FALSE) AND (bpw_GunAtHome(nNutWeldGunNrSTK )==FALSE)) THEN
+                        bNutWeld_TstFrce_Active=TRUE
+                        bNutWeld_TstFrce_Step[1]=TRUE
+                        nNutWeld_TFKey=0
+                        NutWeld_MsgPar[1]={par_type #value, par_int 0}
+                        NutWeld_MsgPar[1].par_int=nNutWeldGunNrSTK
+                        nNutWeld_TFHandle = Set_KrlDlg (NutWeld_Msg[51], NutWeld_MsgPar[], NutWeld_SK_HomeGun[], NutWeld_MsgOpt_NoStop)
+                        $TIMER_STOP[nNutWeldManWeldTmr]=TRUE
+                        $TIMER[nNutWeldManWeldTmr]=(nNutWeld_ManWeld_Timeout*(-1000))
+                     ENDIF
+                  ENDIF
+               ;ENDFOLD (USKB4-2 Test Gun Force)
+               ;FOLD USKB4-3 Teach Analog
+                  ;FOLD USKB4-2.4 Check
+                     IF ((bNutWeld_AlgCheck_Active==TRUE) AND (bNutWeld_AlgCheck_Step[10]==TRUE)) THEN
+                        bNutWeld_AlgCheck_Active=FALSE
+                        bNutWeldAlgCheckReq=FALSE
+                        FOR nStepCnt=1 to 10
+                           bNutWeld_AlgCheck_Step[nStepCnt]=FALSE
+                        ENDFOR
+                        bNutWeld_TchAnlg_Active=FALSE
+                        bNutWeldTchAnlgSTK=TRUE
+                        FOR nStepCnt=1 to 10
+                           bNutWeld_TchAnlg_Step[nStepCnt]=FALSE
+                        ENDFOR
+                     ENDIF
+                     IF ((bNutWeld_AlgCheck_Active==TRUE) AND (bNutWeld_AlgCheck_Step[8]==TRUE) AND (bNutWeld_AlgCheck_Step[9]==FALSE)) THEN
+                        IF (Exists_KrlDlg(nNutWeld_TA4Handle, nNutWeld_TA4Key)==FALSE) THEN
+                           IF (nNutWeld_TA4Key==1) THEN
+                              nNutWeld_TA4Key=0
+                              bNutWeld_AlgCheck_Step[9]=TRUE
+                              bNutWeld_AlgCheck_Step[10]=TRUE
+                           ELSE
+                              bNutWeld_AlgCheck_Step[10]=TRUE ; Reset Process
+                           ENDIF
+                        ENDIF
+                        nNutWeld_TA4Key=0
+                     ENDIF
+                     IF ((bNutWeld_AlgCheck_Active==TRUE) AND (bNutWeld_AlgCheck_Step[7]==TRUE) AND (bNutWeld_AlgCheck_Step[8]==FALSE)) THEN
+                        IF (rNutInvertedValue[nNutWeldGunNrSTK] < (rNutPresentValue[nNutWeldGunNrSTK] + rNutSensorTolerance[nNutWeldGunNrSTK])) THEN
+                           nNutWeld_TA4Handle = Set_KrlDlg (NutWeld_Msg[59], NutWeld_MsgPar[], NutWeld_SK_Next[], NutWeld_MsgOpt_NoStop)
+                           bNutWeld_AlgCheck_Step[8]=TRUE
+                        ELSE
+                           bNutWeld_AlgCheck_Step[10]=TRUE
+                        ENDIF
+                     ENDIF
+                     IF ((bNutWeld_AlgCheck_Active==TRUE) AND (bNutWeld_AlgCheck_Step[6]==TRUE) AND (bNutWeld_AlgCheck_Step[7]==FALSE)) THEN
+                        IF (Exists_KrlDlg(nNutWeld_TA4Handle, nNutWeld_TA4Key)==FALSE) THEN
+                           IF (nNutWeld_TA4Key==1) THEN
+                              nNutWeld_TA4Key=0
+                              bNutWeld_AlgCheck_Step[7]=TRUE
+                           ELSE
+                              bNutWeld_AlgCheck_Step[10]=TRUE ; Reset Process
+                           ENDIF
+                        ENDIF
+                        nNutWeld_TA4Key=0
+                     ENDIF
+                     IF ((bNutWeld_AlgCheck_Active==TRUE) AND (bNutWeld_AlgCheck_Step[5]==TRUE) AND (bNutWeld_AlgCheck_Step[6]==FALSE)) THEN
+                        IF (Exists_KrlDlg(nNutWeld_TA4Handle, nNutWeld_TA4Key)==FALSE) THEN
+                           IF (nNutWeld_TA4Key==1) THEN
+                              nNutWeld_TA4Key=0
+                              bNutWeld_AlgCheck_Step[6]=TRUE
+                              IF (rNoNutValue[nNutWeldGunNrSTK] > (rNutPresentValue[nNutWeldGunNrSTK] - rNutSensorTolerance[nNutWeldGunNrSTK])) THEN
+                                 nNutWeld_TA4Handle = Set_KrlDlg (NutWeld_Msg[58], NutWeld_MsgPar[], NutWeld_SK_Next[], NutWeld_MsgOpt_NoStop)
+                              ELSE
+                                 bNutWeld_AlgCheck_Step[7]=TRUE
+                              ENDIF
+                           ELSE
+                              bNutWeld_AlgCheck_Step[10]=TRUE ; Reset Process
+                           ENDIF
+                        ENDIF
+                        nNutWeld_TA4Key=0
+                     ENDIF
+                     IF ((bNutWeld_AlgCheck_Active==TRUE) AND (bNutWeld_AlgCheck_Step[4]==TRUE) AND (bNutWeld_AlgCheck_Step[5]==FALSE)) THEN
+                        IF (Exists_KrlDlg(nNutWeld_TA4Handle, nNutWeld_TA4Key)==FALSE) THEN
+                           IF (nNutWeld_TA4Key==1) THEN
+                              nNutWeld_TA4Key=0
+                              NutWeld_MsgPar[1].par_real=rNutInvertedValue[nNutWeldGunNrSTK]
+                              nNutWeld_TA4Handle = Set_KrlDlg (NutWeld_Msg[57], NutWeld_MsgPar[], NutWeld_SK_Next[], NutWeld_MsgOpt_NoStop)
+                              bNutWeld_AlgCheck_Step[5]=TRUE
+                           ELSE
+                              bNutWeld_AlgCheck_Step[10]=TRUE ; Reset Process
+                           ENDIF
+                        ENDIF
+                        nNutWeld_TA4Key=0
+                     ENDIF
+                     IF ((bNutWeld_AlgCheck_Active==TRUE) AND (bNutWeld_AlgCheck_Step[3]==TRUE) AND (bNutWeld_AlgCheck_Step[4]==FALSE)) THEN
+                        IF (Exists_KrlDlg(nNutWeld_TA4Handle, nNutWeld_TA4Key)==FALSE) THEN
+                           IF (nNutWeld_TA4Key==1) THEN
+                              nNutWeld_TA4Key=0
+                              NutWeld_MsgPar[1].par_real=rNutPresentValue[nNutWeldGunNrSTK]
+                              nNutWeld_TA4Handle = Set_KrlDlg (NutWeld_Msg[31], NutWeld_MsgPar[], NutWeld_SK_Next[], NutWeld_MsgOpt_NoStop)
+                              bNutWeld_AlgCheck_Step[4]=TRUE
+                           ELSE
+                              bNutWeld_AlgCheck_Step[10]=TRUE ; Reset Process
+                           ENDIF
+                        ENDIF
+                        nNutWeld_TA4Key=0
+                     ENDIF
+                     IF ((bNutWeld_AlgCheck_Active==TRUE) AND (bNutWeld_AlgCheck_Step[2]==TRUE) AND (bNutWeld_AlgCheck_Step[3]==FALSE)) THEN
+                        IF (Exists_KrlDlg(nNutWeld_TA4Handle, nNutWeld_TA4Key)==FALSE) THEN
+                           IF (nNutWeld_TA4Key==1) THEN
+                              nNutWeld_TA4Key=0
+                              NutWeld_MsgPar[1].par_real=rNoNutValue[nNutWeldGunNrSTK]
+                              nNutWeld_TA4Handle = Set_KrlDlg (NutWeld_Msg[30], NutWeld_MsgPar[], NutWeld_SK_Next[], NutWeld_MsgOpt_NoStop)
+                              bNutWeld_AlgCheck_Step[3]=TRUE
+                           ELSE
+                              bNutWeld_AlgCheck_Step[10]=TRUE ; Reset Process
+                           ENDIF
+                        ENDIF
+                        nNutWeld_TA4Key=0
+                     ENDIF
+                     IF ((bNutWeld_AlgCheck_Active==TRUE) AND (bNutWeld_AlgCheck_Step[1]==TRUE) AND (bNutWeld_AlgCheck_Step[2]==FALSE)) THEN
+                        IF (Exists_KrlDlg(nNutWeld_TA4Handle, nNutWeld_TA4Key)==FALSE) THEN
+                           IF (nNutWeld_TA4Key==1) THEN
+                              nNutWeld_TA4Key=0
+                              NutWeld_MsgPar[1]={par_type #value, par_real 0}
+                              NutWeld_MsgPar[1].par_real=rNutSensorTolerance2[nNutWeldGunNrSTK]
+                              nNutWeld_TA4Handle = Set_KrlDlg (NutWeld_Msg[29], NutWeld_MsgPar[], NutWeld_SK_Next[], NutWeld_MsgOpt_NoStop)
+                              bNutWeld_AlgCheck_Step[2]=TRUE
+                           ELSE
+                              bNutWeld_AlgCheck_Step[10]=TRUE ; Reset Process
+                           ENDIF
+                        ENDIF
+                        nNutWeld_TA4Key=0
+                     ENDIF
+                     IF ((bNutWeldAlgCheckReq==TRUE) AND (bNutWeld_AlgCheck_Step[1]==FALSE)) THEN
+                        bNutWeld_AlgCheck_Active=TRUE
+                        bNutWeld_AlgCheck_Step[1]=TRUE
+                        nNutWeld_TA4Key=0
+                        NutWeld_MsgPar[1]={par_type #value, par_real 0}
+                        NutWeld_MsgPar[1].par_real=rNutSensorTolerance[nNutWeldGunNrSTK]
+                        nNutWeld_TA4Handle = Set_KrlDlg (NutWeld_Msg[28], NutWeld_MsgPar[], NutWeld_SK_Next[], NutWeld_MsgOpt_NoStop)
+                     ENDIF
+                  ;ENDFOLD (USKB4-2.4 Check)
+                  ;FOLD USKB4-2.3 Inverted Nut
+                     IF ((bNutWeld_AlgInNut_Active==TRUE) AND (bNutWeld_AlgInNut_Step[10]==TRUE)) THEN
+                        bNutWeld_AlgInNut_Active=FALSE
+                        bNutWeldAlgInNutReq=FALSE
+                        dopw_GunWork(nNutWeldGunNrSTK,FALSE)
+                        dopw_NutIntensify(nNutWeldGunNrSTK,FALSE)
+                        FOR nStepCnt=1 to 10
+                           bNutWeld_AlgInNut_Step[nStepCnt]=FALSE
+                        ENDFOR
+                        bNutWeld_TchAnlg_Active=FALSE
+                        bNutWeldTchAnlgSTK=TRUE
+                        $TIMER_STOP[nNutWeldManWeldTmr]=TRUE
+                        $TIMER_STOP[nNutWeldSignalTmr]=TRUE
+                        $TIMER[nNutWeldManWeldTmr]=-1000
+                        $TIMER[nNutWeldSignalTmr]=-750
+                        FOR nStepCnt=1 to 10
+                           bNutWeld_TchAnlg_Step[nStepCnt]=FALSE
+                        ENDFOR
+                     ENDIF
+                     IF ((bNutWeld_AlgInNut_Active==TRUE) AND (bNutWeld_AlgInNut_Step[6]==TRUE) AND (bNutWeld_AlgInNut_Step[7]==FALSE)) THEN
+                        bNutWeld_AlgInNut_Active=FALSE
+                        bNutWeldAlgInNutReq=TRUE
+                        FOR nStepCnt=1 to 10
+                           bNutWeld_AlgInNut_Step[nStepCnt]=FALSE
+                        ENDFOR
+                     ENDIF
+                     IF ((bNutWeld_AlgInNut_Active==TRUE) AND (bNutWeld_AlgInNut_Step[5]==TRUE) AND (bNutWeld_AlgInNut_Step[6]==FALSE)) THEN
+                        IF (Exists_KrlDlg(nNutWeld_TA3Handle, nNutWeld_TA3Key)==FALSE) THEN
+                           SWITCH nNutWeld_TA3Key
+                              CASE 1 ; Accept - Store value and exit
+                                 rNutInvertedValue[nNutWeldGunNrSTK]=rNutSensorValueTemp
+                                 rNutSensorValueTemp=0.0
+                                 bNutWeld_AlgInNut_Step[10]=TRUE ; Reset Process
+                              CASE 2 ; Rerun - discard value and re-execute
+                                 rNutSensorValueTemp=0.0
+                                 bNutWeld_AlgInNut_Step[6]=TRUE ; Local Reset Process
+                              CASE 3 ; Cancel - discard value and return to main selection
+                                 rNutSensorValueTemp=0.0
+                                 bNutWeld_AlgInNut_Step[10]=TRUE ; Reset Process
+                           ENDSWITCH
+                        ENDIF
+                        nNutWeld_TA3Key=0
+                     ENDIF
+                     IF ((bNutWeld_AlgInNut_Active==TRUE) AND (bNutWeld_AlgInNut_Step[4]==TRUE) AND (bNutWeld_AlgInNut_Step[5]==FALSE)) THEN
+                        rNutSensorValueTemp=ABS(aiNutSensor(nNutWeldGunNrSTK))
+                        dopw_NutIntensify(nNutWeldGunNrSTK,FALSE)
+                        dopw_GunWork(nNutWeldGunNrSTK,FALSE)
+                        NutWeld_MsgPar[1]={par_type #value, par_real 0}
+                        NutWeld_MsgPar[1].par_real=rNutSensorValueTemp
+                        nNutWeld_TA3Handle = Set_KrlDlg (NutWeld_Msg[53], NutWeld_MsgPar[], NutWeld_SK_AcptRerun[], NutWeld_MsgOpt_NoStop)
+                        bNutWeld_AlgInNut_Step[5]=TRUE
+                     ENDIF
+                     IF ((bNutWeld_AlgInNut_Active==TRUE) AND (bNutWeld_AlgInNut_Step[3]==TRUE) AND (bNutWeld_AlgInNut_Step[4]==FALSE)) THEN
+                        ; Smart Electrode Dwell Time
+                        IF ($TIMER_FLAG[nNutWeldManWeldTmr]==TRUE) THEN
+                           $TIMER_STOP[nNutWeldSignalTmr]=TRUE
+                           $TIMER[nNutWeldSignalTmr]=(-1000)
+                           bNutWeld_AlgInNut_Step[4]=TRUE
+                        ENDIF
+                     ENDIF
+                     IF ((bNutWeld_AlgInNut_Active==TRUE) AND (bNutWeld_AlgInNut_Step[2]==TRUE) AND (bNutWeld_AlgInNut_Step[3]==FALSE)) THEN
+                        ; Check for Gun Closed
+                        IF ($TIMER_FLAG[nNutWeldManWeldTmr]==TRUE) THEN
+                           bNutWeld_AlgInNut_Step[10]=TRUE ; Reset Process
+                           nNutWeld_Handle_SPS=Set_Krlmsg (#NOTIFY, NutWeld_Msg[35], NutWeld_MsgPar[], NutWeld_MsgOpt_NoStop)
+                        ELSE
+                           IF (bpw_GunAtHome(nNutWeldGunNrSTK)==FALSE) THEN
+                              $TIMER_STOP[nNutWeldSignalTmr]=TRUE
+                              $TIMER[nNutWeldSignalTmr]=(-1000)
+                              $TIMER_STOP[nNutWeldSignalTmr]=FALSE
+                              bNutWeld_AlgInNut_Step[3]=TRUE
+                           ENDIF
+                        ENDIF
+                     ENDIF
+                     IF ((bNutWeld_AlgInNut_Active==TRUE) AND (bNutWeld_AlgInNut_Step[1]==TRUE) AND (bNutWeld_AlgInNut_Step[2]==FALSE)) THEN
+                        IF (Exists_KrlDlg(nNutWeld_TA3Handle, nNutWeld_TA3Key)==FALSE) THEN
+                           IF (nNutWeld_TA3Key==1) THEN
+                              $TIMER_STOP[nNutWeldManWeldTmr]=FALSE
+                              dopw_NutIntensify(nNutWeldGunNrSTK,FALSE)
+                              dopw_GunWork(nNutWeldGunNrSTK,TRUE)
+                              $TIMER_STOP[nNutWeldSignalTmr]=TRUE
+                              $TIMER[nNutWeldSignalTmr]=(-750)
+                              $TIMER_STOP[nNutWeldSignalTmr]=FALSE
+                              bNutWeld_AlgInNut_Step[2]=TRUE
+                           ELSE
+                              bNutWeld_AlgInNut_Step[10]=TRUE ; Reset Process
+                           ENDIF
+                        ENDIF
+                        nNutWeld_TA3Key=0
+                     ENDIF
+                     IF ((bNutWeldAlgInNutReq==TRUE) AND (bNutWeld_AlgInNut_Step[1]==FALSE)) THEN
+                        bNutWeld_AlgInNut_Active=TRUE
+                        bNutWeld_AlgInNut_Step[1]=TRUE
+                        dopw_NutIntensify(nNutWeldGunNrSTK,FALSE)
+                        dopw_GunWork(nNutWeldGunNrSTK,FALSE)
+                        $TIMER_STOP[nNutWeldManWeldTmr]=TRUE
+                        $TIMER[nNutWeldManWeldTmr]=(nNutWeld_ManWeld_Timeout*(-1000))
+                        $TIMER_STOP[nNutWeldManWeldTmr]=FALSE
+                        nNutWeld_TA3Key=0
+                        nNutWeld_TA3Handle = Set_KrlDlg (NutWeld_Msg[52], NutWeld_MsgPar[], NutWeld_SK_CloseNWGun[], NutWeld_MsgOpt_NoStop)
+                     ENDIF
+                  ;ENDFOLD (USKB4-2.3 Inverted Nut)
+                  ;FOLD USKB4-2.2 With Nut
+                     IF ((bNutWeld_AlgWNut_Active==TRUE) AND (bNutWeld_AlgWNut_Step[10]==TRUE)) THEN
+                        bNutWeld_AlgWNut_Active=FALSE
+                        bNutWeldAlgWNutReq=FALSE
+                        dopw_GunWork(nNutWeldGunNrSTK,FALSE)
+                        dopw_NutIntensify(nNutWeldGunNrSTK,FALSE)
+                        FOR nStepCnt=1 to 10
+                           bNutWeld_AlgWNut_Step[nStepCnt]=FALSE
+                        ENDFOR
+                        bNutWeld_TchAnlg_Active=FALSE
+                        bNutWeldTchAnlgSTK=TRUE
+                        $TIMER_STOP[nNutWeldManWeldTmr]=TRUE
+                        $TIMER_STOP[nNutWeldSignalTmr]=TRUE
+                        $TIMER[nNutWeldManWeldTmr]=-1000
+                        $TIMER[nNutWeldSignalTmr]=-750
+                        FOR nStepCnt=1 to 10
+                           bNutWeld_TchAnlg_Step[nStepCnt]=FALSE
+                        ENDFOR
+                     ENDIF
+                     IF ((bNutWeld_AlgWNut_Active==TRUE) AND (bNutWeld_AlgWNut_Step[6]==TRUE) AND (bNutWeld_AlgWNut_Step[7]==FALSE)) THEN
+                        bNutWeld_AlgWNut_Active=FALSE
+                        bNutWeldAlgWNutReq=TRUE
+                        FOR nStepCnt=1 to 10
+                           bNutWeld_AlgWNut_Step[nStepCnt]=FALSE
+                        ENDFOR
+                     ENDIF
+                     IF ((bNutWeld_AlgWNut_Active==TRUE) AND (bNutWeld_AlgWNut_Step[5]==TRUE) AND (bNutWeld_AlgWNut_Step[6]==FALSE)) THEN
+                        IF (Exists_KrlDlg(nNutWeld_TA2Handle, nNutWeld_TA2Key)==FALSE) THEN
+                           SWITCH nNutWeld_TA2Key
+                              CASE 1 ; Accept - Store value and exit
+                                 rNutPresentValue[nNutWeldGunNrSTK]=rNutSensorValueTemp
+                                 rNutSensorValueTemp=0.0
+                                 bNutWeld_AlgWNut_Step[10]=TRUE ; Reset Process
+                              CASE 2 ; Rerun - discard value and re-execute
+                                 rNutSensorValueTemp=0.0
+                                 bNutWeld_AlgWNut_Step[6]=TRUE ; Local Reset Process
+                              CASE 3 ; Cancel - discard value and return to main selection
+                                 rNutSensorValueTemp=0.0
+                                 bNutWeld_AlgWNut_Step[10]=TRUE ; Reset Process
+                           ENDSWITCH
+                        ENDIF
+                        nNutWeld_TA2Key=0
+                     ENDIF
+                     IF ((bNutWeld_AlgWNut_Active==TRUE) AND (bNutWeld_AlgWNut_Step[4]==TRUE) AND (bNutWeld_AlgWNut_Step[5]==FALSE)) THEN
+                        rNutSensorValueTemp=ABS(aiNutSensor(nNutWeldGunNrSTK))
+                        dopw_NutIntensify(nNutWeldGunNrSTK,FALSE)
+                        dopw_GunWork(nNutWeldGunNrSTK,FALSE)
+                        NutWeld_MsgPar[1]={par_type #value, par_real 0}
+                        NutWeld_MsgPar[1].par_real=rNutSensorValueTemp
+                        nNutWeld_TA2Handle = Set_KrlDlg (NutWeld_Msg[43], NutWeld_MsgPar[], NutWeld_SK_AcptRerun[], NutWeld_MsgOpt_NoStop)
+                        bNutWeld_AlgWNut_Step[5]=TRUE
+                     ENDIF
+                     IF ((bNutWeld_AlgWNut_Active==TRUE) AND (bNutWeld_AlgWNut_Step[3]==TRUE) AND (bNutWeld_AlgWNut_Step[4]==FALSE)) THEN
+                        ; Smart Electrode Dwell Time
+                        IF ($TIMER_FLAG[nNutWeldManWeldTmr]==TRUE) THEN
+                           $TIMER_STOP[nNutWeldSignalTmr]=TRUE
+                           $TIMER[nNutWeldSignalTmr]=(-1000)
+                           bNutWeld_AlgWNut_Step[4]=TRUE
+                        ENDIF
+                     ENDIF
+                     IF ((bNutWeld_AlgWNut_Active==TRUE) AND (bNutWeld_AlgWNut_Step[2]==TRUE) AND (bNutWeld_AlgWNut_Step[3]==FALSE)) THEN
+                        ; Check for Gun Closed
+                        IF ($TIMER_FLAG[nNutWeldManWeldTmr]==TRUE) THEN
+                           bNutWeld_AlgWNut_Step[10]=TRUE ; Reset Process
+                           nNutWeld_Handle_SPS=Set_Krlmsg (#NOTIFY, NutWeld_Msg[35], NutWeld_MsgPar[], NutWeld_MsgOpt_NoStop)
+                        ELSE
+                           IF (bpw_GunAtHome(nNutWeldGunNrSTK)==FALSE) THEN
+                              $TIMER_STOP[nNutWeldSignalTmr]=TRUE
+                              $TIMER[nNutWeldSignalTmr]=(-1000)
+                              $TIMER_STOP[nNutWeldSignalTmr]=FALSE
+                              bNutWeld_AlgWNut_Step[3]=TRUE
+                           ENDIF
+                        ENDIF
+                     ENDIF
+                     IF ((bNutWeld_AlgWNut_Active==TRUE) AND (bNutWeld_AlgWNut_Step[1]==TRUE) AND (bNutWeld_AlgWNut_Step[2]==FALSE)) THEN
+                        IF (Exists_KrlDlg(nNutWeld_TA2Handle, nNutWeld_TA2Key)==FALSE) THEN
+                           IF (nNutWeld_TA2Key==1) THEN
+                              $TIMER_STOP[nNutWeldManWeldTmr]=FALSE
+                              dopw_NutIntensify(nNutWeldGunNrSTK,FALSE)
+                              dopw_GunWork(nNutWeldGunNrSTK,TRUE)
+                              $TIMER_STOP[nNutWeldSignalTmr]=TRUE
+                              $TIMER[nNutWeldSignalTmr]=(-750)
+                              $TIMER_STOP[nNutWeldSignalTmr]=FALSE
+                              bNutWeld_AlgWNut_Step[2]=TRUE
+                           ELSE
+                              bNutWeld_AlgWNut_Step[10]=TRUE ; Reset Process
+                           ENDIF
+                        ENDIF
+                        nNutWeld_TA2Key=0
+                     ENDIF
+                     IF ((bNutWeldAlgWNutReq==TRUE) AND (bNutWeld_AlgWNut_Step[1]==FALSE)) THEN
+                        bNutWeld_AlgWNut_Active=TRUE
+                        bNutWeld_AlgWNut_Step[1]=TRUE
+                        dopw_NutIntensify(nNutWeldGunNrSTK,FALSE)
+                        dopw_GunWork(nNutWeldGunNrSTK,FALSE)
+                        $TIMER_STOP[nNutWeldManWeldTmr]=TRUE
+                        $TIMER[nNutWeldManWeldTmr]=(nNutWeld_ManWeld_Timeout*(-1000))
+                        $TIMER_STOP[nNutWeldManWeldTmr]=FALSE
+                        nNutWeld_TA2Key=0
+                        nNutWeld_TA2Handle = Set_KrlDlg (NutWeld_Msg[41], NutWeld_MsgPar[], NutWeld_SK_CloseNWGun[], NutWeld_MsgOpt_NoStop)
+                     ENDIF
+                  ;ENDFOLD (USKB4-2.2 With Nut)
+                  ;FOLD USKB4-2.1 No Nut
+                     IF ((bNutWeld_AlgNoNut_Active==TRUE) AND (bNutWeld_AlgNoNut_Step[10]==TRUE)) THEN
+                        bNutWeld_AlgNoNut_Active=FALSE
+                        bNutWeldAlgNoNutReq=FALSE
+                        dopw_GunWork(nNutWeldGunNrSTK,FALSE)
+                        dopw_NutIntensify(nNutWeldGunNrSTK,FALSE)
+                        FOR nStepCnt=1 to 10
+                           bNutWeld_AlgNoNut_Step[nStepCnt]=FALSE
+                        ENDFOR
+                        bNutWeld_TchAnlg_Active=FALSE
+                        bNutWeldTchAnlgSTK=TRUE
+                        $TIMER_STOP[nNutWeldManWeldTmr]=TRUE
+                        $TIMER_STOP[nNutWeldSignalTmr]=TRUE
+                        $TIMER[nNutWeldManWeldTmr]=-1000
+                        $TIMER[nNutWeldSignalTmr]=-750
+                        FOR nStepCnt=1 to 10
+                           bNutWeld_TchAnlg_Step[nStepCnt]=FALSE
+                        ENDFOR
+                     ENDIF
+                     IF ((bNutWeld_AlgNoNut_Active==TRUE) AND (bNutWeld_AlgNoNut_Step[6]==TRUE) AND (bNutWeld_AlgNoNut_Step[7]==FALSE)) THEN
+                        bNutWeld_AlgNoNut_Active=FALSE
+                        bNutWeldAlgNoNutReq=TRUE
+                        FOR nStepCnt=1 to 10
+                           bNutWeld_AlgNoNut_Step[nStepCnt]=FALSE
+                        ENDFOR
+                     ENDIF
+                     IF ((bNutWeld_AlgNoNut_Active==TRUE) AND (bNutWeld_AlgNoNut_Step[5]==TRUE) AND (bNutWeld_AlgNoNut_Step[6]==FALSE)) THEN
+                        IF (Exists_KrlDlg(nNutWeld_TA1Handle, nNutWeld_TA1Key)==FALSE) THEN
+                           SWITCH nNutWeld_TA1Key
+                              CASE 1 ; Accept - Store value and exit
+                                 rNoNutValue[nNutWeldGunNrSTK]=rNutSensorValueTemp
+                                 rNutSensorValueTemp=0.0
+                                 bNutWeld_AlgNoNut_Step[10]=TRUE ; Reset Process
+                              CASE 2 ; Rerun - discard value and re-execute
+                                 rNutSensorValueTemp=0.0
+                                 bNutWeld_AlgNoNut_Step[6]=TRUE ; Local Reset Process
+                              CASE 3 ; Cancel - discard value and return to main selection
+                                 rNutSensorValueTemp=0.0
+                                 bNutWeld_AlgNoNut_Step[10]=TRUE ; Reset Process
+                           ENDSWITCH
+                        ENDIF
+                        nNutWeld_TA1Key=0
+                     ENDIF
+                     IF ((bNutWeld_AlgNoNut_Active==TRUE) AND (bNutWeld_AlgNoNut_Step[4]==TRUE) AND (bNutWeld_AlgNoNut_Step[5]==FALSE)) THEN
+                        rNutSensorValueTemp=ABS(aiNutSensor(nNutWeldGunNrSTK))
+                        dopw_NutIntensify(nNutWeldGunNrSTK,FALSE)
+                        dopw_GunWork(nNutWeldGunNrSTK,FALSE)
+                        NutWeld_MsgPar[1]={par_type #value, par_real 0}
+                        NutWeld_MsgPar[1].par_real=rNutSensorValueTemp
+                        nNutWeld_TA1Handle = Set_KrlDlg (NutWeld_Msg[42], NutWeld_MsgPar[], NutWeld_SK_AcptRerun[], NutWeld_MsgOpt_NoStop)
+                        bNutWeld_AlgNoNut_Step[5]=TRUE
+                     ENDIF
+                     IF ((bNutWeld_AlgNoNut_Active==TRUE) AND (bNutWeld_AlgNoNut_Step[3]==TRUE) AND (bNutWeld_AlgNoNut_Step[4]==FALSE)) THEN
+                        ; Smart Electrode Dwell Time
+                        IF ($TIMER_FLAG[nNutWeldManWeldTmr]==TRUE) THEN
+                           $TIMER_STOP[nNutWeldSignalTmr]=TRUE
+                           $TIMER[nNutWeldSignalTmr]=(-1000)
+                           bNutWeld_AlgNoNut_Step[4]=TRUE
+                        ENDIF
+                     ENDIF
+                     IF ((bNutWeld_AlgNoNut_Active==TRUE) AND (bNutWeld_AlgNoNut_Step[2]==TRUE) AND (bNutWeld_AlgNoNut_Step[3]==FALSE)) THEN
+                        ; Check for Gun Closed
+                        IF ($TIMER_FLAG[nNutWeldManWeldTmr]==TRUE) THEN
+                           bNutWeld_AlgNoNut_Step[10]=TRUE ; Reset Process
+                           nNutWeld_Handle_SPS=Set_Krlmsg (#NOTIFY, NutWeld_Msg[35], NutWeld_MsgPar[], NutWeld_MsgOpt_NoStop)
+                        ELSE
+                           IF (bpw_GunAtHome(nNutWeldGunNrSTK)==FALSE) THEN
+                              $TIMER_STOP[nNutWeldSignalTmr]=TRUE
+                              $TIMER[nNutWeldSignalTmr]=(-1000)
+                              $TIMER_STOP[nNutWeldSignalTmr]=FALSE
+                              bNutWeld_AlgNoNut_Step[3]=TRUE
+                           ENDIF
+                        ENDIF
+                     ENDIF
+                     IF ((bNutWeld_AlgNoNut_Active==TRUE) AND (bNutWeld_AlgNoNut_Step[1]==TRUE) AND (bNutWeld_AlgNoNut_Step[2]==FALSE)) THEN
+                        IF (Exists_KrlDlg(nNutWeld_TA1Handle, nNutWeld_TA1Key)==FALSE) THEN
+                           IF (nNutWeld_TA1Key==1) THEN
+                              $TIMER_STOP[nNutWeldManWeldTmr]=FALSE
+                              dopw_NutIntensify(nNutWeldGunNrSTK,FALSE)
+                              dopw_GunWork(nNutWeldGunNrSTK,TRUE)
+                              $TIMER_STOP[nNutWeldSignalTmr]=TRUE
+                              $TIMER[nNutWeldSignalTmr]=(-750)
+                              $TIMER_STOP[nNutWeldSignalTmr]=FALSE
+                              bNutWeld_AlgNoNut_Step[2]=TRUE
+                           ELSE
+                              bNutWeld_AlgNoNut_Step[10]=TRUE ; Reset Process
+                           ENDIF
+                        ENDIF
+                        nNutWeld_TA1Key=0
+                     ENDIF
+                     IF ((bNutWeldAlgNoNutReq==TRUE) AND (bNutWeld_AlgNoNut_Step[1]==FALSE)) THEN
+                        bNutWeld_AlgNoNut_Active=TRUE
+                        bNutWeld_AlgNoNut_Step[1]=TRUE
+                        dopw_NutIntensify(nNutWeldGunNrSTK,FALSE)
+                        dopw_GunWork(nNutWeldGunNrSTK,FALSE)
+                        $TIMER_STOP[nNutWeldManWeldTmr]=TRUE
+                        $TIMER[nNutWeldManWeldTmr]=(nNutWeld_ManWeld_Timeout*(-1000))
+                        $TIMER_STOP[nNutWeldManWeldTmr]=FALSE
+                        nNutWeld_TA1Key=0
+                        nNutWeld_TA1Handle = Set_KrlDlg (NutWeld_Msg[40], NutWeld_MsgPar[], NutWeld_SK_CloseNWGun[], NutWeld_MsgOpt_NoStop)
+                     ENDIF
+                  ;ENDFOLD (USKB4-2.1 No Nut)
+                  ;FOLD USKB4 Teach Selection
+                     IF ((bNutWeld_TchAnlg_Active==TRUE) AND (bNutWeld_TchAnlg_Step[10]==TRUE)) THEN
+                        bNutWeld_TchAnlg_Active=FALSE
+                        bNutWeldTchAnlgSTK=FALSE
+                        dopw_GunWork(nNutWeldGunNrSTK,FALSE)
+                        dopw_NutIntensify(nNutWeldGunNrSTK,FALSE)
+                        $TIMER_STOP[nNutWeldManWeldTmr]=TRUE
+                        $TIMER_STOP[nNutWeldSignalTmr]=TRUE
+                        $TIMER[nNutWeldManWeldTmr]=-1000
+                        $TIMER[nNutWeldSignalTmr]=-750
+                        FOR nStepCnt=1 to 10
+                           bNutWeld_TchAnlg_Step[nStepCnt]=FALSE
+                        ENDFOR
+                     ENDIF
+                     IF ((bNutWeld_TchAnlg_Active==TRUE) AND (bNutWeld_TchAnlg_Step[2]==TRUE) AND (bNutWeld_TchAnlg_Step[3]==FALSE)) THEN
+                        IF (Exists_KrlDlg(nNutWeld_TAHandle, nNutWeld_TAKey)==FALSE) THEN
+                           SWITCH nNutWeld_TAKey
+                              CASE 1 ; No Nut
+                                 bNutWeldAlgNoNutReq=TRUE
+                                 bNutWeld_TchAnlg_Step[3]=TRUE
+                              CASE 2 ; With Nut
+                                 bNutWeldAlgWNutReq=TRUE
+                                 bNutWeld_TchAnlg_Step[3]=TRUE
+                              CASE 3 ; Invert Nut
+                                 bNutWeldAlgInNutReq=TRUE
+                                 bNutWeld_TchAnlg_Step[3]=TRUE
+                              CASE 4 ; Check
+                                 bNutWeldAlgCheckReq=TRUE
+                                 bNutWeld_TchAnlg_Step[3]=TRUE
+                              DEFAULT
+                                 bNutWeld_TchAnlg_Step[3]=TRUE
+                                 bNutWeld_TchAnlg_Step[10]=TRUE ; Reset Process
+                           ENDSWITCH
+                        ENDIF
+                        nNutWeld_TAKey=0
+                     ENDIF
+                     IF ((bNutWeld_TchAnlg_Active==TRUE) AND (bNutWeld_TchAnlg_Step[1]==TRUE) AND (bNutWeld_TchAnlg_Step[2]==FALSE)) THEN
+                        bNutWeld_TchAnlg_Step[2]=TRUE
+                        nNutWeld_TAKey=0
+                        NutWeld_MsgPar[1]={par_type #value, par_int 0}
+                        NutWeld_MsgPar[1].par_int=nNutWeldGunNrSTK
+                        nNutWeld_TAHandle = Set_KrlDlg (NutWeld_Msg[39], NutWeld_MsgPar[], NutWeld_SK_TchAnalog[], NutWeld_MsgOpt_NoStop)
+                     ENDIF
+                     IF ((bNutWeldTchAnlgSTK==TRUE) AND (bNutWeld_TchAnlg_Step[1]==FALSE)) THEN
+                        bNutWeld_TchAnlg_Active=TRUE
+                        bNutWeld_TchAnlg_Step[1]=TRUE
+                     ENDIF
+                  ;ENDFOLD (USKB4 Teach Selection)
+               ;ENDFOLD (USKB4-4 Teach Analog)
+               ;FOLD USKB4-4 Test Welding Current S225
+                  IF ((bNutWeld_TstCrnt_Active==TRUE) AND (bNutWeld_TstCrnt_Step[10]==TRUE)) THEN
+                     bNutWeld_TstCrnt_Active=FALSE
+                     bNutWeldTstCrntSTK=FALSE
+                     dopw_GunWork(nNutWeldGunNrSTK,FALSE)
+                     dopw_WeldInit(nNutWeldGunNrSTK,FALSE)
+                     dopw_NutIntensify(nNutWeldGunNrSTK,FALSE)
+                     dopw_SetPrgNr(nNutWeldGunNrSTK, 0)
+                     $TIMER_STOP[nNutWeldManWeldTmr]=TRUE
+                     $TIMER_STOP[nNutWeldSignalTmr]=TRUE
+                     $TIMER[nNutWeldManWeldTmr]=-1000
+                     $TIMER[nNutWeldSignalTmr]=-750
+                     FOR nStepCnt=1 to 10
+                        bNutWeld_TstCrnt_Step[nStepCnt]=FALSE
+                     ENDFOR
+                  ENDIF
+                  IF ((bNutWeld_TstCrnt_Active==TRUE) AND (bNutWeld_TstCrnt_Step[4]==TRUE) AND (bNutWeld_TstCrnt_Step[5]==FALSE)) THEN
+                     ; Check for Weld Complete
+                     IF ($TIMER_FLAG[nNutWeldManWeldTmr]==TRUE) THEN
+                        bNutWeld_TstCrnt_Step[10]=TRUE ; Reset Process
+                        nNutWeld_Handle_SPS=Set_Krlmsg (#NOTIFY, NutWeld_Msg[19], NutWeld_MsgPar[], NutWeld_MsgOpt_NoStop)
+                     ELSE
+                        IF (dipw_WeldComplete(nNutWeldGunNrSTK)==TRUE) THEN
+                           dopw_WeldInit(nNutWeldGunNrSTK,FALSE)
+                           dopw_NutIntensify(nNutWeldGunNrSTK,FALSE)
+                           dopw_GunWork(nNutWeldGunNrSTK,FALSE)
+                           bNutWeld_TstCrnt_Step[10]=TRUE
+                           nNutWeld_Handle_SPS=Set_Krlmsg (#NOTIFY, NutWeld_Msg[45], NutWeld_MsgPar[], NutWeld_MsgOpt_NoStop)
+                        ENDIF
+                     ENDIF
+                  ENDIF
+                  IF ((bNutWeld_TstCrnt_Active==TRUE) AND (bNutWeld_TstCrnt_Step[3]==TRUE) AND (bNutWeld_TstCrnt_Step[4]==FALSE)) THEN
+                     ; Check for Gun intensified
+                     IF ($TIMER_FLAG[nNutWeldManWeldTmr]==TRUE) THEN
+                        bNutWeld_TstCrnt_Step[10]=TRUE ; Reset Process
+                        nNutWeld_Handle_SPS=Set_Krlmsg (#NOTIFY, NutWeld_Msg[18], NutWeld_MsgPar[], NutWeld_MsgOpt_NoStop)
+                     ELSE
+                        IF (dipw_IntensfPresOk(nNutWeldGunNrSTK)==TRUE) THEN
+                           bNutWeld_TstCrnt_Step[4]=TRUE
+                           dopw_SetPrgNr(nNutWeldGunNrSTK, nSpotNrTstCrnt )
+                           ; Weld Initiate
+                           dopw_WeldInit(nNutWeldGunNrSTK,TRUE)
+                        ENDIF
+                     ENDIF
+                  ENDIF
+                  IF ((bNutWeld_TstCrnt_Active==TRUE) AND (bNutWeld_TstCrnt_Step[2]==TRUE) AND (bNutWeld_TstCrnt_Step[3]==FALSE)) THEN
+                     ; Check for Gun Closed
+                     IF ($TIMER_FLAG[nNutWeldManWeldTmr]==TRUE) THEN
+                        bNutWeld_TstCrnt_Step[10]=TRUE ; Reset Process
+                        nNutWeld_Handle_SPS=Set_Krlmsg (#NOTIFY, NutWeld_Msg[35], NutWeld_MsgPar[], NutWeld_MsgOpt_NoStop)
+                     ELSE
+                        IF (($TIMER_FLAG[nNutWeldSignalTmr]==TRUE) AND (bpw_GunAtHome(nNutWeldGunNrSTK)==FALSE)) THEN
+                           $TIMER_STOP[nNutWeldSignalTmr]=TRUE
+                           $TIMER[nNutWeldSignalTmr]=(-500)
+                           ; Intensify Gun
+                           dopw_NutIntensify(nNutWeldGunNrSTK,TRUE)
+                           bNutWeld_TstCrnt_Step[3]=TRUE
+                        ENDIF
+                     ENDIF
+                  ENDIF
+                  IF ((bNutWeld_TstCrnt_Active==TRUE) AND (bNutWeld_TstCrnt_Step[1]==TRUE) AND (bNutWeld_TstCrnt_Step[2]==FALSE)) THEN
+                     IF (Exists_KrlDlg(nNutWeld_TCHandle, nNutWeld_TCKey)==FALSE) THEN
+                        IF (nNutWeld_TCKey==1) THEN
+                           $TIMER_STOP[nNutWeldManWeldTmr]=FALSE
+                           dopw_NutIntensify(nNutWeldGunNrSTK,FALSE)
+                           dopw_GunWork(nNutWeldGunNrSTK,TRUE)
+                           $TIMER_STOP[nNutWeldSignalTmr]=TRUE
+                           $TIMER[nNutWeldSignalTmr]=(-750)
+                           $TIMER_STOP[nNutWeldSignalTmr]=FALSE
+                           bNutWeld_TstCrnt_Step[2]=TRUE
+                        ELSE
+                           bNutWeld_TstCrnt_Step[10]=TRUE ; Reset Process
+                        ENDIF
+                     ENDIF
+                     nNutWeld_TCKey=0
+                  ENDIF
+                  IF ((bNutWeldTstCrntSTK==TRUE) AND (bNutWeld_TstCrnt_Step[1]==FALSE)) THEN
+                     IF (bNutWeldWOJoining==FALSE) THEN
+                        bNutWeld_TstCrnt_Active=TRUE
+                        bNutWeld_TstCrnt_Step[1]=TRUE
+                        $TIMER_STOP[nNutWeldManWeldTmr]=TRUE
+                        $TIMER[nNutWeldManWeldTmr]=(nNutWeld_ManWeld_Timeout*(-1000))
+                        nNutWeld_TCKey=0
+                        NutWeld_MsgPar[1]={par_type #value, par_int 0}
+                        NutWeld_MsgPar[1].par_int=nNutWeldGunNrSTK
+                        nNutWeld_TCHandle = Set_KrlDlg (NutWeld_Msg[36], NutWeld_MsgPar[], NutWeld_SK_TstCncl[], NutWeld_MsgOpt_NoStop)
+                     ELSE
+                        nNutWeld_Handle_SPS=Set_Krlmsg (#NOTIFY, NutWeld_Msg[33], NutWeld_MsgPar[], NutWeld_MsgOpt_NoStop)
+                        bNutWeldTstCrntSTK=FALSE
+                     ENDIF
+                  ENDIF
+               ;ENDFOLD (USKB4-4 Test Welding Current S225)
+            ;ENDFOLD (USKB4 - Gun Maintenance Actions)
+         ;ENDFOLD (Status Key Control)
+         ;FOLD Status Hopper Low Level 
+            ;FOLD Hopper1 Low Level
+               ; No warning turn on Green light
+               IF (dipw1_HopperLowLevel==TRUE) THEN
+                  dopw1_LevelOk=TRUE
+                  dopw1_LowLevel=FALSE
+               ELSE
+                  ; warning Off on Red light
+                  IF (dipw1_HopperLowLevel==FALSE) THEN
+                     dopw1_LevelOk=FALSE
+                     dopw1_LowLevel=TRUE
+                  ENDIF
+               ENDIF
+            ;ENDFOLD (Hopper1 Low Level)
+            ;FOLD Hopper2 Low Level
+               ; No warning turn on Green light
+               IF (dipw2_HopperLowLevel==TRUE) THEN
+                  dopw2_LevelOk=TRUE
+                  dopw2_LowLevel=FALSE
+               ELSE
+                  ; warning Off on Red light
+                  IF (dipw2_HopperLowLevel==FALSE) THEN
+                     dopw2_LevelOk=FALSE
+                     dopw2_LowLevel=TRUE
+                  ENDIF
+               ENDIF
+            ;ENDFOLD (Hopper2 Low Level)
+            ;FOLD Hopper3 Low Level
+               ; No warning turn on Green light
+               IF (dipw3_HopperLowLevel==TRUE) THEN
+                  dopw3_LevelOk=TRUE
+                  dopw3_LowLevel=FALSE
+               ELSE
+                  ; warning Off on Red light
+                  IF (dipw3_HopperLowLevel==FALSE) THEN
+                     dopw3_LevelOk=FALSE
+                     dopw3_LowLevel=TRUE
+                  ENDIF
+               ENDIF
+            ;ENDFOLD (Hopper3 Low Level)
+         ;ENDFOLD (Status Hopper Low Level)
+         ;FOLD Status Stepper warning EOL
+            ;FOLD Stepper warning Gun1
+               ; No warning or end of electrode life turn on Green light
+               IF ((dipw1_StepperWarning==FALSE) AND (dipw1_EndOfStepper==FALSE)) THEN
+                  dopw1_StepperWarningPL=TRUE
+                  dopw1_EndofStepperPL=FALSE
+                  ; Warning Only no end of electrode life turn on Amber light
+               ELSE
+                  IF ((dipw1_StepperWarning==TRUE) AND (dipw1_EndOfStepper==FALSE)) THEN
+                     dopw1_StepperWarningPL=TRUE
+                     dopw1_EndofStepperPL=TRUE
+                     ; warning Off  Electrode at end of life turn on Red light
+                  ELSE
+                     IF (dipw1_EndOfStepper==TRUE) THEN
+                        dopw1_StepperWarningPL=FALSE
+                        dopw1_EndofStepperPL=TRUE
+                     ENDIF
+                  ENDIF
+               ENDIF
+            ;ENDFOLD Stepper warning Gun1
+            ;FOLD Stepper warning Gun2
+               ; No warning or end of electrode life turn on Green light
+               IF ((dipw2_StepperWarning==FALSE) AND (dipw2_EndOfStepper==FALSE)) THEN
+                  dopw2_StepperWarningPL=TRUE
+                  dopw2_EndofStepperPL=FALSE
+                  ; Warning Only no end of electrode life turn on Amber light
+               ELSE
+                  IF ((dipw2_StepperWarning==TRUE) AND (dipw2_EndOfStepper==FALSE)) THEN
+                     dopw2_StepperWarningPL=TRUE
+                     dopw2_EndofStepperPL=TRUE
+                     ; warning Off  Electrode at end of life turn on Red light
+                  ELSE
+                     IF (dipw2_EndOfStepper==TRUE) THEN
+                        dopw2_StepperWarningPL=FALSE
+                        dopw2_EndofStepperPL=TRUE
+                     ENDIF
+                  ENDIF
+               ENDIF
+            ;ENDFOLD Stepper warning Gun2
+            ;FOLD Stepper warning Gun3
+               ; No warning or end of electrode life turn on Green light
+               IF ((dipw3_StepperWarning==FALSE) AND (dipw3_EndOfStepper==FALSE)) THEN
+                  dopw3_StepperWarningPL=TRUE
+                  dopw3_EndofStepperPL=FALSE
+                  ; Warning Only no end of electrode life turn on Amber light
+               ELSE
+                  IF ((dipw3_StepperWarning==TRUE) AND (dipw3_EndOfStepper==FALSE)) THEN
+                     dopw3_StepperWarningPL=TRUE
+                     dopw3_EndofStepperPL=TRUE
+                     ; warning Off  Electrode at end of life turn on Red light
+                  ELSE
+                     IF (dipw3_EndOfStepper==TRUE) THEN
+                        dopw3_StepperWarningPL=FALSE
+                        dopw3_EndofStepperPL=TRUE
+                     ENDIF
+                  ENDIF
+               ENDIF
+            ;ENDFOLD Stepper warning Gun3
+         ;ENDFOLD (Status Stepper warning EOL)
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+   rNutSensorValue[1] = aiNutSensorPW1
+   rNutSensorValue[2] = aiNutSensorPW2
+   rNutSensorValue[3] = aiNutSensorPW3
+   rStrokeSensorValue[1] = aipw1_LVDT
+   rStrokeSensorValue[2] = aipw2_LVDT
+   rStrokeSensorValue[3] = aipw3_LVDT
+   bpw1_GunAtHome = (aipw1_LVDT < (raipw1_LVDT_OPN + 350)) AND (aipw1_LVDT > (raipw1_LVDT_OPN - 350))
+   bpw2_GunAtHome = (aipw2_LVDT < (raipw2_LVDT_OPN + 250)) AND (aipw2_LVDT > (raipw2_LVDT_OPN - 250))
+   bpw3_GunAtHome = (aipw3_LVDT < (raipw3_LVDT_OPN + 100)) AND (aipw3_LVDT > (raipw3_LVDT_OPN - 100))
+   bpw1_GunAtWork = (aipw1_LVDT < (raipw1_LVDT_CLS_W_NUT + 150)) AND (aipw1_LVDT > (raipw1_LVDT_CLS_W_NUT - 150))
+   bpw2_GunAtWork = (aipw2_LVDT < (raipw2_LVDT_CLS_W_NUT + 150)) AND (aipw2_LVDT > (raipw2_LVDT_CLS_W_NUT - 150))
+   bpw3_GunAtWork = (aipw3_LVDT < (raipw3_LVDT_CLS_W_NUT + 100)) AND (aipw3_LVDT > (raipw3_LVDT_CLS_W_NUT - 100))
+   IF ((iLastActiveGun==1) OR (iLastActiveGun==2) OR (iLastActiveGun==3)) THEN
+      rLowerLVDT=rNutSensorValue[iLastActiveGun]
+      rUpperLVDT=rStrokeSensorValue[iLastActiveGun]
+   ELSE
+      rLowerLVDT=0
+      rUpperLVDT=0
+   ENDIF
+
+   bDumpNutExceeded=NOT (nDumpNutRetries <= nMaxDumpNutRetries)
+END ; (NutWeld_Bkg)
+
+GLOBAL DEF NutWeld_PreWeld (nutweldINFO :IN)
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL NutWeldDAT nutweldINFO
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         PWInitUserIO(nutweldINFO)
+         PreNutWeldSup(nutweldINFO)
+         dopw_SetPrgNr(nutweldINFO.GunNr, nutweldINFO.SpotNr )
+         IF (bNutWeld_PreAdvPin==TRUE) THEN
+            dopw_PinAdv(nutweldINFO.GunNr, TRUE)
+         ENDIF
+         bNutWeld_PreWeld_Cmplt=TRUE
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (NutWeld_PreWeld)
+
+GLOBAL DEF NutWeld_Weld(nutweldINFO :IN,WeldPos:IN, WeldBase:IN, EnableReload:IN, Move1:IN, Move2:IN, Move3:IN, ReloadPos1:IN, ReloadPos2:IN, ReloadPos3:IN, ReloadBase1:IN, ReloadBase2:IN, ReloadBase3:IN)
+   ;FOLD Details
+      ;FOLD Declaration
+         INT EnableReload
+         E6POS WeldPos,ReloadPos1,ReloadPos2,ReloadPos3
+         DECL FDAT WeldBase,ReloadBase1,ReloadBase2,ReloadBase3
+         DECL Nut_Dump_Move Move1,Move2,Move3
+         DECL NutWeldDAT nutweldINFO
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         ;If no Reloadpos is specified, the variable must be set to default values 
+         EnableReload=3
+         SWITCH (EnableReload)
+            CASE 0
+               Move1=#Reload_PTP
+               ReloadPos1=WeldPos
+               ReloadBase1=WeldBase
+               Move2=#Reload_PTP
+               ReloadPos2=WeldPos
+               ReloadBase2=WeldBase
+               Move3=#Reload_PTP
+               ReloadPos3=WeldPos
+               ReloadBase3=WeldBase
+            CASE 1
+               Move2=#Reload_PTP
+               ReloadPos2=WeldPos
+               ReloadBase2=WeldBase
+               Move3=#Reload_PTP
+               ReloadPos3=WeldPos
+               ReloadBase3=WeldBase
+            CASE 2
+               Move3=#Reload_PTP
+               ReloadPos3=WeldPos
+               ReloadBase3=WeldBase
+            CASE 3
+         ENDSWITCH
+         WAIT FOR (nDumpNutRetries <= nMaxDumpNutRetries)
+         WAIT FOR (bNutWeld_PreWeld_Cmplt==TRUE)
+         bDump_Nut=FALSE
+         eCurrentState=#FeedRequest
+         FeedNutReq(nutweldINFO)
+         eCurrentState=#CloseGun
+         CloseNutGun(nutweldINFO)
+         IF (bDump_Nut == TRUE) THEN
+            ; do nothing here
+         ELSE
+            IF NOT (eCurrentState==#ERRORCloseGun) THEN
+               eCurrentState=#CheckNut
+            ENDIF
+            CheckNutPresent(nutweldINFO)
+            IF (bDump_Nut == TRUE) THEN
+               IF NOT (eCurrentState==#ERRORCloseGun) THEN
+                  IF NOT (eCurrentState==#ERRORInvertedNut) THEN
+                     IF NOT (eCurrentState==#ERRORNoNut) THEN
+                        eCurrentState=#DumpNut
+                     ENDIF
+                  ENDIF
+               ENDIF
+               ; do nothing here
+            ENDIF
+         ENDIF
+         
+         bNutFeedOK=NOT bDump_Nut
+         IF ((bDump_Nut == TRUE) AND (nDumpNutRetries <= nMaxDumpNutRetries)) THEN
+            nDumpNutRetries=nDumpNutRetries+1
+            bDump_Nut=FALSE
+            IF NOT (eCurrentState==#ERRORCloseGun) THEN
+               IF NOT (eCurrentState==#ERRORInvertedNut) THEN
+                  IF NOT (eCurrentState==#ERRORNoNut) THEN
+                     eCurrentState=#OpenGun
+                  ENDIF
+               ENDIF
+            ENDIF
+            OpenNutGun(nutweldINFO)
+         ELSE	
+            eCurrentState=#IntensifyGun
+            IntensfNutGun(nutweldINFO)
+            IF (PNWStyle==#STUDWELD) THEN
+               dopw_PinAdv(nutweldINFO.GunNr, FALSE)
+            ENDIF
+            IF NOT (eCurrentState==#ERRORCloseGun) THEN
+               IF NOT (eCurrentState==#ERRORInvertedNut) THEN
+                  IF NOT (eCurrentState==#ERRORNoNut) THEN
+                     IF NOT (eCurrentState==#ERRORIntensifyWelder) THEN
+                        eCurrentState=#WeldInitiate
+                     ENDIF
+                  ENDIF
+               ENDIF
+            ENDIF
+            WeldInitiate(nutweldINFO)
+            IF (bElectChangeReq==TRUE) THEN
+               nElectChangeReq=nElectChangeReq+1
+            ENDIF
+            dopw_PinAdv(nutweldINFO.GunNr, FALSE)
+            IF NOT (eCurrentState==#ERRORCloseGun) THEN
+               IF NOT (eCurrentState==#ERRORInvertedNut) THEN
+                  IF NOT (eCurrentState==#ERRORNoNut) THEN
+                     IF NOT (eCurrentState==#ERRORIntensifyWelder) THEN
+                        eCurrentState=#OpenGun
+                     ENDIF
+                  ENDIF
+               ENDIF
+            ENDIF
+            OpenNutGun(nutweldINFO)
+            IF ((dipw_EndOfStepper(nutweldINFO.GunNr)==TRUE) OR (dipw_StepperWarning(nutweldINFO.GunNr)==TRUE)) THEN
+               SWITCH nutweldINFO.GunNr
+                  CASE 1
+                     bElectrodeAtEOL_1 = TRUE;
+                  CASE 2
+                     bElectrodeAtEOL_2 = TRUE;
+                  CASE 3
+                     bElectrodeAtEOL_3 = TRUE;
+               ENDSWITCH
+            ENDIF
+            dopw_SetPrgNr(nutweldINFO.GunNr, 0 )
+            IF (bNutWeld_PreAdvPin==TRUE) THEN
+               dopw_PinAdv(nutweldINFO.GunNr, TRUE)
+            ENDIF
+            nDumpNutRetries=0
+            bDump_Nut=FALSE
+         ENDIF
+         WAIT FOR (((bpw_GunAtHome(nutweldINFO.GunNr)==TRUE) AND (bpw_GunAtWork(nutweldINFO.GunNr)==FALSE)))
+         
+         IF NOT (eCurrentState==#ERRORCloseGun) THEN
+            IF NOT (eCurrentState==#ERRORInvertedNut) THEN
+               IF NOT (eCurrentState==#ERRORNoNut) THEN
+                  IF NOT (eCurrentState==#ERRORIntensifyWelder) THEN
+                     eCurrentState=#GunHome
+                  ENDIF
+               ENDIF
+            ENDIF
+         ENDIF
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (NutWeld_Weld)
+
+DEF NutWeld_ProcessReset( )
+   ;FOLD Details
+      ;FOLD Declaration
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         bNutWeld_PreWeld_Cmplt=FALSE
+         dopw_SetPrgNr(1, 0)
+         dopw_SetPrgNr(2, 0)
+         dopw_SetPrgNr(3, 0)
+         dopw_WeldInit(1,FALSE)
+         dopw_WeldInit(2,FALSE)
+         dopw_WeldInit(3,FALSE)
+         dopw_NutIntensify(1,FALSE)
+         dopw_NutIntensify(2,FALSE)
+         dopw_NutIntensify(3,FALSE)
+         dopw_BlowOff(1,FALSE)
+         dopw_BlowOff(2,FALSE)
+         dopw_BlowOff(3,FALSE)
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (NutWeld_ProcessReset)
+
+DEF PWInitUserIO(nutweldINFO :IN )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL NutWeldDAT nutweldINFO
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         
+
+         ;DECL GLOBAL REAL rLowTol[3] lower LVDT
+         rLowTol[1]=rSetLowerLVDT_CLS_W_NUT[1]-250
+         rLowTol[2]=rSetLowerLVDT_CLS_W_NUT[2]-600
+         rLowTol[3]=rSetLowerLVDT_CLS_W_NUT[3]-850
+         ;DECL GLOBAL REAL rHighTol[3] lower LVDT
+         rHighTol[1]=rSetLowerLVDT_CLS_W_NUT[1]+250
+         rHighTol[2]=rSetLowerLVDT_CLS_W_NUT[2]+600
+         rHighTol[3]=rSetLowerLVDT_CLS_W_NUT[3]+850
+
+         ;DECL GLOBAL REAL rLowLVDT[3] upper LVDT
+         rLowLVDT[1]=rSetUpperLVDT_CLS_W_NUT[1]-150
+         rLowLVDT[2]=rSetUpperLVDT_CLS_W_NUT[2]-150
+         rLowLVDT[3]=rSetUpperLVDT_CLS_W_NUT[3]-300
+         ;DECL GLOBAL REAL rHighLVDT[3] upper LVDT
+         rHighLVDT[1]=rSetUpperLVDT_CLS_W_NUT[1]+150
+         rHighLVDT[2]=rSetUpperLVDT_CLS_W_NUT[2]+150
+         rHighLVDT[3]=rSetUpperLVDT_CLS_W_NUT[3]+100
+         raipw1_LVDT_CLS_W_NUT=rSetUpperLVDT_CLS_W_NUT[1]
+         raipw2_LVDT_CLS_W_NUT=rSetUpperLVDT_CLS_W_NUT[2]
+         raipw3_LVDT_CLS_W_NUT=rSetUpperLVDT_CLS_W_NUT[3]
+         
+         iLastActiveGun=nutweldINFO.GunNr
+         rNutSensorValueInUse=rNutSensorValue[nutweldINFO.GunNr]
+         rStrokeSensorValueInUse=rStrokeSensorValue[nutweldINFO.GunNr]
+         rNutInvertedValueInUse=rNutInvertedValue[nutweldINFO.GunNr]
+         rNoNutValueInUse=rNoNutValue[nutweldINFO.GunNr]
+         rNutPresentValueInUse=rNutPresentValue[nutweldINFO.GunNr]
+         rNutSensorTolInUse=rNutSensorTolerance[nutweldINFO.GunNr]
+         rNutSensorTol2InUse=rNutSensorTolerance2[nutweldINFO.GunNr]
+         rLowTolInUse=rLowTol[nutweldINFO.GunNr]
+         rHighTolInUse=rHighTol[nutweldINFO.GunNr]
+         rLowLVDTTolInUse=rLowLVDT[nutweldINFO.GunNr]
+         rHighLVDTTolInUse=rHighLVDT[nutweldINFO.GunNr]
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (PWInitUserIO)
+
+DEF PreNutWeldSup(nutweldINFO :IN )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL NutWeldDAT nutweldINFO
+         BOOL bMsgRelease
+         BOOL bSkipTempChk
+         BOOL bSkipWtrChk
+         BOOL bSkipWtrTempChk
+         BOOL bSkipPressSwChk
+         BOOL bSkipTimerRdy
+         BOOL bSkipWeldFault
+         BOOL bSkipFdrHmChk
+         BOOL bSkipPinRetChk
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         bMsgRelease=FALSE
+         bSkipTempChk=FALSE
+         bSkipWtrChk=FALSE
+         bSkipWtrTempChk=FALSE
+         bSkipPressSwChk=FALSE
+         bSkipTimerRdy=FALSE
+         bSkipWeldFault=FALSE
+         bSkipFdrHmChk=FALSE
+         bSkipPinRetChk=FALSE
+         bGunReady2Start=FALSE
+         iSpotnr=nutweldINFO.SpotNr
+         eCurrentState=#GunHome
+         ; Reset Outputs
+         dopw_StartFeed(nutweldINFO.GunNr,FALSE)
+         dopw_WeldInit(nutweldINFO.GunNr,FALSE)
+         dopw1_FaultReset=TRUE
+         dopw2_FaultReset=TRUE
+         dopw3_FaultReset=TRUE
+         nFeedRetries=0
+         nWeldRetries=0
+         OpenNutGun(nutweldINFO) ; Open Gun
+         ;FOLD Check the Tranformer Temperature Switch
+            WAIT FOR dipw_XtfmrTempOk(nutweldINFO.GunNr)
+            WAIT FOR NOT bSkipTempChk
+            WHILE ((bNutWeldWOJoining==FALSE) AND (dipw_XtfmrTempOk(nutweldINFO.GunNr)==FALSE) AND (bSkipTempChk==FALSE))
+               ;FOLD Dialog "Nut Welder Over Temp Fault!  Transformer Switch Is Not On!"
+                  REPEAT
+                     nNutWeld_Handle = Set_KrlDlg (NutWeld_Msg[4], NutWeld_MsgPar[], NutWeld_SK_RetrySkip[], NutWeld_MsgOpt_Stop)
+                     IF (nNutWeld_Handle > 0) THEN
+                        WHILE (Exists_KrlDlg(nNutWeld_Handle, nNutWeld_Key))
+                           IF ($ERR.Int_Prio>0) THEN
+                              BRAKE
+                           ENDIF
+                           WAIT SEC 0.024
+                        ENDWHILE
+                        SWITCH nNutWeld_Key
+                           CASE 1 ; Diagnostic
+                              nNutWeld_Handle = Set_Krlmsg (#QUIT, NutWeld_Msg[2], NutWeld_MsgPar[], NutWeld_MsgOpt_Stop)
+                              WHILE (Exists_KrlMsg(nNutWeld_Handle))
+                                 WAIT SEC 0.024
+                              ENDWHILE
+                           CASE 2 ; Retry
+                              WAIT SEC 0.100
+                              bMsgRelease=TRUE
+                           CASE 3 ; Skip
+                              WAIT SEC 0.100
+                              bMsgRelease=TRUE
+                              bSkipTempChk=TRUE
+                        ENDSWITCH
+                     ENDIF
+                  UNTIL (bMsgRelease==TRUE)
+                  bMsgRelease=FALSE
+               ;ENDFOLD (Dialog)
+            ENDWHILE
+         ;ENDFOLD (Check the Tranformer Temperature Switch)
+         bGunReady2Start=NOT bNutWeldWOJoining AND dipw_XtfmrTempOk(nutweldINFO.GunNr) AND NOT bSkipTempChk
+         ;FOLD Check the Water is Flowing
+            WAIT FOR dipw_WaterOk(nutweldINFO.GunNr)
+            WAIT FOR NOT bSkipWtrChk
+            WHILE ((bNutWeldWOJoining==FALSE) AND (dipw_WaterOk(nutweldINFO.GunNr)==FALSE) AND (bSkipWtrChk==FALSE))
+               ;FOLD Dialog "Nut Welder Water Flow Fault!  Water Flow Switch Is Not On!"
+                  REPEAT
+                     nNutWeld_Handle = Set_KrlDlg (NutWeld_Msg[5], NutWeld_MsgPar[], NutWeld_SK_StrtWtrSkip[], NutWeld_MsgOpt_Stop)
+                     IF (nNutWeld_Handle > 0) THEN
+                        WHILE (Exists_KrlDlg(nNutWeld_Handle, nNutWeld_Key))
+                           IF ($ERR.Int_Prio>0) THEN
+                              BRAKE
+                           ENDIF
+                           WAIT SEC 0.024
+                        ENDWHILE
+                        SWITCH nNutWeld_Key
+                           CASE 1 ; Diagnostic
+                              nNutWeld_Handle = Set_Krlmsg (#QUIT, NutWeld_Msg[2], NutWeld_MsgPar[], NutWeld_MsgOpt_Stop)
+                              WHILE (Exists_KrlMsg(nNutWeld_Handle))
+                                 WAIT SEC 0.024
+                              ENDWHILE
+                           CASE 2 ; Start Water
+                              dopw_StartWater(nutweldINFO.GunNr,TRUE)
+                              nNutWeld_Handle=Set_Krlmsg (#STATE, NutWeld_Msg[6], NutWeld_MsgPar[], NutWeld_MsgOpt_NoStop)
+                              WAIT SEC nNutWeld_WtrStrtTime ; (Default:  4)
+                              bNutWeld_Clear=Clear_KRLMsg(nNutWeld_Handle)
+                              bMsgRelease=TRUE
+                           CASE 3 ; Skip
+                              WAIT SEC 0.100
+                              bMsgRelease=TRUE
+                              bSkipWtrChk=TRUE
+                        ENDSWITCH
+                     ENDIF
+                  UNTIL (bMsgRelease==TRUE)
+                  bMsgRelease=FALSE
+               ;ENDFOLD (Dialog)
+            ENDWHILE
+         ;ENDFOLD (Check the Water is Flowing)
+         bGunReady2Start=bGunReady2Start AND dipw_WaterOk(nutweldINFO.GunNr) AND NOT bSkipWtrChk
+         ;FOLD Check the Temperature Water 
+            WAIT FOR dipw_WaterTempOk(nutweldINFO.GunNr)
+            WAIT FOR NOT bSkipWtrTempChk
+            WHILE ((bNutWeldWOJoining==FALSE) AND (dipw_WaterTempOk(nutweldINFO.GunNr)==FALSE) AND (bSkipWtrTempChk==FALSE)) 
+               IF NOT di472WaterTempOK THEN   
+                  $LOOP_MSG[] = " No WaterTemp in Gun1                                                                                                  "         
+               ENDIF 
+               IF NOT di520WaterTempOK THEN   
+                  $LOOP_MSG[] = " No WaterTemp in Gun2                                                                                                  "         
+               ENDIF 
+               IF NOT di568WaterTempOK THEN   
+                  $LOOP_MSG[] = " No WaterTemp in Gun3                                                                                                  "         
+               ENDIF 
+            ENDWHILE
+            $LOOP_MSG[] = "                                                                                                                    " 
+         ;ENDFOLD (Check the Temperature Water)
+         bGunReady2Start=bGunReady2Start AND dipw_WaterTempOk(nutweldINFO.GunNr)
+         ;FOLD Check that the Pressure Switch is off
+            WAIT FOR NOT dipw_IntensfPresOk(nutweldINFO.GunNr)
+            WAIT FOR NOT bSkipPressSwChk
+            WHILE ((bNutWeldWOJoining==FALSE) AND (dipw_IntensfPresOk(nutweldINFO.GunNr)==TRUE) AND (bSkipPressSwChk==FALSE))
+               ;FOLD Dialog "Nut Welder Intensify Pressure Fault!  Pressure Switch Is Not Off!"
+                  REPEAT
+                     nNutWeld_Handle = Set_KrlDlg (NutWeld_Msg[7], NutWeld_MsgPar[], NutWeld_SK_RetrySkip[], NutWeld_MsgOpt_Stop)
+                     IF (nNutWeld_Handle > 0) THEN
+                        WHILE (Exists_KrlDlg(nNutWeld_Handle, nNutWeld_Key))
+                           IF ($ERR.Int_Prio>0) THEN
+                              BRAKE
+                           ENDIF
+                           WAIT SEC 0.024
+                        ENDWHILE
+                        SWITCH nNutWeld_Key
+                           CASE 1 ; Diagnostic
+                              nNutWeld_Handle = Set_Krlmsg (#QUIT, NutWeld_Msg[2], NutWeld_MsgPar[], NutWeld_MsgOpt_Stop)
+                              WHILE (Exists_KrlMsg(nNutWeld_Handle))
+                                 WAIT SEC 0.024
+                              ENDWHILE
+                           CASE 2 ; Retry
+                              WAIT SEC 0.100
+                              bMsgRelease=TRUE
+                           CASE 3 ; Skip
+                              WAIT SEC 0.100
+                              bMsgRelease=TRUE
+                              bSkipPressSwChk=TRUE
+                        ENDSWITCH
+                     ENDIF
+                  UNTIL (bMsgRelease==TRUE)
+                  bMsgRelease=FALSE
+               ;ENDFOLD (Dialog)
+            ENDWHILE
+         ;ENDFOLD (Check that the Pressure Switch is off)
+         bGunReady2Start=bGunReady2Start AND NOT dipw_IntensfPresOk(nutweldINFO.GunNr) AND NOT bSkipPressSwChk
+         ;FOLD Check that the Timer Is Ready To Weld
+            WAIT FOR dipw_Ready(nutweldINFO.GunNr)
+            WAIT FOR NOT bSkipTimerRdy
+            WHILE ((bNutWeldWOJoining==FALSE) AND (dipw_Ready(nutweldINFO.GunNr)==FALSE) AND (bSkipTimerRdy==FALSE))
+               ;FOLD Dialog "Bosch Timer Not Ready Fault!!!"
+                  REPEAT
+                     nNutWeld_Handle = Set_KrlDlg (NutWeld_Msg[8], NutWeld_MsgPar[], NutWeld_SK_ResetSkip[], NutWeld_MsgOpt_Stop)
+                     IF (nNutWeld_Handle > 0) THEN
+                        WHILE (Exists_KrlDlg(nNutWeld_Handle, nNutWeld_Key))
+                           IF ($ERR.Int_Prio>0) THEN
+                              BRAKE
+                           ENDIF
+                           WAIT SEC 0.024
+                        ENDWHILE
+                        SWITCH nNutWeld_Key
+                           CASE 1 ; Diagnostic
+                              nNutWeld_Handle = Set_Krlmsg (#QUIT, NutWeld_Msg[2], NutWeld_MsgPar[], NutWeld_MsgOpt_Stop)
+                              WHILE (Exists_KrlMsg(nNutWeld_Handle))
+                                 WAIT SEC 0.024
+                              ENDWHILE
+                           CASE 2 ; Reset
+                              dopw_FaultReset(nutweldINFO.GunNr,FALSE)
+                              WAIT SEC 0.050
+                              dopw_FaultReset(nutweldINFO.GunNr,TRUE)
+                              WAIT SEC 0.5
+                              dopw_FaultReset(nutweldINFO.GunNr,FALSE)
+                              bMsgRelease=TRUE
+                           CASE 3 ; Skip
+                              WAIT SEC 0.100
+                              bMsgRelease=TRUE
+                              bSkipTimerRdy=TRUE
+                        ENDSWITCH
+                     ENDIF
+                  UNTIL (bMsgRelease==TRUE)
+                  bMsgRelease=FALSE
+               ;ENDFOLD (Dialog)
+            ENDWHILE
+         ;ENDFOLD (Check that the Timer Is Ready To Weld)
+         bGunReady2Start=bGunReady2Start AND dipw_Ready(nutweldINFO.GunNr) AND NOT bSkipTimerRdy
+         ;FOLD Check that the Timer Has No Faults
+            dopw1_FaultReset=FALSE
+            dopw2_FaultReset=FALSE
+            dopw3_FaultReset=FALSE
+            WAIT FOR NOT dipw_Fault(nutweldINFO.GunNr)
+            WAIT FOR NOT bSkipWeldFault
+            WHILE ((bNutWeldWOJoining==FALSE) AND (dipw_Fault(nutweldINFO.GunNr)==TRUE) AND (bSkipWeldFault==FALSE))
+               dopw_FaultReset(nutweldINFO.GunNr,TRUE)
+               WAIT SEC 0.5
+               dopw_FaultReset(nutweldINFO.GunNr,FALSE)
+               $TIMER_STOP[nNutWeldSignalTmr]=TRUE
+               $TIMER[nNutWeldSignalTmr]=nNutWeld_Signal_Timeout*(-1)
+               $TIMER_STOP[nNutWeldSignalTmr]=FALSE
+               WAIT FOR ((dipw_Fault(nutweldINFO.GunNr)==FALSE) OR ($TIMER_FLAG[nNutWeldSignalTmr]==TRUE))
+               $TIMER_STOP[nNutWeldSignalTmr]=TRUE
+               ;FOLD Dialog "Weld Timer has a Weld Fault!!!"
+                  IF ((bNutWeldWOJoining==FALSE) AND (dipw_Fault(nutweldINFO.GunNr)==TRUE) AND (bSkipWeldFault==FALSE)) THEN
+                     REPEAT
+                        nNutWeld_Handle = Set_KrlDlg (NutWeld_Msg[9], NutWeld_MsgPar[], NutWeld_SK_ResetSkip[], NutWeld_MsgOpt_Stop)
+                        IF (nNutWeld_Handle > 0) THEN
+                           WHILE (Exists_KrlDlg(nNutWeld_Handle, nNutWeld_Key))
+                              IF ($ERR.Int_Prio>0) THEN
+                                 BRAKE
+                              ENDIF
+                              WAIT SEC 0.024
+                           ENDWHILE
+                           SWITCH nNutWeld_Key
+                              CASE 1 ; Diagnostic
+                                 nNutWeld_Handle = Set_Krlmsg (#QUIT, NutWeld_Msg[2], NutWeld_MsgPar[], NutWeld_MsgOpt_Stop)
+                                 WHILE (Exists_KrlMsg(nNutWeld_Handle))
+                                    WAIT SEC 0.024
+                                 ENDWHILE
+                              CASE 2 ; Reset
+                                 bMsgRelease=TRUE
+                              CASE 3 ; Skip
+                                 WAIT SEC 0.100
+                                 bMsgRelease=TRUE
+                                 bSkipWeldFault=TRUE
+                           ENDSWITCH
+                        ENDIF
+                     UNTIL (bMsgRelease==TRUE)
+                  ENDIF
+                  bMsgRelease=FALSE
+               ;ENDFOLD (Dialog)
+            ENDWHILE
+         ;ENDFOLD (Check that the Timer Has No Faults)
+         bGunReady2Start=bGunReady2Start AND NOT dipw_Fault(nutweldINFO.GunNr) AND NOT bSkipWeldFault
+         ;FOLD Check that the Nut Feeder is Home
+            WAIT FOR dipw_SpearHome(nutweldINFO.GunNr)
+            WAIT FOR NOT bSkipFdrHmChk
+            WHILE ((bNutWeldWOJoining==FALSE) AND (dipw_SpearHome(nutweldINFO.GunNr)==FALSE) AND (bSkipFdrHmChk==FALSE))
+               ;FOLD Dialog "Nut Feeder is Not Home Fault!"
+                  REPEAT
+                     nNutWeld_Handle = Set_KrlDlg (NutWeld_Msg[47], NutWeld_MsgPar[], NutWeld_SK_RetrySkip[], NutWeld_MsgOpt_Stop)
+                     IF (nNutWeld_Handle > 0) THEN
+                        WHILE (Exists_KrlDlg(nNutWeld_Handle, nNutWeld_Key))
+                           IF ($ERR.Int_Prio>0) THEN
+                              BRAKE
+                           ENDIF
+                           WAIT SEC 0.024
+                        ENDWHILE
+                        SWITCH nNutWeld_Key
+                           CASE 1 ; Diagnostic
+                              nNutWeld_Handle = Set_Krlmsg (#QUIT, NutWeld_Msg[2], NutWeld_MsgPar[], NutWeld_MsgOpt_Stop)
+                              WHILE (Exists_KrlMsg(nNutWeld_Handle))
+                                 WAIT SEC 0.024
+                              ENDWHILE
+                           CASE 2 ; Retry
+                              WAIT SEC 0.100
+                              bMsgRelease=TRUE
+                           CASE 3 ; Skip
+                              WAIT SEC 0.100
+                              bMsgRelease=TRUE
+                              bSkipFdrHmChk=TRUE
+                        ENDSWITCH
+                     ENDIF
+                  UNTIL (bMsgRelease==TRUE)
+                  bMsgRelease=FALSE
+               ;ENDFOLD (Dialog)
+            ENDWHILE
+         ;ENDFOLD (Check that the Nut Feeder is Home)
+         bGunReady2Start=bGunReady2Start AND dipw_SpearHome(nutweldINFO.GunNr) AND NOT bSkipFdrHmChk
+         SWITCH nutweldINFO.GunNr
+            CASE 1
+               WAIT FOR bpw1_GunAtHome AND NOT bpw1_GunAtWork
+               bGunReady2Start=bGunReady2Start AND bpw1_GunAtHome AND NOT bpw1_GunAtWork 
+            CASE 2
+               WAIT FOR bpw2_GunAtHome AND NOT bpw2_GunAtWork
+               bGunReady2Start=bGunReady2Start AND bpw2_GunAtHome AND NOT bpw2_GunAtWork 
+            CASE 3
+               WAIT FOR bpw3_GunAtHome AND NOT bpw3_GunAtWork
+               bGunReady2Start=bGunReady2Start AND bpw3_GunAtHome AND NOT bpw3_GunAtWork 
+         ENDSWITCH
+         WAIT FOR dipw_XtfmrTempOk(nutweldINFO.GunNr) 
+         WAIT FOR dipw_WaterOk(nutweldINFO.GunNr) 
+         WAIT FOR dipw_WaterTempOk(nutweldINFO.GunNr) 
+         WAIT FOR NOT dipw_IntensfPresOk(nutweldINFO.GunNr) 
+         WAIT FOR dipw_Ready(nutweldINFO.GunNr) 
+         WAIT FOR NOT dipw_Fault(nutweldINFO.GunNr)
+         WAIT FOR dipw_SpearHome(nutweldINFO.GunNr)
+         WAIT FOR bGunReady2Start AND dipw_XtfmrTempOk(nutweldINFO.GunNr) AND dipw_WaterOk(nutweldINFO.GunNr) AND dipw_WaterTempOk(nutweldINFO.GunNr) AND NOT dipw_IntensfPresOk(nutweldINFO.GunNr) AND dipw_Ready(nutweldINFO.GunNr) AND NOT dipw_Fault(nutweldINFO.GunNr) AND dipw_SpearHome(nutweldINFO.GunNr) 
+         eCurrentState=#Wait2Weld
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (PreNutWeldSup)
+
+DEF OpenNutGun(nutweldINFO :IN )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL NutWeldDAT nutweldINFO
+         DECL BOOL bSkipOpenChk
+         DECL BOOL bMsgRelease
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         bMsgRelease=FALSE
+         bSkipOpenChk=FALSE
+         dopw_BlowOff(nutweldINFO.GunNr,FALSE)
+         dopw_NutIntensify(nutweldINFO.GunNr,FALSE)
+         ;FOLD TimeOut Setup
+            $TIMER_STOP[nNutWeldSignalTmr]=TRUE
+            $TIMER[nNutWeldSignalTmr]=nNutWeld_Signal_Timeout*(-1)
+            $TIMER_STOP[nNutWeldSignalTmr]=FALSE
+         ;ENDFOLD (TimeOut Setup)
+         WAIT FOR ((dipw_IntensfPresOk(nutweldINFO.GunNr)==FALSE) OR ($TIMER_FLAG[nNutWeldSignalTmr]==TRUE))
+         $TIMER_STOP[nNutWeldSignalTmr]=TRUE
+         WHILE ((dipw_IntensfPresOk(nutweldINFO.GunNr)==TRUE) AND (bSkipOpenChk==FALSE))
+            ;FOLD Dialog "Nut Welder Intensify Pressure Fault!  Pressure Switch Remained On From Last Cycle!"
+               REPEAT
+                  nNutWeld_Handle = Set_KrlDlg (NutWeld_Msg[17], NutWeld_MsgPar[], NutWeld_SK_RetrySkip[], NutWeld_MsgOpt_Stop)
+                  IF (nNutWeld_Handle > 0) THEN
+                     WHILE (Exists_KrlDlg(nNutWeld_Handle, nNutWeld_Key))
+                        IF ($ERR.Int_Prio>0) THEN
+                           BRAKE
+                        ENDIF
+                        WAIT SEC 0.024
+                     ENDWHILE
+                     SWITCH nNutWeld_Key
+                        CASE 1 ; Diagnostic
+                           nNutWeld_Handle = Set_Krlmsg (#QUIT, NutWeld_Msg[2], NutWeld_MsgPar[], NutWeld_MsgOpt_Stop)
+                           WHILE (Exists_KrlMsg(nNutWeld_Handle))
+                              WAIT SEC 0.024
+                           ENDWHILE
+                        CASE 2 ; Retry
+                           bMsgRelease=TRUE
+                           ;FOLD TimeOut Setup
+                              $TIMER_STOP[nNutWeldSignalTmr]=TRUE
+                              $TIMER[nNutWeldSignalTmr]=nNutWeld_Signal_Timeout*(-1)
+                              $TIMER_STOP[nNutWeldSignalTmr]=FALSE
+                           ;ENDFOLD (TimeOut Setup)
+                           WAIT FOR ((dipw_IntensfPresOk(nutweldINFO.GunNr)==FALSE) OR ($TIMER_FLAG[nNutWeldSignalTmr]==TRUE))
+                        CASE 3 ; Skip
+                           WAIT SEC 0.100
+                           bMsgRelease=TRUE
+                           bSkipOpenChk=TRUE
+                     ENDSWITCH
+                  ENDIF
+               UNTIL (bMsgRelease==TRUE)
+               bMsgRelease=FALSE
+            ;ENDFOLD (Dialog)
+         ENDWHILE
+         bSkipOpenChk=FALSE
+         dopw_GunWork(nutweldINFO.GunNr,FALSE)
+         ;FOLD Wait for Gun At Home
+            WHILE ((bNutWeldWOJoining==FALSE) AND (bpw_GunAtHome(nutweldINFO.GunNr )==FALSE) AND (bSkipOpenChk==FALSE))
+               $TIMER_STOP[nNutWeldSignalTmr]=TRUE
+               $TIMER[nNutWeldSignalTmr]=nNutWeld_Signal_Timeout*(-1)
+               $TIMER_STOP[nNutWeldSignalTmr]=FALSE
+               WAIT FOR (((bpw_GunAtHome(nutweldINFO.GunNr)==TRUE) AND (bpw_GunAtWork(nutweldINFO.GunNr)==FALSE)) OR ($TIMER_FLAG[nNutWeldSignalTmr]==TRUE))
+               $TIMER_STOP[nNutWeldSignalTmr]=TRUE
+               IF (bpw_GunAtHome(nutweldINFO.GunNr)==FALSE) THEN
+                  ;FOLD Dialog "Nut Welder Open Switch Fault!  Open Switch is not ON!"
+                     REPEAT
+                        nNutWeld_Handle = Set_KrlDlg (NutWeld_Msg[3], NutWeld_MsgPar[], NutWeld_SK_RetrySkip[], NutWeld_MsgOpt_Stop)
+                        IF (nNutWeld_Handle > 0) THEN
+                           WHILE (Exists_KrlDlg(nNutWeld_Handle, nNutWeld_Key))
+                              WAIT SEC 0.024
+                           ENDWHILE
+                           SWITCH nNutWeld_Key
+                              CASE 1 ; Diagnostic
+                                 nNutWeld_Handle = Set_Krlmsg (#QUIT, NutWeld_Msg[2], NutWeld_MsgPar[], NutWeld_MsgOpt_Stop)
+                                 WHILE (Exists_KrlMsg(nNutWeld_Handle))
+                                    WAIT SEC 0.024
+                                 ENDWHILE
+                              CASE 2 ; Retry
+                                 dopw_GunWork(nutweldINFO.GunNr,FALSE)
+                                 bMsgRelease=TRUE
+                              CASE 3 ; Skip
+                                 WAIT SEC 0.100
+                                 bMsgRelease=TRUE
+                                 bSkipOpenChk=TRUE
+                           ENDSWITCH
+                        ENDIF
+                     UNTIL (bMsgRelease==TRUE)
+                     bMsgRelease=FALSE
+                  ;ENDFOLD (Dialog)
+               ELSE
+                  IF (bpw_GunAtWork(nutweldINFO.GunNr)==TRUE) THEN
+                     ;FOLD Dialog "Nut Welder Close Switch Fault!  Close Switch is not OFF!"
+                        REPEAT
+                           nNutWeld_Handle = Set_KrlDlg (NutWeld_Msg[46], NutWeld_MsgPar[], NutWeld_SK_RetrySkip[], NutWeld_MsgOpt_Stop)
+                           IF (nNutWeld_Handle > 0) THEN
+                              WHILE (Exists_KrlDlg(nNutWeld_Handle, nNutWeld_Key))
+                                 WAIT SEC 0.024
+                              ENDWHILE
+                              SWITCH nNutWeld_Key
+                                 CASE 1 ; Diagnostic
+                                    nNutWeld_Handle = Set_Krlmsg (#QUIT, NutWeld_Msg[2], NutWeld_MsgPar[], NutWeld_MsgOpt_Stop)
+                                    WHILE (Exists_KrlMsg(nNutWeld_Handle))
+                                       WAIT SEC 0.024
+                                    ENDWHILE
+                                 CASE 2 ; Retry
+                                    dopw_GunWork(nutweldINFO.GunNr,FALSE)
+                                    bMsgRelease=TRUE
+                                 CASE 3 ; Skip
+                                    WAIT SEC 0.100
+                                    bMsgRelease=TRUE
+                                    bSkipOpenChk=TRUE
+                              ENDSWITCH
+                           ENDIF
+                        UNTIL (bMsgRelease==TRUE)
+                        bMsgRelease=FALSE
+                     ;ENDFOLD (Dialog)
+                  ENDIF
+               ENDIF
+            ENDWHILE
+            bSkipOpenChk=FALSE
+         ;ENDFOLD (Wait for Gun At Home)
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (OpenNutGun)
+
+DEF CloseNutGun(nutweldINFO :IN )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL NutWeldDAT nutweldINFO
+         BOOL bSkipGunChk, bSkipNutChk, bNutPresent, bMsgRelease
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         bSkipGunChk=FALSE
+         bSkipNutChk=FALSE
+         bNutPresent=FALSE
+         bMsgRelease=FALSE
+         dopw_NutIntensify(nutweldINFO.GunNr,FALSE)
+         IF (bNutWeldWOJoining==FALSE) THEN
+            dopw_GunWork(nutweldINFO.GunNr,TRUE)
+            CONTINUE
+            IF NOT (bSavedCurrentValue1 AND bSavedCurrentValue2 AND bSavedCurrentValue3) THEN
+               SWITCH nutweldINFO.GunNr
+                  CASE 1
+                     IF NOT bSavedCurrentValue1 THEN
+                        WAIT FOR bSavedCurrentValue1
+                        rSetUpperLVDT_CLS_W_NUT[1] = aipw1_LVDT
+                        rSetLowerLVDT_CLS_W_NUT[1] = aiNutSensorPW1
+                        bSavedCurrentValue1        = TRUE
+                     ENDIF
+                  CASE 2
+                     IF NOT bSavedCurrentValue2 THEN
+                        WAIT FOR bSavedCurrentValue2
+                        rSetUpperLVDT_CLS_W_NUT[2] = aipw2_LVDT
+                        rSetLowerLVDT_CLS_W_NUT[2] = aiNutSensorPW2
+                        bSavedCurrentValue2        = TRUE
+                     ENDIF
+                  CASE 3
+                     IF NOT bSavedCurrentValue3 THEN
+                        WAIT FOR bSavedCurrentValue3
+                        rSetUpperLVDT_CLS_W_NUT[3] = aipw3_LVDT
+                        rSetLowerLVDT_CLS_W_NUT[3] = aiNutSensorPW3
+                        bSavedCurrentValue3        = TRUE
+                     ENDIF
+               ENDSWITCH
+            ENDIF
+            ;FOLD Gun Check
+               $TIMER_STOP[nNutWeldSignalTmr]=TRUE
+               $TIMER[nNutWeldSignalTmr]=nNutWeld_Signal_Timeout*(-1)
+               $TIMER_STOP[nNutWeldSignalTmr]=FALSE
+               WAIT FOR (((bpw_GunAtHome(nutweldINFO.GunNr)==FALSE) AND (bpw_GunAtWork(nutweldINFO.GunNr)==TRUE)) OR ($TIMER_FLAG[nNutWeldSignalTmr]==TRUE))
+               $TIMER_STOP[nNutWeldSignalTmr]=TRUE
+               IF (((bpw_GunAtHome(nutweldINFO.GunNr) == TRUE) OR (bpw_GunAtWork(nutweldINFO.GunNr) == FALSE)) AND (nDumpNutRetries <= nMaxDumpNutRetries)) THEN
+                  bDump_Nut = TRUE
+                  eCurrentState=#ERRORCloseGun
+               ENDIF
+               WHILE ((bNutWeldWOJoining==FALSE) AND ((bpw_GunAtHome(nutweldINFO.GunNr)==TRUE) OR (bpw_GunAtWork(nutweldINFO.GunNr)==FALSE)) AND (bSkipGunChk==FALSE) AND (nDumpNutRetries > nMaxDumpNutRetries))
+                  ;FOLD Dialog "Nut Welder Open Switch Fault?"
+                     REPEAT
+                        nNutWeld_Handle = Set_KrlDlg (NutWeld_Msg[10], NutWeld_MsgPar[], NutWeld_SK_RetrySkip[], NutWeld_MsgOpt_Stop)
+                        IF (nNutWeld_Handle > 0) THEN
+                           WHILE (Exists_KrlDlg(nNutWeld_Handle, nNutWeld_Key))
+                              WAIT SEC 0.024
+                           ENDWHILE
+                           SWITCH nNutWeld_Key
+                              CASE 1 ; Diagnostic
+                                 nNutWeld_Handle = Set_Krlmsg (#QUIT, NutWeld_Msg[2], NutWeld_MsgPar[], NutWeld_MsgOpt_Stop)
+                                 WHILE (Exists_KrlMsg(nNutWeld_Handle))
+                                    WAIT SEC 0.024
+                                 ENDWHILE
+                              CASE 2 ; Retry
+                                 dopw_GunWork(nutweldINFO.GunNr,FALSE)
+                                 WAIT SEC 1.0
+                                 dopw_GunWork(nutweldINFO.GunNr,TRUE)
+                                 $TIMER_STOP[nNutWeldSignalTmr]=TRUE
+                                 $TIMER[nNutWeldSignalTmr]=nNutWeld_Signal_Timeout*(-1)
+                                 $TIMER_STOP[nNutWeldSignalTmr]=FALSE
+                                 WAIT FOR (((bpw_GunAtHome(nutweldINFO.GunNr)==FALSE) AND (bpw_GunAtWork(nutweldINFO.GunNr)==TRUE)) OR ($TIMER_FLAG[nNutWeldSignalTmr]==TRUE))
+                                 $TIMER_STOP[nNutWeldSignalTmr]=TRUE
+                                 bMsgRelease=TRUE
+                              CASE 3 ; Skip
+                                 WAIT SEC 0.100
+                                 bMsgRelease=TRUE
+                                 bSkipGunChk=TRUE
+                           ENDSWITCH
+                        ENDIF
+                     UNTIL (bMsgRelease==TRUE)
+                     bMsgRelease=FALSE
+                  ;ENDFOLD (Dialog)
+               ENDWHILE
+            ;ENDFOLD (Gun Check)
+            IF (PNWStyle==#STUDWELD) THEN
+               dopw_StudStripped(nutweldINFO.GunNr,TRUE)
+               dopw_StartFeed(nutweldINFO.GunNr,FALSE)
+               ;FOLD Wait DI dipw_SpearHome==TRUE
+                  $TIMER_STOP[nNutWeldSignalTmr]=TRUE
+                  $TIMER[nNutWeldSignalTmr]=nNutWeld_Signal_Timeout*(-1)
+                  $TIMER_STOP[nNutWeldSignalTmr]=FALSE
+                  WAIT FOR ((dipw_SpearHome(nutweldINFO.GunNr)==TRUE) OR ($TIMER_FLAG[nNutWeldSignalTmr]==TRUE))
+                  $TIMER_STOP[nNutWeldSignalTmr]=TRUE
+               ;ENDFOLD (WaitDI dipw_SpearHome==TRUE)
+            ENDIF
+         ENDIF
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (CloseNutGun)
+
+DEF CheckNutPresent(nutweldINFO :IN)
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL NutWeldDAT nutweldINFO
+         DECL BOOL bNutChkComplete
+         DECL BOOL bSkipNutChk
+         DECL BOOL bInRetry
+         DECL BOOL bMsgRelease
+         DECL BOOL bToleranceWindowOK
+         DECL REAL rSensorSample
+         DECL REAL rLVDTSample
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         bMsgRelease=FALSE
+         bNutChkComplete=FALSE
+         bSkipNutChk=FALSE
+         bInRetry=FALSE
+         bToleranceWindowOK=FALSE
+         WAIT FOR NOT bByPassSmartelec
+         IF (bByPassSmartelec == TRUE) THEN
+            RETURN ; Exit without checking
+         ENDIF
+         IF ((bNutWeldWOJoining==TRUE) OR (bPNWBlockFeed==TRUE)) THEN
+            WAIT SEC 0.15
+            RETURN ; Exit after check delay
+         ENDIF
+         nFeedRetries=0
+         REPEAT
+            bNutChkComplete=FALSE
+            bInRetry=FALSE
+            WAIT FOR ((rHighTolInUse-rLowTolInUse)>0) AND ((rHighTolInUse-rLowTolInUse)<1750)
+            WAIT FOR ((rHighLVDTTolInUse-rLowLVDTTolInUse)>0) AND ((rHighLVDTTolInUse-rLowLVDTTolInUse)<1750)
+            WAIT FOR ((rLowTolInUse)>0)
+            WAIT FOR ((rHighTolInUse)>0)
+            WAIT FOR ((rLowLVDTTolInUse)>0)
+            WAIT FOR ((rHighLVDTTolInUse)>0)
+            CloseNutGun(nutweldINFO)
+            SensorSettle(nutweldINFO)
+            rSensorSample=ABS(aiNutSensor(nutweldINFO.GunNr))   ; lower LVDT
+            rLVDTSample=ABS(aiLVDTSensor(nutweldINFO.GunNr))    ; upper LVDT
+            IF ((rSensorSample >= rLowTolInUse) AND (rSensorSample <= rHighTolInUse) AND (rLVDTSample >= rLowLVDTTolInUse) AND (rLVDTSample <= rHighLVDTTolInUse))  THEN
+               bSkipNutChk=TRUE   ; do not check missing or inverted Nut if within range!
+               ;save rSensorSample
+               rNutSaveCount=rNutSaveCount+1
+               IF (rNutSaveCount<1)OR (rNutSaveCount>50) THEN
+                  rNutSaveCount=1
+               ENDIF
+               rNutSaveValue[rNutSaveCount]=rSensorSample
+               rLVDTSaveValue[rNutSaveCount]=rLVDTSample
+            ENDIF
+            ;FOLD Nut Check Sequence	
+               ;FOLD Check for Inverted Nut
+                  IF (((rSensorSample >= rHighTolInUse) OR (rLVDTSample < rLowLVDTTolInUse) OR (rLVDTSample > rHighLVDTTolInUse)) AND (nDumpNutRetries <= nMaxDumpNutRetries)) THEN
+                     bDump_Nut=TRUE
+                     eCurrentState=#ERRORInvertedNut
+                     bNutChkComplete=FALSE      
+                  ENDIF
+                  IF ((bSkipNutChk==FALSE) AND (bInRetry==FALSE) AND (nDumpNutRetries > nMaxDumpNutRetries)) THEN
+                     IF ((rSensorSample >= rHighTolInUse) OR (rLVDTSample < rLowLVDTTolInUse) OR (rLVDTSample > rHighLVDTTolInUse)) THEN
+                        ;FOLD Dialog "Nut Inverted Fault!  Press SKIP to Ignore Or Retry to Open and Close the Gun."
+                           REPEAT
+                              nNutWeld_Handle = Set_KrlDlg (NutWeld_Msg[48], NutWeld_MsgPar[], NutWeld_SK_RetrySkip[], NutWeld_MsgOpt_Stop)
+                              IF (nNutWeld_Handle > 0) THEN
+                                 WHILE (Exists_KrlDlg(nNutWeld_Handle, nNutWeld_Key))
+                                    IF ($ERR.Int_Prio>0) THEN
+                                       BRAKE
+                                    ENDIF
+                                    WAIT SEC 0.024
+                                 ENDWHILE
+                                 SWITCH nNutWeld_Key
+                                    CASE 1 ; Diagnostic
+                                       nNutWeld_Handle = Set_Krlmsg (#QUIT, NutWeld_Msg[2], NutWeld_MsgPar[], NutWeld_MsgOpt_Stop)
+                                       WHILE (Exists_KrlMsg(nNutWeld_Handle))
+                                          WAIT SEC 0.024
+                                       ENDWHILE
+                                    CASE 2 ; Retry
+                                       bMsgRelease=TRUE
+                                       bNutChkComplete=FALSE
+                                       bInRetry=TRUE
+                                       dopw_GunWork(nutweldINFO.GunNr,FALSE)
+                                       WAIT SEC 1.5
+                                       IF (($MODE_OP==#T1) OR ($MODE_OP==#T2)) THEN
+                                          HALT
+                                       ENDIF
+                                    CASE 3 ; Skip
+                                       WAIT SEC 0.100
+                                       bMsgRelease=TRUE
+                                       bSkipNutChk=TRUE
+                                 ENDSWITCH
+                              ENDIF
+                           UNTIL (bMsgRelease==TRUE)
+                           bMsgRelease=FALSE
+                        ;ENDFOLD (Dialog)
+                     ENDIF
+                  ENDIF
+               ;ENDFOLD (Check for Inverted Nut)
+               ;FOLD Check for Nut Missing, If No Nut - Open Gun and feed new nut
+                  IF ((bSkipNutChk==FALSE) AND (bInRetry==FALSE)) THEN
+                     rSensorSample=ABS(aiNutSensor(nutweldINFO.GunNr))
+                     IF ((rSensorSample <= rLowTolInUse) AND (nDumpNutRetries <= nMaxDumpNutRetries)) THEN
+                        bDump_Nut=TRUE 
+                        eCurrentState=#ERRORNoNut
+                        bNutChkComplete=FALSE
+                     ENDIF
+                     IF ((rSensorSample <= rLowTolInUse) AND (nDumpNutRetries > nMaxDumpNutRetries)) THEN
+                        ;FOLD Dialog "Nut Not Detected Fault!  Press SKIP to Ignore Or Retry to Refeed a Nut."
+                           REPEAT
+                              nNutWeld_Handle = Set_KrlDlg (NutWeld_Msg[13], NutWeld_MsgPar[], NutWeld_SK_RetrySkip[], NutWeld_MsgOpt_Stop)
+                              IF (nNutWeld_Handle > 0) THEN
+                                 WHILE (Exists_KrlDlg(nNutWeld_Handle, nNutWeld_Key))
+                                    IF ($ERR.Int_Prio>0) THEN
+                                       BRAKE
+                                    ENDIF
+                                    WAIT SEC 0.024
+                                 ENDWHILE
+                                 SWITCH nNutWeld_Key
+                                    CASE 1 ; Diagnostic
+                                       nNutWeld_Handle = Set_Krlmsg (#QUIT, NutWeld_Msg[2], NutWeld_MsgPar[], NutWeld_MsgOpt_Stop)
+                                       WHILE (Exists_KrlMsg(nNutWeld_Handle))
+                                          WAIT SEC 0.024
+                                       ENDWHILE
+                                    CASE 2 ; Retry
+                                       bMsgRelease=TRUE
+                                       bNutChkComplete=FALSE
+                                       bInRetry=TRUE
+                                       nFeedRetries=0
+                                       OpenNutGun(nutweldINFO)
+                                       FeedNutReq(nutweldINFO)
+                                    CASE 3 ; Skip
+                                       WAIT SEC 0.100
+                                       bSkipNutChk=TRUE
+                                       bMsgRelease=TRUE
+                                 ENDSWITCH
+                              ENDIF
+                           UNTIL (bMsgRelease==TRUE)
+                           bMsgRelease=FALSE
+                        ;ENDFOLD (Dialog)
+                     ENDIF
+                  ENDIF
+               ;ENDFOLD (Check for Nut Missing, If No Nut - Open Gun and feed new nut)
+            ;ENDFOLD (Nut Check Sequence)
+         UNTIL ((bNutChkComplete==TRUE)  OR  (bSkipNutChk==TRUE) OR (bDump_Nut==TRUE))
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (CheckNutPresent)
+
+;move to Reload position 
+GLOBAL DEF Nut_ToReloadPos(WeldPos:IN, WeldBase:IN, EnableReload:IN, Move1:IN, Move2:IN, Move3:IN, ReloadPos1:IN, ReloadPos2:IN, ReloadPos3:IN, ReloadBase1:IN, ReloadBase2:IN, ReloadBase3:IN)
+   INT EnableReload
+   E6POS WeldPos,ReloadPos1,ReloadPos2,ReloadPos3
+   DECL FDAT WeldBase,ReloadBase1,ReloadBase2,ReloadBase3
+   DECL Nut_Dump_Move Move1,Move2,Move3
+   
+   SWITCH (EnableReload)
+      CASE 1
+         Nut_ReLoad(Move1,ReloadPos1,ReloadBase1,FALSE)
+      CASE 2
+         Nut_ReLoad(Move1,ReloadPos1,ReloadBase1,FALSE)
+         Nut_ReLoad(Move2,ReloadPos2,ReloadBase2,FALSE)
+      CASE 3
+         Nut_ReLoad(Move1,ReloadPos1,ReloadBase1,FALSE)
+         Nut_ReLoad(Move2,ReloadPos2,ReloadBase2,TRUE)
+         Nut_ReLoad(Move3,ReloadPos3,ReloadBase3,FALSE)
+   ENDSWITCH           
+   WAIT FOR $IN[1025]
+   
+END
+
+;move to Weld position
+GLOBAL DEF Nut_ToWeldPos(WeldPos:IN, WeldBase:IN, EnableReload:IN, Move1:IN, Move2:IN, Move3:IN, ReloadPos1:IN, ReloadPos2:IN, ReloadPos3:IN, ReloadBase1:IN, ReloadBase2:IN, ReloadBase3:IN)
+   INT EnableReload
+   E6POS WeldPos,ReloadPos1,ReloadPos2,ReloadPos3
+   DECL FDAT WeldBase,ReloadBase1,ReloadBase2,ReloadBase3
+   DECL Nut_Dump_Move Move1,Move2,Move3
+   
+   SWITCH (EnableReload)
+      CASE 1
+         Nut_ReLoad(Move1,WeldPos,WeldBase,FALSE)
+      CASE 2
+         Nut_ReLoad(Move2,ReloadPos1,ReloadBase1,TRUE)
+         Nut_ReLoad(Move1,WeldPos,WeldBase,FALSE)
+      CASE 3
+         Nut_ReLoad(Move3,ReloadPos2,ReloadBase2,TRUE)
+         Nut_ReLoad(Move2,ReloadPos1,ReloadBase1,TRUE)
+         Nut_ReLoad(Move1,WeldPos,WeldBase,FALSE)
+   ENDSWITCH    
+   WAIT FOR $IN[1025]
+   
+END
+
+;only for move to Reload Pos at block selection
+GLOBAL DEF Nut_ReloadPos(Move1:IN, ReloadPos:IN)
+   E6POS ReloadPos
+   DECL Nut_Dump_Move Move1
+   
+   IF ($Mode_OP==#T1)THEN
+      IF ($MOVE_BCO) THEN 
+         nNutWeld_Handle_SPS=Set_Krlmsg (#NOTIFY, NutWeld_Msg[61], NutWeld_MsgPar[], NutWeld_MsgOpt_NoStop)
+         IF Move1==#Reload_PTP THEN
+            PTP ReloadPos
+         ELSE
+            LIN ReloadPos      
+         ENDIF
+         nNutWeld_Handle_SPS=Set_Krlmsg (#NOTIFY, NutWeld_Msg[62], NutWeld_MsgPar[], NutWeld_MsgOpt_NoStop)
+      ENDIF
+   ENDIF 
+   
+END
+
+GLOBAL DEF Nut_ReLoad(Drive:IN, ReloadPos:IN, ReloadBase:IN, Cont:IN)
+   E6POS ReloadPos
+   DECL FDAT ReloadBase
+   DECL Nut_Dump_Move Drive
+   BOOL Cont 
+   
+   IF Drive==#Reload_PTP THEN
+      PDAT_ACT=nut_PRELOAD
+      FDAT_ACT=ReloadBase
+      BAS(#PTP_PARAMS,nut_PRELOAD.VEL)
+      IF Cont THEN
+         PTP ReloadPos C_DIS
+      ELSE 
+         PTP ReloadPos 
+      ENDIF
+   ELSE ;#Reload_LIN
+      LDAT_ACT=nut_LCRELOAD
+      FDAT_ACT=ReloadBase
+      BAS(#CP_PARAMS,nut_LCRELOAD.VEL)
+      IF Cont THEN 
+         LIN ReloadPos C_DIS C_DIS
+      ELSE 
+         LIN ReloadPos 
+      ENDIF
+   ENDIF   
+   
+END
+
+DEF IntensfNutGun(nutweldINFO :IN )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL NutWeldDAT nutweldINFO
+         DECL BOOL bMsgRelease
+         DECL BOOL bPreChkSkp
+         DECL BOOL bIntensfChkSkp
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         bMsgRelease=FALSE
+         bPreChkSkp=FALSE
+         bIntensfChkSkp=FALSE
+         IF (bNutWeldWOJoining==FALSE) THEN
+            ;FOLD TimeOut Setup
+               $TIMER_STOP[nNutWeldSignalTmr]=TRUE
+               $TIMER[nNutWeldSignalTmr]=nNutWeld_Signal_Timeout*(-1)
+               $TIMER_STOP[nNutWeldSignalTmr]=FALSE
+            ;ENDFOLD (TimeOut Setup)
+            WAIT FOR ((dipw_IntensfPresOk(nutweldINFO.GunNr)==FALSE) OR ($TIMER_FLAG[nNutWeldSignalTmr]==TRUE))
+            $TIMER_STOP[nNutWeldSignalTmr]=TRUE
+            WHILE ((dipw_IntensfPresOk(nutweldINFO.GunNr)==TRUE) AND (bPreChkSkp==FALSE))
+               ;FOLD Dialog "Nut Welder Intensify Pressure Fault!  Pressure Switch Remained On From Last Cycle!"
+                  REPEAT
+                     nNutWeld_Handle = Set_KrlDlg (NutWeld_Msg[17], NutWeld_MsgPar[], NutWeld_SK_RetrySkip[], NutWeld_MsgOpt_Stop)
+                     IF (nNutWeld_Handle > 0) THEN
+                        WHILE (Exists_KrlDlg(nNutWeld_Handle, nNutWeld_Key))
+                           IF ($ERR.Int_Prio>0) THEN
+                              BRAKE
+                           ENDIF
+                           WAIT SEC 0.024
+                        ENDWHILE
+                        SWITCH nNutWeld_Key
+                           CASE 1 ; Diagnostic
+                              nNutWeld_Handle = Set_Krlmsg (#QUIT, NutWeld_Msg[2], NutWeld_MsgPar[], NutWeld_MsgOpt_Stop)
+                              WHILE (Exists_KrlMsg(nNutWeld_Handle))
+                                 WAIT SEC 0.024
+                              ENDWHILE
+                           CASE 2 ; Retry
+                              bMsgRelease=TRUE
+                           CASE 3 ; Skip
+                              WAIT SEC 0.100
+                              bMsgRelease=TRUE
+                              bPreChkSkp=TRUE
+                        ENDSWITCH
+                     ENDIF
+                  UNTIL (bMsgRelease==TRUE)
+                  bMsgRelease=FALSE
+               ;ENDFOLD (Dialog)
+            ENDWHILE
+            dopw_BlowOff(nutweldINFO.GunNr,TRUE)
+            dopw_StudStripped(nutweldINFO.GunNr,FALSE)
+            dopw_NutIntensify(nutweldINFO.GunNr, TRUE)
+            ;FOLD TimeOut Setup
+               $TIMER_STOP[nNutWeldSignalTmr]=TRUE
+               $TIMER[nNutWeldSignalTmr]=nNutWeld_Signal_Timeout*(-1)
+               $TIMER_STOP[nNutWeldSignalTmr]=FALSE
+               WAIT FOR ((dipw_IntensfPresOk(nutweldINFO.GunNr)==TRUE) OR ($TIMER_FLAG[nNutWeldSignalTmr]==TRUE))
+               $TIMER_STOP[nNutWeldSignalTmr]=TRUE
+               WHILE ((dipw_IntensfPresOk(nutweldINFO.GunNr)==FALSE) AND (bIntensfChkSkp==FALSE))
+                  ;FOLD Dialog "Nut Welder Intensify Pressure Fault!  Pressure Switch Is Not On!"
+                     eCurrentState=#ERRORIntensifyWelder
+                     REPEAT
+                        nNutWeld_Handle = Set_KrlDlg (NutWeld_Msg[18], NutWeld_MsgPar[], NutWeld_SK_RetrySkip[], NutWeld_MsgOpt_Stop)
+                        IF (nNutWeld_Handle > 0) THEN
+                           WHILE (Exists_KrlDlg(nNutWeld_Handle, nNutWeld_Key))
+                              IF ($ERR.Int_Prio>0) THEN
+                                 BRAKE
+                              ENDIF
+                              WAIT SEC 0.024
+                           ENDWHILE
+                           SWITCH nNutWeld_Key
+                              CASE 1 ; Diagnostic
+                                 nNutWeld_Handle = Set_Krlmsg (#QUIT, NutWeld_Msg[2], NutWeld_MsgPar[], NutWeld_MsgOpt_Stop)
+                                 WHILE (Exists_KrlMsg(nNutWeld_Handle))
+                                    WAIT SEC 0.024
+                                 ENDWHILE
+                              CASE 2 ; Retry
+                                 bMsgRelease=TRUE
+                              CASE 3 ; Skip
+                                 WAIT SEC 0.100
+                                 bMsgRelease=TRUE
+                                 bIntensfChkSkp=TRUE
+                           ENDSWITCH
+                        ENDIF
+                     UNTIL (bMsgRelease==TRUE)
+                     bMsgRelease=FALSE
+                  ;ENDFOLD (Dialog)
+               ENDWHILE
+               
+            ;ENDFOLD (TimeOut Setup)
+         ENDIF
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (IntensfNutGun)
+
+DEF WeldInitiate(nutweldINFO :IN )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL NutWeldDAT nutweldINFO
+         DECL BOOL bSkipWeld
+         DECL BOOL bWeldComplete
+         DECL BOOL bMsgRelease
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         bMsgRelease=FALSE
+         bSkipWeld=FALSE
+         ;FOLD Check the Water Flow  
+            WHILE NOT (di474WaterOk OR di522WaterOk OR di570WaterOk) 
+               IF NOT di474WaterOk THEN   
+                  $LOOP_MSG[] = " No WaterFlow in Gun1                                                                                                  "         
+               ENDIF 
+               IF NOT di522WaterOk THEN   
+                  $LOOP_MSG[] = " No WaterFlow in Gun2                                                                                                  "         
+               ENDIF 
+               IF NOT di570WaterOk THEN   
+                  $LOOP_MSG[] = " No WaterFlow in Gun3                                                                                                  "         
+               ENDIF 
+            ENDWHILE
+            $LOOP_MSG[] = "                                                                                                                    " 
+         ;ENDFOLD (Check the Water Flow )
+         ;FOLD Check the Temperature Water  
+            WHILE NOT (di472WaterTempOK OR di520WaterTempOK OR di568WaterTempOK) 
+               IF NOT di472WaterTempOK THEN   
+                  $LOOP_MSG[] = " No WaterTemp in Gun1                                                                                                  "         
+               ENDIF 
+               IF NOT di520WaterTempOK THEN   
+                  $LOOP_MSG[] = " No WaterTemp in Gun2                                                                                                  "         
+               ENDIF 
+               IF NOT di568WaterTempOK THEN   
+                  $LOOP_MSG[] = " No WaterTemp in Gun3                                                                                                  "         
+               ENDIF 
+            ENDWHILE
+            $LOOP_MSG[] = "                                                                                                                    " 
+         ;ENDFOLD (Check the Temperature Water)
+         IF (bNutWeld_InhibitWeld==TRUE) THEN
+            RETURN
+         ENDIF
+         IF (bNutWeldWOJoining==FALSE) THEN
+            REPEAT
+               bWeldComplete=TRUE
+               $TIMER_STOP[nNutWeldSignalTmr]=TRUE
+               $TIMER[nNutWeldSignalTmr]=nNutWeld_Weld_Timeout*(-1000)
+               $TIMER_STOP[nNutWeldSignalTmr]=FALSE
+               dopw_WeldInit(nutweldINFO.GunNr,TRUE)
+               WAIT FOR ((dipw_WeldComplete(nutweldINFO.GunNr)==TRUE) OR ($TIMER_FLAG[nNutWeldSignalTmr]==TRUE))
+               $TIMER_STOP[nNutWeldSignalTmr]=TRUE
+               
+               IF (dipw_WeldComplete(nutweldINFO.GunNr)) THEN   ;count 1 weld up
+                  AC_Process_Count(#Count1up)
+               ENDIF
+               
+               IF ((dipw_WeldComplete(nutweldINFO.GunNr)==FALSE)) THEN
+                  dopw_WeldInit(nutweldINFO.GunNr,FALSE)
+                  bWeldComplete=FALSE
+                  nWeldRetries = nWeldRetries + 1
+                  IF (nWeldRetries > nMaxWeldRetries) then
+                     do004ProcessFault=TRUE
+                     ;FOLD Dialog "WELD NOT COMPLETE! Mark part as scrap, scrap part at end of cycle"
+                        REPEAT
+                           nNutWeld_Handle = Set_KrlDlg (NutWeld_Msg[19], NutWeld_MsgPar[], NutWeld_SK_OK[], NutWeld_MsgOpt_Stop)
+                           IF (nNutWeld_Handle > 0) THEN
+                              WHILE (Exists_KrlDlg(nNutWeld_Handle, nNutWeld_Key))
+                                 WAIT SEC 0.024
+                              ENDWHILE
+                              SWITCH nNutWeld_Key
+                                 CASE 1 ; Skip
+                                    bWeldComplete=FALSE
+                                    bMsgRelease=TRUE
+                                    bSkipWeld=TRUE
+                              ENDSWITCH
+                              do004ProcessFault=FALSE
+                           ENDIF
+                        UNTIL (bMsgRelease==TRUE)
+                        bMsgRelease=FALSE
+                     ;ENDFOLD (Dialog)
+                  ENDIF
+               ENDIF
+            UNTIL ((bWeldComplete==TRUE) OR (bSkipWeld==TRUE))
+            bSkipWeld=FALSE
+         ENDIF
+         dopw_WeldInit(nutweldINFO.GunNr,FALSE)
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (WeldInitiate)
+
+DEF FeedNutReq(nutweldINFO :IN)
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL NutWeldDAT nutweldINFO
+         DECL BOOL bSkipPinRet
+         DECL BOOL bMsgRelease
+         DECL BOOL bSkipFeed
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         bSkipPinRet=FALSE
+         bMsgRelease=FALSE
+         bSkipFeed=FALSE
+         IF ((bNutWeldWOJoining==TRUE) OR (bPNWBlockFeed==TRUE)) THEN
+            WAIT SEC 0.15
+            RETURN ; Exit after check delay
+         ENDIF
+         ;FOLD Check that the Locate Pin is Advanced
+            dopw_PinAdv(nutweldINFO.GunNr, TRUE)
+            $TIMER_STOP[nNutWeldSignalTmr]=TRUE
+            $TIMER[nNutWeldSignalTmr]=nNutWeld_Signal_Timeout*(-1)
+            $TIMER_STOP[nNutWeldSignalTmr]=FALSE
+            WAIT FOR ((dipw_PinReturn(nutweldINFO.GunNr)==FALSE) OR ($TIMER_FLAG[nNutWeldSignalTmr]==TRUE)) ; Convert to no nut analog
+            $TIMER_STOP[nNutWeldSignalTmr]=TRUE
+            ; Modified for nutweld specific, original refernce was studweld
+            WHILE ((dipw_PinReturn(nutweldINFO.GunNr)==TRUE) AND (bSkipPinRet==FALSE))
+               ;FOLD Dialog "Welder Pin is Not Advanced!  Check the Pin or Smart Electrode!"
+                  REPEAT
+                     nNutWeld_Handle = Set_KrlDlg (NutWeld_Msg[15], NutWeld_MsgPar[], NutWeld_SK_RetrySkip[], NutWeld_MsgOpt_Stop)
+                     IF (nNutWeld_Handle > 0) THEN
+                        WHILE (Exists_KrlDlg(nNutWeld_Handle, nNutWeld_Key))
+                           WAIT SEC 0.024
+                        ENDWHILE
+                        SWITCH nNutWeld_Key
+                           CASE 1 ; Diagnostic
+                              nNutWeld_Handle = Set_Krlmsg (#QUIT, NutWeld_Msg[2], NutWeld_MsgPar[], NutWeld_MsgOpt_Stop)
+                              WHILE (Exists_KrlMsg(nNutWeld_Handle))
+                                 WAIT SEC 0.024
+                              ENDWHILE
+                           CASE 2 ; Retry
+                              bMsgRelease=TRUE
+                           CASE 3 ; Skip
+                              bMsgRelease=TRUE
+                              bSkipPinRet=TRUE
+                        ENDSWITCH
+                     ENDIF
+                  UNTIL (bMsgRelease==TRUE)
+                  bMsgRelease=FALSE
+               ;ENDFOLD (Dialog)
+            ENDWHILE
+         ;ENDFOLD (Check that the Locate Pin is Advanced)
+         dopw_StartFeed(nutweldINFO.GunNr,TRUE)
+         ;FOLD WaitDI dipw_SpearHome==FALSE
+            $TIMER_STOP[nNutWeldSignalTmr]=TRUE
+            $TIMER[nNutWeldSignalTmr]=nNutWeld_Signal_Timeout*(-1)
+            $TIMER_STOP[nNutWeldSignalTmr]=FALSE
+            WAIT FOR ((dipw_SpearHome(nutweldINFO.GunNr)==FALSE) OR ($TIMER_FLAG[nNutWeldSignalTmr]==TRUE))
+            $TIMER_STOP[nNutWeldSignalTmr]=TRUE
+         ;ENDFOLD (WaitDI dipw_SpearHome==FALSE)
+         IF (PNWStyle==#NUTWELD) THEN
+            ;FOLD WaitDI dipw_SpearHome==TRUE
+               $TIMER_STOP[nNutWeldSignalTmr]=TRUE
+               $TIMER[nNutWeldSignalTmr]=nNutWeld_Signal_Timeout*(-1)
+               $TIMER_STOP[nNutWeldSignalTmr]=FALSE
+               WAIT FOR ((dipw_SpearHome(nutweldINFO.GunNr)==TRUE) OR ($TIMER_FLAG[nNutWeldSignalTmr]==TRUE))
+               $TIMER_STOP[nNutWeldSignalTmr]=TRUE
+            ;ENDFOLD (WaitDI dipw_SpearHome==TRUE)
+         ENDIF
+         ;FOLD WaitDI dipw_FeedComplt==TRUE
+            $TIMER_STOP[nNutWeldFeedTmr]=TRUE
+            $TIMER[nNutWeldFeedTmr]=nNutWeld_Feed_Timeout*(-3000)
+            $TIMER_STOP[nNutWeldFeedTmr]=FALSE
+            WAIT FOR ((dipw_FeedComplt(nutweldINFO.GunNr)==TRUE) OR ($TIMER_FLAG[nNutWeldFeedTmr]==TRUE))
+            $TIMER_STOP[nNutWeldFeedTmr]=TRUE
+            WHILE ((dipw_FeedComplt(nutweldINFO.GunNr)==FALSE) AND (bSkipFeed==FALSE))
+               ;FOLD Dialog "Feed Request Timeout Fault!  Check the Bowl Feeder!"
+                  REPEAT
+                     nNutWeld_Handle = Set_KrlDlg (NutWeld_Msg[49], NutWeld_MsgPar[], NutWeld_SK_RetrySkip[], NutWeld_MsgOpt_Stop)
+                     IF (nNutWeld_Handle > 0) THEN
+                        WHILE (Exists_KrlDlg(nNutWeld_Handle, nNutWeld_Key))
+                           WAIT SEC 0.024
+                        ENDWHILE
+                        SWITCH nNutWeld_Key
+                           CASE 1 ; Diagnostic
+                              nNutWeld_Handle = Set_Krlmsg (#QUIT, NutWeld_Msg[2], NutWeld_MsgPar[], NutWeld_MsgOpt_Stop)
+                              WHILE (Exists_KrlMsg(nNutWeld_Handle))
+                                 WAIT SEC 0.024
+                              ENDWHILE
+                           CASE 2 ; Retry
+                              bMsgRelease=TRUE
+                              dopw_StartFeed(nutweldINFO.GunNr,FALSE)
+                              WAIT SEC 1
+                              dopw_StartFeed(nutweldINFO.GunNr,TRUE)
+                              WAIT SEC 2
+                           CASE 3 ; Skip
+                              bMsgRelease=TRUE
+                              bSkipFeed=TRUE
+                        ENDSWITCH
+                     ENDIF
+                  UNTIL (bMsgRelease==TRUE)
+                  bMsgRelease=FALSE
+               ;ENDFOLD (Dialog)
+            ENDWHILE
+         ;ENDFOLD (WaitDI dipw_FeedComplt==TRUE)
+         IF (PNWStyle==#NUTWELD) THEN
+            dopw_StartFeed(nutweldINFO.GunNr,FALSE)
+         ENDIF
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (FeedNutReq)
+
+DEF SensorSettle(nutweldINFO :IN )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL NutWeldDAT nutweldINFO
+         REAL rPrimaryValue, rSecondaryValue, rSensorSample
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         REPEAT
+            rPrimaryValue = ABS(aiNutSensor(nutweldINFO.GunNr))
+            WAIT SEC rSensorSettleTime
+            rSecondaryValue = ABS(aiNutSensor(nutweldINFO.GunNr))
+            IF (ABS(rPrimaryValue - rSecondaryValue) > 40) THEN
+               WAIT SEC rSensorSettleTime
+            ENDIF
+         UNTIL (ABS(rPrimaryValue - rSecondaryValue)<20)
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (SensorSettle)
+
+DEF dopw_NutIntensify(nGunNr :IN, bState :IN )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL INT nGunNr
+         DECL BOOL bState
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         SWITCH nGunNr
+            CASE 1
+               dopw1_Nut1Intensify_Home=NOT(bState)
+               dopw1_Nut1Intensify=bState
+            CASE 2
+               dopw2_Nut1Intensify_Home=NOT(bState)
+               dopw2_Nut1Intensify=bState
+            CASE 3
+               dopw3_Nut1Intensify_Home=NOT(bState)
+               dopw3_Nut1Intensify=bState
+         ENDSWITCH	
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (dopw_NutIntensify)
+
+DEF dopw_GunWork(nGunNr :IN, bState :IN )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL INT nGunNr
+         DECL BOOL bState
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         SWITCH nGunNr
+            CASE 1
+               dopw1_GunWork=bState
+               dopw1_GunHome=NOT (bState)
+               IF (bState==FALSE) THEN
+                  dopw_NutIntensify(nGunNr,FALSE)
+               ENDIF
+            CASE 2
+               dopw2_GunWork=bState
+               dopw2_GunHome=NOT (bState)
+               IF (bState==FALSE) THEN
+                  dopw_NutIntensify(nGunNr,FALSE)
+               ENDIF
+            CASE 3
+               dopw3_GunWork=bState
+               dopw3_GunHome=NOT (bState)
+               IF (bState==FALSE) THEN
+                  dopw_NutIntensify(nGunNr,FALSE)
+               ENDIF
+         ENDSWITCH	
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (dopw_GunWork)
+
+DEF dopw_PinAdv(nGunNr :IN, bState :IN )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL INT nGunNr
+         DECL BOOL bState
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         SWITCH nGunNr
+            CASE 1
+               dopw1_AdvancePin=bState
+               dopw1_ReturnPin=NOT (bState)
+            CASE 2
+               dopw2_AdvancePin=bState
+               dopw2_ReturnPin=NOT (bState)
+            CASE 3
+               dopw3_AdvancePin=bState
+               dopw3_ReturnPin=NOT (bState)
+         ENDSWITCH	
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (dopw_PinAdv)
+
+DEF dopw_StepperWarningPL(nGunNr :IN, bState :IN )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL INT nGunNr
+         DECL BOOL bState
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         SWITCH nGunNr
+            CASE 1
+               dopw1_StepperWarningPL=bState
+            CASE 2
+               dopw2_StepperWarningPL=bState
+            CASE 3
+               dopw3_StepperWarningPL=bState
+         ENDSWITCH	
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (dopw_StepperWarningPL)
+
+DEF dopw_EndofStepperPL(nGunNr :IN, bState :IN )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL INT nGunNr
+         DECL BOOL bState
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         SWITCH nGunNr
+            CASE 1
+               dopw1_EndofStepperPL=bState
+            CASE 2
+               dopw2_EndofStepperPL=bState
+            CASE 3
+               dopw3_EndofStepperPL=bState
+         ENDSWITCH	
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (dopw_EndofStepperPL)
+
+DEF dopw_StartFeed(nGunNr :IN, bState :IN )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL INT nGunNr
+         DECL BOOL bState
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         SWITCH nGunNr
+            CASE 1
+               dopw1_StartFeed=bState
+            CASE 2
+               dopw2_StartFeed=bState
+            CASE 3
+               dopw3_StartFeed=bState
+         ENDSWITCH	
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (dopw_StartFeed)
+
+DEF dopw_StartWater(nGunNr :IN, bState :IN )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL INT nGunNr
+         DECL BOOL bState
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         SWITCH nGunNr
+            CASE 1
+               dopw1_StartWater=bState
+            CASE 2
+               dopw2_StartWater=bState
+            CASE 3
+               dopw3_StartWater=bState
+         ENDSWITCH	
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (dopw_StartWater)
+
+DEF dopw_SetPrgNr(nGunNr :IN, nPrgNr :IN )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL INT nGunNr
+         DECL INT nPrgNr
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         SWITCH nGunNr
+            CASE 1
+               gdopw1_SpotNumber=nPrgNr
+            CASE 2
+               gdopw2_SpotNumber=nPrgNr
+            CASE 3
+               gdopw3_SpotNumber=nPrgNr
+         ENDSWITCH	
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (dopw_SetPrgNr)
+
+DEF dopw_WeldInit(nGunNr :IN, bState :IN )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL INT nGunNr
+         DECL BOOL bState
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         SWITCH nGunNr
+            CASE 1
+               dopw1_WeldInit=bState
+            CASE 2
+               dopw2_WeldInit=bState
+            CASE 3
+               dopw3_WeldInit=bState
+         ENDSWITCH	
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (dopw_WeldInit)
+
+DEF dopw_FaultReset(nGunNr :IN, bState :IN )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL INT nGunNr
+         DECL BOOL bState
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         SWITCH nGunNr
+            CASE 1
+               dopw1_FaultReset=bState
+            CASE 2
+               dopw2_FaultReset=bState
+            CASE 3
+               dopw3_FaultReset=bState
+         ENDSWITCH	
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (dopw_FaultReset)
+
+DEF dopw_BlowOff(nGunNr :IN, bState :IN )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL INT nGunNr
+         DECL BOOL bState
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         SWITCH nGunNr
+            CASE 1
+               dopw1_BlowOff=bState
+            CASE 2
+               dopw2_BlowOff=bState
+            CASE 3
+               dopw3_BlowOff=bState
+         ENDSWITCH	
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (dopw_BlowOff)
+
+DEF dopw_StudStripped(nGunNr :IN, bState :IN )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL INT nGunNr
+         DECL BOOL bState
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         SWITCH nGunNr
+            CASE 1
+               dopw1_StudStripped=bState
+            CASE 2
+               dopw2_StudStripped=bState
+            CASE 3
+               dopw3_StudStripped=bState
+         ENDSWITCH	
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+END ; (dopw_StudStripped)
+
+DEFFCT INT Get_FaultResetNr(nGunNr :IN )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL INT nGunNr
+         DECL SIGINF SignalIOInfo
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         SWITCH nGunNr
+            CASE 1
+               SignalIOInfo=GET_SIG_INF("dopw1_FaultReset")
+               RETURN(SignalIOInfo.IDX)
+            CASE 2
+               SignalIOInfo=GET_SIG_INF("dopw2_FaultReset")
+               RETURN(SignalIOInfo.IDX)
+            CASE 3
+               SignalIOInfo=GET_SIG_INF("dopw3_FaultReset")
+               RETURN(SignalIOInfo.IDX)
+         ENDSWITCH	
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+ENDFCT ; (Get_FaultResetNr)
+
+DEFFCT BOOL bpw_GunAtHome(nGunNr :IN )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL INT nGunNr
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         SWITCH nGunNr
+            CASE 1
+               RETURN(bpw1_GunAtHome)
+            CASE 2
+               RETURN(bpw2_GunAtHome)
+            CASE 3
+               RETURN(bpw3_GunAtHome)
+         ENDSWITCH	
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+ENDFCT ; (bpw_GunAtHome)
+
+DEFFCT BOOL bpw_GunAtWork(nGunNr :IN )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL INT nGunNr
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         $OUT[148]=FALSE
+         SWITCH nGunNr
+            CASE 1
+               RETURN(bpw1_GunAtWork)
+            CASE 2
+               RETURN(bpw2_GunAtWork)
+            CASE 3
+               RETURN(bpw3_GunAtWork)
+         ENDSWITCH	
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+ENDFCT ; (bpw_GunAtWork)
+
+DEFFCT BOOL dipw_IntensfPresOk(nGunNr :IN )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL INT nGunNr
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         SWITCH nGunNr
+            CASE 1
+               RETURN(dipw1_IntensfPresOk)
+            CASE 2
+               RETURN(dipw2_IntensfPresOk)
+            CASE 3
+               RETURN(dipw3_IntensfPresOk)
+         ENDSWITCH	
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+ENDFCT ; (dipw_IntensfPresOk)
+
+DEFFCT BOOL dipw_StepperWarning(nGunNr :IN )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL INT nGunNr
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         SWITCH nGunNr
+            CASE 1
+               RETURN(dipw1_StepperWarning)
+            CASE 2
+               RETURN(dipw2_StepperWarning)
+            CASE 3
+               RETURN(dipw3_StepperWarning)
+         ENDSWITCH	
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+ENDFCT ; (dipw_StepperWarning)
+
+DEFFCT BOOL dipw_EndOfStepper(nGunNr :IN )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL INT nGunNr
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         SWITCH nGunNr
+            CASE 1
+               RETURN(dipw1_EndOfStepper)
+            CASE 2
+               RETURN(dipw2_EndOfStepper)
+            CASE 3
+               RETURN(dipw3_EndOfStepper)
+         ENDSWITCH	
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+ENDFCT ; (dipw_EndOfStepper)
+
+DEFFCT BOOL dipw_XtfmrTempOk(nGunNr :IN )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL INT nGunNr
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         SWITCH nGunNr
+            CASE 1
+               RETURN(dipw1_XtfmrTempOk)
+            CASE 2
+               RETURN(dipw2_XtfmrTempOk)
+            CASE 3
+               RETURN(dipw3_XtfmrTempOk)
+         ENDSWITCH	
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+ENDFCT ; (dipw_XtfmrTempOk)
+
+DEFFCT BOOL dipw_WaterOk(nGunNr :IN )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL INT nGunNr
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         SWITCH nGunNr
+            CASE 1
+               RETURN(dipw1_WaterOk)
+            CASE 2
+               RETURN(dipw2_WaterOk)
+            CASE 3
+               RETURN(dipw3_WaterOk)
+         ENDSWITCH	
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+ENDFCT ; (dipw_WaterOk)
+
+DEFFCT BOOL dipw_WaterTempOk(nGunNr :IN )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL INT nGunNr
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         SWITCH nGunNr
+            CASE 1
+               RETURN(di472WaterTempOk)
+            CASE 2
+               RETURN(di520WaterTempOk)
+            CASE 3
+               RETURN(di568WaterTempOk)
+         ENDSWITCH	
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+ENDFCT ; (dipw_WaterTempOk)
+
+DEFFCT BOOL dipw_WeldComplete(nGunNr :IN )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL INT nGunNr
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         SWITCH nGunNr
+            CASE 1
+               RETURN(dipw1_WeldComplete)
+            CASE 2
+               RETURN(dipw2_WeldComplete)
+            CASE 3
+               RETURN(dipw3_WeldComplete)
+         ENDSWITCH	
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+ENDFCT ; (dipw_WeldComplete)
+
+DEFFCT BOOL dipw_Ready(nGunNr :IN )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL INT nGunNr
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         SWITCH nGunNr
+            CASE 1
+               RETURN(dipw1_Ready)
+            CASE 2
+               RETURN(dipw2_Ready)
+            CASE 3
+               RETURN(dipw3_Ready)
+         ENDSWITCH	
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+ENDFCT ; (dipw_Ready)
+
+DEFFCT BOOL dipw_Fault(nGunNr :IN )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL INT nGunNr
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         SWITCH nGunNr
+            CASE 1
+               RETURN(dipw1_Fault)
+            CASE 2
+               RETURN(dipw2_Fault)
+            CASE 3
+               RETURN(dipw3_Fault)
+         ENDSWITCH	
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+ENDFCT ; (dipw_Fault)
+
+DEFFCT BOOL dipw_SpearHome(nGunNr :IN )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL INT nGunNr
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         SWITCH nGunNr
+            CASE 1
+               RETURN(dipw1_SpearHome)
+            CASE 2
+               RETURN(dipw2_SpearHome)
+            CASE 3
+               RETURN(dipw3_SpearHome)
+         ENDSWITCH	
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+ENDFCT ; (dipw_SpearHome)
+
+DEFFCT BOOL dipw_PinReturn(nGunNr :IN )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL INT nGunNr
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         SWITCH nGunNr
+            CASE 1
+               RETURN(dipw1_PinReturn)
+            CASE 2
+               RETURN(dipw2_PinReturn)
+            CASE 3
+               RETURN(dipw3_PinReturn)
+         ENDSWITCH	
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+ENDFCT ; (dipw_PinReturn)
+
+DEFFCT BOOL dipw_FeedComplt(nGunNr :IN )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL INT nGunNr
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         SWITCH nGunNr
+            CASE 1
+               RETURN(dipw1_FeedComplt)
+            CASE 2
+               RETURN(dipw2_FeedComplt)
+            CASE 3
+               RETURN(dipw3_FeedComplt)
+         ENDSWITCH	
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+ENDFCT ; (dipw_FeedComplt)
+
+DEFFCT REAL aiNutSensor(nGunNr :IN )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL INT nGunNr
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         SWITCH nGunNr
+            CASE 1
+               RETURN(aiNutSensorPW1)
+            CASE 2
+               RETURN(aiNutSensorPW2)
+            CASE 3
+               RETURN(aiNutSensorPW3)
+         ENDSWITCH	
+      ;ENDFOLD (Implementation)
+   ;ENDFOLD (Details)
+ENDFCT ; (aiNutSensor)
+
+DEFFCT REAL aiLVDTSensor(nGunNr :IN )
+   ;FOLD Details
+      ;FOLD Declaration
+         DECL INT nGunNr
+      ;ENDFOLD (Declaration)
+      ;FOLD Implementation
+         SWITCH nGunNr
+            CASE 1 
+               RETURN(aipw1_LVDT)
+            CASE 2
+               RETURN(aipw2_LVDT)
+            CASE 3
+               RETURN(aipw3_LVDT)
+         ENDSWITCH
+      ;ENDFOLD (Implemenation)
+   ;ENDFOLD (Details)
+ENDFCT ; (aiLVDTSensor)

@@ -1,0 +1,7 @@
+# KRC event logs: diagnostic only, ~28 MB of binary. Kept in the original
+# archive zip, not in version control.
+Log Files/
+__pycache__/
+*.pyc
+# Robot archives built by tools/build_archive.py: large, rebuilt from the repository.
+dist/*.zip

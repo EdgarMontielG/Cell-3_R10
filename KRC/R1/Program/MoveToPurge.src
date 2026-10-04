@@ -1,0 +1,130 @@
+&ACCESS RV
+&REL 1
+&COMMENT GlueTech MOVEMENT TO PURGE POSITION
+&PARAM KUKATPGLUE_VERSION = 4.2.0
+DEF  MoveToPurge (iSystemNo :IN )
+ ;FOLD INI
+ INT iSystemNo
+ ;FOLD BASISTECH INI
+    GLOBAL INTERRUPT DECL 3 WHEN $STOPMESS==TRUE DO IR_STOPM ( )
+    INTERRUPT ON 3 
+    BAS (#INITMOV,0 )
+ ;ENDFOLD (BASISTECH INI)
+ ;FOLD USER INI
+ ;Make your modifications here
+
+ ;ENDFOLD (USER INI)
+ ;ENDFOLD (INI)
+
+  ;FOLD PTP HOME  Vel= 100 % DEFAULT;%{PE}%V3.2.0,%MKUKATPBASIS,%CMOVE,%VPTP,%P 1:PTP, 2:HOME, 3:, 5:100, 7:DEFAULT
+  $BWDSTART = FALSE
+  $H_POS=XHOME
+  PDAT_ACT=PDEFAULT
+  BAS (#PTP_DAT )
+  FDAT_ACT=FHOME
+  BAS (#FRAMES )
+  BAS (#VEL_PTP,100 )
+  PTP  XHOME
+  ;ENDFOLD
+  ;FOLD  
+  SWITCH iSystemNo
+  ;ENDFOLD
+  CASE 1 ; system number 1
+  ;Teach here the movement to purge position for system number 1
+
+
+  ;FOLD
+  IF bCheckSystem[1] THEN
+  ;ENDFOLD
+  ;Program here the purge command
+  ;FOLD Purge COMPLETE System 1 With Air NO Component A Gun 1;%{PE}%R 3.0.2,%MKUKATPGLUE,%CPURGE,%VCOMPLETE,%P 2:COMPLETE, 4:1, 6:NO, 8:A, 10:1
+  PurgeComplete (1,#NO,#A,1)
+  ;ENDFOLD
+
+
+  ;FOLD
+  ELSE
+    MasterDoser(1)
+  ENDIF
+  ;ENDFOLD
+  ;Teach here the movement to home position for system number 1
+
+
+  CASE 2 ; system number 2
+  ;Teach here the movement to purge position for system number 2
+
+
+  ;FOLD
+  IF bCheckSystem[2] THEN
+  ;ENDFOLD
+  ;Program here the purge command
+  ;FOLD Purge COMPLETE System 2 With Air NO Component A Gun 1;%{PE}%R 3.0.2,%MKUKATPGLUE,%CPURGE,%VCOMPLETE,%P 2:COMPLETE, 4:2, 6:NO, 8:A, 10:1
+  PurgeComplete (2,#NO,#A,1)
+  ;ENDFOLD
+
+
+  ;FOLD
+  ELSE
+    MasterDoser(2)
+  ENDIF
+  ;ENDFOLD
+  ;Teach here the movement to home position for system number 2
+
+
+  CASE 3 ; system number 3
+  ;Teach here the movement to purge position for system number 3
+
+
+  ;FOLD
+  IF bCheckSystem[3] THEN
+  ;ENDFOLD
+  ;Program here the purge command
+  ;FOLD Purge COMPLETE System 3 With Air NO Component A Gun 1;%{PE}%R 3.0.2,%MKUKATPGLUE,%CPURGE,%VCOMPLETE,%P 2:COMPLETE, 4:3, 6:NO, 8:A, 10:1
+  PurgeComplete (3,#NO,#A,1)
+  ;ENDFOLD
+
+
+  ;FOLD
+  ELSE
+    MasterDoser(3)
+  ENDIF
+  ;ENDFOLD
+  ;Teach here the movement to home position for system number 3
+
+
+  CASE 4 ; system number 4
+  ;Teach here the movement to purge position for system number 4
+
+
+  ;FOLD
+  IF bCheckSystem[4] THEN
+  ;ENDFOLD
+  ;Program here the purge command
+  ;FOLD Purge COMPLETE System 4 With Air NO Component A Gun 1;%{PE}%R 3.0.2,%MKUKATPGLUE,%CPURGE,%VCOMPLETE,%P 2:COMPLETE, 4:3, 6:NO, 8:A, 10:1
+  PurgeComplete (4,#NO,#A,1)
+  ;ENDFOLD
+
+
+  ;FOLD
+  ELSE
+    MasterDoser(4)
+  ENDIF
+  ;ENDFOLD
+  ;Teach here the movement to home position for system number 4
+
+
+  ;FOLD  
+  DEFAULT
+  ENDSWITCH
+  ;ENDFOLD
+  ;FOLD PTP HOME  Vel= 100 % DEFAULT;%{PE}%V3.2.0,%MKUKATPBASIS,%CMOVE,%VPTP,%P 1:PTP, 2:HOME, 3:, 5:100, 7:DEFAULT
+  $BWDSTART = FALSE
+  $H_POS=XHOME
+  PDAT_ACT=PDEFAULT
+  BAS (#PTP_DAT )
+  FDAT_ACT=FHOME
+  BAS (#FRAMES )
+  BAS (#VEL_PTP,100 )
+  PTP  XHOME
+  ;ENDFOLD
+END

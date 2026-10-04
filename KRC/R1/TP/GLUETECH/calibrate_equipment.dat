@@ -1,0 +1,208 @@
+&ACCESS RV
+&REL 1
+&COMMENT CALIBRATION OF DISPENSE EQUIPMENT
+&PARAM KUKATPGLUE_VERSION = 4.0.0
+DEFDAT  CALIBRATE_EQUIPMENT PUBLIC
+;FOLD {H}
+; -----------------------------------------------
+; --- Created: 2000/07/28                     ---
+; ---                                         ---
+; --- GLUETECH Calibration Routines           ---
+; ---                                         ---
+; --- Changes: 2000/08/03 Equipment 2 added   ---
+; ---          2000/08/03 Beadshaping added   ---
+; ---          2000/11/08 Toolselection added ---
+; ---          2002/12/11 Equipment 3 added   ---
+; ---                                         ---
+; -----------------------------------------------
+;ENDFOLD
+
+EXT  BAS (BAS_COMMAND  :IN,REAL  :IN )
+
+DECL STATE_T STATE
+DECL MODUS_T MODE
+ENUM MessageType NOTIFY,STATE,QUIT,DIALOG
+
+REAL GunOnDelay=0.0 ; in ms
+REAL GunOffDelay=0.0 ; in ms
+REAL GunOnDelayMat=0.0 ; in ms
+REAL GunOffDelayMat=0.0 ; in ms
+REAL GunOnDelayAir=0.0 ; in ms
+REAL GunOffDelayAir=0.0 ; in ms
+REAL AnalogDelay=0.0 ; in ms
+REAL MaterialDelay=0.0 ; in ms
+REAL MaterialOffset=0.0 ; mV
+REAL MaterialFactor=0.0 ; % of $VEL_ACT
+REAL AirDelay=0.0 ; in ms
+REAL AirOffset=0.0 ; mV
+REAL AirFactor=0.0 ; % of $VEL_ACT
+REAL PosOffs=0.0 ; Delay for analog offset in ms
+REAL NegOffs=0.0 ; Delay for analog offset in ms
+REAL MaterialReactionPosOffs=0.0 ; Delay for analog offset in ms
+REAL MaterialReactionNegOffs=0.0 ; Delay for analog offset in ms
+REAL AirReactionPosOffs=0.0 ; Delay for analog offset in ms
+REAL AirReactionNegOffs=0.0 ; Delay for analog offset in ms
+
+INT iAnswer ; Answer of dialogs
+INT iRun ; Counter for gun on/off routine
+INT iResult ; Result variable for dialog parameters
+INT iPosOnDistance=100 ; Distance between startposition and "onposition" in mm
+INT iPosOffDistance=100 ; Distance between "offposition" and endposition in mm
+INT iMinimumDistance=400 ; Minimum distance between startposition and endposition in mm
+INT iCalibProg=1 ;Programnumber for calibration
+INT iSelectedGun
+REAL dGunOpenMat
+REAL dGunCloseMat
+
+REAL dCalibrationSpeed=0.400000006 ; Calibration speed
+REAL dGunOnMaterial[4]
+dGunOnMaterial[1]=0.8
+dGunOnMaterial[2]=0.8
+dGunOnMaterial[3]=0.8
+dGunOnMaterial[4]=0.8
+REAL dGunOnAir[4]
+dGunOnAir[1]=0.8
+dGunOnAir[2]=0.8
+dGunOnAir[3]=0.8
+dGunOnAir[4]=0.8
+REAL dEquipDelayMat[4] ; 
+dEquipDelayMat[1]=0.8
+dEquipDelayMat[2]=0.8
+dEquipDelayMat[3]=0.8
+dEquipDelayMat[4]=0.8
+REAL dEquipDelayAir[4] ; 
+dEquipDelayAir[1]=0.8
+dEquipDelayAir[2]=0.8
+dEquipDelayAir[3]=0.8
+dEquipDelayAir[4]=0.8
+REAL dAnalogOffsetLow[4]
+dAnalogOffsetLow[1]=0.2
+dAnalogOffsetLow[2]=0.2
+dAnalogOffsetLow[3]=0.2
+dAnalogOffsetLow[4]=0.2
+REAL dAnalogOffsetHigh[4]
+dAnalogOffsetHigh[1]=0.8
+dAnalogOffsetHigh[2]=0.8
+dAnalogOffsetHigh[3]=0.8
+dAnalogOffsetHigh[4]=0.8
+
+
+BOOL bCalibrateDebugOpt=FALSE
+BOOL bCheckInstallSettings=FALSE
+BOOL bVerifyTCP=FALSE
+BOOL bGunDelay=FALSE
+BOOL bGunDelayMat[4,4]
+bGunDelayMat[1,1]=FALSE
+bGunDelayMat[1,2]=FALSE
+bGunDelayMat[1,3]=FALSE
+bGunDelayMat[1,4]=FALSE
+bGunDelayMat[2,1]=FALSE
+bGunDelayMat[2,2]=FALSE
+bGunDelayMat[2,3]=FALSE
+bGunDelayMat[2,4]=FALSE
+bGunDelayMat[3,1]=FALSE
+bGunDelayMat[3,2]=FALSE
+bGunDelayMat[3,3]=FALSE
+bGunDelayMat[3,4]=FALSE
+bGunDelayMat[4,1]=FALSE
+bGunDelayMat[4,2]=FALSE
+bGunDelayMat[4,3]=FALSE
+bGunDelayMat[4,4]=FALSE
+BOOL bGunDelayAir[4] 
+bGunDelayAir[1]=FALSE
+bGunDelayAir[2]=FALSE
+bGunDelayAir[3]=FALSE
+bGunDelayAir[4]=FALSE
+BOOL bGunOpenOK=FALSE
+BOOL bGunCloseOK=FALSE
+BOOL bEquipmentDelay=FALSE
+BOOL bMatEquipmentDelay[4,4]
+bMatEquipmentDelay[1,1]=FALSE
+bMatEquipmentDelay[1,2]=FALSE
+bMatEquipmentDelay[1,3]=FALSE
+bMatEquipmentDelay[1,4]=FALSE
+bMatEquipmentDelay[2,1]=FALSE
+bMatEquipmentDelay[2,2]=FALSE
+bMatEquipmentDelay[2,3]=FALSE
+bMatEquipmentDelay[2,4]=FALSE
+bMatEquipmentDelay[3,1]=FALSE
+bMatEquipmentDelay[3,2]=FALSE
+bMatEquipmentDelay[3,3]=FALSE
+bMatEquipmentDelay[3,4]=FALSE
+bMatEquipmentDelay[4,1]=FALSE
+bMatEquipmentDelay[4,2]=FALSE
+bMatEquipmentDelay[4,3]=FALSE
+bMatEquipmentDelay[4,4]=FALSE
+BOOL bAirEquipmentDelay[4]
+bAirEquipmentDelay[1]=FALSE
+bAirEquipmentDelay[2]=FALSE
+bAirEquipmentDelay[3]=FALSE
+bAirEquipmentDelay[4]=FALSE
+BOOL bEquipDelayOK=FALSE
+BOOL bAnalogOffset=FALSE
+BOOL bAnalogOffsetMat[4,4]
+bAnalogOffsetMat[1,1]=FALSE
+bAnalogOffsetMat[1,2]=FALSE
+bAnalogOffsetMat[1,3]=FALSE
+bAnalogOffsetMat[1,4]=FALSE
+bAnalogOffsetMat[2,1]=FALSE
+bAnalogOffsetMat[2,2]=FALSE
+bAnalogOffsetMat[2,3]=FALSE
+bAnalogOffsetMat[2,4]=FALSE
+bAnalogOffsetMat[3,1]=FALSE
+bAnalogOffsetMat[3,2]=FALSE
+bAnalogOffsetMat[3,3]=FALSE
+bAnalogOffsetMat[3,4]=FALSE
+bAnalogOffsetMat[4,1]=FALSE
+bAnalogOffsetMat[4,2]=FALSE
+bAnalogOffsetMat[4,3]=FALSE
+bAnalogOffsetMat[4,4]=FALSE
+BOOL bAnalogOffsetAir[4]
+bAnalogOffsetAir[1]=FALSE
+bAnalogOffsetAir[2]=FALSE
+bAnalogOffsetAir[3]=FALSE
+bAnalogOffsetAir[4]=FALSE
+BOOL bAnalogPosOffsetOK=FALSE
+BOOL bAnalogNegOffsetOK=FALSE
+BOOL bPointsTouched=FALSE
+BOOL bPointsChecked=FALSE
+BOOL bPointsMarked=FALSE
+BOOL bFirstGunDefined=FALSE
+
+ENUM eUsedTool eNotUsed,eRobotTool,eExtTool
+ENUM eRoutines eAllValues,eCheckInstallSettings,eVerifyTCP,eGunDelay,eEquipmentDelay,eAnalogOffset
+ENUM eGunDelay eMaterialEquip,eAirEquip
+DECL eGunDelay WhatToDo[4]
+WhatToDo[1]=#eMaterialEquip
+WhatToDo[2]=#eMaterialEquip
+WhatToDo[3]=#eMaterialEquip
+WhatToDo[4]=#eMaterialEquip
+
+DECL eUsedTool UsedTools[16]
+UsedTools[1]=#eNotUsed
+UsedTools[2]=#eNotUsed
+UsedTools[3]=#eNotUsed
+UsedTools[4]=#eNotUsed
+UsedTools[5]=#eNotUsed
+UsedTools[6]=#eNotUsed
+UsedTools[7]=#eNotUsed
+UsedTools[8]=#eNotUsed
+UsedTools[9]=#eNotUsed
+UsedTools[10]=#eNotUsed
+UsedTools[11]=#eNotUsed
+UsedTools[12]=#eNotUsed
+UsedTools[13]=#eNotUsed
+UsedTools[14]=#eNotUsed
+UsedTools[15]=#eNotUsed
+UsedTools[16]=#eNotUsed
+
+DECL BASIS_SUGG_T LAST_BASIS={POINT1[] "                        ",POINT2[] "                        ",CP_PARAMS[] "                        ",PTP_PARAMS[] "                        ",CONT[] "                        ",CP_VEL[] "                        ",PTP_VEL[] "                        "}
+DECL LDAT LCalDat={VEL 2.0,ACC 50.0,APO_DIST 200.0,APO_FAC 50.0}
+DECL PDAT PStartDat={VEL 100.0,ACC 50.0,APO_DIST 200.0}
+DECL FDAT FStartPath={TOOL_NO 1,BASE_NO 0,IPO_FRAME #BASE}
+DECL FDAT FEndPath={TOOL_NO 1,BASE_NO 0,IPO_FRAME #BASE}
+DECL E6POS XSTARTPATH={x 1200.724,y -487.518707,z 674.68689,a -78.2132263,b 87.5252991,c 3.29265404,s 2,t 2,e1 0.0,e2 0.0,e3 0.0,e4 0.0,e5 0.0,e6 0.0}
+DECL E6POS XENDPATH={x 1200.724,y 138.266296,z 674.686523,a -78.1779633,b 87.5326385,c 3.32781291,s 2,t 3,e1 0.0,e2 0.0,e3 0.0,e4 0.0,e5 0.0,e6 0.0}
+DECL E6POS XGUNON={x 1200.72583,y -386.532745,z 674.687073,a -78.2063828,b 87.5265427,c 3.2995441,s 'B0010',t 'B1010',e1 0.0,e2 0.0,e3 0.0,e4 0.0,e5 0.0,e6 0.0}
+DECL E6POS XGUNOFF={x 1200.72742,y 39.7070007,z 674.686707,a -78.1804886,b 87.531517,c 3.32519221,s 'B0010',t 'B1011',e1 0.0,e2 0.0,e3 0.0,e4 0.0,e5 0.0,e6 0.0}
+ENDDAT

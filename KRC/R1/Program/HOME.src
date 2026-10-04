@@ -1,0 +1,33 @@
+&ACCESS RVO1
+&REL 5
+&PARAM EDITMASK = *
+DEF HOME( )
+;FOLD INI
+  ;FOLD BASISTECH INI
+    GLOBAL INTERRUPT DECL 3 WHEN $STOPMESS==TRUE DO IR_STOPM ( )
+    INTERRUPT ON 3 
+    BAS (#INITMOV,0 )
+  ;ENDFOLD (BASISTECH INI)
+  ;FOLD USER INI
+    ;Make your modifications here
+
+  ;ENDFOLD (USER INI)
+;ENDFOLD (INI)
+;********************************
+; Gestamp Standards
+; Line - Volvo
+; Robot 03-10-R1
+; Application - MOVE HOME
+;********************************
+; MOVE HOME
+;********************************
+;FOLD PTP P1 Vel=100 % PDAT1 Tool[1]:EOAT 1 Base[0];%{PE}%R 4.1.5,%MKUKATPBASIS,%CMOVE,%VPTP,%P 1:PTP, 2:P1, 3:, 5:100, 7:PDAT1
+$BWDSTART=FALSE
+PDAT_ACT=PPDAT1
+BAS(#PTP_DAT)
+FDAT_ACT=FP1
+BAS(#FRAMES)
+BAS(#VEL_PTP,100)
+PTP XP1
+;ENDFOLD
+END

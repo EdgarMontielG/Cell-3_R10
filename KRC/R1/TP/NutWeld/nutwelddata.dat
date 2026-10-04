@@ -1,0 +1,658 @@
+&ACCESS  RV
+&PARAM DISKPATH = TP/NutWeld
+DEFDAT  nutwelddata PUBLIC
+;******************************
+;* Package:     NutWeldData  *
+;* Release      V1.0.4        *
+;* Date:        01.2016       *
+;* GUI Version: > = V8.3      *
+;******************************
+
+;FOLD Application Message
+DECL GLOBAL KRLMSG_T NutWeld_Msg[75]
+NutWeld_Msg[1]={MODUL[] "NutWeld",NR 1,MSG_TXT[] "NutWeld_DeleteLine"}
+NutWeld_Msg[2]={MODUL[] "NutWeld",NR 2,MSG_TXT[] "NutWeld_Diagnostic"}
+NutWeld_Msg[3]={MODUL[] "NutWeld",NR 3,MSG_TXT[] "NutWeld_OpenSwitchOff"}
+NutWeld_Msg[4]={MODUL[] "NutWeld",NR 4,MSG_TXT[] "NutWeld_XfmrOvrTmp"}
+NutWeld_Msg[5]={MODUL[] "NutWeld",NR 5,MSG_TXT[] "NutWeld_WtrFlwFlt"}
+NutWeld_Msg[6]={MODUL[] "NutWeld",NR 6,MSG_TXT[] "NutWeld_WaterStart"}
+NutWeld_Msg[7]={MODUL[] "NutWeld",NR 7,MSG_TXT[] "NutWeld_PrsSwNotOff"}
+NutWeld_Msg[8]={MODUL[] "NutWeld",NR 8,MSG_TXT[] "NutWeld_TmrNotRdy"}
+NutWeld_Msg[9]={MODUL[] "NutWeld",NR 9,MSG_TXT[] "NutWeld_TmrWldFlt"}
+NutWeld_Msg[10]={MODUL[] "NutWeld",NR 10,MSG_TXT[] "NutWeld_OpenSwitchFault"}
+NutWeld_Msg[11]={MODUL[] "NutWeld",NR 11,MSG_TXT[] "NutWeld_GunCloseFlt"}
+NutWeld_Msg[12]={MODUL[] "NutWeld",NR 12,MSG_TXT[] "NutWeld_PinNotPressed"}
+NutWeld_Msg[13]={MODUL[] "NutWeld",NR 13,MSG_TXT[] "NutWeld_NutNotPresent"}
+NutWeld_Msg[14]={MODUL[] "NutWeld",NR 14,MSG_TXT[] "NutWeld_UnexpectValue"}
+NutWeld_Msg[15]={MODUL[] "NutWeld",NR 15,MSG_TXT[] "NutWeld_PinNotExtended"}
+NutWeld_Msg[16]={MODUL[] "NutWeld",NR 16,MSG_TXT[] "NutWeld_DoubleNutFlt"}
+NutWeld_Msg[17]={MODUL[] "NutWeld",NR 17,MSG_TXT[] "NutWeld_IntensfPreFlt"}
+NutWeld_Msg[18]={MODUL[] "NutWeld",NR 18,MSG_TXT[] "NutWeld_IntensfFlt"}
+NutWeld_Msg[19]={MODUL[] "NutWeld",NR 19,MSG_TXT[] "NutWeld_WeldTmrFlt"}
+NutWeld_Msg[20]={MODUL[] "NutWeld",NR 20,MSG_TXT[] "NutWeld_PNWMaint"}
+NutWeld_Msg[21]={MODUL[] "NutWeld",NR 21,MSG_TXT[] "NutWeld_SetGunNr"}
+NutWeld_Msg[22]={MODUL[] "NutWeld",NR 22,MSG_TXT[] "NutWeld_GunNutInfo"}
+NutWeld_Msg[23]={MODUL[] "NutWeld",NR 23,MSG_TXT[] "NutWeld_TestNutForce"}
+NutWeld_Msg[24]={MODUL[] "NutWeld",NR 24,MSG_TXT[] "NutWeld_TestNutWeld"}
+NutWeld_Msg[25]={MODUL[] "NutWeld",NR 25,MSG_TXT[] "NutWeld_NutAnalog"}
+NutWeld_Msg[26]={MODUL[] "NutWeld",NR 26,MSG_TXT[] "NutWeld_CloseWONut"}
+NutWeld_Msg[27]={MODUL[] "NutWeld",NR 27,MSG_TXT[] "NutWeld_CloseWNut"}
+NutWeld_Msg[28]={MODUL[] "NutWeld",NR 28,MSG_TXT[] "NutWeld_ChkSensTol"}
+NutWeld_Msg[29]={MODUL[] "NutWeld",NR 29,MSG_TXT[] "NutWeld_ChkSensTol2"}
+NutWeld_Msg[30]={MODUL[] "NutWeld",NR 30,MSG_TXT[] "NutWeld_ChkWONut"}
+NutWeld_Msg[31]={MODUL[] "NutWeld",NR 31,MSG_TXT[] "NutWeld_ChkWNut"}
+NutWeld_Msg[32]={MODUL[] "NutWeld",NR 32,MSG_TXT[] "NutWeld_HomeFlt"}
+NutWeld_Msg[33]={MODUL[] "NutWeld",NR 33,MSG_TXT[] "NutWeld_NoWeldFlt"}
+NutWeld_Msg[34]={MODUL[] "NutWeld",NR 34,MSG_TXT[] "NutWeld_ManWeldCnfrm"}
+NutWeld_Msg[35]={MODUL[] "NutWeld",NR 35,MSG_TXT[] "NutWeld_WorkFlt"}
+NutWeld_Msg[36]={MODUL[] "NutWeld",NR 36,MSG_TXT[] "NutWeld_TstCrntCnfrm"}
+NutWeld_Msg[37]={MODUL[] "NutWeld",NR 37,MSG_TXT[] "NutWeld_NoWeldFltTC"}
+NutWeld_Msg[38]={MODUL[] "NutWeld",NR 38,MSG_TXT[] "NutWeld_TstFrceCnfrm"}
+NutWeld_Msg[39]={MODUL[] "NutWeld",NR 39,MSG_TXT[] "NutWeld_TchAnlgReq"}
+NutWeld_Msg[40]={MODUL[] "NutWeld",NR 40,MSG_TXT[] "NutWeld_TchAlgNoNut"}
+NutWeld_Msg[41]={MODUL[] "NutWeld",NR 41,MSG_TXT[] "NutWeld_TchAlgWNut"}
+NutWeld_Msg[42]={MODUL[] "NutWeld",NR 42,MSG_TXT[] "NutWeld_TchAcptNoNut"}
+NutWeld_Msg[43]={MODUL[] "NutWeld",NR 43,MSG_TXT[] "NutWeld_TchAcptWNut"}
+NutWeld_Msg[44]={MODUL[] "NutWeld",NR 44,MSG_TXT[] "NutWeld_TstFrceCmplt"}
+NutWeld_Msg[45]={MODUL[] "NutWeld",NR 45,MSG_TXT[] "NutWeld_TstCrntCmplt"}
+NutWeld_Msg[46]={MODUL[] "NutWeld",NR 46,MSG_TXT[] "NutWeld_CloseSwitchOn"}
+NutWeld_Msg[47]={MODUL[] "NutWeld",NR 47,MSG_TXT[] "NutWeld_FdrNotHome"}
+NutWeld_Msg[48]={MODUL[] "NutWeld",NR 48,MSG_TXT[] "NutWeld_NutInverted"}
+NutWeld_Msg[49]={MODUL[] "NutWeld",NR 49,MSG_TXT[] "NutWeld_FeedTimeOut"}
+NutWeld_Msg[50]={MODUL[] "NutWeld",NR 50,MSG_TXT[] "NutWeld_MWXfmrOvrTmp"}
+NutWeld_Msg[51]={MODUL[] "NutWeld",NR 51,MSG_TXT[] "NutWeld_GunNotHome"}
+NutWeld_Msg[52]={MODUL[] "NutWeld",NR 52,MSG_TXT[] "NutWeld_TchAlgInNut"}
+NutWeld_Msg[53]={MODUL[] "NutWeld",NR 52,MSG_TXT[] "NutWeld_TchAcptInNut"}
+NutWeld_Msg[54]={MODUL[] "NutWeld",NR 54,MSG_TXT[] "NutWeld_MWNoNutFlt"}
+NutWeld_Msg[55]={MODUL[] "NutWeld",NR 55,MSG_TXT[] "NutWeld_MWInNutFlt"}
+NutWeld_Msg[56]={MODUL[] "NutWeld",NR 56,MSG_TXT[] "NutWeld_MWXXNutFlt"}
+NutWeld_Msg[57]={MODUL[] "NutWeld",NR 57,MSG_TXT[] "NutWeld_ChkInNut"}
+NutWeld_Msg[58]={MODUL[] "NutWeld",NR 58,MSG_TXT[] "NutWeld_NoNutGtrPresent"}
+NutWeld_Msg[59]={MODUL[] "NutWeld",NR 59,MSG_TXT[] "NutWeld_InNutLesPresent"}
+NutWeld_Msg[60]={MODUL[] "NutWeld",NR 60,MSG_TXT[] "NutWeld_WeldInhibitNotAllowed"}
+NutWeld_Msg[61]={MODUL[] "NutWeld",NR 61,MSG_TXT[] "NutWeld_Reload_Move_T1"}
+NutWeld_Msg[62]={MODUL[] "NutWeld",NR 62,MSG_TXT[] "NutWeld_Reload_Finished_T1"}
+;ENDFOLD (Application Message)
+;FOLD Dialog SoftKeys
+DECL GLOBAL KRLMSGDLGSK_T NutWeld_SK_StrtWtrSkip[3]
+NutWeld_SK_StrtWtrSkip[1]={SK_TYPE #VALUE,SK_TXT[] "Diagnostic"}
+NutWeld_SK_StrtWtrSkip[2]={SK_TYPE #VALUE,SK_TXT[] "Strt Wtr"}
+NutWeld_SK_StrtWtrSkip[3]={SK_TYPE #VALUE,SK_TXT[] "Skip"}
+DECL GLOBAL KRLMSGDLGSK_T NutWeld_SK_ResetSkip[3]
+NutWeld_SK_ResetSkip[1]={SK_TYPE #VALUE,SK_TXT[] "Diagnostic"}
+NutWeld_SK_ResetSkip[2]={SK_TYPE #VALUE,SK_TXT[] "Reset"}
+NutWeld_SK_ResetSkip[3]={SK_TYPE #VALUE,SK_TXT[] "Skip"}
+DECL GLOBAL KRLMSGDLGSK_T NutWeld_SK_Retry[2]
+NutWeld_SK_Retry[1]={SK_TYPE #VALUE,SK_TXT[] "Diagnostic"}
+NutWeld_SK_Retry[2]={SK_TYPE #VALUE,SK_TXT[] "Retry"}
+DECL GLOBAL KRLMSGDLGSK_T NutWeld_SK_RetrySkip[3]
+NutWeld_SK_RetrySkip[1]={SK_TYPE #VALUE,SK_TXT[] "Diagnostic"}
+NutWeld_SK_RetrySkip[2]={SK_TYPE #VALUE,SK_TXT[] "Retry"}
+NutWeld_SK_RetrySkip[3]={SK_TYPE #VALUE,SK_TXT[] "Skip"}
+DECL GLOBAL KRLMSGDLGSK_T NutWeld_SK_RetryWeld[3]
+NutWeld_SK_RetryWeld[1]={SK_TYPE #VALUE,SK_TXT[] "Diagnostic"}
+NutWeld_SK_RetryWeld[2]={SK_TYPE #VALUE,SK_TXT[] "Retry"}
+NutWeld_SK_RetryWeld[3]={SK_TYPE #VALUE,SK_TXT[] "Weld"}
+DECL GLOBAL KRLMSGDLGSK_T NutWeld_SK_WeldRetrySkip[4]
+NutWeld_SK_WeldRetrySkip[1]={SK_TYPE #VALUE,SK_TXT[] "Diagnostic"}
+NutWeld_SK_WeldRetrySkip[2]={SK_TYPE #VALUE,SK_TXT[] "Weld"}
+NutWeld_SK_WeldRetrySkip[3]={SK_TYPE #VALUE,SK_TXT[] "Retry"}
+NutWeld_SK_WeldRetrySkip[4]={SK_TYPE #VALUE,SK_TXT[] "Skip"}
+DECL GLOBAL KRLMSGDLGSK_T NutWeld_SK_Retract[2]
+NutWeld_SK_Retract[1]={SK_TYPE #VALUE,SK_TXT[] "Diagnostic"}
+NutWeld_SK_Retract[2]={SK_TYPE #VALUE,SK_TXT[] "Retract"}
+DECL GLOBAL KRLMSGDLGSK_T NutWeld_SK_RetractSkip[3]
+NutWeld_SK_RetractSkip[1]={SK_TYPE #VALUE,SK_TXT[] "Diagnostic"}
+NutWeld_SK_RetractSkip[2]={SK_TYPE #VALUE,SK_TXT[] "Retract"}
+NutWeld_SK_RetractSkip[3]={SK_TYPE #VALUE,SK_TXT[] "Skip"}
+DECL GLOBAL KRLMSGDLGSK_T NutWeld_SK_ContSkip[3]
+NutWeld_SK_ContSkip[1]={SK_TYPE #VALUE,SK_TXT[] "Diagnostic"}
+NutWeld_SK_ContSkip[2]={SK_TYPE #VALUE,SK_TXT[] "Continue"}
+NutWeld_SK_ContSkip[3]={SK_TYPE #VALUE,SK_TXT[] "Skip"}
+DECL GLOBAL KRLMSGDLGSK_T NutWeld_SK_TestBack[2]
+NutWeld_SK_TestBack[1]={SK_TYPE #VALUE,SK_TXT[] "Test"}
+NutWeld_SK_TestBack[2]={SK_TYPE #VALUE,SK_TXT[] "Back"}
+DECL GLOBAL KRLMSGDLGSK_T NutWeld_SK_HomeGun[2]
+NutWeld_SK_HomeGun[1]={SK_TYPE #VALUE,SK_TXT[] "Home Gun"}
+NutWeld_SK_HomeGun[2]={SK_TYPE #VALUE,SK_TXT[] "Cancel"}
+DECL GLOBAL KRLMSGDLGSK_T NutWeld_SK_TchAnalog[5]
+NutWeld_SK_TchAnalog[1]={SK_TYPE #VALUE,SK_TXT[] "No Nut"}
+NutWeld_SK_TchAnalog[2]={SK_TYPE #VALUE,SK_TXT[] "With Nut"}
+NutWeld_SK_TchAnalog[3]={SK_TYPE #VALUE,SK_TXT[] "Invert Nut"}
+NutWeld_SK_TchAnalog[4]={SK_TYPE #VALUE,SK_TXT[] "Check"}
+NutWeld_SK_TchAnalog[5]={SK_TYPE #VALUE,SK_TXT[] "Cancel"}
+DECL GLOBAL KRLMSGDLGSK_T NutWeld_SK_CloseNWGun[1]
+NutWeld_SK_CloseNWGun[1]={SK_TYPE #VALUE,SK_TXT[] "Close"}
+DECL GLOBAL KRLMSGDLGSK_T NutWeld_SK_AcptRerun[3]
+NutWeld_SK_AcptRerun[1]={SK_TYPE #VALUE,SK_TXT[] "Accept"}
+NutWeld_SK_AcptRerun[2]={SK_TYPE #VALUE,SK_TXT[] "Rerun"}
+NutWeld_SK_AcptRerun[3]={SK_TYPE #VALUE,SK_TXT[] "Cancel"}
+DECL GLOBAL KRLMSGDLGSK_T NutWeld_SK_Next[1]
+NutWeld_SK_Next[1]={SK_TYPE #VALUE,SK_TXT[] "Next"}
+DECL GLOBAL KRLMSGDLGSK_T NutWeld_SK_FFR[5]
+NutWeld_SK_FFR[1]={SK_TYPE #VALUE,SK_TXT[] "Cont"}
+NutWeld_SK_FFR[2]={SK_TYPE #VALUE,SK_TXT[] "Abort"}
+NutWeld_SK_FFR[3]={SK_TYPE #VALUE,SK_TXT[] "Cont Next"}
+NutWeld_SK_FFR[4]={SK_TYPE #VALUE,SK_TXT[] "Maint."}
+NutWeld_SK_FFR[5]={SK_TYPE #VALUE,SK_TXT[] "Diagnostic"}
+DECL GLOBAL KRLMSGDLGSK_T NutWeld_SK_YesNo[2]
+NutWeld_SK_YesNo[1]={SK_TYPE #VALUE,SK_TXT[] "Yes"}
+NutWeld_SK_YesNo[2]={SK_TYPE #VALUE,SK_TXT[] "No"}
+DECL GLOBAL KRLMSGDLGSK_T NutWeld_SK_PosFlt[6]
+DECL GLOBAL KRLMSGDLGSK_T NutWeld_SK_NutWeldFlt[3]
+DECL GLOBAL KRLMSGDLGSK_T NutWeld_SK_YesNoNav[3]
+NutWeld_SK_YesNoNav[1]={SK_TYPE #VALUE,SK_TXT[] "Yes"}
+NutWeld_SK_YesNoNav[2]={SK_TYPE #VALUE,SK_TXT[] "No"}
+NutWeld_SK_YesNoNav[3]={SK_TYPE #VALUE,SK_TXT[] "Diagnostic"}
+DECL GLOBAL KRLMSGDLGSK_T NutWeld_SK_OKCancel[2]
+NutWeld_SK_OKCancel[1]={SK_TYPE #VALUE,SK_TXT[] "OK"}
+NutWeld_SK_OKCancel[2]={SK_TYPE #VALUE,SK_TXT[] "Cancel"}
+DECL GLOBAL KRLMSGDLGSK_T NutWeld_SK_OK[1]
+NutWeld_SK_OK[1]={SK_TYPE #VALUE,SK_TXT[] "OK"}
+DECL GLOBAL KRLMSGDLGSK_T NutWeld_SK_TstCncl[2]
+NutWeld_SK_TstCncl[1]={SK_TYPE #VALUE,SK_TXT[] "Test"}
+NutWeld_SK_TstCncl[2]={SK_TYPE #VALUE,SK_TXT[] "Cancel"}
+DECL GLOBAL KRLMSGDLGSK_T NutWeld_SK_RETURN[1]
+NutWeld_SK_RETURN[1]={SK_TYPE #VALUE,SK_TXT[] "Return"}
+DECL GLOBAL KRLMSGDLGSK_T NutWeld_SK_ContNav[2]
+NutWeld_SK_ContNav[1]={SK_TYPE #VALUE,SK_TXT[] "Continue"}
+NutWeld_SK_ContNav[2]={SK_TYPE #VALUE,SK_TXT[] "Navigator"}
+DECL GLOBAL KRLMSGDLGSK_T NutWeld_SK_PNWMaint[6]
+NutWeld_SK_PNWMaint[1]={SK_TYPE #VALUE,SK_TXT[] "Tst Gun F"}
+NutWeld_SK_PNWMaint[2]={SK_TYPE #VALUE,SK_TXT[] "Tch Analog"}
+NutWeld_SK_PNWMaint[3]={SK_TYPE #VALUE,SK_TXT[] "Tst WldCrt"}
+NutWeld_SK_PNWMaint[4]={SK_TYPE #VALUE,SK_TXT[] "Man NutWld"}
+NutWeld_SK_PNWMaint[5]={SK_TYPE #VALUE,SK_TXT[] "GunNut Nr"}
+NutWeld_SK_PNWMaint[6]={SK_TYPE #VALUE,SK_TXT[] "Exit"}
+DECL GLOBAL KRLMSGDLGSK_T NutWeld_SK_GunNutInfo[6]
+NutWeld_SK_GunNutInfo[5]={SK_TYPE #VALUE,SK_TXT[] "GunNut Nr"}
+NutWeld_SK_GunNutInfo[6]={SK_TYPE #VALUE,SK_TXT[] "Exit"}
+DECL GLOBAL KRLMSGDLGSK_T NutWeld_SK_PNWGunNr2[2]
+NutWeld_SK_PNWGunNr2[1]={SK_TYPE #VALUE,SK_TXT[] "Gun 1"}
+NutWeld_SK_PNWGunNr2[2]={SK_TYPE #VALUE,SK_TXT[] "Gun 2"}
+DECL GLOBAL KRLMSGDLGSK_T NutWeld_SK_PNWGunNr3[3]
+NutWeld_SK_PNWGunNr3[1]={SK_TYPE #VALUE,SK_TXT[] "Gun 1"}
+NutWeld_SK_PNWGunNr3[2]={SK_TYPE #VALUE,SK_TXT[] "Gun 2"}
+NutWeld_SK_PNWGunNr3[3]={SK_TYPE #VALUE,SK_TXT[] "Gun 3"}
+DECL GLOBAL KRLMSGDLGSK_T NutWeld_SK_PNWNutNr2[3]
+NutWeld_SK_PNWNutNr2[1]={SK_TYPE #VALUE,SK_TXT[] "Nut 1"}
+NutWeld_SK_PNWNutNr2[2]={SK_TYPE #VALUE,SK_TXT[] "Nut 2"}
+DECL GLOBAL KRLMSGDLGSK_T NutWeld_SK_PNWNutNr3[3]
+NutWeld_SK_PNWNutNr3[1]={SK_TYPE #VALUE,SK_TXT[] "Nut 1"}
+NutWeld_SK_PNWNutNr3[2]={SK_TYPE #VALUE,SK_TXT[] "Nut 2"}
+NutWeld_SK_PNWNutNr3[3]={SK_TYPE #VALUE,SK_TXT[] "Nut 3"}
+DECL GLOBAL KRLMSGDLGSK_T NutWeld_SK_PNWNutNr4[4]
+NutWeld_SK_PNWNutNr4[1]={SK_TYPE #VALUE,SK_TXT[] "Nut 1"}
+NutWeld_SK_PNWNutNr4[2]={SK_TYPE #VALUE,SK_TXT[] "Nut 2"}
+NutWeld_SK_PNWNutNr4[3]={SK_TYPE #VALUE,SK_TXT[] "Nut 3"}
+NutWeld_SK_PNWNutNr4[4]={SK_TYPE #VALUE,SK_TXT[] "Nut 4"}
+DECL GLOBAL KRLMSGDLGSK_T NutWeld_SK_PNWNutNr5[5]
+NutWeld_SK_PNWNutNr5[1]={SK_TYPE #VALUE,SK_TXT[] "Nut 1"}
+NutWeld_SK_PNWNutNr5[2]={SK_TYPE #VALUE,SK_TXT[] "Nut 2"}
+NutWeld_SK_PNWNutNr5[3]={SK_TYPE #VALUE,SK_TXT[] "Nut 3"}
+NutWeld_SK_PNWNutNr5[4]={SK_TYPE #VALUE,SK_TXT[] "Nut 4"}
+NutWeld_SK_PNWNutNr5[5]={SK_TYPE #VALUE,SK_TXT[] "Nut 5"}
+DECL GLOBAL KRLMSGDLGSK_T NutWeld_SK_PNWNutNr6[6]
+NutWeld_SK_PNWNutNr6[1]={SK_TYPE #VALUE,SK_TXT[] "Nut 1"}
+NutWeld_SK_PNWNutNr6[2]={SK_TYPE #VALUE,SK_TXT[] "Nut 2"}
+NutWeld_SK_PNWNutNr6[3]={SK_TYPE #VALUE,SK_TXT[] "Nut 3"}
+NutWeld_SK_PNWNutNr6[4]={SK_TYPE #VALUE,SK_TXT[] "Nut 4"}
+NutWeld_SK_PNWNutNr6[5]={SK_TYPE #VALUE,SK_TXT[] "Nut 5"}
+NutWeld_SK_PNWNutNr6[6]={SK_TYPE #VALUE,SK_TXT[] "Nut 6"}
+
+;ENDFOLD (Dialog SoftKeys)
+;FOLD Messaging Constructs
+DECL GLOBAL KRLMSGPAR_T NutWeld_MsgPar[3]
+DECL GLOBAL KRLMSGPAR_T NutWeldsps_MsgPar[3]
+DECL GLOBAL KRLMSGOPT_T NutWeld_MsgOpt_Stop={VL_STOP TRUE,CLEAR_P_RESET TRUE,LOG_TO_DB TRUE}
+DECL GLOBAL KRLMSGOPT_T NutWeld_MsgOpt_NoStop={VL_STOP FALSE,CLEAR_P_RESET TRUE,LOG_TO_DB TRUE}
+DECL GLOBAL INT nNutWeld_Handle=10003
+DECL GLOBAL INT nNutWeldReload_Handle=0
+DECL GLOBAL INT nNutWeldLifebit_Handle=0
+DECL GLOBAL INT nNutWeldLifebitBP_Handle=0
+DECL GLOBAL INT nNutWeldWarning_Handle=0
+DECL GLOBAL INT nNutWeldErrorSPS_Handle=0
+DECL GLOBAL INT nNutWeld_Handle_SPS=0
+DECL GLOBAL INT nNutWeld_TFHandle=24977
+DECL GLOBAL INT nNutWeld_TAHandle=11365
+DECL GLOBAL INT nNutWeld_TA1Handle=11338
+DECL GLOBAL INT nNutWeld_TA2Handle=11351
+DECL GLOBAL INT nNutWeld_TA3Handle=11356
+DECL GLOBAL INT nNutWeld_TA4Handle=11364
+DECL GLOBAL INT nNutWeld_TCHandle=11314
+DECL GLOBAL INT nNutWeld_MWHandle=11316
+DECL GLOBAL BOOL bNutWeld_Clear
+DECL GLOBAL INT nNutWeld_Key
+DECL GLOBAL INT nNutWeld_TFKey=0
+DECL GLOBAL INT nNutWeld_TAKey=0
+DECL GLOBAL INT nNutWeld_TA1Key=0
+DECL GLOBAL INT nNutWeld_TA2Key=0
+DECL GLOBAL INT nNutWeld_TA3Key=0
+DECL GLOBAL INT nNutWeld_TA4Key=0
+DECL GLOBAL INT nNutWeld_TCKey=0
+DECL GLOBAL INT nNutWeld_MWKey=0
+DECL GLOBAL INT nNutWeld_Key_Temp
+DECL GLOBAL BOOL bNutWeld_PLC_Reset=FALSE
+;ENDFOLD (Messaging Constructs)
+;FOLD NutWeld System Variables
+;FOLD NutWeld Custom Variables
+GLOBAL ENUM NutWeld_Style_Type NUTWELD,STUDWELD
+GLOBAL STRUC NutWeld_Weld_T INT ID,CHAR NAME[24]
+GLOBAL STRUC NutWeld_SUGG_T CHAR POINT1[24],POINT2[24],CP_PARAMS[24],PTP_PARAMS[24],CONT[24],CP_VEL[24],PTP_VEL[24],SYNC_PARAMS[24],SPL_NAME[24],A_PARAMS[24],NutWeld_PARAMS[24],INT GunNr,SpotNr,Offset
+GLOBAL STRUC NutWeldDAT INT GunNr,SpotNr,Offset
+DECL GLOBAL NutWeldDAT NutWeldDEFAULT={GunNr 1,SpotNr 1,Offset 25}
+DECL GLOBAL NutWeldDAT NutWeldManual={GunNr 1,SpotNr 16,Offset 25}
+;ENDFOLD (NutWeld Custom Variables)
+;FOLD NutWeld BOOL Variables
+DECL GLOBAL BOOL bNutWeld_RobStop=FALSE
+DECL GLOBAL BOOL bNutWeldWOJoining=TRUE
+DECL GLOBAL BOOL bNutWeld_LB_Bypass=FALSE
+DECL GLOBAL BOOL bNutWeldProcessReset=FALSE
+DECL GLOBAL BOOL bNutWeld_PreWeld_Cmplt=FALSE
+DECL GLOBAL BOOL bNutWeld_InhibitWeld=FALSE
+;FOLD USKB4-1 Test Gun Force
+DECL GLOBAL BOOL bNutWeld_TstFrce_Active=FALSE
+DECL GLOBAL BOOL bNutWeld_TstFrce_Step[10]
+bNutWeld_TstFrce_Step[1]=FALSE
+bNutWeld_TstFrce_Step[2]=FALSE
+bNutWeld_TstFrce_Step[3]=FALSE
+bNutWeld_TstFrce_Step[4]=FALSE
+bNutWeld_TstFrce_Step[5]=FALSE
+bNutWeld_TstFrce_Step[6]=FALSE
+bNutWeld_TstFrce_Step[7]=FALSE
+bNutWeld_TstFrce_Step[8]=FALSE
+bNutWeld_TstFrce_Step[9]=FALSE
+bNutWeld_TstFrce_Step[10]=FALSE
+;ENDFOLD (USKB4-1 Test Gun Force)
+;FOLD USKB4-2 Teach Analog
+DECL GLOBAL BOOL bNutWeld_TchAnlg_Active=FALSE
+DECL GLOBAL BOOL bNutWeld_TchAnlg_Step[10]
+bNutWeld_TchAnlg_Step[1]=FALSE
+bNutWeld_TchAnlg_Step[2]=FALSE
+bNutWeld_TchAnlg_Step[3]=FALSE
+bNutWeld_TchAnlg_Step[4]=FALSE
+bNutWeld_TchAnlg_Step[5]=FALSE
+bNutWeld_TchAnlg_Step[6]=FALSE
+bNutWeld_TchAnlg_Step[7]=FALSE
+bNutWeld_TchAnlg_Step[8]=FALSE
+bNutWeld_TchAnlg_Step[9]=FALSE
+bNutWeld_TchAnlg_Step[10]=FALSE
+;FOLD USKB4-2.1 No Nut State Machine
+DECL GLOBAL BOOL bNutWeld_AlgNoNut_Active=FALSE
+DECL GLOBAL BOOL bNutWeld_AlgNoNut_Step[10]
+bNutWeld_AlgNoNut_Step[1]=FALSE
+bNutWeld_AlgNoNut_Step[2]=FALSE
+bNutWeld_AlgNoNut_Step[3]=FALSE
+bNutWeld_AlgNoNut_Step[4]=FALSE
+bNutWeld_AlgNoNut_Step[5]=FALSE
+bNutWeld_AlgNoNut_Step[6]=FALSE
+bNutWeld_AlgNoNut_Step[7]=FALSE
+bNutWeld_AlgNoNut_Step[8]=FALSE
+bNutWeld_AlgNoNut_Step[9]=FALSE
+bNutWeld_AlgNoNut_Step[10]=FALSE
+;ENDFOLD (USKB4-2.1 No Nut State Machine)
+;FOLD USKB4-2.2 With Nut State Machine
+DECL GLOBAL BOOL bNutWeld_AlgWNut_Active=FALSE
+DECL GLOBAL BOOL bNutWeld_AlgWNut_Step[10]
+bNutWeld_AlgWNut_Step[1]=FALSE
+bNutWeld_AlgWNut_Step[2]=FALSE
+bNutWeld_AlgWNut_Step[3]=FALSE
+bNutWeld_AlgWNut_Step[4]=FALSE
+bNutWeld_AlgWNut_Step[5]=FALSE
+bNutWeld_AlgWNut_Step[6]=FALSE
+bNutWeld_AlgWNut_Step[7]=FALSE
+bNutWeld_AlgWNut_Step[8]=FALSE
+bNutWeld_AlgWNut_Step[9]=FALSE
+bNutWeld_AlgWNut_Step[10]=FALSE
+;ENDFOLD (USKB4-2.2 With Nut State Machine)
+;FOLD USKB4-2.3 Inverted Nut State Machine
+DECL GLOBAL BOOL bNutWeld_AlgInNut_Active=FALSE
+DECL GLOBAL BOOL bNutWeld_AlgInNut_Step[10]
+bNutWeld_AlgInNut_Step[1]=FALSE
+bNutWeld_AlgInNut_Step[2]=FALSE
+bNutWeld_AlgInNut_Step[3]=FALSE
+bNutWeld_AlgInNut_Step[4]=FALSE
+bNutWeld_AlgInNut_Step[5]=FALSE
+bNutWeld_AlgInNut_Step[6]=FALSE
+bNutWeld_AlgInNut_Step[7]=FALSE
+bNutWeld_AlgInNut_Step[8]=FALSE
+bNutWeld_AlgInNut_Step[9]=FALSE
+bNutWeld_AlgInNut_Step[10]=FALSE
+;ENDFOLD (USKB4-2.3 Inverted Nut State Machine)
+;FOLD USKB4-2.4 Check Value State Machine
+DECL GLOBAL BOOL bNutWeld_AlgCheck_Active=FALSE
+DECL GLOBAL BOOL bNutWeld_AlgCheck_Step[10]
+bNutWeld_AlgCheck_Step[1]=FALSE
+bNutWeld_AlgCheck_Step[2]=FALSE
+bNutWeld_AlgCheck_Step[3]=FALSE
+bNutWeld_AlgCheck_Step[4]=FALSE
+bNutWeld_AlgCheck_Step[5]=FALSE
+bNutWeld_AlgCheck_Step[6]=FALSE
+bNutWeld_AlgCheck_Step[7]=FALSE
+bNutWeld_AlgCheck_Step[8]=FALSE
+bNutWeld_AlgCheck_Step[9]=FALSE
+bNutWeld_AlgCheck_Step[10]=FALSE
+;ENDFOLD (USKB4-2.4 Check Value State Machine)
+;ENDFOLD (USKB4-2 Teach Analog)
+;FOLD USKB4-3 Test Welding Current S225
+DECL GLOBAL BOOL bNutWeld_TstCrnt_Active=FALSE
+DECL GLOBAL BOOL bNutWeld_TstCrnt_Step[10]
+bNutWeld_TstCrnt_Step[1]=FALSE
+bNutWeld_TstCrnt_Step[2]=FALSE
+bNutWeld_TstCrnt_Step[3]=FALSE
+bNutWeld_TstCrnt_Step[4]=FALSE
+bNutWeld_TstCrnt_Step[5]=FALSE
+bNutWeld_TstCrnt_Step[6]=FALSE
+bNutWeld_TstCrnt_Step[7]=FALSE
+bNutWeld_TstCrnt_Step[8]=FALSE
+bNutWeld_TstCrnt_Step[9]=FALSE
+bNutWeld_TstCrnt_Step[10]=FALSE
+;ENDFOLD (USKB4-3 Test Welding Current S225)
+;FOLD USKB4-4 Manual NutWeld
+DECL GLOBAL BOOL bNutWeld_ManWeld_Active=FALSE
+DECL GLOBAL BOOL bNutWeld_ManWeld_Step[20]
+bNutWeld_ManWeld_Step[1]=FALSE
+bNutWeld_ManWeld_Step[2]=FALSE
+bNutWeld_ManWeld_Step[3]=FALSE
+bNutWeld_ManWeld_Step[4]=FALSE
+bNutWeld_ManWeld_Step[5]=FALSE
+bNutWeld_ManWeld_Step[6]=FALSE
+bNutWeld_ManWeld_Step[7]=FALSE
+bNutWeld_ManWeld_Step[8]=FALSE
+bNutWeld_ManWeld_Step[9]=FALSE
+bNutWeld_ManWeld_Step[10]=FALSE
+bNutWeld_ManWeld_Step[11]=FALSE
+bNutWeld_ManWeld_Step[12]=FALSE
+bNutWeld_ManWeld_Step[13]=FALSE
+bNutWeld_ManWeld_Step[14]=FALSE
+bNutWeld_ManWeld_Step[15]=FALSE
+bNutWeld_ManWeld_Step[16]=FALSE
+bNutWeld_ManWeld_Step[17]=FALSE
+bNutWeld_ManWeld_Step[18]=FALSE
+bNutWeld_ManWeld_Step[19]=FALSE
+bNutWeld_ManWeld_Step[20]=FALSE
+;ENDFOLD (USKB4-4 Manual NutWeld)
+DECL GLOBAL BOOL bElectChangeReq=FALSE
+DECL GLOBAL BOOL bElectrodeAtEOL_1=TRUE
+DECL GLOBAL BOOL bElectrodeAtEOL_2=TRUE
+DECL GLOBAL BOOL bElectrodeAtEOL_3=TRUE
+;ENDFOLD (NutWeld BOOL Variables)
+;FOLD NutWeld INT Variables
+DECL GLOBAL INT nFeedRetries=0
+DECL GLOBAL INT nWeldRetries=0
+DECL GLOBAL INT nDumpNutRetries=0
+DECL GLOBAL INT nNutWeld_Retry_Current=0
+DECL GLOBAL INT nNutWeld_ActSpindle=1
+DECL GLOBAL INT nNutWeld_MaxSpindle=1
+DECL GLOBAL INT nManWeldFault=0
+DECL GLOBAL INT nNutWeld_Submit_Handle[10]
+nNutWeld_Submit_Handle[1]=0 ; Man Tack Point Data Rejected
+nNutWeld_Submit_Handle[2]=0
+nNutWeld_Submit_Handle[3]=0 ; Man Tack Process TimeOut
+nNutWeld_Submit_Handle[4]=0 ; Man Tack Quality Results
+nNutWeld_Submit_Handle[5]=0
+nNutWeld_Submit_Handle[6]=0
+nNutWeld_Submit_Handle[7]=0
+nNutWeld_Submit_Handle[8]=0
+nNutWeld_Submit_Handle[9]=0
+nNutWeld_Submit_Handle[10]=0
+DECL GLOBAL INT nElectChangeReq=0
+;ENDFOLD (NutWeld INT Variables)
+;FOLD NutWeld REAL Variables
+DECL GLOBAL REAL rNutSensorValueInUse=11674.0
+DECL GLOBAL REAL rStrokeSensorValueInUse=0.0
+DECL GLOBAL REAL rNoNutValueInUse=1000.00
+DECL GLOBAL REAL rNutPresentValueInUse=2400.00
+DECL GLOBAL REAL rNutInvertedValueInUse=4500.00
+DECL GLOBAL REAL rNutSensorTolInUse=2500.00
+DECL GLOBAL REAL rNutSensorTol2InUse=18000.0
+DECL GLOBAL REAL rLowTolInUse=1430.00
+DECL GLOBAL REAL rHighTolInUse=3130.00
+DECL GLOBAL REAL rLowLVDTTolInUse=11140.0
+DECL GLOBAL REAL rHighLVDTTolInUse=11540.0
+DECL GLOBAL REAL rNutSensorValueTemp=0.0
+DECL GLOBAL REAL rNutSensorValue[3]
+rNutSensorValue[1]=0.0
+rNutSensorValue[2]=0.0
+rNutSensorValue[3]=11674.0
+DECL GLOBAL REAL rStrokeSensorValue[3]
+rStrokeSensorValue[1]=0.0
+rStrokeSensorValue[2]=0.0
+rStrokeSensorValue[3]=0.0
+DECL GLOBAL REAL rNoNutValue[3]
+rNoNutValue[1]=13299.0
+rNoNutValue[2]=694.000
+rNoNutValue[3]=1000.00
+DECL GLOBAL REAL rNutPresentValue[3]
+rNutPresentValue[1]=14335.0
+rNutPresentValue[2]=1874.00
+rNutPresentValue[3]=2400.00
+DECL GLOBAL REAL rNutInvertedValue[3]
+rNutInvertedValue[1]=12674.0
+rNutInvertedValue[2]=3283.00
+rNutInvertedValue[3]=4500.00
+DECL GLOBAL REAL rNutSensorTolerance[3]
+rNutSensorTolerance[1]=3000.00
+rNutSensorTolerance[2]=500.000
+rNutSensorTolerance[3]=2500.00
+DECL GLOBAL REAL rNutSensorTolerance2[3]
+rNutSensorTolerance2[1]=1000.00
+rNutSensorTolerance2[2]=4000.00
+rNutSensorTolerance2[3]=18000.0
+DECL GLOBAL REAL rLowTol[3]
+rLowTol[1]=3550.00
+rLowTol[2]=2900.00
+rLowTol[3]=1430.00
+DECL GLOBAL REAL rHighTol[3]
+rHighTol[1]=4050.00
+rHighTol[2]=4100.00
+rHighTol[3]=3130.00
+DECL GLOBAL REAL rLowLVDT[3]
+rLowLVDT[1]=13350.0
+rLowLVDT[2]=12950.0
+rLowLVDT[3]=11140.0
+DECL GLOBAL REAL rHighLVDT[3]
+rHighLVDT[1]=13650.0
+rHighLVDT[2]=13250.0
+rHighLVDT[3]=11540.0
+
+DECL GLOBAL REAL rSetUpperLVDT_CLS_W_NUT[3]
+rSetUpperLVDT_CLS_W_NUT[1]=13500.0
+rSetUpperLVDT_CLS_W_NUT[2]=13100.0
+rSetUpperLVDT_CLS_W_NUT[3]=11440.0
+DECL GLOBAL REAL rSetLowerLVDT_CLS_W_NUT[3]
+rSetLowerLVDT_CLS_W_NUT[1]=3800.00
+rSetLowerLVDT_CLS_W_NUT[2]=3500.00
+rSetLowerLVDT_CLS_W_NUT[3]=2280.00
+DECL GLOBAL BOOL bSavedCurrentValue1=TRUE
+DECL GLOBAL BOOL bSavedCurrentValue2=TRUE
+DECL GLOBAL BOOL bSavedCurrentValue3=TRUE
+DECL GLOBAL BOOL MissedNut=FALSE
+DECL GLOBAL REAL rNutSaveValue[50]
+rNutSaveValue[1]=2239.00
+rNutSaveValue[2]=3885.00
+rNutSaveValue[3]=3472.00
+rNutSaveValue[4]=2238.00
+rNutSaveValue[5]=3856.00
+rNutSaveValue[6]=3470.00
+rNutSaveValue[7]=2152.00
+rNutSaveValue[8]=3893.00
+rNutSaveValue[9]=3457.00
+rNutSaveValue[10]=2242.00
+rNutSaveValue[11]=3903.00
+rNutSaveValue[12]=3476.00
+rNutSaveValue[13]=2260.00
+rNutSaveValue[14]=3892.00
+rNutSaveValue[15]=3457.00
+rNutSaveValue[16]=2218.00
+rNutSaveValue[17]=3847.00
+rNutSaveValue[18]=3447.00
+rNutSaveValue[19]=2144.00
+rNutSaveValue[20]=3848.00
+rNutSaveValue[21]=3465.00
+rNutSaveValue[22]=2094.00
+rNutSaveValue[23]=3899.00
+rNutSaveValue[24]=3458.00
+rNutSaveValue[25]=2198.00
+rNutSaveValue[26]=3877.00
+rNutSaveValue[27]=3449.00
+rNutSaveValue[28]=2134.00
+rNutSaveValue[29]=3881.00
+rNutSaveValue[30]=3456.00
+rNutSaveValue[31]=2134.00
+rNutSaveValue[32]=3874.00
+rNutSaveValue[33]=3457.00
+rNutSaveValue[34]=2226.00
+rNutSaveValue[35]=3880.00
+rNutSaveValue[36]=3465.00
+rNutSaveValue[37]=2226.00
+rNutSaveValue[38]=3876.00
+rNutSaveValue[39]=3465.00
+rNutSaveValue[40]=2243.00
+rNutSaveValue[41]=3436.00
+rNutSaveValue[42]=2117.00
+rNutSaveValue[43]=3861.00
+rNutSaveValue[44]=3422.00
+rNutSaveValue[45]=2118.00
+rNutSaveValue[46]=3866.00
+rNutSaveValue[47]=3450.00
+rNutSaveValue[48]=2252.00
+rNutSaveValue[49]=3855.00
+rNutSaveValue[50]=3444.00
+DECL GLOBAL REAL rLVDTSaveValue[50]
+rLVDTSaveValue[1]=11379.0
+rLVDTSaveValue[2]=13591.0
+rLVDTSaveValue[3]=13044.0
+rLVDTSaveValue[4]=11381.0
+rLVDTSaveValue[5]=13590.0
+rLVDTSaveValue[6]=13031.0
+rLVDTSaveValue[7]=11386.0
+rLVDTSaveValue[8]=13587.0
+rLVDTSaveValue[9]=13038.0
+rLVDTSaveValue[10]=11382.0
+rLVDTSaveValue[11]=13584.0
+rLVDTSaveValue[12]=13053.0
+rLVDTSaveValue[13]=11380.0
+rLVDTSaveValue[14]=13584.0
+rLVDTSaveValue[15]=13050.0
+rLVDTSaveValue[16]=11386.0
+rLVDTSaveValue[17]=13581.0
+rLVDTSaveValue[18]=13048.0
+rLVDTSaveValue[19]=11389.0
+rLVDTSaveValue[20]=13589.0
+rLVDTSaveValue[21]=13038.0
+rLVDTSaveValue[22]=11388.0
+rLVDTSaveValue[23]=13593.0
+rLVDTSaveValue[24]=13032.0
+rLVDTSaveValue[25]=11381.0
+rLVDTSaveValue[26]=13589.0
+rLVDTSaveValue[27]=13033.0
+rLVDTSaveValue[28]=11389.0
+rLVDTSaveValue[29]=13595.0
+rLVDTSaveValue[30]=13042.0
+rLVDTSaveValue[31]=11386.0
+rLVDTSaveValue[32]=13593.0
+rLVDTSaveValue[33]=13046.0
+rLVDTSaveValue[34]=11380.0
+rLVDTSaveValue[35]=13597.0
+rLVDTSaveValue[36]=13048.0
+rLVDTSaveValue[37]=11381.0
+rLVDTSaveValue[38]=13575.0
+rLVDTSaveValue[39]=13046.0
+rLVDTSaveValue[40]=11381.0
+rLVDTSaveValue[41]=13036.0
+rLVDTSaveValue[42]=11388.0
+rLVDTSaveValue[43]=13588.0
+rLVDTSaveValue[44]=13026.0
+rLVDTSaveValue[45]=11387.0
+rLVDTSaveValue[46]=13589.0
+rLVDTSaveValue[47]=13026.0
+rLVDTSaveValue[48]=11379.0
+rLVDTSaveValue[49]=13593.0
+rLVDTSaveValue[50]=13030.0
+DECL GLOBAL INT rNutSaveCount=40
+;ENDFOLD (NutWeld REAL Variables)
+;FOLD NutWeld System Resources
+;ENDFOLD (NutWeld System Resources)
+;ENDFOLD (NutWeld System Variables)
+;FOLD Nutweld User Variables
+GLOBAL BOOL bNutFeedOK=FALSE
+;ENDFOLD
+;FOLD NUTWELD GLOBAL POSITIONS
+DECL GLOBAL LDAT LgAboveWELD={ACC 100.000,APO_DIST 2.00000,APO_FAC 50.0000,AXIS_VEL 100.000,AXIS_ACC 100.000,ORI_TYP #VAR,CIRC_TYP #BASE,JERK_FAC 50.0000,GEAR_JERK 50.0000,EXAX_IGN 0}
+
+DECL GLOBAL NutWeldDAT NutData1_1={GunNr 1,SpotNr 1,Offset 43}
+DECL GLOBAL NutWeldDAT NutData1_2={GunNr 1,SpotNr 2,Offset 43}
+DECL GLOBAL NutWeldDAT NutData1_3={GunNr 1,SpotNr 3,Offset 43}
+DECL GLOBAL NutWeldDAT NutData1_4={GunNr 1,SpotNr 4,Offset 43}
+DECL GLOBAL NutWeldDAT NutData1_5={GunNr 1,SpotNr 5,Offset 43}
+DECL GLOBAL NutWeldDAT NutData1_6={GunNr 1,SpotNr 6,Offset 43}
+DECL GLOBAL NutWeldDAT NutData1_7={GunNr 1,SpotNr 7,Offset 45}
+DECL GLOBAL NutWeldDAT NutData1_8={GunNr 1,SpotNr 8,Offset 43}
+DECL GLOBAL NutWeldDAT NutData1_9={GunNr 1,SpotNr 9,Offset 45}
+DECL GLOBAL NutWeldDAT NutData1_10={GunNr 1,SpotNr 10,Offset 43}
+DECL GLOBAL NutWeldDAT NutData2_1={GunNr 2,SpotNr 1,Offset 43}
+DECL GLOBAL NutWeldDAT NutData2_2={GunNr 2,SpotNr 2,Offset 43}
+DECL GLOBAL NutWeldDAT NutData2_3={GunNr 2,SpotNr 3,Offset 45}
+DECL GLOBAL NutWeldDAT NutData2_4={GunNr 2,SpotNr 4,Offset 43}
+DECL GLOBAL NutWeldDAT NutData3_1={GunNr 3,SpotNr 1,Offset 43}
+DECL GLOBAL NutWeldDAT NutData3_2={GunNr 3,SpotNr 2,Offset 43}
+DECL GLOBAL NutWeldDAT NutData3_3={GunNr 3,SpotNr 3,Offset 45}
+
+DECL GLOBAL LDAT XPNW1_BP_SPOT1CPDAT={VEL 0.150000,ACC 100.000,APO_DIST 10.0000,APO_FAC 50.0000}
+DECL GLOBAL LDAT XPNW1_BP_SPOT2CPDAT={VEL 0.150000,ACC 100.000,APO_DIST 10.0000,APO_FAC 50.0000}
+DECL GLOBAL LDAT XPNW1_BP_SPOT3CPDAT={VEL 0.150000,ACC 100.000,APO_DIST 10.0000,APO_FAC 50.0000}
+DECL GLOBAL LDAT XPNW1_BP_SPOT4CPDAT={VEL 0.150000,ACC 100.000,APO_DIST 10.0000,APO_FAC 50.0000}
+DECL GLOBAL LDAT XPNW1_CMB_SPOT5CPDAT={VEL 0.150000,ACC 100.000,APO_DIST 10.0000,APO_FAC 50.0000}
+DECL GLOBAL LDAT XPNW1_CMB_SPOT6CPDAT={VEL 0.150000,ACC 100.000,APO_DIST 10.0000,APO_FAC 50.0000}
+DECL GLOBAL LDAT XPNW1_SPOT7CPDAT={VEL 0.150000,ACC 100.000,APO_DIST 10.0000,APO_FAC 50.0000}
+DECL GLOBAL LDAT XPNW1_CNTRH_SPOT8CPDAT={VEL 0.150000,ACC 100.000,APO_DIST 10.0000,APO_FAC 50.0000}
+DECL GLOBAL LDAT XPNW1_CNTLH_SPOT9CPDAT={VEL 0.150000,ACC 100.000,APO_DIST 10.0000,APO_FAC 50.0000}
+DECL GLOBAL LDAT XPNW1_CNTLH_SPOT10CPDAT={VEL 0.150000,ACC 100.000,APO_DIST 10.0000,APO_FAC 50.0000}
+DECL GLOBAL LDAT XPNW2_SMLLH_SPOT1CPDAT={VEL 0.150000,ACC 100.000,APO_DIST 1.00000,APO_FAC 50.0000}
+DECL GLOBAL LDAT XPNW2_SMLLH_SPOT2CPDAT={VEL 0.150000,ACC 100.000,APO_DIST 1.00000,APO_FAC 50.0000}
+DECL GLOBAL LDAT XPNW2_SPOT3CPDAT={VEL 0.150000,ACC 100.000,APO_DIST 1.00000,APO_FAC 50.0000}
+DECL GLOBAL LDAT XPNW2_SMLRH_SPOT4CPDAT={VEL 0.150000,ACC 100.000,APO_DIST 1.00000,APO_FAC 50.0000}
+DECL GLOBAL LDAT XPNW3_SMLLH_SPOT1CPDAT={VEL 0.150000,ACC 100.000,APO_DIST 1.00000,APO_FAC 50.0000}
+DECL GLOBAL LDAT XPNW3_SMLRH_SPOT2CPDAT={VEL 0.150000,ACC 100.000,APO_DIST 1.00000,APO_FAC 50.0000}
+DECL GLOBAL LDAT XPNW3_SPOT03CPDAT={VEL 0.150000,ACC 100.000,APO_DIST 2.00000,APO_FAC 50.0000}
+
+DECL GLOBAL FDAT FPNW1_BP_SPOT1={TOOL_NO 6,BASE_NO 1,IPO_FRAME #TCP,POINT2[] " ",TQ_STATE FALSE}
+DECL GLOBAL FDAT FPNW1_BP_SPOT2={TOOL_NO 6,BASE_NO 1,IPO_FRAME #TCP,POINT2[] " ",TQ_STATE FALSE}
+DECL GLOBAL FDAT FPNW1_BP_SPOT3={TOOL_NO 6,BASE_NO 1,IPO_FRAME #TCP,POINT2[] " ",TQ_STATE FALSE}
+DECL GLOBAL FDAT FPNW1_BP_SPOT4={TOOL_NO 6,BASE_NO 1,IPO_FRAME #TCP,POINT2[] " ",TQ_STATE FALSE}
+DECL GLOBAL FDAT FPNW1_CMB_SPOT5={TOOL_NO 5,BASE_NO 1,IPO_FRAME #TCP,POINT2[] " ",TQ_STATE FALSE}
+DECL GLOBAL FDAT FPNW1_CMB_SPOT6={TOOL_NO 5,BASE_NO 1,IPO_FRAME #TCP,POINT2[] " ",TQ_STATE FALSE}
+DECL GLOBAL FDAT FPNW1_SPOT7={TOOL_NO 1,BASE_NO 1,IPO_FRAME #TCP,POINT2[] " ",TQ_STATE FALSE}
+DECL GLOBAL FDAT FPNW1_CNTRH_SPOT8={TOOL_NO 1,BASE_NO 1,IPO_FRAME #TCP,POINT2[] " ",TQ_STATE FALSE}
+DECL GLOBAL FDAT FPNW1_CNTLH_SPOT9={TOOL_NO 1,BASE_NO 1,IPO_FRAME #TCP,POINT2[] " ",TQ_STATE FALSE}
+DECL GLOBAL FDAT FPNW1_CNTLH_SPOT10={TOOL_NO 2,BASE_NO 1,IPO_FRAME #TCP,POINT2[] " ",TQ_STATE FALSE}
+DECL GLOBAL FDAT FPNW2_SMLLH_SPOT1={TOOL_NO 3,BASE_NO 2,IPO_FRAME #TCP,POINT2[] " ",TQ_STATE FALSE}
+DECL GLOBAL FDAT FPNW2_SMLLH_SPOT2={TOOL_NO 3,BASE_NO 2,IPO_FRAME #TCP,POINT2[] " ",TQ_STATE FALSE}
+DECL GLOBAL FDAT FPNW2_SPOT3={TOOL_NO 1,BASE_NO 2,IPO_FRAME #TCP,POINT2[] " ",TQ_STATE FALSE}
+DECL GLOBAL FDAT FPNW2_SMLRH_SPOT4={TOOL_NO 4,BASE_NO 2,IPO_FRAME #TCP,POINT2[] " ",TQ_STATE FALSE}
+DECL GLOBAL FDAT FPNW3_SMLLH_SPOT1={TOOL_NO 4,BASE_NO 3,IPO_FRAME #TCP,POINT2[] " ",TQ_STATE FALSE}
+DECL GLOBAL FDAT FPNW3_SMLRH_SPOT2={TOOL_NO 3,BASE_NO 3,IPO_FRAME #TCP,POINT2[] " ",TQ_STATE FALSE}
+DECL GLOBAL FDAT FPNW3_SPOT03={TOOL_NO 1,BASE_NO 3,IPO_FRAME #TCP,POINT2[] " ",TQ_STATE FALSE}
+
+DECL GLOBAL E6POS XPNW1_BP_SPOT1={X 10000.0,Y 10000.0,Z 10000.0,A 24.3878460,B 6.93027306,C 2.31241417,S 2,T 3,E1 0.0,E2 0.0,E3 0.0,E4 0.0,E5 0.0,E6 0.0}
+DECL GLOBAL E6POS XPNW1_BP_SPOT2={X 10000.0,Y 10000.0,Z 10000.0,A 19.9214325,B 7.19185925,C 2.07928491,S 2,T 3,E1 0.0,E2 0.0,E3 0.0,E4 0.0,E5 0.0,E6 0.0}
+DECL GLOBAL E6POS XPNW1_BP_SPOT3={X 10000.0,Y 10000.0,Z 10000.0,A -24.4369411,B 6.70565319,C -3.14169478,S 2,T 43,E1 0.0,E2 0.0,E3 0.0,E4 0.0,E5 0.0,E6 0.0}
+DECL GLOBAL E6POS XPNW1_BP_SPOT4={X 10000.0,Y 10000.0,Z 10000.0,A -5.04401398,B 7.52013111,C -0.947894752,S 2,T 3,E1 0.0,E2 0.0,E3 0.0,E4 0.0,E5 0.0,E6 0.0}
+DECL GLOBAL E6POS XPNW1_CMB_SPOT5={X 10000.0,Y 10000.0,Z 10000.0,A 127.477142,B -87.7197189,C -126.486671,S 2,T 3,E1 0.0,E2 0.0,E3 0.0,E4 0.0,E5 0.0,E6 0.0}
+DECL GLOBAL E6POS XPNW1_CMB_SPOT6={X 10000.0,Y 10000.0,Z 10000.0,A 163.112366,B -88.1315460,C -163.261642,S 2,T 11,E1 0.0,E2 0.0,E3 0.0,E4 0.0,E5 0.0,E6 0.0}
+DECL GLOBAL E6POS XPNW1_SPOT7={X -1843.40051,Y 1365.11438,Z -1247.50122,A 1.63106120,B -0.267349809,C 0.0320630744,S 2,T 34,E1 0.0,E2 0.0,E3 0.0,E4 0.0,E5 0.0,E6 0.0}
+DECL GLOBAL E6POS XPNW1_CNTRH_SPOT8={X 10000.0,Y 10000.0,Z 10000.0,A 9.53665924,B 8.81161118,C 1.48279560,S 2,T 3,E1 0.0,E2 0.0,E3 0.0,E4 0.0,E5 0.0,E6 0.0}
+DECL GLOBAL E6POS XPNW1_CNTLH_SPOT9={X 10000.0,Y 10000.0,Z 10000.0,A -22.0830135,B 8.48479176,C -168.919724,S 6,T 58,E1 0.0,E2 0.0,E3 0.0,E4 0.0,E5 0.0,E6 0.0}
+DECL GLOBAL E6POS XPNW1_CNTLH_SPOT10={X 10000.0,Y 10000.0,Z 10000.0,A -41.0599174,B 6.47518301,C -5.81831,S 2,T 11,E1 0.0,E2 0.0,E3 0.0,E4 0.0,E5 0.0,E6 0.0}
+DECL GLOBAL E6POS XPNW2_SMLLH_SPOT1={X 10000.0,Y 10000.0,Z 10000.0,A -25.2427330,B -0.917267919,C 0.316555768,S 2,T 3,E1 0.0,E2 0.0,E3 0.0,E4 0.0,E5 0.0,E6 0.0}
+DECL GLOBAL E6POS XPNW2_SMLLH_SPOT2={X 10000.0,Y 10000.0,Z 10000.0,A -26.4027023,B -0.368946612,C 0.140346259,S 2,T 3,E1 0.0,E2 0.0,E3 0.0,E4 0.0,E5 0.0,E6 0.0}
+DECL GLOBAL E6POS XPNW2_SPOT3={X -1892.54883,Y 962.797852,Z -1273.30908,A 1.63266158,B -0.267036289,C 0.0319398344,S 2,T 34,E1 0.0,E2 0.0,E3 0.0,E4 0.0,E5 0.0,E6 0.0}
+DECL GLOBAL E6POS XPNW2_SMLRH_SPOT4={X 10000.0,Y 10000.0,Z 10000.0,A 56.6676178,B 0.635308802,C 1.57849574,S 2,T 3,E1 0.0,E2 0.0,E3 0.0,E4 0.0,E5 0.0,E6 0.0}
+DECL GLOBAL E6POS XPNW3_SMLLH_SPOT1={X 10000.0,Y 10000.0,Z 10000.0,A -5.94539547,B -0.684475839,C 0.110831633,S 2,T 3,E1 0.0,E2 0.0,E3 0.0,E4 0.0,E5 0.0,E6 0.0}
+DECL GLOBAL E6POS XPNW3_SMLRH_SPOT2={X 10000.0,Y 10000.0,Z 10000.0,A 57.5385399,B 0.704498410,C 0.373657703,S 2,T 11,E1 0.0,E2 0.0,E3 0.0,E4 0.0,E5 0.0,E6 0.0}
+DECL GLOBAL E6POS XPNW3_SPOT03={X -3857.14355,Y 2.76319265,Z -398.229767,A -178.432297,B -0.654859,C -179.985626,S 2,T 34,E1 0.0,E2 0.0,E3 0.0,E4 0.0,E5 0.0,E6 0.0}
+
+;ENDFOLD
+
+ENDDAT
