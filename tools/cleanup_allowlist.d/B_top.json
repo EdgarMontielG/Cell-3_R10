@@ -1,0 +1,18 @@
+{
+  "_comment": "Group B_top (cell, sps.sub, Style_1, Style1Opt1, Style1Opt10AutoRR, HOME): comment-only cleanup of the .src files; unused module-local data removed from style_1.dat (PDATs and a local SIGNAL di141RedRabbitFail $IN[141] that nothing reads).",
+  "removed_code": {
+    "KRC/R1/Program/Styles/style_1.dat": {
+      "reason": "Unused module-local point and motion data (E6POS/E6AXIS/FDAT/PDAT/LDAT and teach leftovers): no name, and no name without its X/F/P/L prefix, appears anywhere in the module .src (code, comments or inline-form parameters). Editor state (LAST_BASIS, LAST_TP_PARAMS, NutWeld template data) is kept.",
+      "lines": [
+        "SIGNAL di141RedRabbitFail $IN[141]",
+        "DECL PDAT PPDAT1={VEL 100.000,ACC 100.000,APO_DIST 100.000,GEAR_JERK 50.0000,EXAX_IGN 0}",
+        "DECL PDAT PPDAT2={VEL 100.000,ACC 100.000,APO_DIST 100.000,GEAR_JERK 50.0000,EXAX_IGN 0}",
+        "DECL PDAT PPDAT3={VEL 100.000,ACC 100.000,APO_DIST 100.000,GEAR_JERK 50.0000,EXAX_IGN 0}",
+        "DECL PDAT PPDAT4={VEL 100.000,ACC 100.000,APO_DIST 100.000,GEAR_JERK 50.0000,EXAX_IGN 0}",
+        "DECL PDAT PPDAT5={VEL 100.000,ACC 100.000,APO_DIST 100.000,GEAR_JERK 50.0000,EXAX_IGN 0}",
+        "DECL PDAT PPDAT6={VEL 100.000,ACC 100.000,APO_DIST 100.000,GEAR_JERK 50.0000,EXAX_IGN 0}"
+      ]
+    }
+  },
+  "form_header_changes": {}
+}
