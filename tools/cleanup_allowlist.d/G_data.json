@@ -1,5 +1,5 @@
 {
-  "_comment": "Group G_data (declarations): unused integrator declarations removed from $config.dat. Every name was grepped (whole word, case-insensitive) over all KRL files under KRC/ and C/: no live reference.",
+  "_comment": "Group G_data (declarations): unused integrator declarations removed from $config.dat. Every name was grepped (whole word, case-insensitive) over all KRL files under KRC/ and C/: no live reference. Also the integrator fold Nut Tree of automationcoreroutines.dat. Comment-only edits (no allowlist needed): $config.dat comments, nutweldroutines.dat ;Nueva and dipw1_WaterOk notes, automationcoredata.dat two commented-out declarations, automationcoreroutines.dat four ;before: lines and the F36 note.",
   "removed_code": {
     "KRC/R1/System/$config.dat": {
       "reason": "Unused integrator globals. PARTPRESENT4/5: this robot checks 3 nuts, zero references. REDRABBIT/REDRABBIT1..5: REDRABBIT never used, REDRABBIT1..3 written only by the deleted style1app2opt1AutoRR; REDRABBIT also had the name of the deleted module RedRabbit. bscrapGE4_1..5, Part_Style, CL_WeldPressureOK, CL_STEP, NUT_RETRY: zero references. CL_GUN_WORK_REQ, CL_CENTERLINE_READY, CL_ALL_HOME: zero references (on this robot the vendor NutWeld routines were not edited to use them). CL_ALL_HOME_PLC $OUT[4000]: zero references, no bus mapping.",
@@ -25,6 +25,30 @@
         "DECL BOOL CL_ALL_HOME=FALSE",
         "SIGNAL CL_ALL_HOME_PLC $OUT[4000]",
         "DECL INT NUT_RETRY=2"
+      ]
+    },
+    "KRC/R1/TP/AutomationCore/automationcoreroutines.dat": {
+      "reason": "Integrator fold 'Nut Tree': leftovers from another project with zero references in the archive - ScrapCount and the scrap flags of other parts (Backpanel, SMBR upper/lower, CrossMBR), and the di610..di613 / di630..di635 / di777..di780 Stud_Nut_Present signals (three blocks reusing the same names). bScrapCantrail (written by RejectGE4) and bScrapGe4 (scrap decision of the nut checks) are kept. Same removal as on R20.",
+      "lines": [
+        "GLOBAL INT ScrapCount=1",
+        "GLOBAL BOOL bScrapBackpanel=FALSE",
+        "GLOBAL BOOL bScrapSMBRupper=FALSE",
+        "GLOBAL BOOL bScrapCrossMBR=FALSE",
+        "GLOBAL BOOL bScrapSMBRlower=FALSE",
+        "GLOBAL SIGNAL di610Stud_Nut_Present1 $IN[610]",
+        "GLOBAL SIGNAL di611Stud_Nut_Present2 $IN[611]",
+        "GLOBAL SIGNAL di612Stud_Nut_Present3 $IN[612]",
+        "GLOBAL SIGNAL di613Stud_Nut_Present4 $IN[613]",
+        "GLOBAL SIGNAL di630Stud_Nut_Present1 $IN[630]",
+        "GLOBAL SIGNAL di631Stud_Nut_Present2 $IN[631]",
+        "GLOBAL SIGNAL di632Stud_Nut_Present3 $IN[632]",
+        "GLOBAL SIGNAL di633Stud_Nut_Present4 $IN[633]",
+        "GLOBAL SIGNAL di634Stud_Nut_Present5 $IN[634]",
+        "GLOBAL SIGNAL di635Stud_Nut_Present6 $IN[635]",
+        "GLOBAL SIGNAL di777Stud_Nut_Present1 $IN[777]",
+        "GLOBAL SIGNAL di779Stud_Nut_Present3 $IN[779]",
+        "GLOBAL SIGNAL di778Stud_Nut_Present2 $IN[778]",
+        "GLOBAL SIGNAL di780Stud_Nut_Present4 $IN[780]"
       ]
     }
   },

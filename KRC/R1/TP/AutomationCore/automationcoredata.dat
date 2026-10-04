@@ -140,8 +140,6 @@ EXT  RepairToHome ( )
 EXT  HomeToRepair ( )
 ;ENDFOLD (Automation Core Ext Prog Decl)
 ;ENDFOLD (Automation Core System Variables)
-; GLOBAL ENUM NutWeld_Style_Type NUTWELD,STUDWELD
-; DECL GLOBAL NutWeld_Style_Type PNWStyle=#NUTWELD
 ;FOLD Process Counter
 GLOBAL ENUM MyCountCmd Init,Count1up,Check
 DECL GLOBAL MyCountCmd geProcessCount=#Init
