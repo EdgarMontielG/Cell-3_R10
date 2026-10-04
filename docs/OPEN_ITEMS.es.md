@@ -1491,11 +1491,12 @@ Actualizado: 2026-10-04. Pendientes: **83** de 97. El detalle técnico de cada p
 
 **Depende de / se cierra con:** F11, F14
 
-**Nota.** Calvin (#19) propone reactivar la espera de feed complete con timeout en el camino local. En R20 Ethos (Edgar, 2026-10-04) mantuvo el criterio de este punto; aquí se propone lo mismo (confirmar con Edgar para R10). La etiqueta NUT_READY: ya no existe: G11 cambió el salto por IF NOT NUT_READY.
+**Nota.** No se acepta 'arreglarlo' alargando el pulso. Calvin (#19) propone reactivar la espera de $IN[481] dipw1_FeedComplt con timeout en el camino local; Ethos (Edgar, 2026-10-04) decidió para R10 lo mismo que para R20: se mantiene el criterio de este punto, quitar el camino local o convertirlo en petición de preload. Si se elige (b), confirmar antes en celda que un preload (QFP, pines, blow-off) puede correr con la pieza en la pose de soldadura; si no puede, la opción es (a). La etiqueta NUT_READY: ya no existe: G11 cambió el salto por IF NOT NUT_READY. F01, F11, F13 y F14 tocan el mismo módulo y las mismas variables: coordinar.
 
 **Historial:**
 
 * 2026-10-04 — Alta (Ethos): Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02).
+* 2026-10-04 — Decisión: Se mantiene el criterio de F25 frente a la propuesta de Calvin #19, igual que en R20 (decisión de Edgar, 2026-10-04).
 
 ---
 
