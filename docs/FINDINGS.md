@@ -69,7 +69,7 @@ hangs. *Medium*: robustness or diagnosis. *Low*: hygiene.
 | F28 | Low | Nut sensor sampled on arrival, dwell placed after the sample | code |
 | F29 | Low | KL50L2 beacon logic dead; one beacon bit not mapped | code |
 | F30 | Low | GOTO structure in Style1Opt1 is load-bearing | keep |
-| F31 | Medium | *R10:* GripperTech form parameters disagree with the calls; red-rabbit drop uses inactive gripper 3 | inline forms |
+| F31 | Medium | *R10:* GripperTech form parameters disagree with the calls; red-rabbit drop releases with gripper 3 (same I/O as gripper 1) | inline forms |
 | F32 | Medium | TRIGGERs and statements hand-inserted inside inline-form folds are lost on Touch Up | procedure |
 | F33 | Medium | HMI `GripperConfig.xml` out of sync with `grp_data.dat` | procedure |
 | F34 | Low | CENTERLINE_HOME: `$OUT[473]` polarity and missing Bosch reset | code |
@@ -333,9 +333,10 @@ narrower 69000..73000 and `> 120000`. At the end of the weld the upper pin is
 commanded back (0.2 s after the gun is seen open) without confirmation.
 *Fix:* check the pin at weld position before weld start and retracted
 before withdrawing; use the declared constants.
-*Office (G16):* the gun windows are named constants (`CL_GUN_CLOSED_MIN/MAX`
-= 69000..73000, the values in use, and `CL_GUN_OPEN_MIN`); the pin checks are
-still to do.
+*Office (G16):* the gun windows are named constants: `CL_GUN_WELD_MIN/MAX`
+now hold 69000..73000, the window the code always checked (they were declared
+65000..76000 and unused), and `CL_GUN_OPEN_MIN`; the pin checks are still to
+do.
 
 ### F17 — Medium — overlapping declarations
 
@@ -373,10 +374,13 @@ red-rabbit outputs only for `CASE 10`, so with option 12 neither
 check only writes `bscrapGE4`. The red-rabbit drop (style1drop1opt2AutoRR)
 first drives gripper 1 to CLOSE with hand-written outputs (`$OUT[249]` OFF,
 `$OUT[250]` ON, lines 25-32), then "opens" with
-`GRPg_SetStateAndCheck(3, 1, ...)` (line 105) — gripper 3 is inactive in
-`grp_data.dat`, so nothing happens — and checks gripper 1 OPEN (line 111),
-which must fail. If the part ever got released, the robot moves away (LIN P23)
-before the gripper-empty wait, and the outputs are cleared at the drop,
+`GRPg_SetStateAndCheck(3, 1, ...)` (line 105). Gripper 3 is inactive in
+`grp_data.dat`, but it is configured on the same I/O as gripper 1
+(`$OUT[249]/[250]`, `$IN[257]/[258]`, same states) and `GRPg_SetState` does not
+look at the active flag (only the PLC path `GRPg_ChkSetStatePLC` does): gripper
+1 really opens and the check of gripper 1 OPEN (line 111) passes. The release
+works only because of that duplicate mapping. The robot then moves away (LIN
+P23) before the gripper-empty wait, and the outputs are cleared at the drop,
 before the PLC can read them; MaintainSystem clears them again at the top of
 the next cycle. Gestamp review points 8 and 21 describe the same.
 
@@ -504,9 +508,14 @@ replaced them by hand-written outputs). Only gripper 1 is active in
 the conveyor drop the gripper SET forms carry the hidden parameters
 `setgripper=4;setstate=2` while the code calls `GRPg_SetStateAndCheck(1, 1 or
 2, ...)`: opening and confirming such a form regenerates the call for
-gripper 4, which is inactive — the gripper would no longer open or close. The
-red-rabbit drop writes `$OUT[249]/[250]` by hand and "releases" with gripper 3
-(F19). Each SET with check is followed by a redundant `GRPg_Check` of the same
+gripper 4 — `$OUT[251]/[252]` and `$IN[259]/[260]`, which are on the bus:
+gripper 1 would no longer move and the check would time out (3 s) into the
+error strategy. The red-rabbit drop writes `$OUT[249]/[250]` by hand and
+releases with gripper 3, which shares gripper 1's I/O (F19).
+**Office version (G10):** the hidden parameters of the pick and conveyor-drop
+SET forms now read `setgripper=1` with the state of the call, and the redundant
+`GRPg_Check` after each SET-with-check is gone; to be tested on the cell (open
+and confirm one form of each on the smartPAD and compare the call). Each SET with check is followed by a redundant `GRPg_Check` of the same
 state. *Fix:* correct the hidden parameters (open each form with the right
 gripper and state, or edit the `;Params` line), use one SET-with-check per
 command, replace the hand-written outputs of the red-rabbit drop.
@@ -531,8 +540,9 @@ Reset` fold.
 R20's) has all grippers inactive with dummy I/O, while `grp_data.dat` has
 gripper 1 active on `$OUT[249..250]`/`$IN[257..258]`. Saving the GripperTech
 configuration on the smartHMI would regenerate `grp_data.dat` with gripper 1
-inactive — then every `GRPg_SetStateAndCheck(1, ...)` in production does
-nothing. *Procedure:* do not save the gripper configuration until the XML is
+inactive and its dummy I/O. GripperTech's set routine ignores the active
+flag; it is the dummy I/O that would break production: every
+`GRPg_SetStateAndCheck(1, ...)` would drive and check the wrong bits. *Procedure:* do not save the gripper configuration until the XML is
 re-synchronised.
 
 ### F34 — Low — CENTERLINE_HOME
@@ -657,10 +667,12 @@ in the byte order the regulator expects, as named constants (G16).
 
 *Source: Calvin #23.* CloseAndCheckAllClamps / OpenAndCheckAllClamps (called
 only by the mastering reference) had the set and check of grippers 2-4
-commented out (`;===SL===`). Grippers 2-4 are inactive in `grp_data.dat` and
-EOAT 1 has no I/O for them on this robot (gripper 2's inputs `$IN[269..272]`
-are not on the bus). Re-enabling them is not possible; the cleanup removed
-the disabled folds and documented that the routines handle gripper 1 only.
+commented out (`;===SL===`). Grippers 2-4 are inactive in `grp_data.dat`:
+gripper 3 is a duplicate of gripper 1's I/O, gripper 4 points at
+`$OUT[251]/[252]`, `$IN[259]/[260]` (no EOAT function on R10) and gripper 2's
+inputs `$IN[269..272]` are not on the bus. Re-enabling them would add nothing
+on EOAT 1; the cleanup removed the disabled folds and documented that the
+routines handle gripper 1 only.
 
 ### F46 — Medium — Work Complete never sent (R10)
 
@@ -697,7 +709,7 @@ this archive.
 | C04 | Pedestal (remote TCP) moves interpolated about the fixed die | 11 of 22 base-3 moves in external TCP, none of the 3 weld presentations (F22) | re-teach |
 | C05 | Remote TCP 6.35 mm off the stationary electrode, axes square to the die | `BASE_DATA[3]` "NUT WELDER" = {X 21.84, Y 1866.09, Z 658.47, A 90, B 0, C 180} | measure on site |
 | C06 | Tool/base named; no unnamed tools in production | Tools named "TOOL 1".."TOOL 3"; bases "10A", "20B", "PED SEALER" come from another project; stale tool names in fold text refreshed by the cleanup | rename |
-| C07 | One user frame per fixture | Pick stations, nut check, camera, reject and drop taught in WORLD | Gestamp decision |
+| C07 | One user frame per fixture | Pick stations, nut check, camera, reject and drop mostly taught in WORLD (camera approach P6 and reject exit P24 in Base[3]) | Gestamp decision |
 | C08 | Payload per loading scenario, determined | `LOAD_DATA[1]` 210 kg, round values typed in (F39) | LoadDataDetermination |
 | C09 | Collision detection on at all times | Off (`$TORQMON` 0, `TQ_STATE FALSE` on every production move); reaction is a bare HALT | tune on cell or written waiver |
 | C10 | `ZERO_G1` mastering program | Missing (only the KUKA mastering-reference test exists) | new module |
@@ -748,7 +760,7 @@ the archive, and status after the office changes:
 | 1 | Robot name needs to change | Yes: robot name `V431_03_10_R1` (am.ini, RobotData.xml) | Open — rename on the controller; format to confirm with Gestamp | C02 |
 | 2 | Safety Tool is not equal to Default TCP | Not verifiable from the archive (safety tool geometry is in the safety controller); the safety log shows tool 1 changed three times on 2026-08-30 | Open — SafeOperation, checksum, acceptance | C05 |
 | 3 | Tool 1 is used without Load data determination | Yes: `LOAD_DATA[1]` round values, load check warn-only | Open — Load Data Determination with and without part | F39, C08 |
-| 4 | Program Red Rabbit() is blocked, might be an unnecessary copy | Yes: redrabbit.src starts with `WAIT FOR FALSE`, from a stud cell, not called, cannot link | **Fixed by the cleanup** — deleted | F19 |
+| 4 | Program Red Rabbit() is blocked, might be an unnecessary copy | Yes: redrabbit.src starts with `WAIT FOR FALSE`, from a stud cell, blocked by `WAIT FOR FALSE` right after INI, not called, cannot link | **Fixed by the cleanup** — deleted | F19 |
 | 5 | Unused programs | Yes: 11 modules nothing calls | **Fixed by the cleanup and the office** — 11 deleted + CENTERLINE_LOOP; safetest kept (decision), GlueTech to uninstall | C28 |
 | 6 | Electrode change confirmation only 0.1 s, no handshake | Yes (gunelectrodechange:68) | Open | F43 |
 | 7 | Multiple options in Style_1 call the same sub-program | Yes: 1, 2, 7, 8 → Style1Opt1 | Decision — what options 2/7/8 are | F02 |
@@ -802,7 +814,7 @@ list is given; no row is left without one.
 | Std 9 | 10R1 | Red Rabbit() blocked / unnecessary copy | Confirmed; deleted by the cleanup | G04 |
 
 Not in Calvin's list and found in this review: F44 (pressure byte order),
-F46 (Work Complete removed from EndOfCycle), F19's gripper-3 release, F09
+F46 (Work Complete removed from EndOfCycle), F19's gripper-3 release (works only through a duplicate I/O mapping), F09
 (water OK forced TRUE), F35 (`$OUT[930]` stuck ON), F29 (unmapped beacon bit),
 F47 (brake-test path), F01, F11 (pedestal entry and PRELOAD ownership — the two
 critical items).

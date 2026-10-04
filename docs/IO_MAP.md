@@ -149,8 +149,8 @@ the outputs `$OUT[473]`, `$OUT[475..478]` and the KL50L2 beacon on device
 
 LPT position windows used by CENTERLINE_WELD (comment table in the program):
 gun retracted ≈ 139815, open check > 120000 (`CL_GUN_OPEN_MIN`); gun on the nut
-69000..73000 (`CL_GUN_CLOSED_MIN..MAX`, office names; the older declared
-`CL_GUN_WELD_MIN/MAX` = 65000..76000 are not used).
+69000..73000 (`CL_GUN_WELD_MIN..MAX`; before the office changes these two were
+declared 65000..76000 and not used).
 
 ## AutomationCore handshake and service signals named in comments
 
