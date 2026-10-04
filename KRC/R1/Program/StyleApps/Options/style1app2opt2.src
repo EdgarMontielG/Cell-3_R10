@@ -57,10 +57,12 @@ do080RepositionTooling1=TRUE
 ;bscrapGE4 UNCHANGED (F02)
             WAIT SEC 0.2
      
+         ;GOOD - SIGNALS $IN[100] di100CameraJudgmentOK ON, $IN[101] di101CameraJudgmentNG OFF
          IF (di100CameraJudgmentOK==TRUE) AND (di101CameraJudgmentNG==FALSE)THEN
             bscrapGE4 = FALSE
        
          ENDIF 
+         ;SCRAP - SIGNALS $IN[100] di100CameraJudgmentOK OFF, $IN[101] di101CameraJudgmentNG ON
          IF (di100CameraJudgmentOK==FALSE) AND (di101CameraJudgmentNG==TRUE)THEN
             bscrapGE4 = TRUE
          ENDIF
