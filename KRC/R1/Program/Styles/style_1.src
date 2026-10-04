@@ -1,6 +1,6 @@
 &ACCESS RVO1
 &REL 101
-&COMMENT GE4_002
+&COMMENT 03-10-R1 STYLE 1
 DEF Style_1( )
    ;FOLD INI;%{PE}
       ;FOLD BASISTECH INI
@@ -11,22 +11,38 @@ DEF Style_1( )
       ;FOLD USER INI
          ;Make your modifications here
          
-         ; (USER INI)
-      ;ENDFOLD (INI)
-   ;ENDFOLD INI
-   SWITCH nOption     ; Initialize Tolerance
-      CASE 1                  ; GE_4_Pick1
+      ;ENDFOLD (USER INI)
+   ;ENDFOLD (INI)
+;********************************
+; Gestamp Standards
+; Line - BMW G65 (cell 03)
+; Robot 03-10-R1 (BMW-03-10-R1)
+; Application - STYLE 1: SELECT THE OPTION PROGRAM
+;********************************
+   ;SELECT THE OPTION PROGRAM BY OPTION NUMBER nOption (gdiOption $IN[38..45])
+   SWITCH nOption
+      CASE 1
+         ;OPTION 1: PRODUCTION CYCLE (PICK, WELD 3 NUTS, NUT CHECKS, DROP OR REJECT)
          Style1Opt1 ( )
-      CASE 2                  ; GE_4_Pick1
+      CASE 2
+         ;OPTION 2: SAME PRODUCTION CYCLE (Style1Opt1)
+         ;NOTE: THE NUT SENSOR CHECK EVALUATES ONLY OPTIONS 1 AND 10 - FOR OPTIONS 2/7/8 ONLY THE
+         ;NOTE: CAMERA DECIDES SCRAP OR GOOD (F02)
          Style1Opt1 ( )
-      CASE 7                  ; GE_4_Pick1
+      CASE 7
+         ;OPTION 7: SAME PRODUCTION CYCLE (Style1Opt1) - NUT SENSOR NOT EVALUATED (F02)
          Style1Opt1 ( )
-      CASE 8                  ; GE_4_Pick1
+      CASE 8
+         ;OPTION 8: SAME PRODUCTION CYCLE (Style1Opt1) - NUT SENSOR NOT EVALUATED (F02)
          Style1Opt1 ( )
-      CASE 12                  ; REDRABBIT 
+      CASE 12
+         ;OPTION 12: RED RABBIT TEST CYCLE (Style1Opt10AutoRR)
+         ;NOTE: THE NUT CHECK EVALUATES THE RED RABBIT ONLY FOR OPTION 10, NOT 12 (F19)
          Style1Opt10AutoRR ( )
       DEFAULT
-         WAIT FOR FALSE     ; wrong nOption selected
+         ;NOTE: ANY OTHER OPTION: WAIT FOR FALSE - THE ROBOT STOPS HERE IN CYCLE FOR EVER,
+         ;NOTE: WITH NO MESSAGE AND NO FAULT TO THE PLC (F06, C21)
+         WAIT FOR FALSE
    ENDSWITCH
    
 
