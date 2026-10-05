@@ -77,11 +77,34 @@ sobre el original hay que integrarlo a mano.
 7. Revisión de cada cambio de código y de cada punto marcado contra su
    criterio de cierre: **Cerrado - auditado** si cumple todo, **Reabierto**
    con la razón si no.
-8. Se importa el respaldo al repositorio (`--import`), se actualiza
-   `docs/open_items.json` (estado e historial de cada punto), se regeneran el
-   Excel y el PDF (`tools/make_items_xlsx.py`, `tools/make_report.py`) y se
-   hace commit con la fecha. El programador recibe el Excel nuevo para el
-   día siguiente.
+8. Si el respaldo parte de la versión entregada, se importa al repositorio
+   (`--import`). Si trae archivos previos a la depuración o editados encima
+   del original (como el 2026-10-05), no se importa: los cambios del
+   programador se integran a mano en la versión depurada y se prueba con un
+   diff solo de código contra su versión que hacen lo mismo. Después se
+   actualiza `docs/open_items.json` (estado e historial de cada punto), se
+   regeneran el Excel y el PDF (`tools/make_items_xlsx.py`,
+   `tools/make_report.py`) y se hace commit con la fecha. El programador
+   recibe el Excel nuevo para el día siguiente.
+
+### Cómo se revisa, sin multiplicar agentes
+
+* Primero las herramientas mecánicas: `audit_backup.py`,
+  `check_cleanup.py --head <base>`, `check_equivalence.py` y, si se tocó el
+  auditor, `test_audit_backup.py`. Son deterministas y cubren lo repetitivo.
+* El auditor lee él mismo el diff solo de código (sin comentarios ni
+  renombres) contra el último estado auditado y contra el original. No se
+  reparte la revisión en un agente por módulo ni por tema.
+* Revisión independiente (uno o dos agentes, con el alcance acotado a los
+  archivos y las preguntas concretas) solo en dos casos: cuando el cambio
+  toca seguridad o interlocks (entrada al pedestal, interrupts, PRELOAD,
+  rutinas del proveedor, inline forms), y antes de entregar un zip para
+  cargar. El revisor confirma o refuta hallazgos concretos; no vuelve a
+  auditar todo.
+* Pendiente para el próximo respaldo del R10: revisión independiente de
+  GUN_OPEN_CHECK y los interrupts 20-22 (apps 1-3), del background de
+  AutomationCore con sus ediciones del proveedor y de la integración hecha a
+  mano el 2026-10-05.
 
 ## Qué hace reabrir un punto
 
