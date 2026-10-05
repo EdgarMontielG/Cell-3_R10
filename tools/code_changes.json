@@ -41,9 +41,12 @@
    "what": "Every GOTO and label removed: dry-cycle skips as IF NOT di004UseDryCycle (picks, weld apps, nut check), the preloaded-nut skip in CENTERLINE_WELD as IF NOT NUT_READY, the gun-closed check as LOOP/EXIT, Style1Opt1 as one IF/ELSE path per cycle (station read once into nPickStation). Behaviour kept except F07: after the HALT of the gun-closed timeout both timers restart, so a second timeout is possible.",
    "files": [
     "KRC/R1/Program/Centerline/centerline_weld.src",
-    "KRC/R1/Program/StyleApps/Options/style1app1opt1.src",
-    "KRC/R1/Program/StyleApps/Options/style1app1opt2.src",
-    "KRC/R1/Program/StyleApps/Options/style1app1opt3.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt1A.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt1B.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt2A.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt2B.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt3A.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt3B.src",
     "KRC/R1/Program/StyleApps/Options/style1app2opt1.src",
     "KRC/R1/Program/StylePicks/Options/style1pick1opt1.src",
     "KRC/R1/Program/StylePicks/Options/style1pick1opt2.src",
@@ -58,9 +61,12 @@
    ],
    "what": "Dead nut-weld retry removed (as on R20): RETRY_NUT1 labels, the IF NUT_WELD_RETRY blocks and the NUT_WELD_RETRY declaration. NUT_WELD_RETRY was never set TRUE, so no path changes.",
    "files": [
-    "KRC/R1/Program/StyleApps/Options/style1app1opt1.src",
-    "KRC/R1/Program/StyleApps/Options/style1app1opt2.src",
-    "KRC/R1/Program/StyleApps/Options/style1app1opt3.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt1A.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt1B.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt2A.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt2B.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt3A.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt3B.src",
     "KRC/R1/System/$config.dat"
    ]
   },
@@ -74,8 +80,10 @@
     "KRC/R1/Program/StylePicks/Options/style1pick1opt1.src",
     "KRC/R1/Program/StylePicks/Options/style1pick1opt2.src",
     "KRC/R1/Program/StylePicks/Options/style1pick1opt1AutoRR.src",
-    "KRC/R1/Program/StyleApps/Options/style1app1opt1.src",
-    "KRC/R1/Program/StyleApps/Options/style1app1opt2.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt1A.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt1B.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt2A.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt2B.src",
     "KRC/R1/Program/StyleDrops/Options/style1drop1opt2AutoRR.src"
    ]
   },
@@ -146,9 +154,12 @@
    ],
    "what": "Programmer's change of 2026-10-05, integrated: GUN_OPEN_CHECK (submit running, air if enabled, cooling water, gun open 137000..142000 with message and wait) before each pedestal entry and after the gun opens in CENTERLINE_WELD (replaces WAIT FOR LPT > 120000; CL_GUN_OPEN_MIN removed); interrupts 20-22 (gun out of the open range or submit stopped -> GUN_OPEN_LOST: BRAKE F, quit message, wait) on while the robot moves into and out of the pedestal, off at the weld position.",
    "files": [
-    "KRC/R1/Program/StyleApps/Options/style1app1opt1.src",
-    "KRC/R1/Program/StyleApps/Options/style1app1opt2.src",
-    "KRC/R1/Program/StyleApps/Options/style1app1opt3.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt1A.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt1B.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt2A.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt2B.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt3A.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt3B.src",
     "KRC/R1/Program/Centerline/centerline_weld.src",
     "KRC/R1/System/$config.dat"
    ]
@@ -209,6 +220,66 @@
    "files": [
     "KRC/R1/Program/StyleDrops/Options/style1drop1opt1.dat"
    ]
+  },
+  {
+   "items": [
+    "F51"
+   ],
+   "what": "Programmer's change of 2026-10-05 14:46, integrated: the three weld apps are split per pick station, A for parts from pickup 1 (positions unchanged) and B for pickup 2 (weld positions P19/P20 of nut 1, P16 of nuts 2 and 3 re-taught 1-5 mm); Style1Opt1 calls A or B by nPickStation. Camera point P3 re-taught (style1app2opt2.dat).",
+   "files": [
+    "KRC/R1/Program/StyleApps/Options/style1app1opt1A.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt1B.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt2A.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt2B.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt3A.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt3B.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt1A.dat",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt1B.dat",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt2A.dat",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt2B.dat",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt3A.dat",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt3B.dat",
+    "KRC/R1/Program/Styles/Options/style1opt1.src",
+    "KRC/R1/Program/StyleApps/Options/style1app2opt2.dat"
+   ]
+  },
+  {
+   "items": [
+    "F01"
+   ],
+   "what": "Independent review of 2026-10-05: the gun monitoring interrupts 20-22 are switched on before each GUN_OPEN_CHECK (on entry and again after CENTERLINE_WELD), because they fire only on a change; GUN_OPEN_LOST shows a state message while it waits after the acknowledgement.",
+   "files": [
+    "KRC/R1/Program/StyleApps/Options/style1app1opt1A.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt1B.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt2A.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt2B.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt3A.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt3B.src",
+    "KRC/R1/Program/Centerline/GUN_OPEN_CHECK.src"
+   ]
+  },
+  {
+   "items": [
+    "F48",
+    "F20"
+   ],
+   "what": "Independent review of 2026-10-05: application 1 is no longer released at the camera point (the robot then waited there for the drop-off with application 1 clear); $OUT[70] do070ApplicationClear1 is set by a TRIGGER on the first motion away from the camera: P5 of the conveyor drop, P23 of RejectGE4 (also after a sensor scrap, which never released it), P28 of the red-rabbit drop.",
+   "files": [
+    "KRC/R1/Program/StyleApps/Options/style1app2opt2.src",
+    "KRC/R1/Program/StyleDrops/Options/style1drop1opt1.src",
+    "KRC/R1/Program/Utilities/RejectGE4.src",
+    "KRC/R1/Program/StyleDrops/Options/style1drop1opt2AutoRR.src"
+   ]
+  },
+  {
+   "items": [
+    "F12",
+    "F49"
+   ],
+   "what": "AutomationCore_BKG switched off again until Gestamp decides and its problems are fixed (F49); the submit clears $OUT[145] doCriticalWZ and $OUT[111] do111Gun1ElectrodeChange at start, outputs the task may have left on. The programmer's edits inside the vendor routine stay (inactive, C28).",
+   "files": [
+    "KRC/R1/System/sps.sub"
+   ]
   }
  ],
  "deleted_files": {
@@ -216,10 +287,22 @@
  },
  "added_files": {
   "KRC/R1/Program/Centerline/GUN_OPEN_CHECK.src": "Programmer's gun open interlock and interrupt routine GUN_OPEN_LOST (F01), comments to docs/CONVENTIONS.md.",
-  "KRC/R1/Program/Centerline/gun_open_check.dat": "Settings of GUN_OPEN_CHECK: gun open range, wait time, air and water checks, water flow limits (F01, F09)."
+  "KRC/R1/Program/Centerline/gun_open_check.dat": "Settings of GUN_OPEN_CHECK: gun open range, wait time, air and water checks, water flow limits (F01, F09).",
+  "KRC/R1/Program/StyleApps/Options/style1app1opt1B.src": "Weld app 1 for parts picked at pickup 2, programmer's weld positions of 2026-10-05 14:46 (F51).",
+  "KRC/R1/Program/StyleApps/Options/style1app1opt1B.dat": "Weld app 1 for parts picked at pickup 2, programmer's weld positions of 2026-10-05 14:46 (F51).",
+  "KRC/R1/Program/StyleApps/Options/style1app1opt2B.src": "Weld app 2 for parts picked at pickup 2, programmer's weld positions of 2026-10-05 14:46 (F51).",
+  "KRC/R1/Program/StyleApps/Options/style1app1opt2B.dat": "Weld app 2 for parts picked at pickup 2, programmer's weld positions of 2026-10-05 14:46 (F51).",
+  "KRC/R1/Program/StyleApps/Options/style1app1opt3B.src": "Weld app 3 for parts picked at pickup 2, programmer's weld positions of 2026-10-05 14:46 (F51).",
+  "KRC/R1/Program/StyleApps/Options/style1app1opt3B.dat": "Weld app 3 for parts picked at pickup 2, programmer's weld positions of 2026-10-05 14:46 (F51)."
  },
  "moved_files": {
   "KRC/R1/Program/Styles/optiones/style1opt1.src": "KRC/R1/Program/Styles/Options/style1opt1.src",
-  "KRC/R1/Program/Styles/optiones/Style1Opt10AutoRR.src": "KRC/R1/Program/Styles/Options/Style1Opt10AutoRR.src"
+  "KRC/R1/Program/Styles/optiones/Style1Opt10AutoRR.src": "KRC/R1/Program/Styles/Options/Style1Opt10AutoRR.src",
+  "KRC/R1/Program/StyleApps/Options/style1app1opt1.src": "KRC/R1/Program/StyleApps/Options/style1app1opt1A.src",
+  "KRC/R1/Program/StyleApps/Options/style1app1opt1.dat": "KRC/R1/Program/StyleApps/Options/style1app1opt1A.dat",
+  "KRC/R1/Program/StyleApps/Options/style1app1opt2.src": "KRC/R1/Program/StyleApps/Options/style1app1opt2A.src",
+  "KRC/R1/Program/StyleApps/Options/style1app1opt2.dat": "KRC/R1/Program/StyleApps/Options/style1app1opt2A.dat",
+  "KRC/R1/Program/StyleApps/Options/style1app1opt3.src": "KRC/R1/Program/StyleApps/Options/style1app1opt3A.src",
+  "KRC/R1/Program/StyleApps/Options/style1app1opt3.dat": "KRC/R1/Program/StyleApps/Options/style1app1opt3A.dat"
  }
 }
