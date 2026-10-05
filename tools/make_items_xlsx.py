@@ -27,6 +27,7 @@ import sys
 
 from openpyxl import Workbook
 from openpyxl.comments import Comment
+from openpyxl.formatting.rule import FormulaRule
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.datavalidation import DataValidation
@@ -39,6 +40,9 @@ STATES = ['Abierto', 'Requiere decisión', 'Corregido en oficina - probar en cel
 PENDING = ['Abierto', 'Requiere decisión', 'Corregido en oficina - probar en celda', 'En proceso',
            'Corregido - por auditar', 'Reabierto']
 PROGRAMMER_STATES = ['En proceso', 'Corregido - por auditar']
+# Closed: nothing is left to do. These rows are green, critical or not.
+CLOSED = ['Cerrado - auditado', 'Cerrado - depuración', 'Aceptado sin cambio', 'No aplica',
+          'Sin acción - documentado']
 SEVERITIES = ['Crítico', 'Alto', 'Medio', 'Bajo', '-']
 
 # (header, width, owner) - owner: 'item' fixed text, 'prog' programmer input, 'audit' auditor.
@@ -62,6 +66,7 @@ PROG = PatternFill('solid', fgColor='FFF4C2')
 AUDIT = PatternFill('solid', fgColor='E4E7EB')
 SEV_COLOR = {'Crítico': 'B42318', 'Alto': 'C4561D', 'Medio': 'A16207', 'Bajo': '52606D', '-': '9AA5B1'}
 GESTAMP = PatternFill('solid', fgColor='DCEBFA')
+DONE = PatternFill('solid', fgColor='C6EFCE')
 
 
 def is_gestamp(item):
@@ -110,7 +115,9 @@ def items_sheet(ws, items):
                           color=SEV_COLOR.get(v, '1F2933') if head == 'Sev.' else '1F2933')
             c.alignment = Alignment(wrap_text=True, vertical='top')
             c.border = BORDER
-            if owner == 'prog':
+            if it.get('estado') in CLOSED:
+                c.fill = DONE
+            elif owner == 'prog':
                 c.fill = PROG
             elif owner == 'audit':
                 c.fill = AUDIT
@@ -123,6 +130,10 @@ def items_sheet(ws, items):
     ws.add_data_validation(dv)
     status = get_column_letter(status_col)
     dv.add(f'{status}2:{status}{last}')
+    # The row also turns green when the auditor sets a closed state in the workbook.
+    cond = ' , '.join(f'${status}2="{st}"' for st in CLOSED).replace(' , ', ',')
+    ws.conditional_formatting.add(f'A2:{get_column_letter(len(COLUMNS))}{last}',
+                                  FormulaRule(formula=[f'OR({cond})'], fill=DONE, stopIfTrue=True))
     ws.freeze_panes = 'D2'
     ws.auto_filter.ref = f'A1:{get_column_letter(len(COLUMNS))}{last}'
     ws.sheet_view.zoomScale = 90
@@ -216,12 +227,14 @@ def instructions_sheet(ws):
         ('Puntos de Gestamp', True),
         ('Los puntos G01 a G22 vienen de la revisión de Gestamp del 2026-10-02 (BMW-03-10R1): columna Origen '
          '"Gestamp #n", fondo azul y el texto original de Gestamp en la columna Punto. Los Fnn/Cnn son de la revisión '
-         'de Ethos y conservan la numeración del R20 (F37 no aplica en el R10; F44 a F47 son solo del R10). La lista '
+         'de Ethos y conservan la numeración del R20 (F37 no aplica en el R10; F44 a F49 son solo del R10; F48 y F49 salieron de la auditoría del 2026-10-05). La lista '
          'de Calvin se verificó punto por punto: los puntos que él también señaló dicen "Calvin #n" en Origen. Esta '
          'lista es la única que se usa.', False),
         ('"Corregido en oficina - probar en celda": Ethos ya cambió el programa en la versión que se entrega. Carga esa '
          'versión, haz la prueba que pide el criterio de cierre y pon "Corregido - por auditar" con la evidencia; si '
          'la prueba falla, pon "En proceso" y explica qué pasó.', False),
+        ('Fila en verde: punto cerrado (Cerrado - auditado, Cerrado - depuración, Aceptado sin cambio, No aplica, '
+         'Sin acción - documentado), aunque sea crítico. No hay nada que hacer en esas filas.', False),
         ('', False),
         ('Estados', True),
     ]
@@ -235,7 +248,7 @@ def instructions_sheet(ws):
         'Cerrado - auditado': 'Lo pone la auditoría: cumple el criterio de cierre en el respaldo.',
         'Reabierto': 'Lo pone la auditoría: no se encontró el cambio o no cumple (ver Nota auditoría).',
         'Aceptado sin cambio': 'Ethos / Gestamp decidieron no corregir; queda la razón.',
-        'Cerrado - depuración': 'Resuelto por la depuración del 2026-10-03.',
+        'Cerrado - depuración': 'Resuelto por la depuración del 2026-10-04.',
         'No aplica': 'El punto ya cumple.',
         'Sin acción - documentado': 'Se deja como está; la nota dice cuándo se reabriría.',
         'Se cierra con otro punto': 'Duplica otro punto (columna Depende de); se cierra con él.',
