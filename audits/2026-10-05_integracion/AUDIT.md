@@ -1,24 +1,24 @@
-# Backup audit - 658424_R10_2026-10-05_0809.zip
+# Backup audit - 658424_R10_2026-10-05_0819.zip
 
-- Backup: `/tmp/claude-0/-home-user/50f56c92-2919-5ae3-94c9-0de4476bbe87/scratchpad/dist2/658424_R10_2026-10-05_0809.zip` (sha256 `168e091495512bb7...`)
+- Backup: `/tmp/claude-0/-home-user/50f56c92-2919-5ae3-94c9-0de4476bbe87/scratchpad/dist3/658424_R10_2026-10-05_0819.zip` (sha256 `97599631f56c22f4...`)
 - am.ini: archive `e:\bmw_03_10_r1.zip\`, date `2026-10-05_09-43-37`, config `All`, robot `BMW_03_10_R1`, serial `658424`, KSS `V8.3.29`
 - Compared with: `fb8a4c8` = `fb8a4c8b96` "Add findings, I/O label map and cleanup conventions for R10"; first commit (archive as received) `22a98cc8ef`
-- Generated 2026-10-05T14:09:09 by tools/audit_backup.py
+- Generated 2026-10-05T14:19:12 by tools/audit_backup.py
 
 ## Summary
 
 | | |
 |---|---|
 | Entries audited (Log Files/ skipped: 8) | 308 |
-| Unchanged | 263 |
-| Changed | 38 |
+| Unchanged | 262 |
+| Changed | 39 |
 | Added | 7 |
 | Missing from the backup | 4 |
 | **Deleted modules still on the controller** | 0 |
 | **Pre-cleanup files** | 0 |
 | Edited on top of the pre-cleanup file | 0 |
-| KRL files with code changes | 26 |
-| Code lines removed / added | 297 / 422 |
+| KRL files with code changes | 27 |
+| Code lines removed / added | 298 / 423 |
 | KRL files with comment-only changes | 6 |
 | KRL files with runtime values only (written by the program, not edits) | 1 |
 | Checks FAIL / WARN / INFO | 0 / 0 / 16 |
@@ -50,7 +50,7 @@ _none_
 
 ## Files
 
-### Changed (38)
+### Changed (39)
 
 - `C/KRC/Roboter/Config/User/Common/KRC_IO.xml` - controller configuration - 51 line(s) removed, 56 added - diffs/C/KRC/Roboter/Config/User/Common/KRC_IO.xml.diff
 - `C/KRC/Roboter/Config/User/Common/KrcIoSignals.xml` - controller configuration - 0 line(s) removed, 16 added - diffs/C/KRC/Roboter/Config/User/Common/KrcIoSignals.xml.diff
@@ -69,6 +69,7 @@ _none_
 - `KRC/R1/Program/StyleApps/Options/style1app1opt3.src` - integrator program
 - `KRC/R1/Program/StyleApps/Options/style1app2opt1.src` - integrator program
 - `KRC/R1/Program/StyleApps/Options/style1app2opt2.src` - integrator program
+- `KRC/R1/Program/StyleDrops/Options/style1drop1opt1.dat` - integrator program
 - `KRC/R1/Program/StyleDrops/Options/style1drop1opt1.src` - integrator program
 - `KRC/R1/Program/StyleDrops/Options/style1drop1opt2AutoRR.src` - integrator program
 - `KRC/R1/Program/StylePicks/Options/style1pick1opt1.src` - integrator program
@@ -707,6 +708,24 @@ changed, integrator program: 3 code line(s) removed, 12 added; 19 comment/blank 
 +    80  ENDSWITCH
      91  AC_Application (1,True)
      93  END
+```
+
+### `KRC/R1/Program/StyleDrops/Options/style1drop1opt1.dat`
+
+changed, integrator program: 1 code line(s) removed, 1 added; 0 comment/blank line change(s). Full diff: [diffs/KRC/R1/Program/StyleDrops/Options/style1drop1opt1.dat.diff](diffs/KRC/R1/Program/StyleDrops/Options/style1drop1opt1.dat.diff)
+
+Data changes:
+
+- XATDROP3 (E6POS) re-taught: moved 34.8 mm, rotated up to 34.5 deg
+
+```diff
+@@ base line 9, backup line 9 @@
+      9  DECL INT SUCCESS
+     16  DECL BASIS_SUGG_T LAST_BASIS={POINT1[] "P10                     ",POINT2[] "P10                     ",CP_PARAMS[] "CPDAT0                  ",PTP_PARAMS[] "PDAT6                   ",CONT[] "                        ",CP_VEL[] "2      [...]
+-    17  DECL E6POS XATDROP3={X -1587.76917,Y -890.400757,Z 439.605072,A 177.082932,B 4.31955290,C -0.298484027,S 2,T 2,E1 0.0,E2 0.0,E3 0.0,E4 0.0,E5 0.0,E6 0.0}
++    17  DECL E6POS XATDROP3={X -1563.67676,Y -913.306702,Z 449.989929,A 179.143311,B 30.0803795,C -34.7621422,S 2,T 2,E1 0.0,E2 0.0,E3 0.0,E4 0.0,E5 0.0,E6 0.0}
+     18  DECL FDAT FAtDrop3={TOOL_NO 1,BASE_NO 0,IPO_FRAME #BASE,POINT2[] " ",TQ_STATE FALSE}
+     19  DECL MODULEPARAM_T LAST_TP_PARAMS={PARAMS[] "AC_CmdZones=DropOff; AC_CmdParam=2; AC_ZoneRepo=True; AC_UseState=True; AC_Blending=False                               "}
 ```
 
 ### `KRC/R1/Program/StyleDrops/Options/style1drop1opt1.src`

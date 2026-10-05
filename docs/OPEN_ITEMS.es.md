@@ -84,7 +84,7 @@ Actualizado: 2026-10-05. Pendientes: **85** de 99. El detalle técnico de cada p
 | F45 | ~~Rutinas de clamps: grippers 2-4 deshabilitados, solo existe el gripper 1~~ (Calvin #23) | Bajo | Programador robot | Cerrado - depuración |
 | F46 | EndOfCycle del proveedor editado: Work Complete nunca se manda al PLC | Medio | Gestamp controles / Ethos (Edgar) | **Requiere decisión** |
 | F47 | Camino del brake test enseñado con tool 3 / base 1 de otro robot | Medio | Programador robot / Puesta en marcha | **Abierto** |
-| F48 | Drop al conveyor: el interlock de drop-off se movió después de la aproximación; AtDrop3 re-enseñado | Alto | Programador robot / Gestamp controles | **Corregido en oficina - probar en celda** |
+| F48 | Drop al conveyor: interlock de drop-off movido después de la aproximación (corregido); AtDrop3 re-enseñado (se conserva) | Alto | Programador robot / Gestamp controles | **Corregido en oficina - probar en celda** |
 | F49 | AutomationCore_BKG activado y editado sin decisión registrada | Alto | Gestamp controles + Programador robot | **Requiere decisión** |
 | C01 | ~~AutomationCore_Bkg deshabilitado: el estatus al PLC no se actualiza~~ | - | Gestamp controles / Ethos (Edgar) | Se cierra con otro punto |
 | C02 | Designación BMW-03-10-R1 en los encabezados; confirmar formato con Gestamp | - | Ethos (Edgar) / Gestamp controles | **Requiere decisión** |
@@ -232,7 +232,7 @@ Actualizado: 2026-10-05. Pendientes: **85** de 99. El detalle técnico de cada p
 
 * 2026-10-04 — Alta (Gestamp): Punto 4 de la revisión de Gestamp del 2026-10-02 (BMW-03-10R1).
 * 2026-10-05 — Auditoría - no cargado: Respaldo bmw_03_10_r1 (2026-10-05): la versión de oficina no está cargada; el robot tiene el programa original (29 archivos idénticos al respaldo de partida, 16 editados encima del original). Sin prueba posible.
-* 2026-10-05 — Integrado - por probar: Sigue en la versión integrada (658424_R10_2026-10-05_0809.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto.
+* 2026-10-05 — Integrado - por probar: Sigue en la versión integrada (658424_R10_2026-10-05_0819.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto.
 
 ---
 
@@ -437,7 +437,7 @@ Actualizado: 2026-10-05. Pendientes: **85** de 99. El detalle técnico de cada p
 * 2026-10-04 — Alta (Gestamp): Punto 11 de la revisión de Gestamp del 2026-10-02 (BMW-03-10R1).
 * 2026-10-05 — Auditoría - no cargado: Respaldo bmw_03_10_r1 (2026-10-05): la versión de oficina no está cargada; el robot tiene el programa original (29 archivos idénticos al respaldo de partida, 16 editados encima del original). Sin prueba posible.
 * 2026-10-05 — Auditoría - avance en el original: El programador quitó los GOTO por su cuenta en el programa original (apps, CENTERLINE_WELD, picks, nut check, cámara, Style1Opt1). La lógica es equivalente a la versión de oficina; hay que integrarla en la versión depurada, no cargar la suya.
-* 2026-10-05 — Integrado - por probar: Sigue en la versión integrada (658424_R10_2026-10-05_0809.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto.
+* 2026-10-05 — Integrado - por probar: Sigue en la versión integrada (658424_R10_2026-10-05_0819.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto.
 
 ---
 
@@ -467,7 +467,7 @@ Actualizado: 2026-10-05. Pendientes: **85** de 99. El detalle técnico de cada p
 
 * 2026-10-04 — Alta (Gestamp): Punto 12 de la revisión de Gestamp del 2026-10-02 (BMW-03-10R1).
 * 2026-10-05 — Auditoría - no cargado: Respaldo bmw_03_10_r1 (2026-10-05): la versión de oficina no está cargada; el robot tiene el programa original (29 archivos idénticos al respaldo de partida, 16 editados encima del original). Sin prueba posible.
-* 2026-10-05 — Integrado - por probar: Sigue en la versión integrada (658424_R10_2026-10-05_0809.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto.
+* 2026-10-05 — Integrado - por probar: Sigue en la versión integrada (658424_R10_2026-10-05_0819.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto.
 
 ---
 
@@ -498,7 +498,7 @@ Actualizado: 2026-10-05. Pendientes: **85** de 99. El detalle técnico de cada p
 
 * 2026-10-04 — Alta (Gestamp): Punto 13 de la revisión de Gestamp del 2026-10-02 (BMW-03-10R1).
 * 2026-10-05 — Auditoría - no cargado: Respaldo bmw_03_10_r1 (2026-10-05): la versión de oficina no está cargada; el robot tiene el programa original (29 archivos idénticos al respaldo de partida, 16 editados encima del original). Sin prueba posible.
-* 2026-10-05 — Integrado - por probar: Sigue en la versión integrada (658424_R10_2026-10-05_0809.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto.
+* 2026-10-05 — Integrado - por probar: Sigue en la versión integrada (658424_R10_2026-10-05_0819.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto.
 
 ---
 
@@ -528,7 +528,7 @@ Actualizado: 2026-10-05. Pendientes: **85** de 99. El detalle técnico de cada p
 
 * 2026-10-04 — Alta (Gestamp): Punto 14 de la revisión de Gestamp del 2026-10-02 (BMW-03-10R1).
 * 2026-10-05 — Auditoría - no cargado: Respaldo bmw_03_10_r1 (2026-10-05): la versión de oficina no está cargada; el robot tiene el programa original (29 archivos idénticos al respaldo de partida, 16 editados encima del original). Sin prueba posible.
-* 2026-10-05 — Integrado - por probar: Sigue en la versión integrada (658424_R10_2026-10-05_0809.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto.
+* 2026-10-05 — Integrado - por probar: Sigue en la versión integrada (658424_R10_2026-10-05_0819.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto.
 
 ---
 
@@ -559,7 +559,7 @@ Actualizado: 2026-10-05. Pendientes: **85** de 99. El detalle técnico de cada p
 
 * 2026-10-04 — Alta (Gestamp): Punto 15 de la revisión de Gestamp del 2026-10-02 (BMW-03-10R1).
 * 2026-10-05 — Auditoría - no cargado: Respaldo bmw_03_10_r1 (2026-10-05): la versión de oficina no está cargada; el robot tiene el programa original (29 archivos idénticos al respaldo de partida, 16 editados encima del original). Sin prueba posible.
-* 2026-10-05 — Integrado - por probar: Sigue en la versión integrada (658424_R10_2026-10-05_0809.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto.
+* 2026-10-05 — Integrado - por probar: Sigue en la versión integrada (658424_R10_2026-10-05_0819.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto.
 
 ---
 
@@ -589,7 +589,7 @@ Actualizado: 2026-10-05. Pendientes: **85** de 99. El detalle técnico de cada p
 
 * 2026-10-04 — Alta (Gestamp): Punto 16 de la revisión de Gestamp del 2026-10-02 (BMW-03-10R1).
 * 2026-10-05 — Auditoría - no cargado: Respaldo bmw_03_10_r1 (2026-10-05): la versión de oficina no está cargada; el robot tiene el programa original (29 archivos idénticos al respaldo de partida, 16 editados encima del original). Sin prueba posible.
-* 2026-10-05 — Integrado - por probar: Sigue en la versión integrada (658424_R10_2026-10-05_0809.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto.
+* 2026-10-05 — Integrado - por probar: Sigue en la versión integrada (658424_R10_2026-10-05_0819.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto.
 
 ---
 
@@ -619,7 +619,7 @@ Actualizado: 2026-10-05. Pendientes: **85** de 99. El detalle técnico de cada p
 
 * 2026-10-04 — Alta (Gestamp): Punto 17 de la revisión de Gestamp del 2026-10-02 (BMW-03-10R1).
 * 2026-10-05 — Auditoría - no cargado: Respaldo bmw_03_10_r1 (2026-10-05): la versión de oficina no está cargada; el robot tiene el programa original (29 archivos idénticos al respaldo de partida, 16 editados encima del original). Sin prueba posible.
-* 2026-10-05 — Integrado - por probar: Sigue en la versión integrada (658424_R10_2026-10-05_0809.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto.
+* 2026-10-05 — Integrado - por probar: Sigue en la versión integrada (658424_R10_2026-10-05_0819.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto.
 
 ---
 
@@ -703,7 +703,7 @@ Actualizado: 2026-10-05. Pendientes: **85** de 99. El detalle técnico de cada p
 
 * 2026-10-04 — Alta (Gestamp): Punto 20 de la revisión de Gestamp del 2026-10-02 (BMW-03-10R1).
 * 2026-10-05 — Auditoría - no cargado: Respaldo bmw_03_10_r1 (2026-10-05): la versión de oficina no está cargada; el robot tiene el programa original (29 archivos idénticos al respaldo de partida, 16 editados encima del original). Sin prueba posible.
-* 2026-10-05 — Integrado - por probar: Sigue en la versión integrada (658424_R10_2026-10-05_0809.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto.
+* 2026-10-05 — Integrado - por probar: Sigue en la versión integrada (658424_R10_2026-10-05_0819.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto.
 
 ---
 
@@ -1502,7 +1502,7 @@ Actualizado: 2026-10-05. Pendientes: **85** de 99. El detalle técnico de cada p
 
 * 2026-10-04 — Alta (Ethos): Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02).
 * 2026-10-05 — Auditoría - no cargado: Respaldo bmw_03_10_r1 (2026-10-05): la versión de oficina no está cargada; el robot tiene el programa original (29 archivos idénticos al respaldo de partida, 16 editados encima del original). Sin prueba posible.
-* 2026-10-05 — Integrado - por probar: Sigue en la versión integrada (658424_R10_2026-10-05_0809.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto.
+* 2026-10-05 — Integrado - por probar: Sigue en la versión integrada (658424_R10_2026-10-05_0819.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto.
 
 ---
 
@@ -1615,7 +1615,7 @@ Actualizado: 2026-10-05. Pendientes: **85** de 99. El detalle técnico de cada p
 
 * 2026-10-04 — Alta (Ethos): Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02).
 * 2026-10-05 — Auditoría - no cargado: Respaldo bmw_03_10_r1 (2026-10-05): la versión de oficina no está cargada; el robot tiene el programa original (29 archivos idénticos al respaldo de partida, 16 editados encima del original). Sin prueba posible.
-* 2026-10-05 — Integrado - por probar: Sigue en la versión integrada (658424_R10_2026-10-05_0809.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto.
+* 2026-10-05 — Integrado - por probar: Sigue en la versión integrada (658424_R10_2026-10-05_0819.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto.
 
 ---
 
@@ -1670,7 +1670,7 @@ Actualizado: 2026-10-05. Pendientes: **85** de 99. El detalle técnico de cada p
 
 * 2026-10-04 — Alta (Ethos): Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02).
 * 2026-10-05 — Auditoría - no cargado: Respaldo bmw_03_10_r1 (2026-10-05): la versión de oficina no está cargada; el robot tiene el programa original (29 archivos idénticos al respaldo de partida, 16 editados encima del original). Sin prueba posible.
-* 2026-10-05 — Integrado - por probar: Sigue en la versión integrada (658424_R10_2026-10-05_0809.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto.
+* 2026-10-05 — Integrado - por probar: Sigue en la versión integrada (658424_R10_2026-10-05_0819.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto.
 
 ---
 
@@ -1734,7 +1734,7 @@ Actualizado: 2026-10-05. Pendientes: **85** de 99. El detalle técnico de cada p
 
 * 2026-10-04 — Alta (Ethos): Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02).
 * 2026-10-05 — Auditoría - no cargado: Respaldo bmw_03_10_r1 (2026-10-05): la versión de oficina no está cargada; el robot tiene el programa original (29 archivos idénticos al respaldo de partida, 16 editados encima del original). Sin prueba posible.
-* 2026-10-05 — Integrado - por probar: Sigue en la versión integrada (658424_R10_2026-10-05_0809.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto.
+* 2026-10-05 — Integrado - por probar: Sigue en la versión integrada (658424_R10_2026-10-05_0819.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto.
 
 ---
 
@@ -1851,7 +1851,7 @@ Actualizado: 2026-10-05. Pendientes: **85** de 99. El detalle técnico de cada p
 
 * 2026-10-04 — Alta (Ethos): Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02).
 * 2026-10-05 — Auditoría - no cargado: Respaldo bmw_03_10_r1 (2026-10-05): la versión de oficina no está cargada; el robot tiene el programa original (29 archivos idénticos al respaldo de partida, 16 editados encima del original). Sin prueba posible.
-* 2026-10-05 — Integrado - por probar: Sigue en la versión integrada (658424_R10_2026-10-05_0809.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto.
+* 2026-10-05 — Integrado - por probar: Sigue en la versión integrada (658424_R10_2026-10-05_0819.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto.
 
 ---
 
@@ -2176,7 +2176,7 @@ Actualizado: 2026-10-05. Pendientes: **85** de 99. El detalle técnico de cada p
 
 ---
 
-## F48 — Drop al conveyor: el interlock de drop-off se movió después de la aproximación; AtDrop3 re-enseñado
+## F48 — Drop al conveyor: interlock de drop-off movido después de la aproximación (corregido); AtDrop3 re-enseñado (se conserva)
 
 **Severidad:** Alto · **Tipo:** Código + prueba en celda · **Responsable:** Programador robot / Gestamp controles · **Estado:** Corregido en oficina - probar en celda
 
@@ -2184,20 +2184,23 @@ Actualizado: 2026-10-05. Pendientes: **85** de 99. El detalle técnico de cada p
 
 **Qué está mal.** AC_DropOffCheck(1) (espera $IN[75] di075DropOffMachine1) estaba antes de cualquier movimiento; ahora va después de PTP P5 y PTP P1: el robot se acerca al conveyor sin permiso del PLC. AtDrop3 se re-enseñó con 26° más en B y 34° en C, sin explicación.
 
-**Qué hacer.** Hecho en oficina (excluido de la integración por decisión de Edgar): la versión integrada regresa AC_DropOffCheck(1) antes del primer movimiento y AtDrop3 al punto original. Si el programador re-enseñó AtDrop3 por un problema real, que lo explique y lo vuelva a enseñar sobre la versión integrada.
+**Qué hacer.** Hecho en oficina: la versión integrada deja AC_DropOffCheck(1) antes del primer movimiento, como estaba. AtDrop3 se conserva como lo enseñó el programador el 2026-10-05: así la pieza cae mejor en el conveyor (validado por Edgar Montiel con el programador).
 
 **Criterio de cierre** (se verifica en el respaldo):
 
-* AC_DropOffCheck(1) antes del primer movimiento hacia el conveyor, o P5/P1 confirmados fuera de la zona por Gestamp por escrito.
-* Razón del re-enseñado de AtDrop3 anotada; prueba en celda: 5 ciclos dejando la pieza en el conveyor sin contacto ni marca.
-* Respaldo completo con el cambio en la versión depurada (no en el original).
+* AC_DropOffCheck(1) antes del primer movimiento hacia el conveyor (versión integrada).
+* Prueba en celda con la versión integrada: con $IN[75] di075DropOffMachine1 OFF el robot espera antes de moverse hacia el conveyor (mensaje de espera); con $IN[75] ON hace 5 ciclos dejando la pieza en AtDrop3 sin contacto ni marca. Anotar fecha y resultado.
+* Respaldo completo con la versión integrada cargada: style1drop1opt1.src/.dat coinciden con el zip entregado (la auditoría lo compara).
 
-**Evidencia del programador.** Razón del cambio, croquis o foto de la zona, resultado de los 5 ciclos y fecha.
+**Evidencia del programador.** Resultado de la prueba del interlock y de los 5 ciclos de drop, con fecha.
+
+**Nota.** Razón del re-enseñado de AtDrop3 (B 4.3° → 30.1°, C -0.3° → -34.8°): la pieza cae mejor en el conveyor. Validado por Edgar Montiel con el programador el 2026-10-05.
 
 **Historial:**
 
 * 2026-10-05 — Alta (auditoría): Encontrado en el respaldo bmw_03_10_r1.
 * 2026-10-05 — Corregido en oficina: Excluido de la integración por decisión de Edgar: el zip integrado regresa el interlock de drop-off antes del primer movimiento y AtDrop3 al punto original. Probar 5 ciclos de drop al conveyor.
+* 2026-10-05 — Decisión: Edgar: se conserva el AtDrop3 del programador (la pieza cae mejor en el conveyor; validado con él). Solo el interlock de drop-off regresa a su lugar original.
 
 ---
 

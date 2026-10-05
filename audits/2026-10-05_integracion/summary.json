@@ -1,9 +1,9 @@
 {
  "tool": "tools/audit_backup.py",
- "generated": "2026-10-05T14:09:09",
+ "generated": "2026-10-05T14:19:12",
  "backup": {
-  "zip": "/tmp/claude-0/-home-user/50f56c92-2919-5ae3-94c9-0de4476bbe87/scratchpad/dist2/658424_R10_2026-10-05_0809.zip",
-  "sha256": "168e091495512bb732aad33a2be93116a74d23c9abd073b3b1409b283798a06f",
+  "zip": "/tmp/claude-0/-home-user/50f56c92-2919-5ae3-94c9-0de4476bbe87/scratchpad/dist3/658424_R10_2026-10-05_0819.zip",
+  "sha256": "97599631f56c22f46d0efdae2612bb0071f62ee3a22f60f2531fb75f4ad3655a",
   "log_entries_skipped": 8,
   "am_ini": {
    "name": "e:\\bmw_03_10_r1.zip\\",
@@ -23,17 +23,17 @@
  "first_commit": "22a98cc8efd85b7482a0051da13d7eb2c47b4998",
  "counts": {
   "entries": 308,
-  "unchanged": 263,
-  "changed": 38,
+  "unchanged": 262,
+  "changed": 39,
   "added": 7,
   "missing": 4,
   "unexpected": 0,
   "deleted_still_present": 0,
   "pre_cleanup": 0,
   "pre_cleanup_based": 0,
-  "code_changed_files": 26,
-  "code_lines_removed": 297,
-  "code_lines_added": 422,
+  "code_changed_files": 27,
+  "code_lines_removed": 298,
+  "code_lines_added": 423,
   "comment_only_files": 6,
   "runtime_value_files": 1,
   "FAIL": 0,
@@ -92,6 +92,7 @@
   "KRC/R1/Program/StyleApps/Options/style1app1opt3.src",
   "KRC/R1/Program/StyleApps/Options/style1app2opt1.src",
   "KRC/R1/Program/StyleApps/Options/style1app2opt2.src",
+  "KRC/R1/Program/StyleDrops/Options/style1drop1opt1.dat",
   "KRC/R1/Program/StyleDrops/Options/style1drop1opt1.src",
   "KRC/R1/Program/StyleDrops/Options/style1drop1opt2AutoRR.src",
   "KRC/R1/Program/StylePicks/Options/style1pick1opt1.src",
@@ -305,6 +306,19 @@
    "data_changes": [],
    "runtime_values": [],
    "diff": "diffs/KRC/R1/Program/StyleApps/Options/style1app2opt2.src.diff"
+  },
+  "KRC/R1/Program/StyleDrops/Options/style1drop1opt1.dat": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 1,
+   "code_added": 1,
+   "comment_only_changes": 0,
+   "attributes": [],
+   "data_changes": [
+    "XATDROP3 (E6POS) re-taught: moved 34.8 mm, rotated up to 34.5 deg"
+   ],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/StyleDrops/Options/style1drop1opt1.dat.diff"
   },
   "KRC/R1/Program/StyleDrops/Options/style1drop1opt1.src": {
    "area": "integrator program",

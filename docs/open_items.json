@@ -21,11 +21,11 @@
   },
   {
    "fecha": "2026-10-05",
-   "respaldo": "658424_R10_2026-10-05_0809.zip (versión integrada, armada sobre bmw_03_10_r1.zip)",
+   "respaldo": "658424_R10_2026-10-05_0819.zip (versión integrada, armada sobre bmw_03_10_r1.zip)",
    "cerrados": 0,
    "reabiertos": 0,
    "cambios": "Contra la depuración fb8a4c8: 26 KRL con cambios de código, 2 módulos nuevos (GUN_OPEN_CHECK.src/.dat), 22 archivos fuera; contra el repositorio: idéntico (308 entradas). audit_backup: 0 FAIL, 0 WARN.",
-   "notas": "Integración de los cambios del programador del 2026-10-05 en la versión depurada: GUN_OPEN_CHECK e interrupts del gun (F01 parcial), agua real (F09 parcial), evaluación por option en sensor y cámara (F02 parcial, F19 parcial), AutomationCore_BKG activo con ediciones del proveedor (F12/F49 pendientes de decisión), nombre BMW_03_10_R1 y mapeo TBEN conservados. F48: el zip regresa el interlock de drop-off antes del primer movimiento y conserva el AtDrop3 del programador (la pieza cae mejor en el conveyor; validado por Edgar con el programador). Ningún punto se cierra: todos piden prueba en celda con evidencia y respaldo. Reporte en audits/2026-10-05_integracion."
+   "notas": "Integración de los cambios del programador del 2026-10-05 en la versión depurada: GUN_OPEN_CHECK e interrupts del gun (F01 parcial), agua real (F09 parcial), evaluación por option en sensor y cámara (F02 parcial, F19 parcial), AutomationCore_BKG activo con ediciones del proveedor (F12/F49 pendientes de decisión), nombre BMW_03_10_R1 y mapeo TBEN conservados. F48: el zip regresa el interlock de drop-off antes del primer movimiento y conserva el AtDrop3 del programador (la pieza cae mejor en el conveyor; validado por Edgar con el programador). Ningún punto se cierra: todos piden prueba en celda con evidencia y respaldo. Reporte en audits/2026-10-05_integracion. El zip 658424_R10_2026-10-05_0809 (con AtDrop3 original) queda reemplazado por el 0819; no cargar el 0809."
   }
  ],
  "items": [
@@ -203,7 +203,7 @@
     {
      "fecha": "2026-10-05",
      "resultado": "Integrado - por probar",
-     "nota": "Sigue en la versión integrada (658424_R10_2026-10-05_0809.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto."
+     "nota": "Sigue en la versión integrada (658424_R10_2026-10-05_0819.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto."
     }
    ]
   },
@@ -530,7 +530,7 @@
     {
      "fecha": "2026-10-05",
      "resultado": "Integrado - por probar",
-     "nota": "Sigue en la versión integrada (658424_R10_2026-10-05_0809.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto."
+     "nota": "Sigue en la versión integrada (658424_R10_2026-10-05_0819.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto."
     }
    ]
   },
@@ -585,7 +585,7 @@
     {
      "fecha": "2026-10-05",
      "resultado": "Integrado - por probar",
-     "nota": "Sigue en la versión integrada (658424_R10_2026-10-05_0809.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto."
+     "nota": "Sigue en la versión integrada (658424_R10_2026-10-05_0819.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto."
     }
    ]
   },
@@ -640,7 +640,7 @@
     {
      "fecha": "2026-10-05",
      "resultado": "Integrado - por probar",
-     "nota": "Sigue en la versión integrada (658424_R10_2026-10-05_0809.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto."
+     "nota": "Sigue en la versión integrada (658424_R10_2026-10-05_0819.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto."
     }
    ]
   },
@@ -688,7 +688,7 @@
     {
      "fecha": "2026-10-05",
      "resultado": "Integrado - por probar",
-     "nota": "Sigue en la versión integrada (658424_R10_2026-10-05_0809.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto."
+     "nota": "Sigue en la versión integrada (658424_R10_2026-10-05_0819.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto."
     }
    ]
   },
@@ -749,7 +749,7 @@
     {
      "fecha": "2026-10-05",
      "resultado": "Integrado - por probar",
-     "nota": "Sigue en la versión integrada (658424_R10_2026-10-05_0809.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto."
+     "nota": "Sigue en la versión integrada (658424_R10_2026-10-05_0819.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto."
     }
    ]
   },
@@ -801,7 +801,7 @@
     {
      "fecha": "2026-10-05",
      "resultado": "Integrado - por probar",
-     "nota": "Sigue en la versión integrada (658424_R10_2026-10-05_0809.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto."
+     "nota": "Sigue en la versión integrada (658424_R10_2026-10-05_0819.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto."
     }
    ]
   },
@@ -852,7 +852,7 @@
     {
      "fecha": "2026-10-05",
      "resultado": "Integrado - por probar",
-     "nota": "Sigue en la versión integrada (658424_R10_2026-10-05_0809.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto."
+     "nota": "Sigue en la versión integrada (658424_R10_2026-10-05_0819.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto."
     }
    ]
   },
@@ -989,7 +989,7 @@
     {
      "fecha": "2026-10-05",
      "resultado": "Integrado - por probar",
-     "nota": "Sigue en la versión integrada (658424_R10_2026-10-05_0809.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto."
+     "nota": "Sigue en la versión integrada (658424_R10_2026-10-05_0819.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto."
     }
    ]
   },
@@ -2191,7 +2191,7 @@
     {
      "fecha": "2026-10-05",
      "resultado": "Integrado - por probar",
-     "nota": "Sigue en la versión integrada (658424_R10_2026-10-05_0809.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto."
+     "nota": "Sigue en la versión integrada (658424_R10_2026-10-05_0819.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto."
     }
    ]
   },
@@ -2354,7 +2354,7 @@
     {
      "fecha": "2026-10-05",
      "resultado": "Integrado - por probar",
-     "nota": "Sigue en la versión integrada (658424_R10_2026-10-05_0809.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto."
+     "nota": "Sigue en la versión integrada (658424_R10_2026-10-05_0819.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto."
     }
    ]
   },
@@ -2435,7 +2435,7 @@
     {
      "fecha": "2026-10-05",
      "resultado": "Integrado - por probar",
-     "nota": "Sigue en la versión integrada (658424_R10_2026-10-05_0809.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto."
+     "nota": "Sigue en la versión integrada (658424_R10_2026-10-05_0819.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto."
     }
    ]
   },
@@ -2533,7 +2533,7 @@
     {
      "fecha": "2026-10-05",
      "resultado": "Integrado - por probar",
-     "nota": "Sigue en la versión integrada (658424_R10_2026-10-05_0809.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto."
+     "nota": "Sigue en la versión integrada (658424_R10_2026-10-05_0819.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto."
     }
    ]
   },
@@ -2697,7 +2697,7 @@
     {
      "fecha": "2026-10-05",
      "resultado": "Integrado - por probar",
-     "nota": "Sigue en la versión integrada (658424_R10_2026-10-05_0809.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto."
+     "nota": "Sigue en la versión integrada (658424_R10_2026-10-05_0819.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto."
     }
    ]
   },
