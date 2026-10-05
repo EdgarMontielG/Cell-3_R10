@@ -86,7 +86,7 @@ hangs. *Medium*: robustness or diagnosis. *Low*: hygiene.
 | F45 | Low | *R10:* clamp routines: grippers 2-4 disabled, only gripper 1 exists | — (cleanup) |
 | F46 | Medium | *R10:* vendor EndOfCycle edited: Work Complete is never sent to the PLC | Gestamp decision |
 | F47 | Medium | *R10:* brake-test path taught with tool 3 / base 1 named for 03-30-R1 | re-teach |
-| F48 | High | *Audit 2026-10-05:* drop-off interlock moved after the approach to the conveyor; AtDrop3 re-taught | code + layout |
+| F48 | High | *Audit 2026-10-05:* drop-off interlock moved after the approach to the conveyor (undone in the integrated version); AtDrop3 re-taught (kept) | code |
 | F49 | High | *Audit 2026-10-05:* AutomationCore_BKG switched on and the vendor routine edited, no recorded decision | Gestamp decision |
 
 Gestamp compliance items are at the end (C01–C28).
@@ -709,6 +709,9 @@ In the programmer's backup of 2026-10-05, `AC_DropOffCheck(1)` (wait for
 before the PLC grants the drop-off. AtDrop3 was re-taught 26° in B and 34° in
 C. *Fix:* check the drop-off before the first motion, or prove with the
 layout that P5/P1 are outside the conveyor zone; explain the new AtDrop3.
+*Integrated version (2026-10-05):* `AC_DropOffCheck(1)` stays before the first
+motion. The new AtDrop3 is kept: the part falls better on the conveyor
+(validated by Edgar Montiel with the programmer). To test on the cell.
 
 ### F49 — High — AutomationCore background switched on (audit 2026-10-05)
 

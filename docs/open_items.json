@@ -25,7 +25,7 @@
    "cerrados": 0,
    "reabiertos": 0,
    "cambios": "Contra la depuración fb8a4c8: 26 KRL con cambios de código, 2 módulos nuevos (GUN_OPEN_CHECK.src/.dat), 22 archivos fuera; contra el repositorio: idéntico (308 entradas). audit_backup: 0 FAIL, 0 WARN.",
-   "notas": "Integración de los cambios del programador del 2026-10-05 en la versión depurada: GUN_OPEN_CHECK e interrupts del gun (F01 parcial), agua real (F09 parcial), evaluación por option en sensor y cámara (F02 parcial, F19 parcial), AutomationCore_BKG activo con ediciones del proveedor (F12/F49 pendientes de decisión), nombre BMW_03_10_R1 y mapeo TBEN conservados. F48 excluido: el zip regresa el interlock de drop-off y AtDrop3 al original. Ningún punto se cierra: todos piden prueba en celda con evidencia y respaldo. Reporte en audits/2026-10-05_integracion."
+   "notas": "Integración de los cambios del programador del 2026-10-05 en la versión depurada: GUN_OPEN_CHECK e interrupts del gun (F01 parcial), agua real (F09 parcial), evaluación por option en sensor y cámara (F02 parcial, F19 parcial), AutomationCore_BKG activo con ediciones del proveedor (F12/F49 pendientes de decisión), nombre BMW_03_10_R1 y mapeo TBEN conservados. F48: el zip regresa el interlock de drop-off antes del primer movimiento y conserva el AtDrop3 del programador (la pieza cae mejor en el conveyor; validado por Edgar con el programador). Ningún punto se cierra: todos piden prueba en celda con evidencia y respaldo. Reporte en audits/2026-10-05_integracion."
   }
  ],
  "items": [
@@ -3154,7 +3154,7 @@
   },
   {
    "id": "F48",
-   "titulo": "Drop al conveyor: el interlock de drop-off se movió después de la aproximación; AtDrop3 re-enseñado",
+   "titulo": "Drop al conveyor: interlock de drop-off movido después de la aproximación (corregido); AtDrop3 re-enseñado (se conserva)",
    "severidad": "Alto",
    "tipo": "Código + prueba en celda",
    "responsable": "Programador robot / Gestamp controles",
@@ -3163,16 +3163,16 @@
     "KRC/R1/Program/StyleDrops/Options/style1drop1opt1.dat"
    ],
    "que_esta_mal": "AC_DropOffCheck(1) (espera $IN[75] di075DropOffMachine1) estaba antes de cualquier movimiento; ahora va después de PTP P5 y PTP P1: el robot se acerca al conveyor sin permiso del PLC. AtDrop3 se re-enseñó con 26° más en B y 34° en C, sin explicación.",
-   "que_hacer": "Hecho en oficina (excluido de la integración por decisión de Edgar): la versión integrada regresa AC_DropOffCheck(1) antes del primer movimiento y AtDrop3 al punto original. Si el programador re-enseñó AtDrop3 por un problema real, que lo explique y lo vuelva a enseñar sobre la versión integrada.",
+   "que_hacer": "Hecho en oficina: la versión integrada deja AC_DropOffCheck(1) antes del primer movimiento, como estaba. AtDrop3 se conserva como lo enseñó el programador el 2026-10-05: así la pieza cae mejor en el conveyor (validado por Edgar Montiel con el programador).",
    "criterio_cierre": [
-    "AC_DropOffCheck(1) antes del primer movimiento hacia el conveyor, o P5/P1 confirmados fuera de la zona por Gestamp por escrito.",
-    "Razón del re-enseñado de AtDrop3 anotada; prueba en celda: 5 ciclos dejando la pieza en el conveyor sin contacto ni marca.",
-    "Respaldo completo con el cambio en la versión depurada (no en el original)."
+    "AC_DropOffCheck(1) antes del primer movimiento hacia el conveyor (versión integrada).",
+    "Prueba en celda con la versión integrada: con $IN[75] di075DropOffMachine1 OFF el robot espera antes de moverse hacia el conveyor (mensaje de espera); con $IN[75] ON hace 5 ciclos dejando la pieza en AtDrop3 sin contacto ni marca. Anotar fecha y resultado.",
+    "Respaldo completo con la versión integrada cargada: style1drop1opt1.src/.dat coinciden con el zip entregado (la auditoría lo compara)."
    ],
-   "evidencia_programador": "Razón del cambio, croquis o foto de la zona, resultado de los 5 ciclos y fecha.",
+   "evidencia_programador": "Resultado de la prueba del interlock y de los 5 ciclos de drop, con fecha.",
    "depende_de": [],
    "estado": "Corregido en oficina - probar en celda",
-   "nota": "",
+   "nota": "Razón del re-enseñado de AtDrop3 (B 4.3° → 30.1°, C -0.3° → -34.8°): la pieza cae mejor en el conveyor. Validado por Edgar Montiel con el programador el 2026-10-05.",
    "historial": [
     {
      "fecha": "2026-10-05",
@@ -3183,6 +3183,11 @@
      "fecha": "2026-10-05",
      "resultado": "Corregido en oficina",
      "nota": "Excluido de la integración por decisión de Edgar: el zip integrado regresa el interlock de drop-off antes del primer movimiento y AtDrop3 al punto original. Probar 5 ciclos de drop al conveyor."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Decisión",
+     "nota": "Edgar: se conserva el AtDrop3 del programador (la pieza cae mejor en el conveyor; validado con él). Solo el interlock de drop-off regresa a su lugar original."
     }
    ],
    "nota_programador": "",

@@ -200,6 +200,15 @@
     "KRC/R1/TP/GripperSpotTech/grp_data.dat",
     "KRC/R1/TP/GripperSpotTech/grp_func.dat"
    ]
+  },
+  {
+   "items": [
+    "F48"
+   ],
+   "what": "AtDrop3 as re-taught by the programmer on 2026-10-05 (B 4.3 -> 30.1 deg, C -0.3 -> -34.8 deg): the part falls better on the conveyor; validated by Edgar Montiel with the programmer. The drop-off interlock AC_DropOffCheck(1) stays before the first motion (the programmer's move after P5/P1 is not taken).",
+   "files": [
+    "KRC/R1/Program/StyleDrops/Options/style1drop1opt1.dat"
+   ]
   }
  ],
  "deleted_files": {
