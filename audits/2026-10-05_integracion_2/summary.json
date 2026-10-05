@@ -1,9 +1,9 @@
 {
  "tool": "tools/audit_backup.py",
- "generated": "2026-10-05T19:39:04",
+ "generated": "2026-10-05T19:51:47",
  "backup": {
-  "zip": "/tmp/claude-0/-home-user/50f56c92-2919-5ae3-94c9-0de4476bbe87/scratchpad/dist4/658424_R10_2026-10-05_1338.zip",
-  "sha256": "26a3eea7eb0d2b0b4c6c0fac6207f880475184e25977ea01e14809aaa60327f0",
+  "zip": "/tmp/claude-0/-home-user/50f56c92-2919-5ae3-94c9-0de4476bbe87/scratchpad/dist4/658424_R10_2026-10-05_1351.zip",
+  "sha256": "c31f9b6031af81cecda294b1e1c1a0a71362f4a97d39490aced7384700da9412",
   "log_entries_skipped": 8,
   "am_ini": {
    "name": "e:\\bmw_03_10_r1.zip\\",
@@ -33,7 +33,7 @@
   "pre_cleanup_based": 0,
   "code_changed_files": 38,
   "code_lines_removed": 271,
-  "code_lines_added": 908,
+  "code_lines_added": 937,
   "comment_only_files": 12,
   "runtime_value_files": 0,
   "FAIL": 0,
@@ -282,7 +282,7 @@
    "status": "changed",
    "code_removed": 30,
    "code_added": 12,
-   "comment_only_changes": 65,
+   "comment_only_changes": 68,
    "attributes": [],
    "data_changes": [],
    "runtime_values": [],
@@ -436,8 +436,8 @@
    "area": "integrator program",
    "status": "changed",
    "code_removed": 12,
-   "code_added": 14,
-   "comment_only_changes": 51,
+   "code_added": 43,
+   "comment_only_changes": 53,
    "attributes": [],
    "data_changes": [],
    "runtime_values": [],
@@ -809,9 +809,9 @@
    "data_changes": [
     "added 1 BASIS_SUGG_T: LAST_BASIS",
     "added 1 DEFDAT: style1app1opt2A",
-    "added 7 E6POS: XP0, XP5, XP05, XP06, XP6, XP16, XPnw1",
+    "added 7 E6POS: XP0, XP05, XP5, XP6, XP06, XP16, XPnw1",
     "added 1 EXT: BAS",
-    "added 7 FDAT: FP0, FP5, Fp05, FP06, FP6, FP16, FPnw1",
+    "added 7 FDAT: FP0, Fp05, FP5, FP06, FP6, FP16, FPnw1",
     "added 6 LDAT: LCPDAT0, LCPDAT6, LCPDAT11, LCPDAT14, LCPDAT15, Lpnw1",
     "added 1 NUTWELD_SUGG_T: LAST_NutWeld",
     "added 2 PDAT: PPDAT0, PPDAT26"
@@ -854,9 +854,9 @@
    "data_changes": [
     "added 1 BASIS_SUGG_T: LAST_BASIS",
     "added 1 DEFDAT: style1app1opt2B",
-    "added 7 E6POS: XP0, XP5, XP05, XP06, XP6, XP16, XPnw1",
+    "added 7 E6POS: XP0, XP05, XP5, XP6, XP06, XP16, XPnw1",
     "added 1 EXT: BAS",
-    "added 7 FDAT: FP0, FP5, Fp05, FP06, FP6, FP16, FPnw1",
+    "added 7 FDAT: FP0, Fp05, FP5, FP06, FP6, FP16, FPnw1",
     "added 6 LDAT: LCPDAT0, LCPDAT6, LCPDAT11, LCPDAT14, LCPDAT15, Lpnw1",
     "added 1 NUTWELD_SUGG_T: LAST_NutWeld",
     "added 2 PDAT: PPDAT0, PPDAT26"
@@ -979,7 +979,7 @@
    "status": "added",
    "code_removed": 0,
    "code_added": 6,
-   "comment_only_changes": 18,
+   "comment_only_changes": 19,
    "attributes": [
     "+&ACCESS RVO1",
     "+&REL 3",

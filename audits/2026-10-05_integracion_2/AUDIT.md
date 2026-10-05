@@ -1,9 +1,9 @@
-# Backup audit - 658424_R10_2026-10-05_1338.zip
+# Backup audit - 658424_R10_2026-10-05_1351.zip
 
-- Backup: `/tmp/claude-0/-home-user/50f56c92-2919-5ae3-94c9-0de4476bbe87/scratchpad/dist4/658424_R10_2026-10-05_1338.zip` (sha256 `26a3eea7eb0d2b0b...`)
+- Backup: `/tmp/claude-0/-home-user/50f56c92-2919-5ae3-94c9-0de4476bbe87/scratchpad/dist4/658424_R10_2026-10-05_1351.zip` (sha256 `c31f9b6031af81ce...`)
 - am.ini: archive `e:\bmw_03_10_r1.zip\`, date `2026-10-05_14-46-44`, config `All`, robot `BMW_03_10_R1`, serial `658424`, KSS `V8.3.29`
 - Compared with: `fb8a4c8` = `fb8a4c8b96` "Add findings, I/O label map and cleanup conventions for R10"; first commit (archive as received) `22a98cc8ef`
-- Generated 2026-10-05T19:39:04 by tools/audit_backup.py
+- Generated 2026-10-05T19:51:47 by tools/audit_backup.py
 
 ## Summary
 
@@ -18,7 +18,7 @@
 | **Pre-cleanup files** | 0 |
 | Edited on top of the pre-cleanup file | 0 |
 | KRL files with code changes | 38 |
-| Code lines removed / added | 271 / 908 |
+| Code lines removed / added | 271 / 937 |
 | KRL files with comment-only changes | 12 |
 | KRL files with runtime values only (written by the program, not edits) | 0 |
 | Checks FAIL / WARN / INFO | 0 / 0 / 22 |
@@ -680,9 +680,9 @@ Data changes:
 
 - added 1 BASIS_SUGG_T: LAST_BASIS
 - added 1 DEFDAT: style1app1opt2A
-- added 7 E6POS: XP0, XP5, XP05, XP06, XP6, XP16, XPnw1
+- added 7 E6POS: XP0, XP05, XP5, XP6, XP06, XP16, XPnw1
 - added 1 EXT: BAS
-- added 7 FDAT: FP0, FP5, Fp05, FP06, FP6, FP16, FPnw1
+- added 7 FDAT: FP0, Fp05, FP5, FP06, FP6, FP16, FPnw1
 - added 6 LDAT: LCPDAT0, LCPDAT6, LCPDAT11, LCPDAT14, LCPDAT15, Lpnw1
 - added 1 NUTWELD_SUGG_T: LAST_NutWeld
 - added 2 PDAT: PPDAT0, PPDAT26
@@ -798,9 +798,9 @@ Data changes:
 
 - added 1 BASIS_SUGG_T: LAST_BASIS
 - added 1 DEFDAT: style1app1opt2B
-- added 7 E6POS: XP0, XP5, XP05, XP06, XP6, XP16, XPnw1
+- added 7 E6POS: XP0, XP05, XP5, XP6, XP06, XP16, XPnw1
 - added 1 EXT: BAS
-- added 7 FDAT: FP0, FP5, Fp05, FP06, FP6, FP16, FPnw1
+- added 7 FDAT: FP0, Fp05, FP5, FP06, FP6, FP16, FPnw1
 - added 6 LDAT: LCPDAT0, LCPDAT6, LCPDAT11, LCPDAT14, LCPDAT15, Lpnw1
 - added 1 NUTWELD_SUGG_T: LAST_NutWeld
 - added 2 PDAT: PPDAT0, PPDAT26
@@ -1138,69 +1138,69 @@ Attributes: +&ACCESS RVO1; +&REL 227; +&COMMENT 03-10-R1 PNW1 NUT 3 ST2; +&PARAM
 
 ### `KRC/R1/Program/StyleApps/Options/style1app2opt1.src`
 
-changed, integrator program: 30 code line(s) removed, 12 added; 65 comment/blank line change(s). Full diff: [diffs/KRC/R1/Program/StyleApps/Options/style1app2opt1.src.diff](diffs/KRC/R1/Program/StyleApps/Options/style1app2opt1.src.diff)
+changed, integrator program: 30 code line(s) removed, 12 added; 68 comment/blank line change(s). Full diff: [diffs/KRC/R1/Program/StyleApps/Options/style1app2opt1.src.diff](diffs/KRC/R1/Program/StyleApps/Options/style1app2opt1.src.diff)
 
 ```diff
-@@ base line 58, backup line 57 @@
-     57  BAS(#CP_PARAMS,2)
-     58  LIN XP28
+@@ base line 58, backup line 58 @@
+     58  BAS(#CP_PARAMS,2)
+     59  LIN XP28
 -    67  IF di004UseDryCycle==TRUE THEN
 -    69  GOTO DRY1
 -    70  ELSE
 -    71  IF ($IN[227]==TRUE) THEN
 -    72  PARTPRESENT1=TRUE
-+    64  IF NOT di004UseDryCycle THEN
-+    65  WAIT SEC 0.2
-+    67  PARTPRESENT1=di227NutPresent1
-     68  ENDIF
++    65  IF NOT di004UseDryCycle THEN
++    66  WAIT SEC 0.2
++    68  PARTPRESENT1=di227NutPresent1
+     69  ENDIF
 -    74  WAIT SEC 0.2
 -    76  ENDIF
 -    78  DRY1:
-     71  $BWDSTART=FALSE
-     72  PDAT_ACT=PPDAT35
-@@ base line 93, backup line 83 @@
-     83  BAS(#CP_PARAMS,2)
-     84  LIN XP32
+     72  $BWDSTART=FALSE
+     73  PDAT_ACT=PPDAT35
+@@ base line 93, backup line 84 @@
+     84  BAS(#CP_PARAMS,2)
+     85  LIN XP32
 -   102  IF di004UseDryCycle==TRUE THEN
 -   104  GOTO DRY2
 -   105  ELSE
 -   106  IF ($IN[227]==TRUE) THEN
 -   107  PARTPRESENT2=TRUE
-+    90  IF NOT di004UseDryCycle THEN
-+    91  WAIT SEC 0.2
-+    93  PARTPRESENT2=di227NutPresent1
-     94  ENDIF
++    91  IF NOT di004UseDryCycle THEN
++    92  WAIT SEC 0.2
++    94  PARTPRESENT2=di227NutPresent1
+     95  ENDIF
 -   109  WAIT SEC 0.2
 -   111  ENDIF
 -   113  DRY2:
-     97  $BWDSTART=FALSE
-     98  PDAT_ACT=PPDAT36
-@@ base line 128, backup line 109 @@
-    109  BAS(#CP_PARAMS,2)
-    110  LIN XP36
+     98  $BWDSTART=FALSE
+     99  PDAT_ACT=PPDAT36
+@@ base line 128, backup line 110 @@
+    110  BAS(#CP_PARAMS,2)
+    111  LIN XP36
 -   137  IF di004UseDryCycle==TRUE THEN
 -   139  GOTO DRY3
 -   140  ELSE
 -   141  IF ($IN[227]==TRUE) THEN
 -   142  PARTPRESENT3=TRUE
-+   116  IF NOT di004UseDryCycle THEN
-+   117  WAIT SEC 0.2
-+   119  PARTPRESENT3=di227NutPresent1
-    120  ENDIF
++   117  IF NOT di004UseDryCycle THEN
++   118  WAIT SEC 0.2
++   120  PARTPRESENT3=di227NutPresent1
+    121  ENDIF
 -   144  WAIT SEC 0.2
 -   146  ENDIF
 -   148  DRY3:
-    123  $BWDSTART=FALSE
-    124  PDAT_ACT=PPDAT37
-@@ base line 154, backup line 126 @@
-    126  BAS(#PTP_PARAMS,100)
-    127  PTP XP37
+    124  $BWDSTART=FALSE
+    125  PDAT_ACT=PPDAT37
+@@ base line 154, backup line 127 @@
+    127  BAS(#PTP_PARAMS,100)
+    128  PTP XP37
 -   163  IF di004UseDryCycle==TRUE THEN
 -   165  GOTO DRY6
 -   166  ELSE
-+   137  IF NOT di004UseDryCycle THEN
-    138  WAIT SEC 0.2
-    139  SWITCH nOption
++   138  IF NOT di004UseDryCycle THEN
+    139  WAIT SEC 0.2
+    140  SWITCH nOption
 ```
 _16 more lines: see diffs/KRC/R1/Program/StyleApps/Options/style1app2opt1.src.diff_
 
@@ -1412,7 +1412,7 @@ changed, integrator program: 8 code line(s) removed, 3 added; 46 comment/blank l
 
 ### `KRC/R1/Program/Styles/Options/Style1Opt10AutoRR.src`
 
-added, integrator program: 0 code line(s) removed, 6 added; 18 comment/blank line change(s). Full diff: [diffs/KRC/R1/Program/Styles/Options/Style1Opt10AutoRR.src.diff](diffs/KRC/R1/Program/Styles/Options/Style1Opt10AutoRR.src.diff)
+added, integrator program: 0 code line(s) removed, 6 added; 19 comment/blank line change(s). Full diff: [diffs/KRC/R1/Program/Styles/Options/Style1Opt10AutoRR.src.diff](diffs/KRC/R1/Program/Styles/Options/Style1Opt10AutoRR.src.diff)
 
 Attributes: +&ACCESS RVO1; +&REL 3; +&COMMENT 03-10-R1 RED RABBIT CYCLE
 
@@ -1421,9 +1421,9 @@ Attributes: +&ACCESS RVO1; +&REL 3; +&COMMENT 03-10-R1 RED RABBIT CYCLE
 +     4  DEF Style1Opt10AutoRR( )
 +    17  Style1Pick1Opt1AutoRR()
 +    19  style1app2opt1()
-+    22  style1app2opt2()
-+    25  style1drop1opt2AutoRR()
-+    27  END
++    23  style1app2opt2()
++    26  style1drop1opt2AutoRR()
++    28  END
 ```
 
 ### `KRC/R1/Program/Styles/Options/style1opt1.src`
@@ -1549,7 +1549,7 @@ Data changes:
 
 ### `KRC/R1/System/sps.sub`
 
-changed, integrator program: 12 code line(s) removed, 14 added; 51 comment/blank line change(s). Full diff: [diffs/KRC/R1/System/sps.sub.diff](diffs/KRC/R1/System/sps.sub.diff)
+changed, integrator program: 12 code line(s) removed, 43 added; 53 comment/blank line change(s). Full diff: [diffs/KRC/R1/System/sps.sub.diff](diffs/KRC/R1/System/sps.sub.diff)
 
 ```diff
 @@ base line 31, backup line 31 @@
@@ -1557,44 +1557,63 @@ changed, integrator program: 12 code line(s) removed, 14 added; 51 comment/blank
      34  TorqueDefinitions()
 +    44  doCriticalWZ=FALSE
 +    45  do111Gun1ElectrodeChange=FALSE
-     56  LOOP
-     57  WAIT FOR NOT($POWER_FAIL)
-@@ base line 85, backup line 95 @@
-     95  CL_WeldPinPosition=(CL_PIN_BYTE0*256)+CL_PIN_BYTE1
-     98  SV0500_FLOW =( SV0500_BYTE0*256)+SV0500_BYTE1
++    48  do006RobotBatteryAlarm=FALSE
++    49  do007RobotAtPounce=FALSE
++    50  do009RobotAtRepair=FALSE
++    51  do010RobotAtTipDress=FALSE
++    52  do013WaterIsOn=FALSE
++    53  do021BrakeTestReqd=FALSE
++    54  do022MstrRefRequired=FALSE
++    55  do046WeldMode=FALSE
++    56  do048RPWCtrlrEnetOK=FALSE
++    57  do050TDVlvManifold=FALSE
++    58  do051RbtAtMstrRefSwitch=FALSE
++    59  do052EOATVlvMnfldEnetOK=FALSE
++    60  do053MigReamerEnetOK=FALSE
++    61  do054SRWTipDressIOEnetOK=FALSE
++    62  do055EndEffectorIOEnetOK=FALSE
++    63  do056WeldCntl1EnetOK=FALSE
++    64  do057RPWSlrDArc1EnetOK=FALSE
++    65  do058PinScribeCntlrIOOK=FALSE
++    66  do059RPWSlrDArc2EnetOK=FALSE
++    67  do060VlvManifoldEnetOK=FALSE
++    68  do094AirOK=FALSE
++    69  gdoAxis1Posn=0
++    70  do107Hopper1LowLevel=FALSE
++    71  do118Nut1Ready=FALSE
++    72  do123ToolIDBit0=FALSE
++    73  do124ToolIDBit1=FALSE
++    74  do134Nut1Fault=FALSE
++    75  do146SpeedNot100=FALSE
++    76  do464WaterBeacon=FALSE
+     87  LOOP
+     88  WAIT FOR NOT($POWER_FAIL)
+@@ base line 85, backup line 126 @@
+    126  CL_WeldPinPosition=(CL_PIN_BYTE0*256)+CL_PIN_BYTE1
+    129  SV0500_FLOW =( SV0500_BYTE0*256)+SV0500_BYTE1
 -    94  IF SV0500_FLOW > 1230 THEN
 -    95  CL_WaterOk = TRUE
-+   105  nWaterFlow = SV0500_FLOW / 4
-+   106  IF nWaterFlow >= nWaterFlowMin THEN
-    107  dipw1_WaterOk = TRUE
-    108  ELSE
++   136  nWaterFlow = SV0500_FLOW / 4
++   137  IF nWaterFlow >= nWaterFlowMin THEN
+    138  dipw1_WaterOk = TRUE
+    139  ELSE
 -    98  CL_WaterOk = FALSE
 -    99  dipw1_WaterOk = TRUE
-+   109  IF nWaterFlow < (nWaterFlowMin - nWaterFlowHyst) THEN
-+   110  dipw1_WaterOk = FALSE
-    111  ENDIF
++   140  IF nWaterFlow < (nWaterFlowMin - nWaterFlowHyst) THEN
++   141  dipw1_WaterOk = FALSE
+    142  ENDIF
 -   108  IF $OUT[478] THEN
 -   109  $OUT[3008] = TRUE
 -   110  $OUT[3024] = TRUE
-    112  ENDIF
+    143  ENDIF
 -   114  IF $OUT[477] THEN
 -   115  $OUT[3001] = TRUE
 -   116  $OUT[3024] = FALSE
-+   114  CL_WaterOk = dipw1_WaterOk
-+   122  IF dopw1_LowLevel THEN
-+   123  CL_BeaconBit3008 = TRUE
-+   124  CL_BeaconBit3024 = TRUE
-    125  ENDIF
--   125  IF di004UseDryCycle==FALSE THEN
--   126  $OUT[475]=TRUE
-+   129  IF dopw1_LevelOk THEN
-+   130  CL_BeaconBit3001 = TRUE
-+   131  CL_BeaconBit3024 = FALSE
-    132  ENDIF
-+   140  dopw1_StartWater=di013WaterEnable
-    146  PRELOAD()
-    152  ENDLOOP
++   145  CL_WaterOk = dipw1_WaterOk
++   153  IF dopw1_LowLevel THEN
++   154  CL_BeaconBit3008 = TRUE
 ```
+_11 more lines: see diffs/KRC/R1/System/sps.sub.diff_
 
 ### `KRC/R1/Mada/$machine.dat`
 

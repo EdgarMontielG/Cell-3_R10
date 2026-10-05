@@ -34,6 +34,14 @@
    "reabiertos": 0,
    "cambios": "Contra el estado auditado: 19 archivos originales, 17 editados encima del original, 22 borrados aún en el controlador; contra el respaldo de las 09:43: apps de soldadura partidas en A (estación 1, igual) y B (estación 2, puntos de soldadura retocados 1-5 mm), punto de cámara P3 re-enseñado (83 mm, ~16°), AC_ApplicationCheck(1) después de P22, PTP P1 quitado del drop.",
    "notas": "La versión integrada (zip 0819) no se cargó. Revisión independiente (2 agentes) de GUN_OPEN_CHECK/interrupts y del background de AutomationCore: integración fiel; huecos de vigilancia del gun (F01); con el background activo el Request to Enter deja de detener el robot si $OUT[930] quedó en ON (F35 sube a Alto), el background pisa las habilitaciones del Bosch, el cambio de electrodo corre sin probar (F43, F49). Nuevo F50. Sin Excel del programador. Reporte en audits/2026-10-05_14-46-44."
+  },
+  {
+   "fecha": "2026-10-05",
+   "respaldo": "R10_paquete_2026-10-05_1351.zip (versión integrada sobre el respaldo de las 14:46; zip completo 658424_R10_2026-10-05_1351)",
+   "cerrados": 0,
+   "reabiertos": 0,
+   "cambios": "Contra el respaldo de las 14:46: 57 programas a reemplazar, 2 a agregar (Styles/Options), 24 a borrar. Contra la depuración fb8a4c8: 38 KRL con cambios de código; audit_backup 0 FAIL, 0 WARN; zip idéntico al repositorio.",
+   "notas": "Integrados: apps A/B por estación (F51) y punto de cámara. No integrados: permiso de aplicación después de P22 (F50) y P1 quitado del drop (preguntar al programador). Correcciones de la revisión independiente: interrupts antes de cada GUN_OPEN_CHECK y mensaje en GUN_OPEN_LOST (F01), aplicación 1 liberada por TRIGGER al salir de la cámara (F48, F20), background de AutomationCore apagado con sus salidas en OFF al arrancar (F49). Un revisor independiente revisó la integración antes de la entrega: sin defectos bloqueantes. Se entrega como paquete para WorkVisual (tools/make_package.py), no como respaldo completo. Reporte en audits/2026-10-05_integracion_2."
   }
  ],
  "items": [

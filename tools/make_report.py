@@ -462,11 +462,10 @@ def process(st):
     out = [PageBreak(), Paragraph('4. Cómo vamos a trabajar', st['h1'])]
     out.append(Paragraph('Día 0', st['h2']))
     out += bullets([
-        'Cargar en el robot la versión de oficina (zip de build_archive.py: depuración más correcciones de '
-        'Gestamp) y borrar en el controlador los 22 archivos de módulos eliminados (21 de la depuración, 1 de '
-        'las correcciones) y la carpeta vieja Styles/optiones (un restore no borra archivos). No hacer deploy desde WorkVisual '
-        '(los proyectos guardados traen el programa viejo: así se perdió la depuración el 2026-10-05). Actualizar el proyecto WorkVisual desde el '
-        'controlador antes de cualquier deploy.',
+        'Cargar en el robot la versión de oficina por WorkVisual con el paquete de make_package.py (solo los '
+        'programas que cambian, armado sobre el último respaldo auditado) y borrar en el mismo deploy los archivos '
+        'de la lista de LEEME.txt y la carpeta vieja Styles/optiones: si quedan, no compila. Nunca hacer deploy de '
+        'un proyecto WorkVisual guardado de antes (trae el programa viejo: así se perdió la depuración el 2026-10-05).',
         'Hacer las pruebas en celda de los puntos "Corregido en oficina - probar en celda" (sección 3.3).',
         'Correr un ciclo en T1 con override reducido y uno en automático.',
         'Sacar un respaldo completo (Archive → All): es el punto de partida de las auditorías.'], st)

@@ -2,7 +2,7 @@
 
 *Archivo generado por `tools/make_items_md.py` a partir de `docs/open_items.json` — no se edita a mano.*
 
-Actualizado: 2026-10-05. Pendientes: **86** de 100. El detalle técnico de cada punto (en inglés, para Gestamp) está en [FINDINGS.md](FINDINGS.md); el proceso en [PROCESO.es.md](PROCESO.es.md).
+Actualizado: 2026-10-05. Pendientes: **86** de 101. El detalle técnico de cada punto (en inglés, para Gestamp) está en [FINDINGS.md](FINDINGS.md); el proceso en [PROCESO.es.md](PROCESO.es.md).
 
 **Puntos de Gestamp (G01–G22)**: revisión de Gestamp del 2026-10-02 (BMW-03-10R1), con su texto original. 9 están corregidos en la versión de oficina y falta probarlos en celda (estado *Corregido en oficina - probar en celda*). Los Fnn/Cnn son de la revisión de Ethos (numeración del R20); los marcados "Calvin #n" también están en la lista de Calvin (2026-10-03), verificada punto por punto. Esta lista es la única que se usa.
 
@@ -71,7 +71,7 @@ Actualizado: 2026-10-05. Pendientes: **86** de 100. El detalle técnico de cada 
 | F32 | TRIGGERs y resets escritos a mano dentro de folds de inline form (Calvin #28) | Medio | Programador robot (prueba en celda) | **Corregido en oficina - probar en celda** |
 | F33 | GripperConfig.xml del HMI desincronizado con grp_data.dat | Medio | Programador robot | **Abierto** |
 | F34 | CENTERLINE_HOME: polaridad de $OUT[473] y falta el reset del Bosch | Bajo | Programador robot / Puesta en marcha | **Requiere decisión** |
-| F35 | El mastering reference deja $OUT[930] en ON para siempre | Alto | Programador robot | **Abierto** |
+| F35 | El mastering reference deja $OUT[930] en ON para siempre | Medio | Programador robot | **Abierto** |
 | F36 | $IN[227] declarado con dos nombres (NUT_PRESENT1, di227SensorCamera) | Bajo | Programador robot (prueba en celda) | **Corregido en oficina - probar en celda** |
 | F37 | ~~Presión de intensificado no confirmada antes de weld start: no aplica en R10~~ (Calvin #1) | - | Programador robot | No aplica |
 | F38 | Estado de la tuerca no se reinicializa al arrancar, en reset ni después de un reinicio (Calvin #11) | Alto | Programador robot | **Abierto** |
@@ -87,6 +87,7 @@ Actualizado: 2026-10-05. Pendientes: **86** de 100. El detalle técnico de cada 
 | F48 | Drop al conveyor: interlock de drop-off movido después de la aproximación (corregido); AtDrop3 re-enseñado (se conserva) | Alto | Programador robot / Gestamp controles | **Corregido en oficina - probar en celda** |
 | F49 | AutomationCore_BKG activado y editado sin decisión registrada | Alto | Gestamp controles + Programador robot | **Requiere decisión** |
 | F50 | Permiso de aplicación 1 (nut check / cámara) revisado después de llegar a P22 | Alto | Programador robot | **Abierto** |
+| F51 | ~~Apps de soldadura duplicadas por estación de pick (A/B): cada cambio va en las dos~~ | Bajo | Programador robot | Sin acción - documentado |
 | C01 | ~~AutomationCore_Bkg deshabilitado: el estatus al PLC no se actualiza~~ | - | Gestamp controles / Ethos (Edgar) | Se cierra con otro punto |
 | C02 | Designación BMW-03-10-R1 en los encabezados; confirmar formato con Gestamp | - | Ethos (Edgar) / Gestamp controles | **Requiere decisión** |
 | C03 | ~~Encabezado estándar Gestamp en cada módulo del integrador~~ | - | Programador robot | Cerrado - depuración |
@@ -789,6 +790,7 @@ Actualizado: 2026-10-05. Pendientes: **86** de 100. El detalle técnico de cada 
 * 2026-10-05 — Auditoría - avance parcial: Nuevo GUN_OPEN_CHECK antes de entrar y al terminar la soldadura (gun en 137000-142000, submit corriendo, agua; aire desactivado hasta probar $IN[3132]) e interrupts 20-22 con BRAKE F mientras el robot entra y sale. Falta: clamp abierto ($IN[466]) y QFP regresado ($IN[482]) antes de entrar, y la prueba en celda. Los límites 137000/142000 están dos veces (interrupts y GUN_OPEN_CHECK.dat): unificar con las constantes de G16.
 * 2026-10-05 — Integrado - avance parcial: GUN_OPEN_CHECK e interrupts 20-22 del programador integrados en la versión depurada (rango 137000-142000 en GUN_OPEN_CHECK.dat; CL_GUN_OPEN_MIN eliminado). Falta clamp abierto $IN[466] y QFP regresado $IN[482] antes de entrar, y la prueba en celda.
 * 2026-10-05 — Revisión independiente: GUN_OPEN_CHECK e interrupts 20-22: KRL válido e integración fiel. Huecos: los interrupts solo disparan en el cambio FALSE→TRUE; al salir se reactivan después de las esperas de clamp/QFP y de la presión de reposo, y al entrar el submit solo se revisa al inicio de GUN_OPEN_CHECK. Corrección: INTERRUPT ON 20-22 antes de cada GUN_OPEN_CHECK. Además: tras reconocer GUN_OPEN_LOST el robot puede quedar parado sin mensaje; la vigilancia se apaga un punto antes de salir; una selección de paso salta el interlock.
+* 2026-10-05 — Integrado - correcciones de la revisión: Versión integrada sobre el respaldo de las 14:46: INTERRUPT ON 20-22 antes de cada GUN_OPEN_CHECK (entrada y después de soldar) y mensaje de estado en GUN_OPEN_LOST después del reconocimiento. Sigue pendiente clamp abierto / QFP regresado antes de entrar.
 
 ---
 
@@ -1129,6 +1131,7 @@ Actualizado: 2026-10-05. Pendientes: **86** de 100. El detalle técnico de cada 
 * 2026-10-04 — Alta (Ethos): Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02).
 * 2026-10-05 — Auditoría - cambio sin decisión: El programador activó AutomationCore_BKG en sps.sub y editó la rutina del proveedor (sin soldadores 2-3, Request to Enter sin WAIT). La decisión de Gestamp no está registrada. Ver F49.
 * 2026-10-05 — Integrado - pendiente decisión: AutomationCore_BKG queda activo en la versión integrada, como lo dejó el programador. Falta la decisión de Gestamp (F49).
+* 2026-10-05 — Integrado: Background de AutomationCore apagado otra vez en la versión integrada (F49).
 
 ---
 
@@ -1388,6 +1391,7 @@ Actualizado: 2026-10-05. Pendientes: **86** de 100. El detalle técnico de cada 
 **Historial:**
 
 * 2026-10-04 — Alta (Ethos): Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02).
+* 2026-10-05 — Integrado - avance: RejectGE4 libera la aplicación 1 por TRIGGER en P23, también después de un scrap del sensor (antes nunca se liberaba en esa ruta). El lugar de rechazo sigue sin interlock con el PLC.
 
 ---
 
@@ -1799,7 +1803,7 @@ Actualizado: 2026-10-05. Pendientes: **86** de 100. El detalle técnico de cada 
 
 ## F35 — El mastering reference deja $OUT[930] en ON para siempre
 
-**Severidad:** Alto · **Tipo:** Código + prueba en celda · **Responsable:** Programador robot · **Estado:** Abierto
+**Severidad:** Medio · **Tipo:** Código + prueba en celda · **Responsable:** Programador robot · **Estado:** Abierto
 
 **Módulos:** `KRC/R1/Program/masref_user.src`, `KRC/R1/System/masref_main.src`
 
@@ -1824,6 +1828,7 @@ Actualizado: 2026-10-05. Pendientes: **86** de 100. El detalle técnico de cada 
 
 * 2026-10-04 — Alta (Ethos): Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02).
 * 2026-10-05 — Severidad subida a Alto: Con AutomationCore_BKG activo (F49), $OUT[930] pegado en ON impide conceder el Request to Enter: $OUT[145] doCriticalWZ queda en TRUE y AC_PointArrival ya no detiene el robot cuando el operador pide entrar. Corregir F35 antes de producción.
+* 2026-10-05 — Severidad regresa a Medio: Con el background apagado en la versión integrada, $OUT[930] pegado ya no impide el Request to Enter. Sigue pendiente apagar $OUT[930] al final de la referencia de masterización.
 
 ---
 
@@ -2207,6 +2212,7 @@ Actualizado: 2026-10-05. Pendientes: **86** de 100. El detalle técnico de cada 
 * 2026-10-05 — Corregido en oficina: Excluido de la integración por decisión de Edgar: el zip integrado regresa el interlock de drop-off antes del primer movimiento y AtDrop3 al punto original. Probar 5 ciclos de drop al conveyor.
 * 2026-10-05 — Decisión: Edgar: se conserva el AtDrop3 del programador (la pieza cae mejor en el conveyor; validado con él). Solo el interlock de drop-off regresa a su lugar original.
 * 2026-10-05 — Respaldo 14:46: El programador además quitó PTP P1: un LIN de 330 mm de P5 a AtDrop3 bajando 166 mm a unos 30°, con el permiso de drop-off en P5. En la versión integrada el robot espera el permiso en el punto de cámara P3 con la aplicación 1 ya liberada: mover AC_Application(1,TRUE) a después de salir de la cámara.
+* 2026-10-05 — Integrado: P1 se conserva (preguntar al programador por qué lo quitó). La aplicación 1 ya no se libera en el punto de cámara: la libera un TRIGGER en el primer movimiento fuera de la cámara (P5 del drop, P23 del rechazo, P28 del red rabbit).
 
 ---
 
@@ -2237,6 +2243,7 @@ Actualizado: 2026-10-05. Pendientes: **86** de 100. El detalle técnico de cada 
 * 2026-10-05 — Alta (auditoría): Encontrado en el respaldo bmw_03_10_r1.
 * 2026-10-05 — Integrado - pendiente decisión: Activación y ediciones del proveedor integradas tal como estaban en el robot; comentarios ;CHECK: en sps.sub, cell.src y gunelectrodechange. Falta decisión de Gestamp y prueba con el PLC y del cambio de electrodo.
 * 2026-10-05 — Revisión independiente - riesgos confirmados: (1) Request to Enter: con $OUT[930] pegado (F35) el robot ya no se detiene al pedir entrar. (2) El background escribe $OUT[481]/$OUT[482] (habilitaciones del Bosch) cada ciclo y pisa las de CENTERLINE_WELD; en dry cycle puede colgar WAIT FOR dipw1_Ready. (3) Cambio de electrodo activo sin probar (F43). (4) AC_MODE sin inicializar en el CWRITE del auto select. (5) do004ProcessFault en cada reset. (6) bACEntryGranted persistente. Corre así en el robot desde el 2026-10-05.
+* 2026-10-05 — Integrado - background apagado: El background de AutomationCore se apaga otra vez hasta que Gestamp decida y se corrijan sus problemas; el submit pone $OUT[145] y $OUT[111] en OFF al arrancar. Las ediciones del proveedor quedan, inactivas (C28).
 
 ---
 
@@ -2260,6 +2267,27 @@ Actualizado: 2026-10-05. Pendientes: **86** de 100. El detalle técnico de cada 
 **Historial:**
 
 * 2026-10-05 — Alta (auditoría): Encontrado en el respaldo de las 14:46; confirmado por revisión independiente.
+* 2026-10-05 — Integrado: No se integra: en la versión integrada AC_ApplicationCheck(1) queda antes de PTP P22.
+
+---
+
+## F51 — Apps de soldadura duplicadas por estación de pick (A/B): cada cambio va en las dos
+
+**Severidad:** Bajo · **Tipo:** Sin acción · **Responsable:** Programador robot · **Estado:** Sin acción - documentado
+
+**Módulos:** `KRC/R1/Program/StyleApps/Options/style1app1opt1A..3B`, `KRC/R1/Program/Styles/Options/style1opt1.src`
+
+**Qué está mal.** El programador partió las tres apps de soldadura por estación de pick: A (estación 1, posiciones sin cambio) y B (estación 2, posiciones de soldadura re-enseñadas 1-5 mm porque la pieza queda distinta en el gripper). El código de A y B es el mismo.
+
+**Qué hacer.** Se integra tal cual. Cualquier cambio posterior a una app de soldadura se hace en A y en B.
+
+**Criterio de cierre** (se verifica en el respaldo):
+
+* Documentado; se revisa en cada auditoría que A y B sigan iguales en código.
+
+**Historial:**
+
+* 2026-10-05 — Alta (auditoría): Integrado en la versión depurada.
 
 ---
 
