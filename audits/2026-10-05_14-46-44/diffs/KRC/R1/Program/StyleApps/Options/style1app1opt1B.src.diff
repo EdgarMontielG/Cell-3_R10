@@ -1,0 +1,144 @@
+--- /dev/null
++++ backup:KRC/R1/Program/StyleApps/Options/style1app1opt1B.src
+@@ -0,0 +1,141 @@
++&ACCESS RVO2
++&REL 1
++&COMMENT NUT1
++&PARAM EDITMASK = *
++&PARAM TEMPLATE = C:\KRC\TP\Nutweld\Template\NutWeld_Vorgabe
++&PARAM DISKPATH = KRC:\R1\Program\StyleApps\Options
++DEF style1app1opt1B( )
++;FOLD PROGRAM INFO
++;**********************************************************
++;* Customer : Gestamp
++;* Cell     : BMW-03-10 / Robot R1
++;* Part     : GE4-002
++;* Program  : style1app1opt1
++;* Function : Nut welding PN1. Approach the nut welder,
++;*            weld the nut (skipped in dry cycle) and
++;*            retract. The weld is repeated while
++;*            NUT_WELD_RETRY is set.
++;* Rev.     : 2026-10-05 - GOTO jumps replaced with
++;*            structured IF and LOOP logic
++;*            2026-10-05 - Gun open interlock (GUN_OPEN_CHECK)
++;*            and gun monitoring interrupts 20-22
++;**********************************************************
++;ENDFOLD
++   ;FOLD INI
++      ;FOLD BASISTECH INI
++         GLOBAL INTERRUPT DECL 3 WHEN $STOPMESS==TRUE DO IR_STOPM ( )
++         INTERRUPT ON 3 
++         BAS (#INITMOV,0 )
++      ;ENDFOLD (BASISTECH INI)
++      ;FOLD NutWeld
++      ;ENDFOLD (NutWeld)
++      ;FOLD USER INI
++         ;Make your modifications here
++         
++      ;ENDFOLD (USER INI)
++   ;ENDFOLD (INI)
++   
++;--- Approach to nut welder ---
++;FOLD PTP P0 CONT Vel=100 % PDAT0 Tool[1]:TOOL 1 Base[3]:NUT WELDER extTCP;%{PE}%R 8.3.43,%MKUKATPBASIS,%CMOVE,%VPTP,%P 1:PTP, 2:P0, 3:C_DIS, 5:100, 7:PDAT0
++$BWDSTART=FALSE
++PDAT_ACT=PPDAT0
++FDAT_ACT=FP0
++BAS(#PTP_PARAMS,100)
++PTP XP0 C_DIS
++;ENDFOLD
++;FOLD LIN P8 CONT Vel=2 m/s CPDAT12 Tool[1]:TOOL 1 Base[3]:NUT WELDER extTCP;%{PE}%R 8.3.43,%MKUKATPBASIS,%CMOVE,%VLIN,%P 1:LIN, 2:P8, 3:C_DIS C_DIS, 5:2, 7:CPDAT12
++$BWDSTART=FALSE
++LDAT_ACT=LCPDAT12
++FDAT_ACT=FP8
++BAS(#CP_PARAMS,2)
++LIN XP8 C_DIS C_DIS
++;ENDFOLD
++;FOLD GUN MONITORING INTERRUPTS 20-22
++; Stops the robot (BRAKE F, routine GUN_OPEN_LOST) if the nut
++; welder gun leaves the open range, or the Submit stops, while
++; the robot moves into / out of the welder.
++; Edge triggered: GUN_OPEN_CHECK confirms the gun open before
++; every INTERRUPT ON 20-22.
++; KRL interrupt conditions only accept simple comparisons with
++; constants: the open range 137000 - 142000 is written here as
++; constants. Keep equal to nGunOpenMin / nGunOpenMax in
++; GUN_OPEN_CHECK.dat
++INTERRUPT DECL 20 WHEN CL_GunStrokePositionLPT<137000 DO GUN_OPEN_LOST()
++INTERRUPT DECL 21 WHEN CL_GunStrokePositionLPT>142000 DO GUN_OPEN_LOST()
++INTERRUPT DECL 22 WHEN $PRO_STATE0<>#P_ACTIVE DO GUN_OPEN_LOST()
++;ENDFOLD
++;--- Weld nut (repeated if a weld retry is requested) ---
++LOOP
++WAIT FOR NUT_READY== TRUE   ; Wait until nut is ready
++
++GUN_OPEN_CHECK()   ; Interlock: nut welder gun must be open before entering
++INTERRUPT ON 20    ; Monitor gun while the robot moves into the welder
++INTERRUPT ON 21
++INTERRUPT ON 22
++;FOLD LIN P20 CONT Vel=2 m/s CPDAT8 Tool[1]:TOOL 1 Base[3]:NUT WELDER;%{PE}%R 8.3.43,%MKUKATPBASIS,%CMOVE,%VLIN,%P 1:LIN, 2:P20, 3:C_DIS C_DIS, 5:2, 7:CPDAT8
++$BWDSTART=FALSE
++LDAT_ACT=LCPDAT8
++FDAT_ACT=FP20
++BAS(#CP_PARAMS,2)
++LIN XP20 C_DIS C_DIS
++;ENDFOLD
++
++IF di004UseDryCycle==FALSE THEN ; Dry cycle: skip welding
++
++
++;FOLD LIN P19 Vel=2 m/s CPDAT18 Tool[1]:TOOL 1 Base[3]:NUT WELDER;%{PE}%R 8.3.43,%MKUKATPBASIS,%CMOVE,%VLIN,%P 1:LIN, 2:P19, 3:, 5:2, 7:CPDAT18
++$BWDSTART=FALSE
++LDAT_ACT=LCPDAT18
++FDAT_ACT=FP19
++BAS(#CP_PARAMS,2)
++LIN XP19 
++;ENDFOLD
++WAIT SEC 0          ; Robot at weld position (stop advance run)
++INTERRUPT OFF 20    ; Gun is closed on purpose in CENTERLINE_WELD
++INTERRUPT OFF 21
++INTERRUPT OFF 22
++CENTERLINE_WELD()   ; Weld nut
++INTERRUPT ON 20     ; Gun confirmed open - monitor while leaving
++INTERRUPT ON 21
++INTERRUPT ON 22
++
++ENDIF 
++
++;FOLD LIN P20 CONT Vel=2 m/s CPDAT16 Tool[1]:TOOL 1 Base[3]:NUT WELDER;%{PE}%R 8.3.43,%MKUKATPBASIS,%CMOVE,%VLIN,%P 1:LIN, 2:P20, 3:C_DIS C_DIS, 5:2, 7:CPDAT16
++$BWDSTART=FALSE
++LDAT_ACT=LCPDAT16
++FDAT_ACT=FP20
++BAS(#CP_PARAMS,2)
++LIN XP20 C_DIS C_DIS
++;ENDFOLD
++
++
++WAIT SEC 0          ; Robot out of the welder (stop advance run)
++INTERRUPT OFF 20    ; End of gun monitoring
++INTERRUPT OFF 21
++INTERRUPT OFF 22
++; Exit loop unless a weld retry was requested
++IF NOT NUT_WELD_RETRY THEN
++   EXIT
++ENDIF
++NUT_WELD_RETRY=FALSE   ; Clear request and weld again
++ENDLOOP
++;--- Retract from nut welder ---
++
++;FOLD LIN P8 CONT Vel=2 m/s CPDAT17 Tool[1]:TOOL 1 Base[3]:NUT WELDER extTCP;%{PE}%R 8.3.43,%MKUKATPBASIS,%CMOVE,%VLIN,%P 1:LIN, 2:P8, 3:C_DIS C_DIS, 5:2, 7:CPDAT17
++$BWDSTART=FALSE
++LDAT_ACT=LCPDAT17
++FDAT_ACT=FP8
++BAS(#CP_PARAMS,2)
++LIN XP8 C_DIS C_DIS
++;ENDFOLD
++;FOLD PTP P0 Vel=100 % PDAT18 Tool[1]:TOOL 1 Base[3]:NUT WELDER extTCP;%{PE}%R 8.3.43,%MKUKATPBASIS,%CMOVE,%VPTP,%P 1:PTP, 2:P0, 3:, 5:100, 7:PDAT18
++$BWDSTART=FALSE
++PDAT_ACT=PPDAT18
++FDAT_ACT=FP0
++BAS(#PTP_PARAMS,100)
++TRIGGER WHEN DISTANCE = 0 DELAY = 0 DO Request_next_nut() PRIO= -1
++PTP XP0 
++;ENDFOLD
++END
++

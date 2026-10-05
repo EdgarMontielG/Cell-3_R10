@@ -1,0 +1,13 @@
+--- HEAD:am.ini
++++ backup:am.ini
+@@ -3,8 +3,8 @@
+ Config=All
+ DiskNo=0
+ LastDisk=1
+-ID=6ace0ec0-0b74-4c79-92fd-9127ffd48778
+-Date=2026-10-05_09-43-37
++ID=c5d12104-8391-4029-9729-31022f3d019a
++Date=2026-10-05_14-46-44
+ [Roboter]
+ RobName=BMW_03_10_R1
+ IRSerialNr=658424

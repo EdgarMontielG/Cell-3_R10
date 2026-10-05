@@ -1,0 +1,43 @@
+--- HEAD:KRC/R1/TP/AutomationCore/automationcoredata.dat
++++ backup:KRC/R1/TP/AutomationCore/automationcoredata.dat
+@@ -72,18 +72,18 @@
+ DECL GLOBAL KRLMSGOPT_T AutoCore_MsgOpt_Stop={VL_STOP TRUE,CLEAR_P_RESET TRUE,CLEAR_P_SAW TRUE,LOG_TO_DB TRUE}
+ DECL GLOBAL KRLMSGOPT_T AutoCore_MsgOpt_NoStop={VL_STOP FALSE,CLEAR_P_RESET TRUE,CLEAR_P_SAW TRUE,LOG_TO_DB TRUE}
+ DECL GLOBAL KRLMSGOPT_T AutoCore_MsgOpt_NoLog={VL_STOP FALSE,CLEAR_P_RESET TRUE,CLEAR_P_SAW TRUE,LOG_TO_DB FALSE}
+-DECL GLOBAL INT nAutoCore_Handle=10035
++DECL GLOBAL INT nAutoCore_Handle=11572
+ DECL GLOBAL INT nAutoCore_Handle_SPS=0
+ DECL GLOBAL INT nWorkComplete_Handle=12283
+ DECL GLOBAL INT nPLCWaiting_Handle=0
+ DECL GLOBAL INT nPLCInvalidApps_Handle=0
+-DECL GLOBAL INT nCycleStart_Handle=11564
+-DECL GLOBAL INT nCycTime_Handle=11563
++DECL GLOBAL INT nCycleStart_Handle=11595
++DECL GLOBAL INT nCycTime_Handle=11594
+ DECL GLOBAL INT nRepoRequest_Handle=0
+ DECL GLOBAL INT nProcRequest_Handle=0
+ DECL GLOBAL INT nReqEnter_Handle=10558
+ DECL GLOBAL INT nWaitMsg_Handle=0
+-DECL GLOBAL INT nLogOnlyMsg_Handle=10032
++DECL GLOBAL INT nLogOnlyMsg_Handle=11593
+ DECL GLOBAL INT nAutoCore_Submit_Handle[10]
+ nAutoCore_Submit_Handle[1]=0
+ nAutoCore_Submit_Handle[2]=0
+@@ -108,7 +108,7 @@
+ ;ENDFOLD (Automation Core Custom Variables)
+ ;FOLD Automation Core BOOL Variables
+ DECL GLOBAL BOOL bAutoCore_RobStop=FALSE
+-DECL GLOBAL BOOL bACProcessReset=TRUE
++DECL GLOBAL BOOL bACProcessReset=FALSE
+ DECL GLOBAL BOOL bACMainLine=FALSE
+ DECL GLOBAL BOOL bACMainLineReset=FALSE
+ DECL GLOBAL BOOL bOption1=FALSE
+@@ -140,6 +140,8 @@
+ EXT  HomeToRepair ( )
+ ;ENDFOLD (Automation Core Ext Prog Decl)
+ ;ENDFOLD (Automation Core System Variables)
++; GLOBAL ENUM NutWeld_Style_Type NUTWELD,STUDWELD
++; DECL GLOBAL NutWeld_Style_Type PNWStyle=#NUTWELD
+ ;FOLD Process Counter
+ GLOBAL ENUM MyCountCmd Init,Count1up,Check
+ DECL GLOBAL MyCountCmd geProcessCount=#Init

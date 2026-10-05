@@ -1,0 +1,8 @@
+--- HEAD:KRC/R1/TP/BrakeTest/braketeststart.src
++++ backup:KRC/R1/TP/BrakeTest/braketeststart.src
+@@ -1,4 +1,4 @@
+-&ACCESS RVO1
++&ACCESS RVO7
+ &REL 6
+ &COMMENT path to test
+ &PARAM EDITMASK = *

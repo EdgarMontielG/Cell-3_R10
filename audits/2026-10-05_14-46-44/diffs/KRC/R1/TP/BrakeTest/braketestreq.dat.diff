@@ -1,0 +1,8 @@
+--- HEAD:KRC/R1/TP/BrakeTest/braketestreq.dat
++++ backup:KRC/R1/TP/BrakeTest/braketestreq.dat
+@@ -1,4 +1,4 @@
+-&ACCESS RVO1
++&ACCESS RVO7
+ &REL 2
+ &COMMENT BrkTst-main task
+ &PARAM EDITMASK = *

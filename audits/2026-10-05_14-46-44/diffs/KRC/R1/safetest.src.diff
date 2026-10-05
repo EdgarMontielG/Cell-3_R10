@@ -1,0 +1,26 @@
+--- HEAD:KRC/R1/safetest.src
++++ backup:KRC/R1/safetest.src
+@@ -1,6 +1,5 @@
+ &ACCESS RVP
+ &REL 2
+-&COMMENT 03-10-R1 TEST LOOP
+ &PARAM EDITMASK = *
+ &PARAM TEMPLATE = C:\KRC\Roboter\Template\vorgabe
+ &PARAM DISKPATH = KRC:\R1
+@@ -16,16 +15,6 @@
+ 
+   ;ENDFOLD (USER INI)
+ ;ENDFOLD (INI)
+-;********************************
+-; Gestamp Standards
+-; Line - BMW G65 (cell 03)
+-; Robot 03-10-R1 (BMW-03-10-R1)
+-; Application - MANUAL TEST ONLY - ENDLESS PTP TO ONE POINT
+-;********************************
+-; NOT CALLED BY ANY PROGRAM. MOVES PTP TO THE POINT "safetest" (TOOL 1, WORLD) IN AN ENDLESS
+-; LOOP - PRESUMABLY USED TO TEST A SAFEOPERATION ZONE OR SPEED LIMIT. THE ONLY WAY OUT IS TO
+-; STOP AND CANCEL THE PROGRAM. KEEP OR DELETE: GESTAMP REVIEW POINT 5 (UNUSED PROGRAMS)
+-;********************************
+ 
+ loop
+ ;FOLD PTP safetest Vel=100 % PDAT1 Tool[1]:TOOL 1 Base[0];%{PE}%R 8.3.43,%MKUKATPBASIS,%CMOVE,%VPTP,%P 1:PTP, 2:safetest, 3:, 5:100, 7:PDAT1

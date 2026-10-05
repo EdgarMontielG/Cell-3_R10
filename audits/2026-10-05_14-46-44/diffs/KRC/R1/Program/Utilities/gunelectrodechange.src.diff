@@ -1,0 +1,227 @@
+--- HEAD:KRC/R1/Program/Utilities/gunelectrodechange.src
++++ backup:KRC/R1/Program/Utilities/gunelectrodechange.src
+@@ -1,6 +1,5 @@
+ &ACCESS RVO1
+ &REL 12
+-&COMMENT 03-10-R1 ELECTRODE CHANGE
+ &PARAM EDITMASK = *
+ &PARAM TEMPLATE = C:\KRC\TP\Nutweld\Template\NutWeld_Vorgabe
+ DEF GunElectrodeChange( )
+@@ -23,28 +22,7 @@
+          bElectrChanged=FALSE
+       ;ENDFOLD (USER INI)
+    ;ENDFOLD (INI)
+-;********************************
+-; Gestamp Standards
+-; Line - BMW G65 (cell 03)
+-; Robot 03-10-R1 (BMW-03-10-R1)
+-; Application - ELECTRODE CHANGE FOR NUTWELD GUNS 1-3 (CALLED BY CELL, NEVER TRIGGERED)
+-;********************************
+-; NUTWELD TEMPLATE ROUTINE (NutWeld_Vorgabe): PTP HOME; THEN, FOR EACH NUTWELD GUN 1-3 WHOSE
+-; ELECTRODE-CHANGE OUTPUT IS ON: WATER OFF, DIALOG "ARE CAPS CHANGED" UNTIL THE PLC CONFIRMS
+-; THE CAP CHANGE, CAP-CHANGE-COMPLETE HANDSHAKE AND STEPPER RESET, WATER ON; FINALLY PTP HOME
+-;NOTE: THE TRIGGER $OUT[111] do111Gun1ElectrodeChange IS WRITTEN BY AutomationCore_Bkg FROM
+-;  dipw1_EndofStepper; THE TASK RUNS SINCE 2026-10-05, SO CELL CALLS THIS PROGRAM AT THE STEPPER END
+-;CHECK: NEVER RUN BEFORE - TEST THE WHOLE SEQUENCE AND THE PLC HANDSHAKE (F43, F49)
+-;NOTE: THIS STATION HAS ONE NUT WELDER (PW1 = CENTERLINE PEDESTAL); THE GUN 2 / GUN 3 OUTPUTS
+-;  WRITTEN HERE ($OUT[523], $OUT[533], $OUT[571], $OUT[581]) ARE NOT MAPPED TO ANY BUS BIT
+-;NOTE: sps.sub SWITCHES $OUT[475] dopw1_StartWater BACK ON IN THE NEXT SUBMIT CYCLE OUTSIDE
+-;  DRY CYCLE, SO THE GUN 1 WATER-OFF STEP HAS NO LASTING EFFECT (F09)
+-;NOTE: $OUT[111] SHARES ITS PLC ADAPTER BIT WITH $OUT[930] do930MasterRefInProcess (F18)
+-;NOTE: STEPPER RESET IS A 0.1 S PULSE WITH NO CONFIRMATION AND THE CAP-CHANGE HANDSHAKE
+-;  DOES NOT CLOSE ON LEVELS (F43, GESTAMP REVIEW POINT 6)
+-;********************************
+-   
+-   ;PTP HOME (XHOME)
++   
+    ;FOLD PTP HOME  Vel= 100 % DEFAULT;%{PE}%MKUKATPBASIS,%CMOVE,%VPTP,%P 1:PTP, 2:HOME, 3:, 5:100, 7:DEFAULT
+       $BWDSTART = FALSE
+       PDAT_ACT=PDEFAULT
+@@ -54,26 +32,18 @@
+       PTP  XHOME
+    ;ENDFOLD
+    
+-   ;GUN 1 ELECTRODE CHANGE - ONLY WHEN SIGNAL $OUT[111] do111Gun1ElectrodeChange IS ON
+    IF do111Gun1ElectrodeChange THEN  
+-      ;FOLD GUN 1 WATER OFF
+-         ;WATER OFF - SIGNAL $OUT[475] dopw1_StartWater OFF
++      ;FOLD Turn Water Off
+          dopw1_StartWater=FALSE
+       ;ENDFOLD
+-      ;FOLD GUN 1 WAIT FOR CAP CHANGE CONFIRMATION
+-         ;REPEATS THE DIALOG UNTIL SIGNAL $IN[92] di092Caps1areChanged ON IS SEEN WHILE THE DIALOG
+-         ;IS OPEN - THE KEYS YES / NO ALONE DO NOT END THE LOOP
++      ;FOLD Have Electrodes been changed?
+            REPEAT
+            REPEAT 
+-            ;READY FOR CAP CHANGE - SIGNAL $OUT[91] do091RobotReadyCapChange ON, THEN DIALOG
+-            ;AutomationCore_Msg[26] (AC_AreCapsChgd) WITH THE KEYS DIAGNOSTIC / YES / NO
+             do091RobotReadyCapChange=TRUE
+             nAutoCore_Handle = Set_KrlDlg (AutomationCore_Msg[26], AutoCore_MsgPar[], AC_SK_YesNoNav[], AutoCore_MsgOpt_Stop)
+             IF (nAutoCore_Handle > 0) THEN
+                WHILE (Exists_KrlDlg(nAutoCore_Handle, nAutoCore_Key))
+                   WAIT SEC 0.024
+-                  ;PLC CONFIRMS CAPS CHANGED - SIGNAL $IN[92] di092Caps1areChanged ON:
+-                  ;CLEAR THE DIALOG (Clear_KRLMsg); THE ANSWER IS THEN TAKEN AS YES (KEY 2)
+                   IF (di092Caps1areChanged==TRUE) THEN
+                      bCapsChanged=TRUE
+                      bElectrchanged=TRUE
+@@ -91,9 +61,6 @@
+                      ENDWHILE
+                      bMsgRelease = FALSE
+                   CASE 2 ; Yes
+-                     ;ONLY AFTER THE PLC CONFIRMATION: CAP CHANGE COMPLETE -
+-                     ;SIGNAL $OUT[92] do092RobotCapChg1Cmplt ON, THEN PULSE
+-                     ;SIGNAL $OUT[485] dopw1_StepperReset ON FOR 0.1 S
+                      IF (bElectrchanged == TRUE) THEN 
+                      bMsgRelease = TRUE
+                      bCapsChanged=TRUE
+@@ -107,43 +74,31 @@
+             ENDIF
+          UNTIL bElectrChanged
+          UNTIL (bMsgRelease==TRUE)
+-         ;READY FOR CAP CHANGE OFF - SIGNAL $OUT[91] do091RobotReadyCapChange OFF
+          do091RobotReadyCapChange=FALSE
+-      ;ENDFOLD (GUN 1 WAIT FOR CAP CHANGE CONFIRMATION)
+-      ;FOLD GUN 1 RESET CAP CHANGE COMPLETE
+-         ;CAP CHANGE COMPLETE OFF - SIGNAL $OUT[92] do092RobotCapChg1Cmplt OFF, ONLY IF
+-         ;$OUT[111] do111Gun1ElectrodeChange IS ALREADY OFF - OTHERWISE IT STAYS ON
++      ;ENDFOLD (Have Electrodes been changed?)
++      ;FOLD Reset Cap Change to PLC
+          IF (bCapsChanged AND NOT do111Gun1ElectrodeChange) THEN
+             do092RobotCapChg1Cmplt=False
+          ENDIF
+          bElectrChanged=FALSE
+       ;ENDFOLD
+-      ;FOLD GUN 1 WATER ON
+-         ;WATER ON - SIGNAL $OUT[475] dopw1_StartWater ON
++      ;FOLD Start Water
+          dopw1_StartWater=TRUE
+-      ;ENDFOLD (GUN 1 WATER ON)
++      ;ENDFOLD Start Water
+    ENDIF
+    
+-   ;GUN 2 ELECTRODE CHANGE - ONLY WHEN SIGNAL $OUT[112] do112Gun2ElectrodeChange IS ON
+    IF do112Gun2ElectrodeChange THEN  
+-      ;FOLD GUN 2 WATER OFF
+-         ;WATER OFF - SIGNAL $OUT[523] dopw2_StartWater OFF (NOT MAPPED)
++      ;FOLD Turn Water Off
+          dopw2_StartWater=FALSE
+       ;ENDFOLD
+-      ;FOLD GUN 2 WAIT FOR CAP CHANGE CONFIRMATION
+-         ;REPEATS THE DIALOG UNTIL SIGNAL $IN[93] di093Caps2areChanged ON IS SEEN WHILE THE DIALOG
+-         ;IS OPEN - THE KEYS YES / NO ALONE DO NOT END THE LOOP
++      ;FOLD Have Electrodes been changed?
+             REPEAT
+             REPEAT 
+-            ;READY FOR CAP CHANGE - SIGNAL $OUT[91] do091RobotReadyCapChange ON, THEN DIALOG
+-            ;AutomationCore_Msg[26] (AC_AreCapsChgd) WITH THE KEYS DIAGNOSTIC / YES / NO
+             do091RobotReadyCapChange=TRUE
+             nAutoCore_Handle = Set_KrlDlg (AutomationCore_Msg[26], AutoCore_MsgPar[], AC_SK_YesNoNav[], AutoCore_MsgOpt_Stop)
+             IF (nAutoCore_Handle > 0) THEN
+                WHILE (Exists_KrlDlg(nAutoCore_Handle, nAutoCore_Key))
+                   WAIT SEC 0.024
+-                  ;PLC CONFIRMS CAPS CHANGED - SIGNAL $IN[93] di093Caps2areChanged ON:
+-                  ;CLEAR THE DIALOG (Clear_KRLMsg); THE ANSWER IS THEN TAKEN AS YES (KEY 2)
+                   IF (di093Caps2areChanged==TRUE) THEN
+                      bCapsChanged=TRUE
+                      bElectrchanged=TRUE
+@@ -161,9 +116,6 @@
+                      ENDWHILE
+                      bMsgRelease = FALSE
+                   CASE 2 ; Yes
+-                     ;ONLY AFTER THE PLC CONFIRMATION: CAP CHANGE COMPLETE -
+-                     ;SIGNAL $OUT[93] do093RobotCapChg2Cmplt ON, THEN PULSE
+-                     ;SIGNAL $OUT[533] dopw2_StepperReset ON FOR 0.1 S (NOT MAPPED)
+                      IF (bElectrchanged == TRUE) THEN 
+                      bMsgRelease = TRUE
+                      bCapsChanged=TRUE
+@@ -177,43 +129,31 @@
+             ENDIF
+          UNTIL bElectrChanged
+          UNTIL (bMsgRelease==TRUE)
+-         ;READY FOR CAP CHANGE OFF - SIGNAL $OUT[91] do091RobotReadyCapChange OFF
+          do091RobotReadyCapChange=FALSE
+-      ;ENDFOLD (GUN 2 WAIT FOR CAP CHANGE CONFIRMATION)
+-      ;FOLD GUN 2 RESET CAP CHANGE COMPLETE
+-         ;CAP CHANGE COMPLETE OFF - SIGNAL $OUT[93] do093RobotCapChg2Cmplt OFF, ONLY IF
+-         ;$OUT[112] do112Gun2ElectrodeChange IS ALREADY OFF - OTHERWISE IT STAYS ON
++      ;ENDFOLD (Have Electrodes been changed?)
++      ;FOLD Reset Cap Change to PLC
+          IF (bCapsChanged AND NOT do112Gun2ElectrodeChange) THEN
+             do093RobotCapChg2Cmplt=False
+          ENDIF
+          bElectrChanged=FALSE
+       ;ENDFOLD
+-      ;FOLD GUN 2 WATER ON
+-         ;WATER ON - SIGNAL $OUT[523] dopw2_StartWater ON (NOT MAPPED)
++      ;FOLD Start Water
+          dopw2_StartWater=TRUE
+-      ;ENDFOLD (GUN 2 WATER ON)
++      ;ENDFOLD Start Water
+    ENDIF
+    
+-   ;GUN 3 ELECTRODE CHANGE - ONLY WHEN SIGNAL $OUT[113] do113Gun3ElectrodeChange IS ON
+    IF do113Gun3ElectrodeChange THEN  
+-      ;FOLD GUN 3 WATER OFF
+-         ;WATER OFF - SIGNAL $OUT[571] dopw3_StartWater OFF (NOT MAPPED)
++      ;FOLD Turn Water Off
+          dopw3_StartWater=FALSE
+       ;ENDFOLD
+-      ;FOLD GUN 3 WAIT FOR CAP CHANGE CONFIRMATION
+-         ;REPEATS THE DIALOG UNTIL SIGNAL $IN[94] di094Caps3areChanged ON IS SEEN WHILE THE DIALOG
+-         ;IS OPEN - THE KEYS YES / NO ALONE DO NOT END THE LOOP
++      ;FOLD Have Electrodes been changed?
+             REPEAT
+             REPEAT 
+-            ;READY FOR CAP CHANGE - SIGNAL $OUT[91] do091RobotReadyCapChange ON, THEN DIALOG
+-            ;AutomationCore_Msg[26] (AC_AreCapsChgd) WITH THE KEYS DIAGNOSTIC / YES / NO
+             do091RobotReadyCapChange=TRUE
+             nAutoCore_Handle = Set_KrlDlg (AutomationCore_Msg[26], AutoCore_MsgPar[], AC_SK_YesNoNav[], AutoCore_MsgOpt_Stop)
+             IF (nAutoCore_Handle > 0) THEN
+                WHILE (Exists_KrlDlg(nAutoCore_Handle, nAutoCore_Key))
+                   WAIT SEC 0.024
+-                  ;PLC CONFIRMS CAPS CHANGED - SIGNAL $IN[94] di094Caps3areChanged ON:
+-                  ;CLEAR THE DIALOG (Clear_KRLMsg); THE ANSWER IS THEN TAKEN AS YES (KEY 2)
+                   IF (di094Caps3areChanged==TRUE) THEN
+                      bCapsChanged=TRUE
+                      bElectrchanged=TRUE
+@@ -231,9 +171,6 @@
+                      ENDWHILE
+                      bMsgRelease = FALSE
+                   CASE 2 ; Yes
+-                     ;ONLY AFTER THE PLC CONFIRMATION: CAP CHANGE COMPLETE -
+-                     ;SIGNAL $OUT[95] do095RobotCapChg3Cmplt ON, THEN PULSE
+-                     ;SIGNAL $OUT[581] dopw3_StepperReset ON FOR 0.1 S (NOT MAPPED)
+                      IF (bElectrchanged == TRUE) THEN 
+                      bMsgRelease = TRUE
+                      bCapsChanged=TRUE
+@@ -247,24 +184,19 @@
+             ENDIF
+          UNTIL bElectrChanged
+          UNTIL (bMsgRelease==TRUE)
+-         ;READY FOR CAP CHANGE OFF - SIGNAL $OUT[91] do091RobotReadyCapChange OFF
+          do091RobotReadyCapChange=FALSE
+-      ;ENDFOLD (GUN 3 WAIT FOR CAP CHANGE CONFIRMATION)
+-      ;FOLD GUN 3 RESET CAP CHANGE COMPLETE
+-         ;CAP CHANGE COMPLETE OFF - SIGNAL $OUT[95] do095RobotCapChg3Cmplt OFF, ONLY IF
+-         ;$OUT[113] do113Gun3ElectrodeChange IS ALREADY OFF - OTHERWISE IT STAYS ON
++      ;ENDFOLD (Have Electrodes been changed?)
++      ;FOLD Reset Cap Change to PLC
+          IF (bCapsChanged AND NOT do113Gun3ElectrodeChange) THEN
+             do095RobotCapChg3Cmplt=False
+          ENDIF
+          bElectrChanged=FALSE
+       ;ENDFOLD
+-      ;FOLD GUN 3 WATER ON
+-         ;WATER ON - SIGNAL $OUT[571] dopw3_StartWater ON (NOT MAPPED)
++      ;FOLD Start Water
+          dopw3_StartWater=TRUE
+-      ;ENDFOLD (GUN 3 WATER ON)
++      ;ENDFOLD Start Water
+    ENDIF
+    
+-   ;PTP HOME (XHOME)
+    ;FOLD PTP HOME  Vel= 100 % DEFAULT;%{PE}%MKUKATPBASIS,%CMOVE,%VPTP,%P 1:PTP, 2:HOME, 3:, 5:100, 7:DEFAULT
+       $BWDSTART = FALSE
+       PDAT_ACT=PDEFAULT

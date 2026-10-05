@@ -1,0 +1,8 @@
+--- HEAD:KRC/R1/Program/home.dat
++++ backup:KRC/R1/Program/home.dat
+@@ -1,4 +1,4 @@
+-&ACCESS RVO1
++&ACCESS RVP1
+ &REL 5
+ &PARAM EDITMASK = *
+ DEFDAT  home

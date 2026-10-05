@@ -1,0 +1,8 @@
+--- HEAD:KRC/R1/TP/BrakeTest/braketestback.dat
++++ backup:KRC/R1/TP/BrakeTest/braketestback.dat
+@@ -1,4 +1,4 @@
+-&ACCESS RVO1
++&ACCESS RVO7
+ &REL 7
+ &COMMENT path after test
+ &PARAM EDITMASK = *

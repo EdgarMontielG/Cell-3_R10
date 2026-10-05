@@ -1,0 +1,70 @@
+--- HEAD:KRC/R1/Program/Styles/style_1.src
++++ backup:KRC/R1/Program/Styles/style_1.src
+@@ -1,7 +1,18 @@
+ &ACCESS RVO1
+ &REL 101
+-&COMMENT 03-10-R1 STYLE 1
++&COMMENT GE4_002
+ DEF Style_1( )
++;FOLD PROGRAM INFO
++;**********************************************************
++;* Customer : Gestamp
++;* Cell     : BMW-03-10 / Robot R1
++;* Part     : GE4-002
++;* Program  : Style_1
++;* Function : Style 1 entry program (called from CELL).
++;*            Runs the cycle selected by nOption:
++;*            1,2,7,8 = production, 12 = Red Rabbit.
++;**********************************************************
++;ENDFOLD
+    ;FOLD INI;%{PE}
+       ;FOLD BASISTECH INI
+          GLOBAL INTERRUPT DECL 3 WHEN $STOPMESS==TRUE DO IR_STOPM ( )
+@@ -11,37 +22,22 @@
+       ;FOLD USER INI
+          ;Make your modifications here
+          
+-      ;ENDFOLD (USER INI)
+-   ;ENDFOLD (INI)
+-;********************************
+-; Gestamp Standards
+-; Line - BMW G65 (cell 03)
+-; Robot 03-10-R1 (BMW-03-10-R1)
+-; Application - STYLE 1: SELECT THE OPTION PROGRAM
+-;********************************
+-   ;SELECT THE OPTION PROGRAM BY OPTION NUMBER nOption (gdiOption $IN[38..45])
+-   SWITCH nOption
+-      CASE 1
+-         ;OPTION 1: PRODUCTION CYCLE (PICK, WELD 3 NUTS, NUT CHECKS, DROP OR REJECT)
++         ; (USER INI)
++      ;ENDFOLD (INI)
++   ;ENDFOLD INI
++   SWITCH nOption              ; Cycle selected by PLC
++      CASE 1                   ; GE4-002 production cycle
+          Style1Opt1 ( )
+-      CASE 2
+-         ;OPTION 2: SAME PRODUCTION CYCLE (Style1Opt1)
+-         ;NOTE: NUT SENSOR AND CAMERA EVALUATE OPTIONS 1, 2, 7 AND 8 THE SAME WAY (F02)
++      CASE 2                   ; GE4-002 production cycle
+          Style1Opt1 ( )
+-      CASE 7
+-         ;OPTION 7: SAME PRODUCTION CYCLE (Style1Opt1)
++      CASE 7                   ; GE4-002 production cycle
+          Style1Opt1 ( )
+-      CASE 8
+-         ;OPTION 8: SAME PRODUCTION CYCLE (Style1Opt1)
++      CASE 8                   ; GE4-002 production cycle
+          Style1Opt1 ( )
+-      CASE 12
+-         ;OPTION 12: RED RABBIT TEST CYCLE (Style1Opt10AutoRR)
+-         ;NOTE: THE NUT CHECK AND THE CAMERA CHECK EVALUATE THE RED RABBIT FOR OPTION 12 (F19)
++      CASE 12                  ; Red Rabbit verification cycle
+          Style1Opt10AutoRR ( )
+       DEFAULT
+-         ;NOTE: ANY OTHER OPTION: WAIT FOR FALSE - THE ROBOT STOPS HERE IN CYCLE FOR EVER,
+-         ;NOTE: WITH NO MESSAGE AND NO FAULT TO THE PLC (F06, C21)
+-         WAIT FOR FALSE
++         WAIT FOR FALSE        ; Invalid nOption - program halts here
+    ENDSWITCH
+    
+ 

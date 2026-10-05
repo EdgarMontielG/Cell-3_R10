@@ -1,0 +1,180 @@
+--- HEAD:KRC/R1/Program/StylePicks/Options/style1pick1opt2.src
++++ backup:KRC/R1/Program/StylePicks/Options/style1pick1opt2.src
+@@ -1,9 +1,20 @@
+-&ACCESS RVO1
++&ACCESS RVP2
+ &REL 41
+-&COMMENT 03-10-R1 PICK ST2
++&COMMENT St1_PICK_GE4
+ &PARAM EDITMASK = *
+ &PARAM DISKPATH = KRC:\R1\Program\StylePicks\Options
+ DEF style1pick1opt2( )
++;FOLD PROGRAM INFO
++;**********************************************************
++;* Customer : Gestamp
++;* Cell     : BMW-03-10 / Robot R1
++;* Part     : GE4-002
++;* Program  : style1pick1opt2
++;* Function : Pick GE4-002 part from station 2 (ST2).
++;* Rev.     : 2026-10-05 - GOTO jumps replaced with
++;*            structured IF logic
++;**********************************************************
++;ENDFOLD
+    ;FOLD INI
+       ;FOLD BASISTECH INI
+          GLOBAL INTERRUPT DECL 3 WHEN $STOPMESS==TRUE DO IR_STOPM ( )
+@@ -15,71 +26,54 @@
+          
+       ;ENDFOLD (USER INI)
+    ;ENDFOLD (INI)   
+-;********************************
+-; Gestamp Standards
+-; Line - BMW G65 (cell 03)
+-; Robot 03-10-R1 (BMW-03-10-R1-MH1)
+-; Application - PICK THE PART AT PICKUP 2 (STATION 2) WITH EOAT 1
+-;********************************
+-;NOTE: CALLED BY Style1Opt1 WHEN $IN[66] di066PickupMachine2 ON, $IN[65] di065PickupMachine1 OFF
+-;NOTE: THE WAIT FOR STATEMENTS BELOW HAVE NO TIMEOUT AND NO MESSAGE (F15)
+-;PICKUP 2 REQUEST - AC_pickUPCheck(2): WAIT SIGNAL $IN[66] di066PickupMachine2 ON,
+-;THEN SIGNALS $OUT[66] do066PickupClear2 OFF, $OUT[23] do023PickClearTooling OFF
+-;WARNING: THE HIDDEN FORM PARAMETER IS AC_CmdParam=1 - OPENING AND CONFIRMING THIS FORM
+-;  REGENERATES AC_pickUPCheck(1) (PICKUP 1). DO NOT TOUCH UP THIS FOLD (F21)
+    ;FOLD PickUp[2] Request
+       ;FOLD ;%{h}
+          ;Params IlfProvider=ac_zoneilf; AC_CmdZones=PickUp; AC_CmdParam=1; AC_ZoneRepo=False; AC_Blending=False
+       ;ENDFOLD
+       AC_pickUPCheck (2)
+    ;ENDFOLD  
+-;WAIT GRIPPER EMPTY BEFORE ANY GRIPPER COMMAND - SIGNALS $IN[253] di253PartPresent1 OFF,
+-;$IN[254] di254PartPresent2 OFF (GESTAMP REVIEW POINT 14)
++   ;--- Prepare gripper ---
++   ;FOLD Gripper SET [1]Gripper1 State=[1]OPEN Wait 0.2[s] Check with Strategy 1 ;%{PE}
++      ;FOLD Parameters Parameters ;%{h}
++         ;Params IlfProvider=GripperTech.GripperSet;setgripper=4;setstate=2;setcont=nocont;waittime=0.2;errorstrategy=1
++      ;ENDFOLD
++      GRPg_SetStateAndCheck(1, 1, 0.2, 1)
++   ;ENDFOLD
++;FOLD Gripper CHECK [1]Gripper 1 State=[1]OPEN with Strategy 1 ;%{PE}
++;FOLD Parameters Parameters ;%{h}
++;Params IlfProvider=GripperTech.GripperCheck;setgripper=1;setstate=1;setcont=nocont;checkstrategy=1
++;ENDFOLD
++GRPg_Check(1, 1, FALSE, 1)
++;ENDFOLD
++; Gripper must be empty before picking
+ ;FOLD WAIT FOR ( NOT IN 253 'di253PartPresent1' ) AND ( NOT IN 254 'di254PartPresent2' );%{PE}%R 8.3.43,%MKUKATPBASIS,%CEXT_WAIT_FOR,%VEXT_WAIT_FOR,%P 2:, 4:NOT, 5:$IN, 6:253, 7:di253PartPresent1, 9:AND, 10:, 12:NOT, 13:$IN, 14:254, 15:di254PartPresent2, 17:
+ WAIT FOR  (  NOT $IN[253] ) AND (  NOT $IN[254]) 
+ ;ENDFOLD
+-;GRIPPER 1 OPEN - SIGNALS $OUT[249] do249Group1Home ON, $OUT[250] do250Group1Work OFF, WAIT 0.2 S,
+-;THEN CHECK $IN[257] di257Cylinder1Home ON, $IN[258] di258Cylinder1Work OFF (STRATEGY 1)
+-;NOTE: THE HIDDEN FORM PARAMETERS NOW MATCH THE CALL (WERE setgripper=4;setstate=2, F31)
+-   ;FOLD Gripper SET [1]Gripper1 State=[1]OPEN Wait 0.2[s] Check with Strategy 1 ;%{PE}
+-      ;FOLD Parameters Parameters ;%{h}
+-         ;Params IlfProvider=GripperTech.GripperSet;setgripper=1;setstate=1;setcont=nocont;waittime=0.2;errorstrategy=1
+-      ;ENDFOLD
+-      GRPg_SetStateAndCheck(1, 1, 0.2, 1)
+-   ;ENDFOLD
+   
+-;APPROACH PICKUP - P10
+-;THEN P20, P30AbovePick (ABOVE THE PART), AtPick3 (PICK POSITION)
+-;NUT 1 - TRIGGER ON THE MOTION TO P10 (DISTANCE = 0: FIRES WHEN THE MOTION STARTS): NUT_START=TRUE
+-;STARTS THE NUT PRELOAD (PRELOAD, CALLED FROM sps.sub) FOR THE FIRST NUT
+-;NOTE: THE TRIGGER STANDS BEFORE THE INLINE FORM, SO A TOUCH UP CANNOT DELETE IT; IT ACTS ON
+-;NOTE: THE NEXT MOTION. A BLOCK SELECTION ONTO THE MOTION FOLD SKIPS IT (SELECT THE TRIGGER
+-;NOTE: LINE): NO NUT 1 PRELOAD IS REQUESTED (F14)
+-;NOTE: NUT_START IS SET ALSO IN DRY CYCLE AND WHEN STEPPING IN T1/T2 (F04, F11)
+-TRIGGER WHEN DISTANCE = 0 DELAY = 0 DO NUT_START=TRUE
+-   ;FOLD PTP P10 CONT Vel=100 % PDAT1 Tool[1]:TOOL 1 Base[0];%{PE}%R 8.3.43,%MKUKATPBASIS,%CMOVE,%VPTP,%P 1:PTP, 2:P10, 3:C_DIS, 5:100, 7:PDAT1
++;--- Approach pick station ---
++   ;FOLD PTP P10 CONT Vel=100 % PDAT1 Tool[1]:GE4-002 Base[0];%{PE}%R 8.3.43,%MKUKATPBASIS,%CMOVE,%VPTP,%P 1:PTP, 2:P10, 3:C_DIS, 5:100, 7:PDAT1
+       $BWDSTART=FALSE
+       PDAT_ACT=PPDAT1
+       FDAT_ACT=FP10
+       BAS(#PTP_PARAMS,100)
++      TRIGGER WHEN DISTANCE = 0 DELAY = 0 DO NUT_STAR=TRUE 
+       PTP XP10 C_DIS
+    ;ENDFOLD
+-   ;FOLD PTP P20 CONT Vel=100 % PDAT2 Tool[1]:TOOL 1 Base[0];%{PE}%R 8.3.43,%MKUKATPBASIS,%CMOVE,%VPTP,%P 1:PTP, 2:P20, 3:C_DIS, 5:100, 7:PDAT2
++   ;FOLD PTP P20 CONT Vel=100 % PDAT2 Tool[1]:GE4-002 Base[0];%{PE}%R 8.3.43,%MKUKATPBASIS,%CMOVE,%VPTP,%P 1:PTP, 2:P20, 3:C_DIS, 5:100, 7:PDAT2
+       $BWDSTART=FALSE
+       PDAT_ACT=PPDAT2
+       FDAT_ACT=FP20
+       BAS(#PTP_PARAMS,100)
+       PTP XP20 C_DIS
+    ;ENDFOLD
+-   ;FOLD PTP P30AbovePick CONT Vel=100 % PDAT4 Tool[1]:TOOL 1 Base[0];%{PE}%R 8.3.43,%MKUKATPBASIS,%CMOVE,%VPTP,%P 1:PTP, 2:P30AbovePick, 3:C_DIS, 5:100, 7:PDAT4
++   ;FOLD PTP P30AbovePick CONT Vel=100 % PDAT4 Tool[1]:GE4-002-LO-010-111 Base[0];%{PE}%R 8.3.43,%MKUKATPBASIS,%CMOVE,%VPTP,%P 1:PTP, 2:P30AbovePick, 3:C_DIS, 5:100, 7:PDAT4
+       $BWDSTART=FALSE
+       PDAT_ACT=PPDAT4
+       FDAT_ACT=FP30AbovePick
+       BAS(#PTP_PARAMS,100)
+       PTP XP30AbovePick C_DIS
+    ;ENDFOLD 
+-;NOTE: THE FOLD TITLE SAYS AtPick1; THE FORM DATA AND THE CODE MOVE TO AtPick3 (OF THIS MODULE)
+-   ;FOLD LIN AtPick1 Vel=2 m/s CPDAT1 Tool[1]:TOOL 1 Base[0];%{PE}%R 8.3.43,%MKUKATPBASIS,%CMOVE,%VLIN,%P 1:LIN, 2:AtPick3, 3:, 5:2, 7:CPDAT1
++   ;FOLD LIN AtPick1 Vel=2 m/s CPDAT1 Tool[1]:GE4-002-LO-010-111 Base[0];%{PE}%R 8.3.43,%MKUKATPBASIS,%CMOVE,%VLIN,%P 1:LIN, 2:AtPick3, 3:, 5:2, 7:CPDAT1
+       $BWDSTART=FALSE
+       LDAT_ACT=LCPDAT1
+       FDAT_ACT=FAtPick3
+@@ -87,35 +81,34 @@
+       LIN XAtPick3 
+    ;ENDFOLD
+ 
+-;GRIPPER 1 CLOSE - SIGNALS $OUT[249] do249Group1Home OFF, $OUT[250] do250Group1Work ON, WAIT 0.2 S,
+-;THEN CHECK $IN[257] di257Cylinder1Home OFF, $IN[258] di258Cylinder1Work ON (STRATEGY 1)
+-;NOTE: THE HIDDEN FORM PARAMETERS NOW MATCH THE CALL (WERE setgripper=4;setstate=2, F31)
++   ;--- Clamp part ---
+    ;FOLD Gripper SET [1]Gripper1 State=[2]CLOSE Wait 0.2[s] Check with Strategy 1 ;%{PE}
+       ;FOLD Parameters Parameters ;%{h}
+-         ;Params IlfProvider=GripperTech.GripperSet;setgripper=1;setstate=2;setcont=nocont;waittime=0.2;errorstrategy=1
++         ;Params IlfProvider=GripperTech.GripperSet;setgripper=4;setstate=2;setcont=nocont;waittime=0.2;errorstrategy=1
+       ;ENDFOLD
+       GRPg_SetStateAndCheck(1, 2, 0.2, 1)
+    ;ENDFOLD
++;FOLD Gripper CHECK [1]Gripper 1 State=[2]CLOSE with Strategy 1 ;%{PE}
++;FOLD Parameters Parameters ;%{h}
++;Params IlfProvider=GripperTech.GripperCheck;setgripper=1;setstate=1;setcont=nocont;checkstrategy=1
++;ENDFOLD
++GRPg_Check(1, 2, FALSE, 1)
++;ENDFOLD
+ 
+-;OUTSIDE DRY CYCLE ONLY (SIGNAL $IN[4] di004UseDryCycle OFF): PART-PRESENT WAIT AND
+-;$OUT[18] do018Part1InGripper
+-;NOTE: $IN[4] IS RE-READ HERE AND AT EVERY LATER STEP OF THE CYCLE, NOT LATCHED (F05)
+-IF NOT di004UseDryCycle THEN
+-;WAIT PART IN GRIPPER - SIGNALS $IN[253] di253PartPresent1 ON, $IN[254] di254PartPresent2 ON
++; Confirm part in gripper
++IF di004UseDryCycle==FALSE THEN ; Dry cycle: skip part present check
++
+ ;FOLD WAIT FOR ( IN 253 'di253PartPresent1' ) AND ( IN 254 'di254PartPresent2' );%{PE}%R 8.3.43,%MKUKATPBASIS,%CEXT_WAIT_FOR,%VEXT_WAIT_FOR,%P 2:, 4:, 5:$IN, 6:253, 7:di253PartPresent1, 9:AND, 10:, 12:, 13:$IN, 14:254, 15:di254PartPresent2, 17:
+ WAIT FOR  ( $IN[253] ) AND ( $IN[254] ) 
+ ;ENDFOLD
+-;PART IN GRIPPER - SIGNAL $OUT[18] do018Part1InGripper ON
+-;NOTE: THE FORM TEXT do018PartInGripper1 IS NOT A DECLARED NAME (DECLARED: do018Part1InGripper).
+-;NOTE: $OUT[18] IS SET HERE AND RESET AT THE DROP - IT DOES NOT FOLLOW THE SENSORS (GESTAMP POINT 9)
+    ;FOLD OUT 18 'do018PartInGripper1' State=TRUE ;%{PE}%R 8.3.43,%MKUKATPBASIS,%COUT,%VOUTX,%P 2:18, 3:do018PartInGripper1, 5:TRUE, 6:
+       $OUT[18]=TRUE
+    ;ENDFOLD
+ ENDIF
++;--- Leave pick station ---
+ 
+-;LEAVE PICKUP 2 - P40 (ABOVE AtPick3), P8
+ 
+-   ;FOLD LIN P40 Vel=2 m/s CPDAT2 Tool[1]:TOOL 1 Base[0];%{PE}%R 8.3.43,%MKUKATPBASIS,%CMOVE,%VLIN,%P 1:LIN, 2:P40, 3:, 5:2, 7:CPDAT2
++   ;FOLD LIN P40 Vel=2 m/s CPDAT2 Tool[1]:GE4-002-LO-010-111 Base[0];%{PE}%R 8.3.43,%MKUKATPBASIS,%CMOVE,%VLIN,%P 1:LIN, 2:P40, 3:, 5:2, 7:CPDAT2
+       $BWDSTART=FALSE
+       LDAT_ACT=LCPDAT2
+       FDAT_ACT=FP40
+@@ -129,8 +122,6 @@
+ BAS(#PTP_PARAMS,100)
+ PTP XP8 
+ ;ENDFOLD
+-;PICKUP 2 CLEAR - AC_pickUP(2,TRUE): SIGNAL $OUT[66] do066PickupClear2 ON
+-;WARNING: HIDDEN AC_CmdParam=1 - CONFIRMING THIS FORM REGENERATES AC_pickUP(1,TRUE) (F21)
+    ;FOLD PickUp[2] Reset
+       ;FOLD ;%{h}
+          ;Params IlfProvider=ac_zoneilf; AC_CmdZones=PickUp; AC_CmdParam=1; AC_ZoneRepo=True; AC_Blending=False
+@@ -138,3 +129,4 @@
+       AC_pickUP (2,True)
+    ;ENDFOLD
+ END
++

@@ -1,0 +1,29 @@
+--- HEAD:KRC/R1/Program/Utilities/hometorepair.src
++++ backup:KRC/R1/Program/Utilities/hometorepair.src
+@@ -1,6 +1,5 @@
+ &ACCESS RVP14
+ &REL 3
+-&COMMENT 03-10-R1 HOME TO REPAIR
+ DEF  HomeToRepair ( )
+ ;FOLD INI;%{PE}
+   ;FOLD BASISTECH INI
+@@ -13,19 +12,7 @@
+ 
+   ;ENDFOLD (USER INI)
+ ;ENDFOLD (INI)
+-;********************************
+-; Gestamp Standards
+-; Line - BMW G65 (cell 03)
+-; Robot 03-10-R1 (BMW-03-10-R1)
+-; Application - SERVICE PATH HOME TO REPAIR
+-;********************************
+-; CALLED BY CELL (AFTER HomeCheck) WHEN THE PLC SETS $IN[9] di009GoToRepair:
+-; PTP HOME, PTP REPAIR (GLOBAL XREPAIR). CELL THEN WAITS FOR $IN[8] di008ReturnFromRepair
+-; AND CALLS RepairToHome
+-;NOTE: NO INTERFERENCE ZONE IS REQUESTED ON THE WAY TO REPAIR (C11, C13)
+-;********************************
+ 
+-;PTP HOME (XHOME), THEN PTP REPAIR (GLOBAL XREPAIR)
+ ;FOLD PTP HOME  Vel= 100 % DEFAULT;%{PE}%MKUKATPBASIS,%CMOVE,%VPTP,%P 1:PTP, 2:HOME, 3:, 5:100, 7:DEFAULT
+ $BWDSTART = FALSE
+ PDAT_ACT=PDEFAULT
