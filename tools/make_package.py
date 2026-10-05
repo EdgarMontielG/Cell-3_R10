@@ -74,7 +74,8 @@ def main():
         text.writelines(f'  {n}\n' for n in replace)
         text.write(f'\nAGREGAR ({len(add)})\n')
         text.writelines(f'  {n}\n' for n in add)
-        text.write(f'\nBORRAR EN EL ROBOT ({len(delete)}) - WorkVisual no los borra\n')
+        text.write(f'\nBORRAR EN EL ROBOT ({len(delete)}) - WorkVisual no los borra. Quitarlos en el mismo\n'
+                   '  deploy: si quedan, no compila (modulos con el mismo nombre, senales renombradas).\n')
         text.writelines(f'  {n}\n' for n in delete)
         if folders:
             text.write('\nCARPETAS QUE QUEDAN VACIAS (borrarlas)\n')

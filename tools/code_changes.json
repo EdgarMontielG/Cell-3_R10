@@ -276,7 +276,7 @@
     "F12",
     "F49"
    ],
-   "what": "AutomationCore_BKG switched off again until Gestamp decides and its problems are fixed (F49); the submit clears $OUT[145] doCriticalWZ and $OUT[111] do111Gun1ElectrodeChange at start, outputs the task may have left on. The programmer's edits inside the vendor routine stay (inactive, C28).",
+   "what": "AutomationCore_BKG switched off again until Gestamp decides and its problems are fixed (F49); the submit clears $OUT[145] doCriticalWZ and $OUT[111] do111Gun1ElectrodeChange at start, outputs the task may have left on. The programmer's edits inside the vendor routine stay (inactive, C28). The other PLC status outputs only that task writes ($OUT[6..10], 13, 21, 22, 46, 48, 50-60, 94, 97-105, 107, 118, 123, 124, 134, 146, 464) are cleared at submit start as well, as in the program as received (independent review).",
    "files": [
     "KRC/R1/System/sps.sub"
    ]

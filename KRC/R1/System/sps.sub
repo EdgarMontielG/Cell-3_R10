@@ -43,6 +43,39 @@ DEF  SPS ( )
   ;$OUT[111] do111Gun1ElectrodeChange OFF (CELL WOULD OTHERWISE CALL GunElectrodeChange)
   doCriticalWZ=FALSE
   do111Gun1ElectrodeChange=FALSE
+  ;THE OTHER PLC STATUS OUTPUTS ONLY THAT TASK WRITES, OFF AS IN THE PROGRAM AS RECEIVED: $OUT[6],
+  ;$OUT[7], $OUT[9], $OUT[10], $OUT[13], $OUT[21], $OUT[22], $OUT[46], $OUT[48], $OUT[50..60],
+  ;$OUT[94], $OUT[97..105] gdoAxis1Posn, $OUT[107], $OUT[118], $OUT[123], $OUT[124], $OUT[134],
+  ;$OUT[146], $OUT[464] (INDEPENDENT REVIEW 2026-10-05, F49)
+  do006RobotBatteryAlarm=FALSE
+  do007RobotAtPounce=FALSE
+  do009RobotAtRepair=FALSE
+  do010RobotAtTipDress=FALSE
+  do013WaterIsOn=FALSE
+  do021BrakeTestReqd=FALSE
+  do022MstrRefRequired=FALSE
+  do046WeldMode=FALSE
+  do048RPWCtrlrEnetOK=FALSE
+  do050TDVlvManifold=FALSE
+  do051RbtAtMstrRefSwitch=FALSE
+  do052EOATVlvMnfldEnetOK=FALSE
+  do053MigReamerEnetOK=FALSE
+  do054SRWTipDressIOEnetOK=FALSE
+  do055EndEffectorIOEnetOK=FALSE
+  do056WeldCntl1EnetOK=FALSE
+  do057RPWSlrDArc1EnetOK=FALSE
+  do058PinScribeCntlrIOOK=FALSE
+  do059RPWSlrDArc2EnetOK=FALSE
+  do060VlvManifoldEnetOK=FALSE
+  do094AirOK=FALSE
+  gdoAxis1Posn=0
+  do107Hopper1LowLevel=FALSE
+  do118Nut1Ready=FALSE
+  do123ToolIDBit0=FALSE
+  do124ToolIDBit1=FALSE
+  do134Nut1Fault=FALSE
+  do146SpeedNot100=FALSE
+  do464WaterBeacon=FALSE
 
   ;ENDFOLD (USER INIT)
   ;ENDFOLD (INI)
