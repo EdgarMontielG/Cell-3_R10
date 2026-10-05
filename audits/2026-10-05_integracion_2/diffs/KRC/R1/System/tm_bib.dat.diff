@@ -1,0 +1,11 @@
+--- fb8a4c8:KRC/R1/System/tm_bib.dat
++++ backup:KRC/R1/System/tm_bib.dat
+@@ -44,7 +44,7 @@
+ ;Bit 4 Anforderung eines bahntreuen Stopps
+ ;Bit 5 Anforderung eines NotStops
+ 
+-DECL INT iSTOP_TYPE=20 ;GetSysState
++DECL INT iSTOP_TYPE=0 ;GetSysState
+ DECL REAL rPAR=0.0 ;GetSysState
+ 
+ GLOBAL INT iTQM_DELAY=150

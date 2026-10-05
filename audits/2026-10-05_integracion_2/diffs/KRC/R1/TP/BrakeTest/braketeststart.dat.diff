@@ -1,0 +1,8 @@
+--- fb8a4c8:KRC/R1/TP/BrakeTest/braketeststart.dat
++++ backup:KRC/R1/TP/BrakeTest/braketeststart.dat
+@@ -1,4 +1,4 @@
+-&ACCESS RVO1
++&ACCESS RVO7
+ &REL 6
+ &COMMENT path to test
+ &PARAM EDITMASK = *

@@ -126,8 +126,18 @@ programa en una celda productiva:
    acepta el respaldo original o uno auditado (su sha256 está en
    `audits/*/summary.json`); con cualquier otro, si un archivo que tendría que
    reemplazar u omitir no es el del respaldo 658424, se detiene sin escribir
-   nada (ver paso 1). Cargar los archivos modificados
-   (modo experto, navegador, USB) y **borrar en el controlador los
+   nada (ver paso 1). Ese zip es el registro completo de la versión; al
+   programador se le entrega el paquete:
+
+   ```
+   python3 tools/make_package.py <respaldo auditado.zip> <zip de build_archive> dist/
+   ```
+
+   genera `dist/R10_paquete_AAAA-MM-DD_HHMM.zip`: solo los programas que
+   difieren del robot, en sus carpetas del controlador, y `LEEME.txt` con las
+   listas de reemplazar, agregar y borrar. Se carga por WorkVisual (proyecto
+   abierto desde el robot, deploy), que además comprueba que compila. Hay que
+   **borrar en el controlador los
    veintidós archivos marcados "left out"** (21 de la depuración, uno de las
    correcciones de oficina) **y la carpeta `Program/Styles/optiones`** — un
    restore no borra archivos que no vienen en el respaldo.
@@ -164,7 +174,8 @@ tools/cleanup_allowlist.d/    las demás eliminaciones ejecutables, con su razó
 tools/check_equivalence.py    correcciones de oficina: diff de lógica sin renombres, todo cambio declarado
 tools/code_changes.json       cada cambio de código posterior a la depuración, con sus puntos
 tools/renames.json            identificadores renombrados y constantes para check_equivalence
-tools/build_archive.py        genera el zip de respaldo para cargar al robot
+tools/build_archive.py        genera el zip completo de la versión, sobre el último respaldo auditado
+tools/make_package.py         genera el paquete para el programador: programas que cambian y lista de borrado
 docs/open_items.json          lista maestra (G01-G22 de Gestamp, F01-F47, C01-C28), estado e historial
 docs/OPEN_ITEMS.es.md         vista legible de los puntos abiertos (generada)
 docs/PROCESO.es.md            el proceso diario de cierre y auditoría

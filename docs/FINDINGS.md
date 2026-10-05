@@ -89,6 +89,7 @@ hangs. *Medium*: robustness or diagnosis. *Low*: hygiene.
 | F48 | High | *Audit 2026-10-05:* drop-off interlock moved after the approach to the conveyor (undone in the integrated version); AtDrop3 re-taught (kept) | code |
 | F49 | High | *Audit 2026-10-05:* AutomationCore_BKG switched on and the vendor routine edited, no recorded decision | Gestamp decision |
 | F50 | High | *Audit 2026-10-05 14:46:* application-1 permission (nut check / camera) checked after the robot reaches P22 | code |
+| F51 | Low | *Audit 2026-10-05 14:46:* weld apps duplicated per pick station (A/B): every change must go into both | documentation |
 
 Gestamp compliance items are at the end (C01–C28).
 
@@ -128,6 +129,10 @@ before the robot is out (P20/P06/P17); a block selection past the INTERRUPT ON
 skips the interlock; the open range is written twice (interrupts and .dat;
 global variables are allowed in interrupt conditions, e.g. tm_bib.src). Clamp
 open and QFP returned are still not checked.
+*Integrated version (2026-10-05, from the 14:46 backup):* the interrupts go on
+before each GUN_OPEN_CHECK, on entry and again after the weld, and GUN_OPEN_LOST
+shows a state message after the acknowledgement. Still open: clamp and QFP,
+monitoring off one point early, block selection, the range written twice.
 
 ### F02 — High — options 2, 7, 8 ignore the nut sensor
 
@@ -732,7 +737,11 @@ AtDrop3, dropping 166 mm at about 30°, with the drop-off check at P5. In the
 integrated version the robot waits for the drop-off at the camera point P3
 with application 1 already reported clear (`AC_Application(1,TRUE)` at the
 end of style1app2opt2): release application 1 after the robot leaves the
-camera area.
+camera area. *Integrated version (from the 14:46 backup):* P1 kept (the
+programmer is asked why he removed it); `$OUT[70]` do070ApplicationClear1 is
+set by a TRIGGER on the first motion away from the camera (P5 of the conveyor
+drop, P23 of RejectGE4, P28 of the red-rabbit drop), which also releases
+application 1 after a sensor scrap (F20).
 
 ### F49 — High — AutomationCore background switched on (audit 2026-10-05)
 
@@ -766,6 +775,11 @@ Independent review of 2026-10-05 (confirmed in the code):
 * Every program reset sets `$OUT[4]` do004ProcessFault until MaintainSystem.
 * `bACEntryGranted` is persistent: a grant survives a submit restart.
 
+*Integrated version (from the 14:46 backup):* the background task is off again,
+as received, until Gestamp decides and these points are fixed; the submit
+clears `$OUT[145]` and `$OUT[111]` at start. The programmer's edits inside the
+vendor routine stay, inactive (C28).
+
 ### F50 — High — application permission after the motion (audit 2026-10-05 14:46)
 
 In the programmer's backup of 14:46, style1app2opt1 runs `PTP P22` before
@@ -774,6 +788,14 @@ inspection station (about 170 mm from the camera approach P6, 480 mm below the
 nut-check points), so the robot enters it without the PLC's permission while
 `$OUT[70]`/`$OUT[24]` still report it clear. *Fix:* check before the motion,
 as in the integrated version.
+
+### F51 — Low — weld apps per pick station (audit 2026-10-05 14:46)
+
+The programmer split the three weld apps per pick station: style1app1opt1A..3A
+for parts from pickup 1 (positions unchanged) and 1B..3B for pickup 2 (weld
+positions re-taught 1-5 mm: the part sits differently in the gripper).
+Style1Opt1 calls A or B by the pick station. The code of A and B is the same:
+any later change to a weld app has to be made in both. Integrated as it is.
 ## Gestamp compliance
 
 Reference: GESTAMP FANUC Reference Guide V23 and NA-ST-002 rev 11, as

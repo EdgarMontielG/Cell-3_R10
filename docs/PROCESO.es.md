@@ -13,12 +13,13 @@ nombre: el respaldo del robot `658424_R10_AAAA-MM-DD_HHMM.zip`, el Excel
 
 ## Día 0 — punto de partida
 
-1. Cargar en el robot la versión de oficina: el zip que genera
-   `tools/build_archive.py` sobre el último respaldo auditado (depuración,
-   correcciones de la revisión de Gestamp y cambios del programador ya
-   integrados), o los archivos modificados (modo experto, navegador, USB).
-   No hacer deploy desde WorkVisual: los proyectos guardados traen el
-   programa viejo (así se perdió la depuración el 2026-10-05).
+1. Cargar en el robot la versión de oficina con el paquete de
+   `tools/make_package.py` (programas que cambian y lista de borrado, armado
+   sobre el último respaldo auditado), por WorkVisual: abrir el proyecto
+   desde el robot, reemplazar y agregar los programas, borrar los de la
+   lista, deploy. Nunca hacer deploy de un proyecto WorkVisual guardado de
+   antes: trae el programa viejo (así se perdió la depuración el
+   2026-10-05).
 2. Borrar en el controlador los 22 archivos de módulos eliminados: 21 de la
    depuración (`tools/cleanup_allowlist.json`) y 1 de las correcciones
    (`centerline_loop.src`, `tools/code_changes.json`), y la carpeta vieja

@@ -1145,6 +1145,11 @@
      "fecha": "2026-10-05",
      "resultado": "Revisión independiente",
      "nota": "GUN_OPEN_CHECK e interrupts 20-22: KRL válido e integración fiel. Huecos: los interrupts solo disparan en el cambio FALSE→TRUE; al salir se reactivan después de las esperas de clamp/QFP y de la presión de reposo, y al entrar el submit solo se revisa al inicio de GUN_OPEN_CHECK. Corrección: INTERRUPT ON 20-22 antes de cada GUN_OPEN_CHECK. Además: tras reconocer GUN_OPEN_LOST el robot puede quedar parado sin mensaje; la vigilancia se apaga un punto antes de salir; una selección de paso salta el interlock."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Integrado - correcciones de la revisión",
+     "nota": "Versión integrada sobre el respaldo de las 14:46: INTERRUPT ON 20-22 antes de cada GUN_OPEN_CHECK (entrada y después de soldar) y mensaje de estado en GUN_OPEN_LOST después del reconocimiento. Sigue pendiente clamp abierto / QFP regresado antes de entrar."
     }
    ]
   },
@@ -1655,6 +1660,11 @@
      "fecha": "2026-10-05",
      "resultado": "Integrado - pendiente decisión",
      "nota": "AutomationCore_BKG queda activo en la versión integrada, como lo dejó el programador. Falta la decisión de Gestamp (F49)."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Integrado",
+     "nota": "Background de AutomationCore apagado otra vez en la versión integrada (F49)."
     }
    ]
   },
@@ -2033,6 +2043,11 @@
      "fecha": "2026-10-04",
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Integrado - avance",
+     "nota": "RejectGE4 libera la aplicación 1 por TRIGGER en P23, también después de un scrap del sensor (antes nunca se liberaba en esa ruta). El lugar de rechazo sigue sin interlock con el PLC."
     }
    ]
   },
@@ -2633,7 +2648,7 @@
    "id": "F35",
    "origen": "Revisión Ethos (2026-10-04)",
    "titulo": "El mastering reference deja $OUT[930] en ON para siempre",
-   "severidad": "Alto",
+   "severidad": "Medio",
    "tipo": "Código + prueba en celda",
    "responsable": "Programador robot",
    "modulos": [
@@ -2669,6 +2684,11 @@
      "fecha": "2026-10-05",
      "resultado": "Severidad subida a Alto",
      "nota": "Con AutomationCore_BKG activo (F49), $OUT[930] pegado en ON impide conceder el Request to Enter: $OUT[145] doCriticalWZ queda en TRUE y AC_PointArrival ya no detiene el robot cuando el operador pide entrar. Corregir F35 antes de producción."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Severidad regresa a Medio",
+     "nota": "Con el background apagado en la versión integrada, $OUT[930] pegado ya no impide el Request to Enter. Sigue pendiente apagar $OUT[930] al final de la referencia de masterización."
     }
    ]
   },
@@ -3221,6 +3241,11 @@
      "fecha": "2026-10-05",
      "resultado": "Respaldo 14:46",
      "nota": "El programador además quitó PTP P1: un LIN de 330 mm de P5 a AtDrop3 bajando 166 mm a unos 30°, con el permiso de drop-off en P5. En la versión integrada el robot espera el permiso en el punto de cámara P3 con la aplicación 1 ya liberada: mover AC_Application(1,TRUE) a después de salir de la cámara."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Integrado",
+     "nota": "P1 se conserva (preguntar al programador por qué lo quitó). La aplicación 1 ya no se libera en el punto de cámara: la libera un TRIGGER en el primer movimiento fuera de la cámara (P5 del drop, P23 del rechazo, P28 del red rabbit)."
     }
    ],
    "nota_programador": "",
@@ -3271,6 +3296,11 @@
      "fecha": "2026-10-05",
      "resultado": "Revisión independiente - riesgos confirmados",
      "nota": "(1) Request to Enter: con $OUT[930] pegado (F35) el robot ya no se detiene al pedir entrar. (2) El background escribe $OUT[481]/$OUT[482] (habilitaciones del Bosch) cada ciclo y pisa las de CENTERLINE_WELD; en dry cycle puede colgar WAIT FOR dipw1_Ready. (3) Cambio de electrodo activo sin probar (F43). (4) AC_MODE sin inicializar en el CWRITE del auto select. (5) do004ProcessFault en cada reset. (6) bACEntryGranted persistente. Corre así en el robot desde el 2026-10-05."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Integrado - background apagado",
+     "nota": "El background de AutomationCore se apaga otra vez hasta que Gestamp decida y se corrijan sus problemas; el submit pone $OUT[145] y $OUT[111] en OFF al arrancar. Las ediciones del proveedor quedan, inactivas (C28)."
     }
    ],
    "nota_programador": "",
@@ -3310,6 +3340,44 @@
      "fecha": "2026-10-05",
      "resultado": "Alta (auditoría)",
      "nota": "Encontrado en el respaldo de las 14:46; confirmado por revisión independiente."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Integrado",
+     "nota": "No se integra: en la versión integrada AC_ApplicationCheck(1) queda antes de PTP P22."
+    }
+   ]
+  },
+  {
+   "id": "F51",
+   "titulo": "Apps de soldadura duplicadas por estación de pick (A/B): cada cambio va en las dos",
+   "severidad": "Bajo",
+   "tipo": "Sin acción",
+   "responsable": "Programador robot",
+   "modulos": [
+    "KRC/R1/Program/StyleApps/Options/style1app1opt1A..3B",
+    "KRC/R1/Program/Styles/Options/style1opt1.src"
+   ],
+   "que_esta_mal": "El programador partió las tres apps de soldadura por estación de pick: A (estación 1, posiciones sin cambio) y B (estación 2, posiciones de soldadura re-enseñadas 1-5 mm porque la pieza queda distinta en el gripper). El código de A y B es el mismo.",
+   "que_hacer": "Se integra tal cual. Cualquier cambio posterior a una app de soldadura se hace en A y en B.",
+   "criterio_cierre": [
+    "Documentado; se revisa en cada auditoría que A y B sigan iguales en código."
+   ],
+   "evidencia_programador": "",
+   "depende_de": [],
+   "estado": "Sin acción - documentado",
+   "nota": "",
+   "fecha_alta": "2026-10-05",
+   "origen": "Auditoría Ethos del respaldo bmw_03_10_r1 (2026-10-05 14:46)",
+   "nota_programador": "",
+   "modulos_modificados": "",
+   "evidencia": "",
+   "fecha_programador": "",
+   "historial": [
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Alta (auditoría)",
+     "nota": "Integrado en la versión depurada."
     }
    ]
   },

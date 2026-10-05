@@ -114,8 +114,12 @@ production cell:
    accepts only the original archive or an audited one (its sha256 is in
    `audits/*/summary.json`); for any other, if a file it would replace or
    leave out is not the one of archive 658424, it stops without writing
-   anything (see step 1). Load the changed files
-   (expert mode, navigator, USB) and **delete on the controller the
+   anything (see step 1). That zip is the full record of the version; the
+   programmer gets the package from `tools/make_package.py <audited backup>
+   <built zip> dist/`: only the programs that differ from the robot, in their
+   controller folders, and `LEEME.txt` with the replace, add and delete lists.
+   It is loaded through WorkVisual (project opened from the robot, deploy),
+   which also proves that it compiles. **Delete on the controller the
    twenty-two files reported "left out"** (21 from the cleanup, one from the
    office fixes) **and the folder `Program/Styles/optiones`** — a restore does
    not delete files that are not in the archive.
@@ -150,7 +154,8 @@ tools/cleanup_allowlist.d/    the other executable removals, with reasons
 tools/check_equivalence.py    office fixes: logic diff without renames, every change declared
 tools/code_changes.json       every code change after the cleanup, with its items
 tools/renames.json            renamed identifiers and constants for check_equivalence
-tools/build_archive.py        builds the archive zip to load onto the robot
+tools/build_archive.py        builds the full archive of the version, on top of the last audited backup
+tools/make_package.py         builds the programmer's package: changed programs and the delete list
 docs/open_items.json          master list (Gestamp G01-G22, F01-F47, C01-C28), state and history
 docs/OPEN_ITEMS.es.md         readable view of the open items (generated, Spanish)
 docs/PROCESO.es.md            the daily close-and-audit process (Spanish)
