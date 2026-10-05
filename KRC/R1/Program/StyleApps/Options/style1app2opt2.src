@@ -24,8 +24,8 @@ DEF Style1App2Opt2( )
 ; CALLED BY Style1Opt1 AND Style1Opt10AutoRR AFTER THE SENSOR CHECK (style1app2opt1).
 ; PRESENTS THE PART TO THE CAMERA (P3), ASKS THE PLC FOR THE INSPECTION ($OUT[80]) AND SETS
 ; bscrapGE4 FROM THE RESULT; THEN RELEASES APPLICATION 1.
-;NOTE: NO OPTION SWITCH: THE CAMERA DECIDES FOR EVERY OPTION, ALSO IN THE RED RABBIT CYCLE AND
-;  ALSO IN DRY CYCLE (F02, F05, F19)
+;NOTE: THE CAMERA RESULT IS EVALUATED BY OPTION (PRODUCTION 1, 2, 7, 8; RED RABBIT 12), ALSO IN
+;  DRY CYCLE (F02, F05, F19)
 ;APPROACH THE CAMERA - P6 (TAUGHT IN BASE 3 "NUT WELDER")
 ;FOLD PTP P6 Vel=100 % PDAT10 Tool[1]:TOOL 1 Base[3]:NUT WELDER;%{PE}%R 8.3.43,%MKUKATPBASIS,%CMOVE,%VPTP,%P 1:PTP, 2:P6, 3:, 5:100, 7:PDAT10
 $BWDSTART=FALSE
@@ -52,20 +52,32 @@ do080RepositionTooling1=TRUE
 ;WAIT INSPECTION DONE - SIGNAL $IN[80] di080ToolRepositioned1 ON (NO TIMEOUT, F15)
    WAIT FOR di080ToolRepositioned1
 
-;AFTER 0.2 S: SIGNAL $IN[100] di100CameraJudgmentOK ON AND $IN[101] di101CameraJudgmentNG OFF -> bscrapGE4 =
-;FALSE (GOOD); OK OFF AND NG ON -> bscrapGE4 = TRUE (SCRAP); ANY OTHER COMBINATION LEAVES
-;bscrapGE4 UNCHANGED (F02)
+;AFTER 0.2 S, BY OPTION nOption (F02, F19):
+;PRODUCTION OPTIONS 1, 2, 7, 8: GOOD (bscrapGE4 = FALSE) ONLY WITH $IN[100] di100CameraJudgmentOK ON
+;AND $IN[101] di101CameraJudgmentNG OFF; NG OR NO VALID RESULT -> bscrapGE4 = TRUE (SCRAP)
+;RED RABBIT OPTION 12: CAMERA OK -> $OUT[141] do141RedRabbitFailed ON; CAMERA NG ->
+;$OUT[142] do142RedRabbitPassed ON
             WAIT SEC 0.2
-     
+     SWITCH nOption
+          CASE 1,2,7,8
          ;GOOD - SIGNALS $IN[100] di100CameraJudgmentOK ON, $IN[101] di101CameraJudgmentNG OFF
-         IF (di100CameraJudgmentOK==TRUE) AND (di101CameraJudgmentNG==FALSE)THEN
+         IF (di100CameraJudgmentOK==TRUE) AND (di101CameraJudgmentNG==FALSE) THEN
             bscrapGE4 = FALSE
-       
-         ENDIF 
-         ;SCRAP - SIGNALS $IN[100] di100CameraJudgmentOK OFF, $IN[101] di101CameraJudgmentNG ON
-         IF (di100CameraJudgmentOK==FALSE) AND (di101CameraJudgmentNG==TRUE)THEN
+         ELSE
             bscrapGE4 = TRUE
          ENDIF
+          CASE 12
+         ;RED RABBIT FAILED - $IN[100] di100CameraJudgmentOK ON, $IN[101] di101CameraJudgmentNG OFF:
+         ;SIGNAL $OUT[141] do141RedRabbitFailed ON
+         IF (di100CameraJudgmentOK==TRUE) AND (di101CameraJudgmentNG==FALSE) THEN
+            do141RedRabbitFailed=TRUE
+         ENDIF
+         ;RED RABBIT PASSED - $IN[100] di100CameraJudgmentOK OFF, $IN[101] di101CameraJudgmentNG ON:
+         ;SIGNAL $OUT[142] do142RedRabbitPassed ON
+         IF (di100CameraJudgmentOK==FALSE) AND (di101CameraJudgmentNG==TRUE) THEN
+            do142RedRabbitPassed=TRUE
+         ENDIF
+     ENDSWITCH
             
 
 ;APPLICATION 1 CLEAR - AC_Application(1,TRUE): SIGNAL $OUT[70] do070ApplicationClear1 ON

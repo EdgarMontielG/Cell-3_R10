@@ -6,7 +6,6 @@
   "constants": {
     "CL_GUN_WELD_MIN": 69000,
     "CL_GUN_WELD_MAX": 73000,
-    "CL_GUN_OPEN_MIN": 120000,
     "CL_GUN_CLOSE_TIMEOUT": 1000,
     "CL_GUN_IN_WINDOW_TIME": 300,
     "CL_GUN_PRESS_BASE": 405,

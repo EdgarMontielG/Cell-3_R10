@@ -15,19 +15,20 @@
     <Segment drvName="EIPIODriver" busInstanceName="EIP-ADAPTER" byteOffset="40" byteSize="20" segmentID="5" />
     <Segment drvName="EIPIODriver" busInstanceName="EIP-SCANNER" byteOffset="46" byteSize="2" segmentID="6" />
     <Segment drvName="EIPIODriver" busInstanceName="EIP-SCANNER" byteOffset="64" byteSize="1" segmentID="7" />
-    <Segment drvName="EIPIODriver" busInstanceName="EIP-SCANNER" byteOffset="176" byteSize="4" segmentID="8" />
-    <Segment drvName="EIPIODriver" busInstanceName="EIP-SCANNER" byteOffset="240" byteSize="2" segmentID="9" />
-    <Segment drvName="EIPIODriver" busInstanceName="EIP-SCANNER" byteOffset="272" byteSize="2" segmentID="10" />
-    <Segment drvName="EIPIODriver" busInstanceName="EIP-SCANNER" byteOffset="370" byteSize="4" segmentID="11" />
-    <Segment drvName="EIPIODriver" busInstanceName="EIP-SCANNER" byteOffset="484" byteSize="2" segmentID="12" />
-    <Segment drvName="EIPIODriver" busInstanceName="EIP-SCANNER" byteOffset="490" byteSize="1" segmentID="13" />
-    <Segment drvName="EIPIODriver" busInstanceName="EIP-SCANNER" byteOffset="494" byteSize="2" segmentID="14" />
-    <Segment drvName="EIPIODriver" busInstanceName="EIP-SCANNER" byteOffset="520" byteSize="1" segmentID="15" />
-    <Segment drvName="EIPIODriver" busInstanceName="EIP-SCANNER" byteOffset="580" byteSize="3" segmentID="16" />
-    <Segment drvName="EIPIODriver" busInstanceName="EIP-SCANNER" byteOffset="588" byteSize="4" segmentID="17" />
-    <Segment drvName="EIPIODriver" busInstanceName="EIP-SCANNER" byteOffset="652" byteSize="2" segmentID="18" />
-    <Segment drvName="EIPIODriver" busInstanceName="EIP-SCANNER" byteOffset="715" byteSize="1" segmentID="19" />
-    <Segment drvName="EIPIODriver" busInstanceName="EIP-SCANNER" byteOffset="717" byteSize="1" segmentID="20" />
+    <Segment drvName="EIPIODriver" busInstanceName="EIP-SCANNER" byteOffset="140" byteSize="2" segmentID="8" />
+    <Segment drvName="EIPIODriver" busInstanceName="EIP-SCANNER" byteOffset="176" byteSize="4" segmentID="9" />
+    <Segment drvName="EIPIODriver" busInstanceName="EIP-SCANNER" byteOffset="240" byteSize="2" segmentID="10" />
+    <Segment drvName="EIPIODriver" busInstanceName="EIP-SCANNER" byteOffset="272" byteSize="2" segmentID="11" />
+    <Segment drvName="EIPIODriver" busInstanceName="EIP-SCANNER" byteOffset="370" byteSize="4" segmentID="12" />
+    <Segment drvName="EIPIODriver" busInstanceName="EIP-SCANNER" byteOffset="484" byteSize="2" segmentID="13" />
+    <Segment drvName="EIPIODriver" busInstanceName="EIP-SCANNER" byteOffset="490" byteSize="1" segmentID="14" />
+    <Segment drvName="EIPIODriver" busInstanceName="EIP-SCANNER" byteOffset="494" byteSize="2" segmentID="15" />
+    <Segment drvName="EIPIODriver" busInstanceName="EIP-SCANNER" byteOffset="520" byteSize="1" segmentID="16" />
+    <Segment drvName="EIPIODriver" busInstanceName="EIP-SCANNER" byteOffset="580" byteSize="3" segmentID="17" />
+    <Segment drvName="EIPIODriver" busInstanceName="EIP-SCANNER" byteOffset="588" byteSize="4" segmentID="18" />
+    <Segment drvName="EIPIODriver" busInstanceName="EIP-SCANNER" byteOffset="652" byteSize="2" segmentID="19" />
+    <Segment drvName="EIPIODriver" busInstanceName="EIP-SCANNER" byteOffset="715" byteSize="1" segmentID="20" />
+    <Segment drvName="EIPIODriver" busInstanceName="EIP-SCANNER" byteOffset="717" byteSize="1" segmentID="21" />
   </ProcessData>
   <Mapping>
     <Output>
@@ -36,95 +37,95 @@
           <Start segmentByteOffset="0" segmentBitOffset="0" />
           <End segmentByteOffset="19" segmentBitOffset="7" />
         </Out>
-        <Out krcStartIndex="225" segmentID="14">
+        <Out krcStartIndex="225" segmentID="15">
           <Start segmentByteOffset="1" segmentBitOffset="1" />
           <End segmentByteOffset="1" segmentBitOffset="1" />
         </Out>
-        <Out krcStartIndex="226" segmentID="14">
+        <Out krcStartIndex="226" segmentID="15">
           <Start segmentByteOffset="1" segmentBitOffset="3" />
           <End segmentByteOffset="1" segmentBitOffset="3" />
         </Out>
-        <Out krcStartIndex="227" segmentID="14">
+        <Out krcStartIndex="227" segmentID="15">
           <Start segmentByteOffset="0" segmentBitOffset="7" />
           <End segmentByteOffset="0" segmentBitOffset="7" />
         </Out>
-        <Out krcStartIndex="249" segmentID="13">
+        <Out krcStartIndex="249" segmentID="14">
           <Start segmentByteOffset="0" segmentBitOffset="0" />
           <End segmentByteOffset="0" segmentBitOffset="7" />
         </Out>
-        <Out krcStartIndex="409" segmentID="15">
+        <Out krcStartIndex="409" segmentID="16">
           <Start segmentByteOffset="0" segmentBitOffset="7" />
           <End segmentByteOffset="0" segmentBitOffset="7" />
         </Out>
-        <Out krcStartIndex="421" segmentID="15">
+        <Out krcStartIndex="421" segmentID="16">
           <Start segmentByteOffset="0" segmentBitOffset="6" />
           <End segmentByteOffset="0" segmentBitOffset="6" />
         </Out>
-        <Out krcStartIndex="471" segmentID="16">
+        <Out krcStartIndex="471" segmentID="17">
           <Start segmentByteOffset="0" segmentBitOffset="2" />
           <End segmentByteOffset="0" segmentBitOffset="2" />
         </Out>
-        <Out krcStartIndex="472" segmentID="16">
+        <Out krcStartIndex="472" segmentID="17">
           <Start segmentByteOffset="0" segmentBitOffset="0" />
           <End segmentByteOffset="0" segmentBitOffset="0" />
         </Out>
-        <Out krcStartIndex="473" segmentID="20">
+        <Out krcStartIndex="473" segmentID="21">
           <Start segmentByteOffset="0" segmentBitOffset="0" />
           <End segmentByteOffset="0" segmentBitOffset="0" />
         </Out>
-        <Out krcStartIndex="475" segmentID="20">
+        <Out krcStartIndex="475" segmentID="21">
           <Start segmentByteOffset="0" segmentBitOffset="6" />
           <End segmentByteOffset="0" segmentBitOffset="7" />
         </Out>
-        <Out krcStartIndex="477" segmentID="19">
+        <Out krcStartIndex="477" segmentID="20">
           <Start segmentByteOffset="0" segmentBitOffset="2" />
           <End segmentByteOffset="0" segmentBitOffset="3" />
         </Out>
-        <Out krcStartIndex="481" segmentID="12">
+        <Out krcStartIndex="481" segmentID="13">
           <Start segmentByteOffset="0" segmentBitOffset="2" />
           <End segmentByteOffset="0" segmentBitOffset="2" />
         </Out>
-        <Out krcStartIndex="482" segmentID="12">
+        <Out krcStartIndex="482" segmentID="13">
           <Start segmentByteOffset="0" segmentBitOffset="7" />
           <End segmentByteOffset="0" segmentBitOffset="7" />
         </Out>
-        <Out krcStartIndex="483" segmentID="12">
+        <Out krcStartIndex="483" segmentID="13">
           <Start segmentByteOffset="0" segmentBitOffset="0" />
           <End segmentByteOffset="0" segmentBitOffset="0" />
         </Out>
-        <Out krcStartIndex="484" segmentID="12">
+        <Out krcStartIndex="484" segmentID="13">
           <Start segmentByteOffset="0" segmentBitOffset="4" />
           <End segmentByteOffset="0" segmentBitOffset="4" />
         </Out>
-        <Out krcStartIndex="485" segmentID="12">
+        <Out krcStartIndex="485" segmentID="13">
           <Start segmentByteOffset="0" segmentBitOffset="3" />
           <End segmentByteOffset="0" segmentBitOffset="3" />
         </Out>
-        <Out krcStartIndex="486" segmentID="12">
+        <Out krcStartIndex="486" segmentID="13">
           <Start segmentByteOffset="1" segmentBitOffset="0" />
           <End segmentByteOffset="1" segmentBitOffset="7" />
         </Out>
-        <Out krcStartIndex="494" segmentID="16">
+        <Out krcStartIndex="494" segmentID="17">
           <Start segmentByteOffset="1" segmentBitOffset="4" />
           <End segmentByteOffset="1" segmentBitOffset="4" />
         </Out>
-        <Out krcStartIndex="495" segmentID="16">
+        <Out krcStartIndex="495" segmentID="17">
           <Start segmentByteOffset="1" segmentBitOffset="2" />
           <End segmentByteOffset="1" segmentBitOffset="3" />
         </Out>
-        <Out krcStartIndex="498" segmentID="16">
+        <Out krcStartIndex="498" segmentID="17">
           <Start segmentByteOffset="0" segmentBitOffset="4" />
           <End segmentByteOffset="0" segmentBitOffset="6" />
         </Out>
-        <Out krcStartIndex="501" segmentID="16">
+        <Out krcStartIndex="501" segmentID="17">
           <Start segmentByteOffset="1" segmentBitOffset="6" />
           <End segmentByteOffset="2" segmentBitOffset="2" />
         </Out>
-        <Out krcStartIndex="506" segmentID="18">
+        <Out krcStartIndex="506" segmentID="19">
           <Start segmentByteOffset="1" segmentBitOffset="0" />
           <End segmentByteOffset="1" segmentBitOffset="7" />
         </Out>
-        <Out krcStartIndex="514" segmentID="18">
+        <Out krcStartIndex="514" segmentID="19">
           <Start segmentByteOffset="0" segmentBitOffset="0" />
           <End segmentByteOffset="0" segmentBitOffset="7" />
         </Out>
@@ -132,19 +133,19 @@
           <Start segmentByteOffset="0" segmentBitOffset="0" />
           <End segmentByteOffset="19" segmentBitOffset="7" />
         </Out>
-        <Out krcStartIndex="3000" segmentID="17">
+        <Out krcStartIndex="3000" segmentID="18">
           <Start segmentByteOffset="0" segmentBitOffset="0" />
           <End segmentByteOffset="0" segmentBitOffset="0" />
         </Out>
-        <Out krcStartIndex="3008" segmentID="17">
+        <Out krcStartIndex="3008" segmentID="18">
           <Start segmentByteOffset="1" segmentBitOffset="0" />
           <End segmentByteOffset="1" segmentBitOffset="0" />
         </Out>
-        <Out krcStartIndex="3016" segmentID="17">
+        <Out krcStartIndex="3016" segmentID="18">
           <Start segmentByteOffset="2" segmentBitOffset="0" />
           <End segmentByteOffset="2" segmentBitOffset="0" />
         </Out>
-        <Out krcStartIndex="3024" segmentID="17">
+        <Out krcStartIndex="3024" segmentID="18">
           <Start segmentByteOffset="3" segmentBitOffset="0" />
           <End segmentByteOffset="3" segmentBitOffset="0" />
         </Out>
@@ -201,35 +202,35 @@
           <Start segmentByteOffset="0" segmentBitOffset="0" />
           <End segmentByteOffset="0" segmentBitOffset="0" />
         </In>
-        <In krcStartIndex="466" segmentID="10">
+        <In krcStartIndex="466" segmentID="11">
           <Start segmentByteOffset="1" segmentBitOffset="4" />
           <End segmentByteOffset="1" segmentBitOffset="5" />
         </In>
-        <In krcStartIndex="468" segmentID="10">
+        <In krcStartIndex="468" segmentID="11">
           <Start segmentByteOffset="0" segmentBitOffset="6" />
           <End segmentByteOffset="0" segmentBitOffset="7" />
         </In>
-        <In krcStartIndex="470" segmentID="10">
+        <In krcStartIndex="470" segmentID="11">
           <Start segmentByteOffset="0" segmentBitOffset="5" />
           <End segmentByteOffset="0" segmentBitOffset="5" />
         </In>
-        <In krcStartIndex="475" segmentID="10">
+        <In krcStartIndex="475" segmentID="11">
           <Start segmentByteOffset="0" segmentBitOffset="3" />
           <End segmentByteOffset="0" segmentBitOffset="3" />
         </In>
-        <In krcStartIndex="479" segmentID="10">
+        <In krcStartIndex="479" segmentID="11">
           <Start segmentByteOffset="1" segmentBitOffset="1" />
           <End segmentByteOffset="1" segmentBitOffset="1" />
         </In>
-        <In krcStartIndex="480" segmentID="10">
+        <In krcStartIndex="480" segmentID="11">
           <Start segmentByteOffset="0" segmentBitOffset="1" />
           <End segmentByteOffset="0" segmentBitOffset="1" />
         </In>
-        <In krcStartIndex="481" segmentID="10">
+        <In krcStartIndex="481" segmentID="11">
           <Start segmentByteOffset="0" segmentBitOffset="0" />
           <End segmentByteOffset="0" segmentBitOffset="0" />
         </In>
-        <In krcStartIndex="482" segmentID="10">
+        <In krcStartIndex="482" segmentID="11">
           <Start segmentByteOffset="0" segmentBitOffset="4" />
           <End segmentByteOffset="0" segmentBitOffset="4" />
         </In>
@@ -249,11 +250,11 @@
           <Start segmentByteOffset="1" segmentBitOffset="1" />
           <End segmentByteOffset="1" segmentBitOffset="1" />
         </In>
-        <In krcStartIndex="559" segmentID="8">
+        <In krcStartIndex="559" segmentID="9">
           <Start segmentByteOffset="0" segmentBitOffset="0" />
           <End segmentByteOffset="3" segmentBitOffset="7" />
         </In>
-        <In krcStartIndex="591" segmentID="9">
+        <In krcStartIndex="591" segmentID="10">
           <Start segmentByteOffset="0" segmentBitOffset="0" />
           <End segmentByteOffset="1" segmentBitOffset="7" />
         </In>
@@ -265,9 +266,13 @@
           <Start segmentByteOffset="19" segmentBitOffset="1" />
           <End segmentByteOffset="19" segmentBitOffset="7" />
         </In>
-        <In krcStartIndex="3000" segmentID="11">
+        <In krcStartIndex="3000" segmentID="12">
           <Start segmentByteOffset="0" segmentBitOffset="0" />
           <End segmentByteOffset="3" segmentBitOffset="7" />
+        </In>
+        <In krcStartIndex="3120" segmentID="8">
+          <Start segmentByteOffset="0" segmentBitOffset="0" />
+          <End segmentByteOffset="1" segmentBitOffset="7" />
         </In>
       </Digital>
       <Analog />

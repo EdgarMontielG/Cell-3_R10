@@ -337,8 +337,9 @@ commanded back (0.2 s after the gun is seen open) without confirmation.
 before withdrawing; use the declared constants.
 *Office (G16):* the gun windows are named constants: `CL_GUN_WELD_MIN/MAX`
 now hold 69000..73000, the window the code always checked (they were declared
-65000..76000 and unused), and `CL_GUN_OPEN_MIN`; the pin checks are still to
-do.
+65000..76000 and unused). The open limit `> 120000` was replaced by the
+programmer's GUN_OPEN_CHECK range 137000..142000 (F01, audit 2026-10-05); the
+pin checks are still to do.
 
 ### F17 — Medium — overlapping declarations
 

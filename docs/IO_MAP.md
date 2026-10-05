@@ -148,7 +148,8 @@ the outputs `$OUT[473]`, `$OUT[475..478]` and the KL50L2 beacon on device
 | `$OUT[486..493]` | `gdopw1_SpotNumber` | Bosch: weld program number (production uses program **2**) |
 
 LPT position windows used by CENTERLINE_WELD (comment table in the program):
-gun retracted ≈ 139815, open check > 120000 (`CL_GUN_OPEN_MIN`); gun on the nut
+gun retracted ≈ 139815, open range 137000..142000 (`nGunOpenMin/Max` in
+`gun_open_check.dat`, checked by GUN_OPEN_CHECK and interrupts 20-22); gun on the nut
 69000..73000 (`CL_GUN_WELD_MIN..MAX`; before the office changes these two were
 declared 65000..76000 and not used).
 

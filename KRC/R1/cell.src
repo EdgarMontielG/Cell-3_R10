@@ -105,8 +105,9 @@ WAIT SEC 5
         ENDIF
 		  ;ELECTRODE CHANGE - SIGNAL $OUT[111] do111Gun1ElectrodeChange, $OUT[112] do112Gun2ElectrodeChange
 		  ;OR $OUT[113] do113Gun3ElectrodeChange ON
-		  ;NOTE: THESE ARE ROBOT OUTPUTS WRITTEN ONLY BY THE AutomationCore BACKGROUND TASK, WHICH IS
-		  ;  DISABLED IN sps.sub (F12): AS IT STANDS GunElectrodeChange IS NEVER CALLED (F43)
+		  ;NOTE: ROBOT OUTPUTS WRITTEN ONLY BY THE AutomationCore BACKGROUND TASK: $OUT[111] FOLLOWS
+		  ;  dipw1_EndofStepper SINCE THE TASK WAS SWITCHED ON (F49); $OUT[112]/$OUT[113] ARE NO LONGER
+		  ;CHECK: GunElectrodeChange NOW RUNS AT THE STEPPER END - TEST IT BEFORE PRODUCTION (F43, F49)
 		  IF (do111Gun1ElectrodeChange==TRUE) OR (do112Gun2ElectrodeChange==TRUE) OR (do113Gun3ElectrodeChange==TRUE) THEN
          GunElectrodeChange()
 		  ENDIF

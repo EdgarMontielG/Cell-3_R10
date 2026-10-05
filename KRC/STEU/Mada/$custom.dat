@@ -1,4 +1,6 @@
-&ACCESS RV$
+&ACCESS  RV
+&PARAM DISKPATH = MADA
+&PARAM VERSION = 1.0.0
 DEFDAT  $CUSTOM PUBLIC
 BOOL $SR_VEL_RED=TRUE ;TRUE: Overrideregelung des SafeRobot fuer Geschwindigkeitsgrenzen im Grundsystem aktiviert
 BOOL $SR_WORKSPACE_RED=TRUE ;TRUE: Overrideregelung des SafeRobot fuer Ueberwachungsraeume im Grundsystem aktiviert

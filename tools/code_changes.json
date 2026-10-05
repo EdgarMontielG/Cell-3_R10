@@ -1,152 +1,216 @@
 {
-  "_comment": "Every executable change after the comment-only cleanup, with the items it closes. tools/check_equivalence.py refuses a changed, added or deleted KRL file that is not listed here. base = the cleanup commit (tools/check_cleanup.py --head BASE proves it changed only comments).",
-  "base": "fb8a4c8b9699d02a4a92ffe4a48e9105044f5831",
-  "changes": [
-    {
-      "items": [
-        "G12",
-        "F17",
-        "C23",
-        "F29"
-      ],
-      "what": "Literal I/O addresses replaced by declared signal names outside KUKA inline forms: pedestal valves and switches (AutomationCore names do498UpperPinExtend, do499UpperPinRetract, do501PartClampClose, do502PartClampOpen, do503QFPAdvance, do504QFPReturn, do505QFPNutBlowOff, di466PartClampOpen, di467PartClampClosed, di470QFPAdvanced renamed from their Reserved names), NutWeld dopw1_/dipw1_ names, the water output and hopper lights in sps.sub, and the three KL50L2 beacon bits declared as CL_BeaconBit3001/3008/3024. Same addresses.",
-      "files": [
-        "KRC/R1/Program/Centerline/centerline_weld.src",
-        "KRC/R1/Program/Centerline/PRELOAD.src",
-        "KRC/R1/Program/Centerline/CENTERLINE_HOME.src",
-        "KRC/R1/System/sps.sub",
-        "KRC/R1/TP/AutomationCore/automationcoreroutines.dat",
-        "KRC/R1/System/$config.dat"
-      ]
-    },
-    {
-      "items": [
-        "G16",
-        "F16",
-        "F44"
-      ],
-      "what": "Named constants in $config.dat (fold CENTERLINE CONTROL) for the gun stroke window (CL_GUN_WELD_MIN/MAX, now 69000/73000 = the window the code always checked; they were declared 65000/76000 and unused), gun-open limit, gun-closed timeout and time in window, the three pressure words as used in production (CL_GUN_PRESS_BASE 405, CL_GUN_PRESS_WELD 1820, CL_GUN_PRESS_REST 39425 - byte order still to confirm, F44) and the Bosch weld program. CENTERLINE_WELD and CENTERLINE_HOME use them. Same values.",
-      "files": [
-        "KRC/R1/Program/Centerline/centerline_weld.src",
-        "KRC/R1/Program/Centerline/CENTERLINE_HOME.src",
-        "KRC/R1/System/$config.dat"
-      ]
-    },
-    {
-      "items": [
-        "G11",
-        "F30",
-        "F07"
-      ],
-      "what": "Every GOTO and label removed: dry-cycle skips as IF NOT di004UseDryCycle (picks, weld apps, nut check), the preloaded-nut skip in CENTERLINE_WELD as IF NOT NUT_READY, the gun-closed check as LOOP/EXIT, Style1Opt1 as one IF/ELSE path per cycle (station read once into nPickStation). Behaviour kept except F07: after the HALT of the gun-closed timeout both timers restart, so a second timeout is possible.",
-      "files": [
-        "KRC/R1/Program/Centerline/centerline_weld.src",
-        "KRC/R1/Program/StyleApps/Options/style1app1opt1.src",
-        "KRC/R1/Program/StyleApps/Options/style1app1opt2.src",
-        "KRC/R1/Program/StyleApps/Options/style1app1opt3.src",
-        "KRC/R1/Program/StyleApps/Options/style1app2opt1.src",
-        "KRC/R1/Program/StylePicks/Options/style1pick1opt1.src",
-        "KRC/R1/Program/StylePicks/Options/style1pick1opt2.src",
-        "KRC/R1/Program/StylePicks/Options/style1pick1opt1AutoRR.src",
-        "KRC/R1/Program/Styles/Options/style1opt1.src"
-      ]
-    },
-    {
-      "items": [
-        "G17",
-        "F24"
-      ],
-      "what": "Dead nut-weld retry removed (as on R20): RETRY_NUT1 labels, the IF NUT_WELD_RETRY blocks and the NUT_WELD_RETRY declaration. NUT_WELD_RETRY was never set TRUE, so no path changes.",
-      "files": [
-        "KRC/R1/Program/StyleApps/Options/style1app1opt1.src",
-        "KRC/R1/Program/StyleApps/Options/style1app1opt2.src",
-        "KRC/R1/Program/StyleApps/Options/style1app1opt3.src",
-        "KRC/R1/System/$config.dat"
-      ]
-    },
-    {
-      "items": [
-        "G20",
-        "F32"
-      ],
-      "what": "Hand-typed lines taken out of inline-form folds: the next-nut TRIGGERs (NUT_START in the picks at P12/P10, Request_next_nut() in apps 1 and 2 at P0, DISTANCE kept 0 and 1) now stand right before their motion fold (KUKA SYN OUT placement, same motion, same trigger point); the red rabbit resets after the DropOff[2] Reset fold. A Touch Up can no longer delete them.",
-      "files": [
-        "KRC/R1/Program/StylePicks/Options/style1pick1opt1.src",
-        "KRC/R1/Program/StylePicks/Options/style1pick1opt2.src",
-        "KRC/R1/Program/StylePicks/Options/style1pick1opt1AutoRR.src",
-        "KRC/R1/Program/StyleApps/Options/style1app1opt1.src",
-        "KRC/R1/Program/StyleApps/Options/style1app1opt2.src",
-        "KRC/R1/Program/StyleDrops/Options/style1drop1opt2AutoRR.src"
-      ]
-    },
-    {
-      "items": [
-        "G14",
-        "G10",
-        "F31"
-      ],
-      "what": "Picks: the gripper-empty wait (part present switches di253/di254 OFF) moved before the first gripper command instead of after it. The hidden GripperTech parameters of the gripper 1 SET forms in the picks and the conveyor drop corrected to the gripper and state the code uses (were setgripper=4;setstate=2 - an inactive gripper): a Touch Up no longer turns them into commands for gripper 4.",
-      "files": [
-        "KRC/R1/Program/StylePicks/Options/style1pick1opt1.src",
-        "KRC/R1/Program/StylePicks/Options/style1pick1opt2.src",
-        "KRC/R1/Program/StylePicks/Options/style1pick1opt1AutoRR.src",
-        "KRC/R1/Program/StyleDrops/Options/style1drop1opt1.src"
-      ]
-    },
-    {
-      "items": [
-        "G13",
-        "F28",
-        "F03"
-      ],
-      "what": "Nut presence check: each of the 3 checks is now 'dwell 0.2 s, PARTPRESENTn = di227NutPresent1' (was a set-only IF reading the sensor before the dwell). The read happens with the robot standing at the point and a missing nut writes FALSE. bscrapGE4 start-of-cycle reset not done (needs F02).",
-      "files": [
-        "KRC/R1/Program/StyleApps/Options/style1app2opt1.src"
-      ]
-    },
-    {
-      "items": [
-        "G13"
-      ],
-      "what": "Redundant code removed: the GRPg_Check that repeated the check GRPg_SetStateAndCheck had just done (picks: open and close; conveyor drop; RejectGE4), the doubled upper-pin-extend lines on the local-feed path of CENTERLINE_WELD, the unused WELD_END label.",
-      "files": [
-        "KRC/R1/Program/StylePicks/Options/style1pick1opt1.src",
-        "KRC/R1/Program/StylePicks/Options/style1pick1opt2.src",
-        "KRC/R1/Program/StylePicks/Options/style1pick1opt1AutoRR.src",
-        "KRC/R1/Program/StyleDrops/Options/style1drop1opt1.src",
-        "KRC/R1/Program/Utilities/RejectGE4.src",
-        "KRC/R1/Program/Centerline/centerline_weld.src"
-      ]
-    },
-    {
-      "items": [
-        "G15",
-        "F36",
-        "C26"
-      ],
-      "what": "Identifiers in correct English and one name for $IN[227]: NUT_STAR -> NUT_START, di100/di101CameraJudment -> CameraJudgment, do106/di106PartRejeted -> PartRejected, di227SensorCamera -> di227NutPresent1 with the NUT_PRESENT1 declaration of $config.dat removed. Folder Program/Styles/optiones renamed Options (moved_files).",
-      "files": [
-        "KRC/R1/TP/AutomationCore/automationcoreroutines.dat",
-        "KRC/R1/System/$config.dat",
-        "KRC/R1/Program/Centerline/PRELOAD.src",
-        "KRC/R1/Program/Centerline/Request_next_nut.src",
-        "KRC/R1/Program/StylePicks/Options/style1pick1opt1.src",
-        "KRC/R1/Program/StylePicks/Options/style1pick1opt2.src",
-        "KRC/R1/Program/StylePicks/Options/style1pick1opt1AutoRR.src",
-        "KRC/R1/Program/StyleApps/Options/style1app2opt1.src",
-        "KRC/R1/Program/StyleApps/Options/style1app2opt2.src",
-        "KRC/R1/Program/Styles/Options/style1opt1.src",
-        "KRC/R1/Program/Styles/Options/Style1Opt10AutoRR.src",
-        "KRC/R1/Program/Utilities/RejectGE4.src"
-      ]
-    }
-  ],
-  "deleted_files": {
-    "KRC/R1/Program/Centerline/centerline_loop.src": "Manual endless valve test loop with no exit and no interlock; called by nothing (G05, as on R20)."
+ "_comment": "Every executable change after the comment-only cleanup, with the items it closes. tools/check_equivalence.py refuses a changed, added or deleted KRL file that is not listed here. base = the cleanup commit (tools/check_cleanup.py --head BASE proves it changed only comments).",
+ "base": "fb8a4c8b9699d02a4a92ffe4a48e9105044f5831",
+ "changes": [
+  {
+   "items": [
+    "G12",
+    "F17",
+    "C23",
+    "F29"
+   ],
+   "what": "Literal I/O addresses replaced by declared signal names outside KUKA inline forms: pedestal valves and switches (AutomationCore names do498UpperPinExtend, do499UpperPinRetract, do501PartClampClose, do502PartClampOpen, do503QFPAdvance, do504QFPReturn, do505QFPNutBlowOff, di466PartClampOpen, di467PartClampClosed, di470QFPAdvanced renamed from their Reserved names), NutWeld dopw1_/dipw1_ names, the water output and hopper lights in sps.sub, and the three KL50L2 beacon bits declared as CL_BeaconBit3001/3008/3024. Same addresses.",
+   "files": [
+    "KRC/R1/Program/Centerline/centerline_weld.src",
+    "KRC/R1/Program/Centerline/PRELOAD.src",
+    "KRC/R1/Program/Centerline/CENTERLINE_HOME.src",
+    "KRC/R1/System/sps.sub",
+    "KRC/R1/TP/AutomationCore/automationcoreroutines.dat",
+    "KRC/R1/System/$config.dat"
+   ]
   },
-  "added_files": {},
-  "moved_files": {
-    "KRC/R1/Program/Styles/optiones/style1opt1.src": "KRC/R1/Program/Styles/Options/style1opt1.src",
-    "KRC/R1/Program/Styles/optiones/Style1Opt10AutoRR.src": "KRC/R1/Program/Styles/Options/Style1Opt10AutoRR.src"
+  {
+   "items": [
+    "G16",
+    "F16",
+    "F44"
+   ],
+   "what": "Named constants in $config.dat (fold CENTERLINE CONTROL) for the gun stroke window (CL_GUN_WELD_MIN/MAX, now 69000/73000 = the window the code always checked; they were declared 65000/76000 and unused), gun-open limit, gun-closed timeout and time in window, the three pressure words as used in production (CL_GUN_PRESS_BASE 405, CL_GUN_PRESS_WELD 1820, CL_GUN_PRESS_REST 39425 - byte order still to confirm, F44) and the Bosch weld program. CENTERLINE_WELD and CENTERLINE_HOME use them. Same values.",
+   "files": [
+    "KRC/R1/Program/Centerline/centerline_weld.src",
+    "KRC/R1/Program/Centerline/CENTERLINE_HOME.src",
+    "KRC/R1/System/$config.dat"
+   ]
+  },
+  {
+   "items": [
+    "G11",
+    "F30",
+    "F07"
+   ],
+   "what": "Every GOTO and label removed: dry-cycle skips as IF NOT di004UseDryCycle (picks, weld apps, nut check), the preloaded-nut skip in CENTERLINE_WELD as IF NOT NUT_READY, the gun-closed check as LOOP/EXIT, Style1Opt1 as one IF/ELSE path per cycle (station read once into nPickStation). Behaviour kept except F07: after the HALT of the gun-closed timeout both timers restart, so a second timeout is possible.",
+   "files": [
+    "KRC/R1/Program/Centerline/centerline_weld.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt1.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt2.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt3.src",
+    "KRC/R1/Program/StyleApps/Options/style1app2opt1.src",
+    "KRC/R1/Program/StylePicks/Options/style1pick1opt1.src",
+    "KRC/R1/Program/StylePicks/Options/style1pick1opt2.src",
+    "KRC/R1/Program/StylePicks/Options/style1pick1opt1AutoRR.src",
+    "KRC/R1/Program/Styles/Options/style1opt1.src"
+   ]
+  },
+  {
+   "items": [
+    "G17",
+    "F24"
+   ],
+   "what": "Dead nut-weld retry removed (as on R20): RETRY_NUT1 labels, the IF NUT_WELD_RETRY blocks and the NUT_WELD_RETRY declaration. NUT_WELD_RETRY was never set TRUE, so no path changes.",
+   "files": [
+    "KRC/R1/Program/StyleApps/Options/style1app1opt1.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt2.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt3.src",
+    "KRC/R1/System/$config.dat"
+   ]
+  },
+  {
+   "items": [
+    "G20",
+    "F32"
+   ],
+   "what": "Hand-typed lines taken out of inline-form folds: the next-nut TRIGGERs (NUT_START in the picks at P12/P10, Request_next_nut() in apps 1 and 2 at P0, DISTANCE kept 0 and 1) now stand right before their motion fold (KUKA SYN OUT placement, same motion, same trigger point); the red rabbit resets after the DropOff[2] Reset fold. A Touch Up can no longer delete them.",
+   "files": [
+    "KRC/R1/Program/StylePicks/Options/style1pick1opt1.src",
+    "KRC/R1/Program/StylePicks/Options/style1pick1opt2.src",
+    "KRC/R1/Program/StylePicks/Options/style1pick1opt1AutoRR.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt1.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt2.src",
+    "KRC/R1/Program/StyleDrops/Options/style1drop1opt2AutoRR.src"
+   ]
+  },
+  {
+   "items": [
+    "G14",
+    "G10",
+    "F31"
+   ],
+   "what": "Picks: the gripper-empty wait (part present switches di253/di254 OFF) moved before the first gripper command instead of after it. The hidden GripperTech parameters of the gripper 1 SET forms in the picks and the conveyor drop corrected to the gripper and state the code uses (were setgripper=4;setstate=2 - an inactive gripper): a Touch Up no longer turns them into commands for gripper 4.",
+   "files": [
+    "KRC/R1/Program/StylePicks/Options/style1pick1opt1.src",
+    "KRC/R1/Program/StylePicks/Options/style1pick1opt2.src",
+    "KRC/R1/Program/StylePicks/Options/style1pick1opt1AutoRR.src",
+    "KRC/R1/Program/StyleDrops/Options/style1drop1opt1.src"
+   ]
+  },
+  {
+   "items": [
+    "G13",
+    "F28",
+    "F03"
+   ],
+   "what": "Nut presence check: each of the 3 checks is now 'dwell 0.2 s, PARTPRESENTn = di227NutPresent1' (was a set-only IF reading the sensor before the dwell). The read happens with the robot standing at the point and a missing nut writes FALSE. bscrapGE4 start-of-cycle reset not done (needs F02).",
+   "files": [
+    "KRC/R1/Program/StyleApps/Options/style1app2opt1.src"
+   ]
+  },
+  {
+   "items": [
+    "G13"
+   ],
+   "what": "Redundant code removed: the GRPg_Check that repeated the check GRPg_SetStateAndCheck had just done (picks: open and close; conveyor drop; RejectGE4), the doubled upper-pin-extend lines on the local-feed path of CENTERLINE_WELD, the unused WELD_END label.",
+   "files": [
+    "KRC/R1/Program/StylePicks/Options/style1pick1opt1.src",
+    "KRC/R1/Program/StylePicks/Options/style1pick1opt2.src",
+    "KRC/R1/Program/StylePicks/Options/style1pick1opt1AutoRR.src",
+    "KRC/R1/Program/StyleDrops/Options/style1drop1opt1.src",
+    "KRC/R1/Program/Utilities/RejectGE4.src",
+    "KRC/R1/Program/Centerline/centerline_weld.src"
+   ]
+  },
+  {
+   "items": [
+    "G15",
+    "F36",
+    "C26"
+   ],
+   "what": "Identifiers in correct English and one name for $IN[227]: NUT_STAR -> NUT_START, di100/di101CameraJudment -> CameraJudgment, do106/di106PartRejeted -> PartRejected, di227SensorCamera -> di227NutPresent1 with the NUT_PRESENT1 declaration of $config.dat removed. Folder Program/Styles/optiones renamed Options (moved_files).",
+   "files": [
+    "KRC/R1/TP/AutomationCore/automationcoreroutines.dat",
+    "KRC/R1/System/$config.dat",
+    "KRC/R1/Program/Centerline/PRELOAD.src",
+    "KRC/R1/Program/Centerline/Request_next_nut.src",
+    "KRC/R1/Program/StylePicks/Options/style1pick1opt1.src",
+    "KRC/R1/Program/StylePicks/Options/style1pick1opt2.src",
+    "KRC/R1/Program/StylePicks/Options/style1pick1opt1AutoRR.src",
+    "KRC/R1/Program/StyleApps/Options/style1app2opt1.src",
+    "KRC/R1/Program/StyleApps/Options/style1app2opt2.src",
+    "KRC/R1/Program/Styles/Options/style1opt1.src",
+    "KRC/R1/Program/Styles/Options/Style1Opt10AutoRR.src",
+    "KRC/R1/Program/Utilities/RejectGE4.src"
+   ]
+  },
+  {
+   "items": [
+    "F01"
+   ],
+   "what": "Programmer's change of 2026-10-05, integrated: GUN_OPEN_CHECK (submit running, air if enabled, cooling water, gun open 137000..142000 with message and wait) before each pedestal entry and after the gun opens in CENTERLINE_WELD (replaces WAIT FOR LPT > 120000; CL_GUN_OPEN_MIN removed); interrupts 20-22 (gun out of the open range or submit stopped -> GUN_OPEN_LOST: BRAKE F, quit message, wait) on while the robot moves into and out of the pedestal, off at the weld position.",
+   "files": [
+    "KRC/R1/Program/StyleApps/Options/style1app1opt1.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt2.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt3.src",
+    "KRC/R1/Program/Centerline/centerline_weld.src",
+    "KRC/R1/System/$config.dat"
+   ]
+  },
+  {
+   "items": [
+    "F09"
+   ],
+   "what": "Programmer's change of 2026-10-05, integrated: dipw1_WaterOk from the SV0500 flow (nWaterFlow = word / 4, OK at >= nWaterFlowMin 150, not OK below 140) instead of TRUE in both branches; the water valve $OUT[475] dopw1_StartWater follows $IN[13] di013WaterEnable instead of ON outside dry cycle.",
+   "files": [
+    "KRC/R1/System/sps.sub"
+   ]
+  },
+  {
+   "items": [
+    "F02",
+    "F19"
+   ],
+   "what": "Programmer's change of 2026-10-05, integrated: the nut sensor and the camera decide by nOption: production options 1, 2, 7, 8 set bscrapGE4 (camera without a valid OK result = scrap); red rabbit option 12 sets $OUT[141] / $OUT[142] (was CASE 10, never sent).",
+   "files": [
+    "KRC/R1/Program/StyleApps/Options/style1app2opt1.src",
+    "KRC/R1/Program/StyleApps/Options/style1app2opt2.src"
+   ]
+  },
+  {
+   "items": [
+    "F12",
+    "F49",
+    "C28"
+   ],
+   "what": "Programmer's change of 2026-10-05, integrated: AutomationCore_BKG called in sps.sub; vendor routine edited (nut welder 2-3 outputs removed, AC_Request_to_enter latches bACEntryGranted instead of waiting in the submit), bACEntryGranted declared; NutWeld nMaxGunNr = 1 and dipw1_AirOK moved to the new TBEN input $IN[3132].",
+   "files": [
+    "KRC/R1/System/sps.sub",
+    "KRC/R1/TP/AutomationCore/automationcoreroutines.src",
+    "KRC/R1/TP/AutomationCore/automationcoreroutines.dat",
+    "KRC/R1/TP/NutWeld/nutweldroutines.dat"
+   ]
+  },
+  {
+   "items": [
+    "G01"
+   ],
+   "what": "Controller files taken as they are from the programmer's backup bmw_03_10_r1 (2026-10-05): machine data, $custom.dat and tm_bib.dat (WorkVisual formatting and runtime values), GripperTech data (same configuration, regenerated), together with the robot name, the I/O mapping of the new TBEN module and the WorkVisual projects (not KRL).",
+   "files": [
+    "KRC/R1/Mada/$machine.dat",
+    "KRC/R1/Mada/$robcor.dat",
+    "KRC/STEU/Mada/$custom.dat",
+    "KRC/R1/System/tm_bib.dat",
+    "KRC/R1/TP/GripperSpotTech/grp_data.dat",
+    "KRC/R1/TP/GripperSpotTech/grp_func.dat"
+   ]
   }
+ ],
+ "deleted_files": {
+  "KRC/R1/Program/Centerline/centerline_loop.src": "Manual endless valve test loop with no exit and no interlock; called by nothing (G05, as on R20)."
+ },
+ "added_files": {
+  "KRC/R1/Program/Centerline/GUN_OPEN_CHECK.src": "Programmer's gun open interlock and interrupt routine GUN_OPEN_LOST (F01), comments to docs/CONVENTIONS.md.",
+  "KRC/R1/Program/Centerline/gun_open_check.dat": "Settings of GUN_OPEN_CHECK: gun open range, wait time, air and water checks, water flow limits (F01, F09)."
+ },
+ "moved_files": {
+  "KRC/R1/Program/Styles/optiones/style1opt1.src": "KRC/R1/Program/Styles/Options/style1opt1.src",
+  "KRC/R1/Program/Styles/optiones/Style1Opt10AutoRR.src": "KRC/R1/Program/Styles/Options/Style1Opt10AutoRR.src"
+ }
 }
