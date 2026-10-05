@@ -380,8 +380,9 @@ def what_was_done(st, allow):
     out.append(Paragraph('2.7 Herramientas que quedan en el repositorio', st['h2']))
     out += bullets([
         'tools/check_cleanup.py — prueba que la depuración cambió comentarios y no comportamiento.',
-        'tools/build_archive.py — arma el zip de respaldo a cargar; se niega si el robot cambió después '
-        'del respaldo 658424.',
+        'tools/build_archive.py — arma el zip de respaldo a cargar sobre el respaldo original o sobre el '
+        'último respaldo auditado (hoy bmw_03_10_r1 del 2026-10-05); con cualquier otro se niega si el '
+        'robot cambió.',
         'tools/check_equivalence.py — separa los cambios reales de lógica de los renombres en los cambios '
         'de código posteriores a la depuración (sección 3).',
         'tools/audit_backup.py — audita cada respaldo diario contra el último estado auditado.',
@@ -463,7 +464,8 @@ def process(st):
     out += bullets([
         'Cargar en el robot la versión de oficina (zip de build_archive.py: depuración más correcciones de '
         'Gestamp) y borrar en el controlador los 22 archivos de módulos eliminados (21 de la depuración, 1 de '
-        'las correcciones) y la carpeta vieja Styles/optiones (un restore no borra archivos). Actualizar el proyecto WorkVisual desde el '
+        'las correcciones) y la carpeta vieja Styles/optiones (un restore no borra archivos). No hacer deploy desde WorkVisual '
+        '(los proyectos guardados traen el programa viejo: así se perdió la depuración el 2026-10-05). Actualizar el proyecto WorkVisual desde el '
         'controlador antes de cualquier deploy.',
         'Hacer las pruebas en celda de los puntos "Corregido en oficina - probar en celda" (sección 3.3).',
         'Correr un ciclo en T1 con override reducido y uno en automático.',
@@ -498,6 +500,19 @@ def process(st):
              'Resuelto por la depuración, cumple, o duplica otro punto.']]
     out.append(table(rows, [52 * mm, 30 * mm, 98 * mm], st))
     return out
+
+
+def audits(st, data):
+    rows = [['Fecha', 'Respaldo', 'Resultado']]
+    for a in data.get('auditorias', []):
+        rows.append([a.get('fecha', ''), a.get('respaldo', ''),
+                     f"{a.get('cambios', '')}\n{a.get('notas', '')}"])
+    if len(rows) == 1:
+        return []
+    return [Paragraph('4.1 Auditorías', st['h2']),
+            Paragraph('Cada respaldo auditado y cada versión entregada, del más viejo al más nuevo. El detalle '
+                      'técnico (en inglés) está en audits/&lt;fecha&gt;/AUDIT.md.', st['body']),
+            table(rows, [20 * mm, 46 * mm, 116 * mm], st)]
 
 
 def items_summary(st, items):
@@ -637,7 +652,8 @@ def main():
         args.out = naming.dated_path(os.path.join(REPO, 'dist'), 'R10_reporte', '.pdf', when)
     fonts()
     st = styles()
-    items = json.load(open(args.items))['items'] if os.path.exists(args.items) else []
+    data = json.load(open(args.items)) if os.path.exists(args.items) else {}
+    items = data.get('items', [])
     now = naming.human(when)
     os.makedirs(os.path.dirname(os.path.abspath(args.out)), exist_ok=True)
     doc = SimpleDocTemplate(args.out, pagesize=letter, leftMargin=16 * mm, rightMargin=16 * mm,
@@ -645,7 +661,7 @@ def main():
                             title='R10 (BMW-03-10-R1) - Depuración, correcciones Gestamp y puntos abiertos',
                             author='Ethos Automation México')
     story = (cover(st, items, now) + summary(st, items) + what_was_done(st, allowlist())
-             + gestamp_review(st, items) + process(st))
+             + gestamp_review(st, items) + process(st) + audits(st, data))
     if items:
         story += items_summary(st, items) + items_detail(st, items)
     story += annex_marked(st) + annex_listing(st)

@@ -1,0 +1,19 @@
+--- fb8a4c8:am.ini
++++ backup:am.ini
+@@ -1,12 +1,12 @@
+ [Archive]
+-Name=e:\v431_03_10_r1.zip\
++Name=e:\bmw_03_10_r1.zip\
+ Config=All
+ DiskNo=0
+ LastDisk=1
+-ID=4c212237-fb51-4d30-9f2a-60859d5faaa1
+-Date=2026-10-02_22-15-15
++ID=6ace0ec0-0b74-4c79-92fd-9127ffd48778
++Date=2026-10-05_09-43-37
+ [Roboter]
+-RobName=V431_03_10_R1
++RobName=BMW_03_10_R1
+ IRSerialNr=658424
+ [Version]
+ Version=V8.3.29

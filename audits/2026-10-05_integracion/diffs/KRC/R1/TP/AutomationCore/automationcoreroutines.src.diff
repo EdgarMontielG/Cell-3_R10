@@ -1,0 +1,81 @@
+--- fb8a4c8:KRC/R1/TP/AutomationCore/automationcoreroutines.src
++++ backup:KRC/R1/TP/AutomationCore/automationcoreroutines.src
+@@ -25,20 +25,13 @@
+          DECL BOOL bWeldCtrl2
+       ;ENDFOLD (Declaration)
+       ;FOLD Implementation
++         ; GE4-002 cell: only nut welder 1 (pw1). Welder 2/3 signals removed 2026-10-05
+          IF (di004UseDryCycle==TRUE) THEN
+             dopw1_WeldContactEnable=FALSE
+             dopw1_WeldOnExternal=FALSE
+-            dopw2_WeldContactEnable=FALSE
+-            dopw2_WeldOnExternal=FALSE
+-            dopw3_WeldContactEnable=FALSE
+-            dopw3_WeldOnExternal=FALSE
+          ELSE
+             dopw1_WeldContactEnable=TRUE
+             dopw1_WeldOnExternal=TRUE
+-            dopw2_WeldContactEnable=TRUE
+-            dopw2_WeldOnExternal=TRUE
+-            dopw3_WeldContactEnable=TRUE
+-            dopw3_WeldOnExternal=TRUE
+          ENDIF
+          ; TOOL ID TO PLC
+          ; see go123ToolID
+@@ -95,31 +88,16 @@
+             do021BrakeTestReqd = (($BRAKETEST_MONTIME==TRUE) OR ($BRAKETEST_REQ_EX==TRUE) OR ($BRAKETEST_REQ_INT==TRUE))
+             do022MstrRefRequired = ($MasteringTest_Req_Int==TRUE)
+             gdoAxis1Posn=$AXIS_ACT.A1 + nA1Offset
+-            do094AirOK= (dipw1_AirOK AND dipw2_AirOK AND dipw3_AirOK)
+-            do013WaterIsOn = ((di472WaterTempOK AND di474WaterOk) AND (di520WaterTempOK AND di522WaterOk) AND (di568WaterTempOK AND di570WaterOk))
++            do094AirOK= dipw1_AirOK   ; Air pressure switch ($IN[3132]) to PLC - only nut welder 1
++            do013WaterIsOn = dipw1_WaterOk   ; Water flow OK (SV0500, calculated in sps.sub) to PLC - only nut welder 1
+             do107Hopper1LowLevel= NOT dipw1_HopperLowLevel
+-            do108Hopper2LowLevel= NOT dipw2_HopperLowLevel
+-            do110Hopper3LowLevel= NOT dipw3_HopperLowLevel
+             do111Gun1ElectrodeChange= dipw1_EndofStepper
+-            do112Gun2ElectrodeChange= dipw2_EndofStepper
+-            do113Gun3ElectrodeChange= dipw3_EndofStepper
+             do118Nut1Ready= (dipw1_Ready AND NOT dipw1_Fault)
+-            do119Nut2Ready= (dipw2_Ready AND NOT dipw2_Fault)
+-            do120Nut3Ready= (dipw3_Ready AND NOT dipw3_Fault)
+             do134Nut1Fault= (dipw1_Fault OR NOT dipw1_Ready)
+-            do135Nut2Fault= (dipw2_Fault OR NOT dipw2_Ready)
+-            do136Nut3Fault= (dipw3_Fault OR NOT dipw3_Ready)
+             
+-            IF di013WaterEnable==TRUE THEN
+-               do475StartWater=TRUE
+-               do523StartWater=TRUE
+-               do571StartWater=TRUE
+-               ELSE
+-            ENDIF
++            ; do475StartWater ($OUT[475]) follows di013WaterEnable ($IN[13]) - set in sps.sub
+             
+             do464WaterBeacon = (di472WaterTempOK AND di474WaterOk)
+-            do512WaterBeacon = (di520WaterTempOK AND di522WaterOk)
+-            do560WaterBeacon = (di568WaterTempOK AND di570WaterOk)
+             
+             ; sends to PLC when the robot isn`t in 100%
+             IF (($MODE_OP==#EX) AND NOT ($OV_PRO==100)) THEN
+@@ -1436,12 +1414,17 @@
+       ;ENDFOLD (Declaration)
+       ;FOLD Implementation
+          
+-         IF di006RequestToEnter AND NOT (dipw1_GunAtWork OR dipw2_GunAtWork OR dipw3_GunAtWork OR do932GripperInProcess OR do931BrakeTestInProcess OR do930MasterRefInProcess) THEN     ;NUT / GRIPPER / BRAKETEST / MASTERREF  
+-            doCriticalWZ = FALSE     ; request to enter allowed!            
+-            WAIT FOR (di006RequestToEnter)==FALSE
++         ; 2026-10-05: no WAIT here - a WAIT in the Submit froze the whole SPS
++         ; (gun position, nut preload, gripper) while the request was active.
++         ; Entry stays granted until the request is released (same behavior).
++         IF di006RequestToEnter THEN
++            IF NOT bACEntryGranted AND NOT (dipw1_GunAtWork OR do932GripperInProcess OR do931BrakeTestInProcess OR do930MasterRefInProcess) THEN     ;NUT / GRIPPER / BRAKETEST / MASTERREF
++               bACEntryGranted = TRUE     ; request to enter allowed!
++            ENDIF
+          ELSE
+-            doCriticalWZ = TRUE     ; request to enter not allowed!          
++            bACEntryGranted = FALSE
+          ENDIF
++         doCriticalWZ = NOT bACEntryGranted     ; FALSE = entry allowed
+          
+          IF (doCriticalWZ AND NOT $MOVE_ENABLE) THEN
+             $LOOP_MSG[] = " Critical Process interrupted by General Motion enable                                                                          "

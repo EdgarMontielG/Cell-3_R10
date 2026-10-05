@@ -97,20 +97,24 @@ The office version changes code: run the cell tests of the items "Corregido en
 oficina - probar en celda" before production. It is a program change on a
 production cell:
 
-1. Take a fresh backup of the robot. If it differs from 658424 of 2026-10-02,
-   someone changed the robot since — merge before loading.
-2. Build the archive to load:
+1. Take a fresh backup of the robot. If it differs from the last audited
+   backup (today `bmw_03_10_r1.zip` of 2026-10-05, in `audits/`), someone
+   changed the robot since — audit and merge before loading.
+2. Build the archive to load on top of the last audited backup:
 
    ```
-   python3 tools/build_archive.py <original v431_03_10_r1.zip> dist/
+   python3 tools/build_archive.py <bmw_03_10_r1.zip> dist/
    ```
 
    writes `dist/658424_R10_YYYY-MM-DD_HHMM.zip` (central Mexico time, like
-   the Excel and the PDF). It copies the original archive entry by entry,
+   the Excel and the PDF). It copies the archive entry by entry,
    replaces the changed files, leaves out the deleted modules, writes the two
-   files of `Styles/optiones` to `Styles/Options` and prints the lists. If a
-   file it would replace or leave out is not the one of archive 658424, it
-   stops without writing anything (see step 1). Load the changed files
+   files of `Styles/optiones` to `Styles/Options`, adds the new modules and
+   prints the lists; names are matched without case, as on the controller. It
+   accepts only the original archive or an audited one (its sha256 is in
+   `audits/*/summary.json`); for any other, if a file it would replace or
+   leave out is not the one of archive 658424, it stops without writing
+   anything (see step 1). Load the changed files
    (expert mode, navigator, USB) and **delete on the controller the
    twenty-two files reported "left out"** (21 from the cleanup, one from the
    office fixes) **and the folder `Program/Styles/optiones`** — a restore does
@@ -119,9 +123,10 @@ production cell:
    open and close normally.
 4. Run a production cycle at reduced override in T1, then in automatic, and
    the cell tests of the office fixes (PDF section 3.3).
-5. **WorkVisual.** The project inside the archive
-   (`C/KRC/User/ProjectRoot/...wvs`) still holds the *old* files, including
-   `$config.dat` and the deleted modules. Activating the project copies them
+5. **WorkVisual.** The projects inside the archive
+   (`C/KRC/User/ProjectRoot/...wvs`, also the new `BMW-03-10R1_v8`) hold the
+   *old* files, including `$config.dat` and the deleted modules; on
+   2026-10-05 such a deploy put the original program back on the robot. Activating the project copies them
    back to the controller when their checksum differs. Before anyone deploys
    from WorkVisual again, load the project from the controller (or update it
    with these files) and save it; otherwise a deploy silently restores the

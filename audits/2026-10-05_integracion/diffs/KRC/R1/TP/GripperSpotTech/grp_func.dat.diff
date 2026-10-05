@@ -1,0 +1,29 @@
+--- fb8a4c8:KRC/R1/TP/GripperSpotTech/grp_func.dat
++++ backup:KRC/R1/TP/GripperSpotTech/grp_func.dat
+@@ -16,7 +16,7 @@
+ 
+ ;## Runtime
+ GLOBAL STRUC GRPg_ProcessData_T INT ActGrp,ReqState,LastGrpNo,LastStNo
+-DECL GLOBAL GRPg_ProcessData_T GRPg_ProcessData={ActGrp 1,ReqState 0,LastGrpNo 1,LastStNo 1}
++DECL GLOBAL GRPg_ProcessData_T GRPg_ProcessData={ActGrp 1,ReqState 0,LastGrpNo 1,LastStNo 2}
+ ;ActGrp: Currently selected gripper (STK or PlugIn)
+ ;ReqState: Request for a new state (STK or PlugIn) 
+ ;LastGrpNo,LastStNo: Last gripper and state set (through prog or STK) 
+@@ -29,14 +29,14 @@
+ 
+ STRUC GRP_PreState_T INT iGrpIn,iStInVal,BOOL bStInVal,BOOL bGhost
+ DECL GRP_PreState_T GRP_PreState[6]
+-GRP_PreState[1]={iGrpIn 257,iStInVal 1,bStInVal TRUE,bGhost FALSE}
+-GRP_PreState[2]={iGrpIn 258,iStInVal -1,bStInVal FALSE,bGhost FALSE}
++GRP_PreState[1]={iGrpIn 257,iStInVal -1,bStInVal FALSE,bGhost FALSE}
++GRP_PreState[2]={iGrpIn 258,iStInVal 1,bStInVal TRUE,bGhost FALSE}
+ GRP_PreState[3]={iGrpIn 1026,iStInVal 0,bStInVal FALSE,bGhost FALSE}
+ GRP_PreState[4]={iGrpIn 1026,iStInVal 0,bStInVal FALSE,bGhost FALSE}
+ GRP_PreState[5]={iGrpIn 1026,iStInVal 0,bStInVal FALSE,bGhost FALSE}
+ GRP_PreState[6]={iGrpIn 1026,iStInVal 0,bStInVal FALSE,bGhost FALSE}
+ INT GRP_iPreGrpNo=1
+-INT GRP_iPreStNo=1
++INT GRP_iPreStNo=2
+ BOOL GRP_bGhostIsOn=FALSE
+ INT Grp_iWrongInput=0
+ 

@@ -107,22 +107,26 @@ La versión de oficina cambia código: hacer las pruebas en celda de los puntos
 "Corregido en oficina - probar en celda" antes de producción. Es un cambio de
 programa en una celda productiva:
 
-1. Sacar un respaldo nuevo del robot. Si difiere del 658424 del 2026-10-02,
-   alguien cambió el robot después — hay que integrar antes de cargar.
-2. Generar el respaldo a cargar:
+1. Sacar un respaldo nuevo del robot. Si difiere del último respaldo auditado
+   (hoy `bmw_03_10_r1.zip` del 2026-10-05, en `audits/`), alguien cambió el
+   robot después — hay que auditar e integrar antes de cargar.
+2. Generar el respaldo a cargar sobre el último respaldo auditado:
 
    ```
-   python3 tools/build_archive.py <v431_03_10_r1.zip original> dist/
+   python3 tools/build_archive.py <bmw_03_10_r1.zip> dist/
    ```
 
    genera `dist/658424_R10_AAAA-MM-DD_HHMM.zip` (fecha y hora del centro de
    México, igual que el Excel y el PDF).
 
-   Copia el respaldo original entrada por entrada, reemplaza los archivos
+   Copia el respaldo entrada por entrada, reemplaza los archivos
    modificados, omite los módulos eliminados, escribe los dos archivos de
-   `Styles/optiones` en `Styles/Options` e imprime las listas. Si un archivo
-   que tendría que reemplazar u omitir no es el del respaldo 658424, se
-   detiene sin escribir nada (ver paso 1). Cargar los archivos modificados
+   `Styles/optiones` en `Styles/Options`, agrega los módulos nuevos e imprime
+   las listas; compara nombres sin mayúsculas, como el controlador. Solo
+   acepta el respaldo original o uno auditado (su sha256 está en
+   `audits/*/summary.json`); con cualquier otro, si un archivo que tendría que
+   reemplazar u omitir no es el del respaldo 658424, se detiene sin escribir
+   nada (ver paso 1). Cargar los archivos modificados
    (modo experto, navegador, USB) y **borrar en el controlador los
    veintidós archivos marcados "left out"** (21 de la depuración, uno de las
    correcciones de oficina) **y la carpeta `Program/Styles/optiones`** — un
@@ -132,13 +136,15 @@ programa en una celda productiva:
 4. Correr un ciclo productivo con override reducido en T1, luego en
    automático, y las pruebas en celda de las correcciones de oficina
    (sección 3.3 del PDF).
-5. **WorkVisual.** El proyecto que viene dentro del respaldo
-   (`C/KRC/User/ProjectRoot/...wvs`) todavía trae los archivos *viejos*,
-   incluido `$config.dat` y los módulos borrados. Al activar el proyecto se
-   copian de vuelta al controlador si su checksum difiere. Antes de que
-   alguien vuelva a hacer deploy desde WorkVisual, cargar el proyecto desde
-   el controlador (o actualizarlo con estos archivos) y guardarlo; si no, el
-   deploy restaura el programa viejo sin avisar.
+5. **WorkVisual.** Los proyectos que vienen dentro del respaldo
+   (`C/KRC/User/ProjectRoot/...wvs`, también el nuevo `BMW-03-10R1_v8`)
+   traen los archivos *viejos*, incluido `$config.dat` y los módulos
+   borrados; el 2026-10-05 un deploy así regresó el programa original al
+   robot. Al activar el proyecto se copian de vuelta al controlador si su
+   checksum difiere. Antes de que alguien vuelva a hacer deploy desde
+   WorkVisual, cargar el proyecto desde el controlador (o actualizarlo con
+   estos archivos) y guardarlo; si no, el deploy restaura el programa viejo
+   sin avisar.
 
 No abrir ni confirmar inline forms viejos al editar comentarios en el
 smartPAD (Cmd OK / Touch Up): varios traen parámetros ocultos que no

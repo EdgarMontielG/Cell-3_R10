@@ -1,0 +1,21 @@
+--- fb8a4c8:C/KRC/Roboter/Rdc/RdcDirectoryContents.txt
++++ backup:C/KRC/Roboter/Rdc/RdcDirectoryContents.txt
+@@ -7,15 +7,15 @@
+ InitialOperation.xml                 10 bytes in      1 sectors
+ CIPSPARA.VAL                          8 bytes in      1 sectors
+ MaintenanceLog.xml                2.839 bytes in     23 sectors
+-RobotData.xml                       178 bytes in      2 sectors
+ SAFEOP.VAL                            8 bytes in      1 sectors
+ 658424.cal                        4.256 bytes in     34 sectors
+ SAFEDEV.VAL                           8 bytes in      1 sectors
+ KLIConfig.xml                     2.515 bytes in     20 sectors
++RobotData.xml                       177 bytes in      2 sectors
+ _______________________________________________________________
+ Total       11 file(s)           11.648 bytes in     91 sectors
+-Free        29 file(s)          926.592 bytes in  7.239 sectors
++Free        27 file(s)          923.776 bytes in  7.217 sectors
+ _______________________________________________________________
+-Garbage     23 file(s)           27.392 bytes in    214 sectors
++Garbage     25 file(s)           30.208 bytes in    236 sectors
+ Reserved     1 file(s)           17.408 bytes in    136 sectors
+ 

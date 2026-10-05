@@ -1,0 +1,10 @@
+--- fb8a4c8:Registry/LMSOFTWAREKUKA ROBOTER GMBHKUKA BOFOCX Control'sFileHandler.amr
++++ backup:Registry/LMSOFTWAREKUKA ROBOTER GMBHKUKA BOFOCX Control'sFileHandler.amr
+@@ -1,6 +1,6 @@
+ [\LocalMachine\SOFTWARE\KUKA ROBOTER GMBH\KUKA BOF\OCX Control's\FileHandler]
+ "SpecialDrives"=
+-"StartUpPath"="KRC:\R1\"
++"StartUpPath"="KRC:\R1\Program\Styles\optiones\"
+ 
+ 
+ [\LocalMachine\SOFTWARE\KUKA ROBOTER GMBH\KUKA BOF\OCX Control's\FileHandler\Display]

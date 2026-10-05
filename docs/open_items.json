@@ -18,6 +18,14 @@
    "reabiertos": 0,
    "cambios": "62 archivos cambiados, 7 agregados (GUN_OPEN_CHECK, proyecto WorkVisual BMW-03-10R1_v8), 39 KRL con cambios de código (-230/+1323 líneas) contra el estado auditado (b5a8803)",
    "notas": "La versión de oficina NO se cargó: 29 archivos son el original byte por byte, 16 se editaron encima del original y siguen en el controlador los 22 archivos borrados por la depuración. El programador trabajó sobre el original: quitó los GOTO (G11), reinició los timers del gun (F07), agregó GUN_OPEN_CHECK e interrupts de vigilancia del gun (F01 parcial), flujo de agua real (F09), evaluación por option en sensor y cámara (F02, F19 parcial), cambió el nombre del robot (G01) y activó AutomationCore_BKG editando el proveedor (F12, nuevo F49). Nuevo F48: interlock de drop-off movido después de la aproximación. Sin Excel del programador: ningún punto se marcó como corregido. Siguiente paso: integrar sus cambios en la versión depurada y cargar esa. Reporte en audits/2026-10-05_09-43-37."
+  },
+  {
+   "fecha": "2026-10-05",
+   "respaldo": "658424_R10_2026-10-05_0809.zip (versión integrada, armada sobre bmw_03_10_r1.zip)",
+   "cerrados": 0,
+   "reabiertos": 0,
+   "cambios": "Contra la depuración fb8a4c8: 26 KRL con cambios de código, 2 módulos nuevos (GUN_OPEN_CHECK.src/.dat), 22 archivos fuera; contra el repositorio: idéntico (308 entradas). audit_backup: 0 FAIL, 0 WARN.",
+   "notas": "Integración de los cambios del programador del 2026-10-05 en la versión depurada: GUN_OPEN_CHECK e interrupts del gun (F01 parcial), agua real (F09 parcial), evaluación por option en sensor y cámara (F02 parcial, F19 parcial), AutomationCore_BKG activo con ediciones del proveedor (F12/F49 pendientes de decisión), nombre BMW_03_10_R1 y mapeo TBEN conservados. F48 excluido: el zip regresa el interlock de drop-off y AtDrop3 al original. Ningún punto se cierra: todos piden prueba en celda con evidencia y respaldo. Reporte en audits/2026-10-05_integracion."
   }
  ],
  "items": [
@@ -63,6 +71,11 @@
      "fecha": "2026-10-05",
      "resultado": "Auditoría - avance parcial",
      "nota": "El nombre del robot ya es BMW_03_10_R1 (am.ini y RobotData.xml). Falta el formato confirmado por Gestamp por escrito (criterio 1); si difiere, se cambia otra vez."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Integrado",
+     "nota": "El nombre BMW_03_10_R1 se conserva en la versión integrada. Falta el formato confirmado por Gestamp."
     }
    ]
   },
@@ -186,6 +199,11 @@
      "fecha": "2026-10-05",
      "resultado": "Auditoría - no cargado",
      "nota": "Respaldo bmw_03_10_r1 (2026-10-05): la versión de oficina no está cargada; el robot tiene el programa original (29 archivos idénticos al respaldo de partida, 16 editados encima del original). Sin prueba posible."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Integrado - por probar",
+     "nota": "Sigue en la versión integrada (658424_R10_2026-10-05_0809.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto."
     }
    ]
   },
@@ -508,6 +526,11 @@
      "fecha": "2026-10-05",
      "resultado": "Auditoría - avance en el original",
      "nota": "El programador quitó los GOTO por su cuenta en el programa original (apps, CENTERLINE_WELD, picks, nut check, cámara, Style1Opt1). La lógica es equivalente a la versión de oficina; hay que integrarla en la versión depurada, no cargar la suya."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Integrado - por probar",
+     "nota": "Sigue en la versión integrada (658424_R10_2026-10-05_0809.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto."
     }
    ]
   },
@@ -558,6 +581,11 @@
      "fecha": "2026-10-05",
      "resultado": "Auditoría - no cargado",
      "nota": "Respaldo bmw_03_10_r1 (2026-10-05): la versión de oficina no está cargada; el robot tiene el programa original (29 archivos idénticos al respaldo de partida, 16 editados encima del original). Sin prueba posible."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Integrado - por probar",
+     "nota": "Sigue en la versión integrada (658424_R10_2026-10-05_0809.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto."
     }
    ]
   },
@@ -608,6 +636,11 @@
      "fecha": "2026-10-05",
      "resultado": "Auditoría - no cargado",
      "nota": "Respaldo bmw_03_10_r1 (2026-10-05): la versión de oficina no está cargada; el robot tiene el programa original (29 archivos idénticos al respaldo de partida, 16 editados encima del original). Sin prueba posible."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Integrado - por probar",
+     "nota": "Sigue en la versión integrada (658424_R10_2026-10-05_0809.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto."
     }
    ]
   },
@@ -651,6 +684,11 @@
      "fecha": "2026-10-05",
      "resultado": "Auditoría - no cargado",
      "nota": "Respaldo bmw_03_10_r1 (2026-10-05): la versión de oficina no está cargada; el robot tiene el programa original (29 archivos idénticos al respaldo de partida, 16 editados encima del original). Sin prueba posible."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Integrado - por probar",
+     "nota": "Sigue en la versión integrada (658424_R10_2026-10-05_0809.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto."
     }
    ]
   },
@@ -707,6 +745,11 @@
      "fecha": "2026-10-05",
      "resultado": "Auditoría - no cargado",
      "nota": "Respaldo bmw_03_10_r1 (2026-10-05): la versión de oficina no está cargada; el robot tiene el programa original (29 archivos idénticos al respaldo de partida, 16 editados encima del original). Sin prueba posible."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Integrado - por probar",
+     "nota": "Sigue en la versión integrada (658424_R10_2026-10-05_0809.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto."
     }
    ]
   },
@@ -754,6 +797,11 @@
      "fecha": "2026-10-05",
      "resultado": "Auditoría - no cargado",
      "nota": "Respaldo bmw_03_10_r1 (2026-10-05): la versión de oficina no está cargada; el robot tiene el programa original (29 archivos idénticos al respaldo de partida, 16 editados encima del original). Sin prueba posible."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Integrado - por probar",
+     "nota": "Sigue en la versión integrada (658424_R10_2026-10-05_0809.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto."
     }
    ]
   },
@@ -800,6 +848,11 @@
      "fecha": "2026-10-05",
      "resultado": "Auditoría - no cargado",
      "nota": "Respaldo bmw_03_10_r1 (2026-10-05): la versión de oficina no está cargada; el robot tiene el programa original (29 archivos idénticos al respaldo de partida, 16 editados encima del original). Sin prueba posible."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Integrado - por probar",
+     "nota": "Sigue en la versión integrada (658424_R10_2026-10-05_0809.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto."
     }
    ]
   },
@@ -932,6 +985,11 @@
      "fecha": "2026-10-05",
      "resultado": "Auditoría - no cargado",
      "nota": "Respaldo bmw_03_10_r1 (2026-10-05): la versión de oficina no está cargada; el robot tiene el programa original (29 archivos idénticos al respaldo de partida, 16 editados encima del original). Sin prueba posible."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Integrado - por probar",
+     "nota": "Sigue en la versión integrada (658424_R10_2026-10-05_0809.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto."
     }
    ]
   },
@@ -1053,7 +1111,7 @@
    "evidencia_programador": "Módulos cambiados; timeout elegido (ms) y texto del mensaje; por cada condición probada: cómo se provocó, fecha, override, punto donde se detuvo el robot y mensaje mostrado.",
    "depende_de": [],
    "estado": "Abierto",
-   "nota": "No quitar las esperas de $IN[466] y $IN[482] dentro de CENTERLINE_WELD. Si F04 condiciona la espera de NUT_READY a no-dry, no la mueve después del LIN de aproximación. No protege contra un segundo preload encolado (F11). Si F23 cambia la composición del LPT, el límite de gun abierto se revisa con ella.",
+   "nota": "No quitar las esperas de $IN[466] y $IN[482] dentro de CENTERLINE_WELD. Si F04 condiciona la espera de NUT_READY a no-dry, no la mueve después del LIN de aproximación. No protege contra un segundo preload encolado (F11). Si F23 cambia la composición del LPT, el límite de gun abierto se revisa con ella. Avance 2026-10-05: el gun abierto se confirma antes de entrar (GUN_OPEN_CHECK) y se vigila con interrupts 20-22 mientras el robot entra y sale; el aire ($IN[3132]) está desactivado hasta probar el presostato.",
    "fecha_alta": "2026-10-04",
    "nota_programador": "",
    "modulos_modificados": "",
@@ -1069,6 +1127,11 @@
      "fecha": "2026-10-05",
      "resultado": "Auditoría - avance parcial",
      "nota": "Nuevo GUN_OPEN_CHECK antes de entrar y al terminar la soldadura (gun en 137000-142000, submit corriendo, agua; aire desactivado hasta probar $IN[3132]) e interrupts 20-22 con BRAKE F mientras el robot entra y sale. Falta: clamp abierto ($IN[466]) y QFP regresado ($IN[482]) antes de entrar, y la prueba en celda. Los límites 137000/142000 están dos veces (interrupts y GUN_OPEN_CHECK.dat): unificar con las constantes de G16."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Integrado - avance parcial",
+     "nota": "GUN_OPEN_CHECK e interrupts 20-22 del programador integrados en la versión depurada (rango 137000-142000 en GUN_OPEN_CHECK.dat; CL_GUN_OPEN_MIN eliminado). Falta clamp abierto $IN[466] y QFP regresado $IN[482] antes de entrar, y la prueba en celda."
     }
    ]
   },
@@ -1114,6 +1177,11 @@
      "fecha": "2026-10-05",
      "resultado": "Auditoría - corregido sin marcar",
      "nota": "Sensor y cámara evalúan nOption 1, 2, 7 y 8; la cámara sin resultado válido da scrap. Falta la prueba en celda (una tuerca faltante con option 2) y la confirmación del PLC de qué options manda."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Integrado - avance parcial",
+     "nota": "Sensor y cámara deciden para options 1, 2, 7 y 8; la cámara sin resultado válido da scrap. Faltan: respuesta escrita del PLC con las options de producción, bscrapGE4 = TRUE antes de leer, falla con mensaje para una option desconocida y la prueba en celda."
     }
    ]
   },
@@ -1419,6 +1487,11 @@
      "fecha": "2026-10-05",
      "resultado": "Auditoría - corregido sin marcar",
      "nota": "sps.sub calcula dipw1_WaterOk del sensor Parker (flujo en 0.1 l/min, mínimo 150 con histéresis 10) y $OUT[475] sigue a $IN[13] di013WaterEnable. GUN_OPEN_CHECK espera agua antes de entrar. Falta: confirmar el mínimo (el comentario cita una medición del 20R1) y la prueba en celda sin agua."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Integrado - avance parcial",
+     "nota": "El agua se calcula del SV0500 (mínimo 150 = 15 l/min, histéresis 10) y GUN_OPEN_CHECK la exige antes de entrar y al salir; $OUT[475] sigue a $IN[13]. Faltan: espera de agua y transformador antes del weld start en CENTERLINE_WELD, límite confirmado por escrito y la prueba en celda."
     }
    ]
   },
@@ -1559,6 +1632,11 @@
      "fecha": "2026-10-05",
      "resultado": "Auditoría - cambio sin decisión",
      "nota": "El programador activó AutomationCore_BKG en sps.sub y editó la rutina del proveedor (sin soldadores 2-3, Request to Enter sin WAIT). La decisión de Gestamp no está registrada. Ver F49."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Integrado - pendiente decisión",
+     "nota": "AutomationCore_BKG queda activo en la versión integrada, como lo dejó el programador. Falta la decisión de Gestamp (F49)."
     }
    ]
   },
@@ -1892,6 +1970,11 @@
      "fecha": "2026-10-05",
      "resultado": "Auditoría - avance parcial",
      "nota": "Con option 12 el sensor y la cámara ya ponen $OUT[141]/$OUT[142]. No es un veredicto exclusivo (los dos chequeos pueden poner Failed y Passed a la vez) y el drop red rabbit los sigue borrando antes del fin de ciclo."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Integrado - avance parcial",
+     "nota": "Option 12 ya pone $OUT[141]/$OUT[142] en sensor y cámara. Falta el veredicto único y que el drop no lo borre antes de que el PLC lo lea."
     }
    ]
   },
@@ -2104,6 +2187,11 @@
      "fecha": "2026-10-05",
      "resultado": "Auditoría - no cargado",
      "nota": "Respaldo bmw_03_10_r1 (2026-10-05): la versión de oficina no está cargada; el robot tiene el programa original (29 archivos idénticos al respaldo de partida, 16 editados encima del original). Sin prueba posible."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Integrado - por probar",
+     "nota": "Sigue en la versión integrada (658424_R10_2026-10-05_0809.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto."
     }
    ]
   },
@@ -2262,6 +2350,11 @@
      "fecha": "2026-10-05",
      "resultado": "Auditoría - no cargado",
      "nota": "Respaldo bmw_03_10_r1 (2026-10-05): la versión de oficina no está cargada; el robot tiene el programa original (29 archivos idénticos al respaldo de partida, 16 editados encima del original). Sin prueba posible."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Integrado - por probar",
+     "nota": "Sigue en la versión integrada (658424_R10_2026-10-05_0809.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto."
     }
    ]
   },
@@ -2338,6 +2431,11 @@
      "fecha": "2026-10-05",
      "resultado": "Auditoría - no cargado",
      "nota": "Respaldo bmw_03_10_r1 (2026-10-05): la versión de oficina no está cargada; el robot tiene el programa original (29 archivos idénticos al respaldo de partida, 16 editados encima del original). Sin prueba posible."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Integrado - por probar",
+     "nota": "Sigue en la versión integrada (658424_R10_2026-10-05_0809.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto."
     }
    ]
   },
@@ -2431,6 +2529,11 @@
      "fecha": "2026-10-05",
      "resultado": "Auditoría - no cargado",
      "nota": "Respaldo bmw_03_10_r1 (2026-10-05): la versión de oficina no está cargada; el robot tiene el programa original (29 archivos idénticos al respaldo de partida, 16 editados encima del original). Sin prueba posible."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Integrado - por probar",
+     "nota": "Sigue en la versión integrada (658424_R10_2026-10-05_0809.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto."
     }
    ]
   },
@@ -2590,6 +2693,11 @@
      "fecha": "2026-10-05",
      "resultado": "Auditoría - no cargado",
      "nota": "Respaldo bmw_03_10_r1 (2026-10-05): la versión de oficina no está cargada; el robot tiene el programa original (29 archivos idénticos al respaldo de partida, 16 editados encima del original). Sin prueba posible."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Integrado - por probar",
+     "nota": "Sigue en la versión integrada (658424_R10_2026-10-05_0809.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto."
     }
    ]
   },
@@ -2883,6 +2991,11 @@
      "fecha": "2026-10-05",
      "resultado": "Auditoría - riesgo nuevo",
      "nota": "Con AutomationCore_BKG activo, do111Gun1ElectrodeChange sigue a dipw1_EndofStepper: cell.src ya llama GunElectrodeChange cuando el stepper llega al final. El camino que F43 describe como nunca ejecutado ahora corre: probarlo antes de producción."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Integrado - riesgo",
+     "nota": "En la versión integrada GunElectrodeChange se ejecuta al final del stepper. Probar antes de producción."
     }
    ]
   },
@@ -3050,7 +3163,7 @@
     "KRC/R1/Program/StyleDrops/Options/style1drop1opt1.dat"
    ],
    "que_esta_mal": "AC_DropOffCheck(1) (espera $IN[75] di075DropOffMachine1) estaba antes de cualquier movimiento; ahora va después de PTP P5 y PTP P1: el robot se acerca al conveyor sin permiso del PLC. AtDrop3 se re-enseñó con 26° más en B y 34° en C, sin explicación.",
-   "que_hacer": "Regresar AC_DropOffCheck(1) antes del primer movimiento, o demostrar con el layout que P5 y P1 están fuera de la zona del conveyor y documentarlo. Explicar el cambio de AtDrop3.",
+   "que_hacer": "Hecho en oficina (excluido de la integración por decisión de Edgar): la versión integrada regresa AC_DropOffCheck(1) antes del primer movimiento y AtDrop3 al punto original. Si el programador re-enseñó AtDrop3 por un problema real, que lo explique y lo vuelva a enseñar sobre la versión integrada.",
    "criterio_cierre": [
     "AC_DropOffCheck(1) antes del primer movimiento hacia el conveyor, o P5/P1 confirmados fuera de la zona por Gestamp por escrito.",
     "Razón del re-enseñado de AtDrop3 anotada; prueba en celda: 5 ciclos dejando la pieza en el conveyor sin contacto ni marca.",
@@ -3058,13 +3171,18 @@
    ],
    "evidencia_programador": "Razón del cambio, croquis o foto de la zona, resultado de los 5 ciclos y fecha.",
    "depende_de": [],
-   "estado": "Abierto",
+   "estado": "Corregido en oficina - probar en celda",
    "nota": "",
    "historial": [
     {
      "fecha": "2026-10-05",
      "resultado": "Alta (auditoría)",
      "nota": "Encontrado en el respaldo bmw_03_10_r1."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Corregido en oficina",
+     "nota": "Excluido de la integración por decisión de Edgar: el zip integrado regresa el interlock de drop-off antes del primer movimiento y AtDrop3 al punto original. Probar 5 ciclos de drop al conveyor."
     }
    ],
    "nota_programador": "",
@@ -3105,6 +3223,11 @@
      "fecha": "2026-10-05",
      "resultado": "Alta (auditoría)",
      "nota": "Encontrado en el respaldo bmw_03_10_r1."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Integrado - pendiente decisión",
+     "nota": "Activación y ediciones del proveedor integradas tal como estaban en el robot; comentarios ;CHECK: en sps.sub, cell.src y gunelectrodechange. Falta decisión de Gestamp y prueba con el PLC y del cambio de electrodo."
     }
    ],
    "nota_programador": "",
@@ -4380,6 +4503,11 @@
      "fecha": "2026-10-05",
      "resultado": "Auditoría - ediciones nuevas",
      "nota": "Ediciones nuevas en archivos del proveedor: automationcoreroutines.src (AutomationCore_Bkg, AC_Request_to_enter), automationcoreroutines.dat (bACEntryGranted), nutweldroutines.dat (nMaxGunNr=1, dipw1_AirOK en $IN[3132]). Listarlas en la entrega."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Integrado - ediciones listadas",
+     "nota": "Ediciones del proveedor integradas y declaradas en tools/code_changes.json: automationcoreroutines.src/.dat, nutweldroutines.dat."
     }
    ]
   }

@@ -14,13 +14,18 @@ nombre: el respaldo del robot `658424_R10_AAAA-MM-DD_HHMM.zip`, el Excel
 ## Día 0 — punto de partida
 
 1. Cargar en el robot la versión de oficina: el zip que genera
-   `tools/build_archive.py` (depuración más las correcciones de la revisión
-   de Gestamp), o los archivos modificados (modo experto, navegador, USB).
+   `tools/build_archive.py` sobre el último respaldo auditado (depuración,
+   correcciones de la revisión de Gestamp y cambios del programador ya
+   integrados), o los archivos modificados (modo experto, navegador, USB).
+   No hacer deploy desde WorkVisual: los proyectos guardados traen el
+   programa viejo (así se perdió la depuración el 2026-10-05).
 2. Borrar en el controlador los 22 archivos de módulos eliminados: 21 de la
    depuración (`tools/cleanup_allowlist.json`) y 1 de las correcciones
    (`centerline_loop.src`, `tools/code_changes.json`), y la carpeta vieja
    `Program/Styles/optiones` (sus dos archivos ahora están en
-   `Program/Styles/Options`). Un restore no borra archivos.
+   `Program/Styles/Options`). Un restore no borra archivos. Las copias
+   AutoRR pueden aparecer en minúsculas (`style1app2opt1autorr.src`): son
+   las mismas.
 3. Actualizar el proyecto WorkVisual desde el controlador y guardarlo antes
    de cualquier deploy; si no, el deploy regresa el programa viejo.
 4. Un ciclo en T1 con override reducido y uno en automático; después, las
@@ -31,6 +36,10 @@ nombre: el respaldo del robot `658424_R10_AAAA-MM-DD_HHMM.zip`, el Excel
 5. Respaldo completo (Archive → All). La primera auditoría lo compara contra
    el estado del repositorio; tiene que salir sin cambios de código
    (salvo lo que el programador haya corregido y anotado).
+
+El programador trabaja siempre sobre la versión cargada del zip, nunca sobre
+un proyecto WorkVisual viejo ni sobre una copia anterior: cada cambio hecho
+sobre el original hay que integrarlo a mano.
 
 ## Cada día
 
