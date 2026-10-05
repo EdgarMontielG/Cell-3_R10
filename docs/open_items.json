@@ -26,6 +26,14 @@
    "reabiertos": 0,
    "cambios": "Contra la depuración fb8a4c8: 26 KRL con cambios de código, 2 módulos nuevos (GUN_OPEN_CHECK.src/.dat), 22 archivos fuera; contra el repositorio: idéntico (308 entradas). audit_backup: 0 FAIL, 0 WARN.",
    "notas": "Integración de los cambios del programador del 2026-10-05 en la versión depurada: GUN_OPEN_CHECK e interrupts del gun (F01 parcial), agua real (F09 parcial), evaluación por option en sensor y cámara (F02 parcial, F19 parcial), AutomationCore_BKG activo con ediciones del proveedor (F12/F49 pendientes de decisión), nombre BMW_03_10_R1 y mapeo TBEN conservados. F48: el zip regresa el interlock de drop-off antes del primer movimiento y conserva el AtDrop3 del programador (la pieza cae mejor en el conveyor; validado por Edgar con el programador). Ningún punto se cierra: todos piden prueba en celda con evidencia y respaldo. Reporte en audits/2026-10-05_integracion. El zip 658424_R10_2026-10-05_0809 (con AtDrop3 original) queda reemplazado por el 0819; no cargar el 0809."
+  },
+  {
+   "fecha": "2026-10-05",
+   "respaldo": "bmw_03_10_r1.zip (am.ini 2026-10-05 14:46)",
+   "cerrados": 0,
+   "reabiertos": 0,
+   "cambios": "Contra el estado auditado: 19 archivos originales, 17 editados encima del original, 22 borrados aún en el controlador; contra el respaldo de las 09:43: apps de soldadura partidas en A (estación 1, igual) y B (estación 2, puntos de soldadura retocados 1-5 mm), punto de cámara P3 re-enseñado (83 mm, ~16°), AC_ApplicationCheck(1) después de P22, PTP P1 quitado del drop.",
+   "notas": "La versión integrada (zip 0819) no se cargó. Revisión independiente (2 agentes) de GUN_OPEN_CHECK/interrupts y del background de AutomationCore: integración fiel; huecos de vigilancia del gun (F01); con el background activo el Request to Enter deja de detener el robot si $OUT[930] quedó en ON (F35 sube a Alto), el background pisa las habilitaciones del Bosch, el cambio de electrodo corre sin probar (F43, F49). Nuevo F50. Sin Excel del programador. Reporte en audits/2026-10-05_14-46-44."
   }
  ],
  "items": [
@@ -1132,6 +1140,11 @@
      "fecha": "2026-10-05",
      "resultado": "Integrado - avance parcial",
      "nota": "GUN_OPEN_CHECK e interrupts 20-22 del programador integrados en la versión depurada (rango 137000-142000 en GUN_OPEN_CHECK.dat; CL_GUN_OPEN_MIN eliminado). Falta clamp abierto $IN[466] y QFP regresado $IN[482] antes de entrar, y la prueba en celda."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Revisión independiente",
+     "nota": "GUN_OPEN_CHECK e interrupts 20-22: KRL válido e integración fiel. Huecos: los interrupts solo disparan en el cambio FALSE→TRUE; al salir se reactivan después de las esperas de clamp/QFP y de la presión de reposo, y al entrar el submit solo se revisa al inicio de GUN_OPEN_CHECK. Corrección: INTERRUPT ON 20-22 antes de cada GUN_OPEN_CHECK. Además: tras reconocer GUN_OPEN_LOST el robot puede quedar parado sin mensaje; la vigilancia se apaga un punto antes de salir; una selección de paso salta el interlock."
     }
    ]
   },
@@ -1492,6 +1505,11 @@
      "fecha": "2026-10-05",
      "resultado": "Integrado - avance parcial",
      "nota": "El agua se calcula del SV0500 (mínimo 150 = 15 l/min, histéresis 10) y GUN_OPEN_CHECK la exige antes de entrar y al salir; $OUT[475] sigue a $IN[13]. Faltan: espera de agua y transformador antes del weld start en CENTERLINE_WELD, límite confirmado por escrito y la prueba en celda."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Evidencia parcial",
+     "nota": "Respaldo 14:46: nWaterFlow = 233 (23.3 l/min) con agua normal en este robot, arriba del mínimo de 15 l/min. Falta la prueba con agua cerrada y la espera antes del weld start."
     }
    ]
   },
@@ -2615,7 +2633,7 @@
    "id": "F35",
    "origen": "Revisión Ethos (2026-10-04)",
    "titulo": "El mastering reference deja $OUT[930] en ON para siempre",
-   "severidad": "Medio",
+   "severidad": "Alto",
    "tipo": "Código + prueba en celda",
    "responsable": "Programador robot",
    "modulos": [
@@ -2646,6 +2664,11 @@
      "fecha": "2026-10-04",
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Severidad subida a Alto",
+     "nota": "Con AutomationCore_BKG activo (F49), $OUT[930] pegado en ON impide conceder el Request to Enter: $OUT[145] doCriticalWZ queda en TRUE y AC_PointArrival ya no detiene el robot cuando el operador pide entrar. Corregir F35 antes de producción."
     }
    ]
   },
@@ -2996,6 +3019,11 @@
      "fecha": "2026-10-05",
      "resultado": "Integrado - riesgo",
      "nota": "En la versión integrada GunElectrodeChange se ejecuta al final del stepper. Probar antes de producción."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Riesgo activo",
+     "nota": "Con el background activo, el cambio de electrodo corre al final del stepper y espera $IN[92] del PLC en un diálogo; nunca se ha probado. Además $OUT[111] comparte bit del adaptador con $OUT[930] (F18)."
     }
    ]
   },
@@ -3188,6 +3216,11 @@
      "fecha": "2026-10-05",
      "resultado": "Decisión",
      "nota": "Edgar: se conserva el AtDrop3 del programador (la pieza cae mejor en el conveyor; validado con él). Solo el interlock de drop-off regresa a su lugar original."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Respaldo 14:46",
+     "nota": "El programador además quitó PTP P1: un LIN de 330 mm de P5 a AtDrop3 bajando 166 mm a unos 30°, con el permiso de drop-off en P5. En la versión integrada el robot espera el permiso en el punto de cámara P3 con la aplicación 1 ya liberada: mover AC_Application(1,TRUE) a después de salir de la cámara."
     }
    ],
    "nota_programador": "",
@@ -3233,6 +3266,11 @@
      "fecha": "2026-10-05",
      "resultado": "Integrado - pendiente decisión",
      "nota": "Activación y ediciones del proveedor integradas tal como estaban en el robot; comentarios ;CHECK: en sps.sub, cell.src y gunelectrodechange. Falta decisión de Gestamp y prueba con el PLC y del cambio de electrodo."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Revisión independiente - riesgos confirmados",
+     "nota": "(1) Request to Enter: con $OUT[930] pegado (F35) el robot ya no se detiene al pedir entrar. (2) El background escribe $OUT[481]/$OUT[482] (habilitaciones del Bosch) cada ciclo y pisa las de CENTERLINE_WELD; en dry cycle puede colgar WAIT FOR dipw1_Ready. (3) Cambio de electrodo activo sin probar (F43). (4) AC_MODE sin inicializar en el CWRITE del auto select. (5) do004ProcessFault en cada reset. (6) bACEntryGranted persistente. Corre así en el robot desde el 2026-10-05."
     }
    ],
    "nota_programador": "",
@@ -3241,6 +3279,39 @@
    "fecha_programador": "",
    "fecha_alta": "2026-10-05",
    "origen": "Auditoría Ethos del respaldo bmw_03_10_r1 (2026-10-05)"
+  },
+  {
+   "id": "F50",
+   "titulo": "Permiso de aplicación 1 (nut check / cámara) revisado después de llegar a P22",
+   "severidad": "Alto",
+   "tipo": "Código + prueba en celda",
+   "responsable": "Programador robot",
+   "modulos": [
+    "KRC/R1/Program/StyleApps/Options/style1app2opt1.src"
+   ],
+   "que_esta_mal": "En el respaldo de las 14:46 el programador movió AC_ApplicationCheck(1) (espera $IN[70]) a después de PTP P22. P22 es el punto de aproximación de la estación de inspección (unos 170 mm del punto de cámara P6 y 480 mm abajo de los puntos del nut check): el robot entra sin permiso del PLC mientras $OUT[70]/$OUT[24] siguen diciendo que está libre.",
+   "que_hacer": "Dejar AC_ApplicationCheck(1) antes del primer movimiento, como en la versión integrada. Si se movió por tiempo de ciclo, ver con el PLC si se puede pedir el permiso antes (al salir del pedestal).",
+   "criterio_cierre": [
+    "AC_ApplicationCheck(1) antes de PTP P22 en el respaldo.",
+    "Prueba en celda: con $IN[70] OFF el robot espera antes de moverse a P22 (mensaje de espera); con $IN[70] ON el ciclo sigue normal. Anotar fecha y resultado."
+   ],
+   "evidencia_programador": "Resultado de la prueba con fecha; razón del cambio si la hubo.",
+   "depende_de": [],
+   "estado": "Abierto",
+   "nota": "",
+   "fecha_alta": "2026-10-05",
+   "origen": "Auditoría Ethos del respaldo bmw_03_10_r1 (2026-10-05 14:46)",
+   "nota_programador": "",
+   "modulos_modificados": "",
+   "evidencia": "",
+   "fecha_programador": "",
+   "historial": [
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Alta (auditoría)",
+     "nota": "Encontrado en el respaldo de las 14:46; confirmado por revisión independiente."
+    }
+   ]
   },
   {
    "id": "C01",

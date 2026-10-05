@@ -2,7 +2,7 @@
 
 *Archivo generado por `tools/make_items_md.py` a partir de `docs/open_items.json` — no se edita a mano.*
 
-Actualizado: 2026-10-05. Pendientes: **85** de 99. El detalle técnico de cada punto (en inglés, para Gestamp) está en [FINDINGS.md](FINDINGS.md); el proceso en [PROCESO.es.md](PROCESO.es.md).
+Actualizado: 2026-10-05. Pendientes: **86** de 100. El detalle técnico de cada punto (en inglés, para Gestamp) está en [FINDINGS.md](FINDINGS.md); el proceso en [PROCESO.es.md](PROCESO.es.md).
 
 **Puntos de Gestamp (G01–G22)**: revisión de Gestamp del 2026-10-02 (BMW-03-10R1), con su texto original. 9 están corregidos en la versión de oficina y falta probarlos en celda (estado *Corregido en oficina - probar en celda*). Los Fnn/Cnn son de la revisión de Ethos (numeración del R20); los marcados "Calvin #n" también están en la lista de Calvin (2026-10-03), verificada punto por punto. Esta lista es la única que se usa.
 
@@ -71,7 +71,7 @@ Actualizado: 2026-10-05. Pendientes: **85** de 99. El detalle técnico de cada p
 | F32 | TRIGGERs y resets escritos a mano dentro de folds de inline form (Calvin #28) | Medio | Programador robot (prueba en celda) | **Corregido en oficina - probar en celda** |
 | F33 | GripperConfig.xml del HMI desincronizado con grp_data.dat | Medio | Programador robot | **Abierto** |
 | F34 | CENTERLINE_HOME: polaridad de $OUT[473] y falta el reset del Bosch | Bajo | Programador robot / Puesta en marcha | **Requiere decisión** |
-| F35 | El mastering reference deja $OUT[930] en ON para siempre | Medio | Programador robot | **Abierto** |
+| F35 | El mastering reference deja $OUT[930] en ON para siempre | Alto | Programador robot | **Abierto** |
 | F36 | $IN[227] declarado con dos nombres (NUT_PRESENT1, di227SensorCamera) | Bajo | Programador robot (prueba en celda) | **Corregido en oficina - probar en celda** |
 | F37 | ~~Presión de intensificado no confirmada antes de weld start: no aplica en R10~~ (Calvin #1) | - | Programador robot | No aplica |
 | F38 | Estado de la tuerca no se reinicializa al arrancar, en reset ni después de un reinicio (Calvin #11) | Alto | Programador robot | **Abierto** |
@@ -86,6 +86,7 @@ Actualizado: 2026-10-05. Pendientes: **85** de 99. El detalle técnico de cada p
 | F47 | Camino del brake test enseñado con tool 3 / base 1 de otro robot | Medio | Programador robot / Puesta en marcha | **Abierto** |
 | F48 | Drop al conveyor: interlock de drop-off movido después de la aproximación (corregido); AtDrop3 re-enseñado (se conserva) | Alto | Programador robot / Gestamp controles | **Corregido en oficina - probar en celda** |
 | F49 | AutomationCore_BKG activado y editado sin decisión registrada | Alto | Gestamp controles + Programador robot | **Requiere decisión** |
+| F50 | Permiso de aplicación 1 (nut check / cámara) revisado después de llegar a P22 | Alto | Programador robot | **Abierto** |
 | C01 | ~~AutomationCore_Bkg deshabilitado: el estatus al PLC no se actualiza~~ | - | Gestamp controles / Ethos (Edgar) | Se cierra con otro punto |
 | C02 | Designación BMW-03-10-R1 en los encabezados; confirmar formato con Gestamp | - | Ethos (Edgar) / Gestamp controles | **Requiere decisión** |
 | C03 | ~~Encabezado estándar Gestamp en cada módulo del integrador~~ | - | Programador robot | Cerrado - depuración |
@@ -787,6 +788,7 @@ Actualizado: 2026-10-05. Pendientes: **85** de 99. El detalle técnico de cada p
 * 2026-10-04 — Alta (Ethos): Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02).
 * 2026-10-05 — Auditoría - avance parcial: Nuevo GUN_OPEN_CHECK antes de entrar y al terminar la soldadura (gun en 137000-142000, submit corriendo, agua; aire desactivado hasta probar $IN[3132]) e interrupts 20-22 con BRAKE F mientras el robot entra y sale. Falta: clamp abierto ($IN[466]) y QFP regresado ($IN[482]) antes de entrar, y la prueba en celda. Los límites 137000/142000 están dos veces (interrupts y GUN_OPEN_CHECK.dat): unificar con las constantes de G16.
 * 2026-10-05 — Integrado - avance parcial: GUN_OPEN_CHECK e interrupts 20-22 del programador integrados en la versión depurada (rango 137000-142000 en GUN_OPEN_CHECK.dat; CL_GUN_OPEN_MIN eliminado). Falta clamp abierto $IN[466] y QFP regresado $IN[482] antes de entrar, y la prueba en celda.
+* 2026-10-05 — Revisión independiente: GUN_OPEN_CHECK e interrupts 20-22: KRL válido e integración fiel. Huecos: los interrupts solo disparan en el cambio FALSE→TRUE; al salir se reactivan después de las esperas de clamp/QFP y de la presión de reposo, y al entrar el submit solo se revisa al inicio de GUN_OPEN_CHECK. Corrección: INTERRUPT ON 20-22 antes de cada GUN_OPEN_CHECK. Además: tras reconocer GUN_OPEN_LOST el robot puede quedar parado sin mensaje; la vigilancia se apaga un punto antes de salir; una selección de paso salta el interlock.
 
 ---
 
@@ -1030,6 +1032,7 @@ Actualizado: 2026-10-05. Pendientes: **85** de 99. El detalle técnico de cada p
 * 2026-10-04 — Alta (Ethos): Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02).
 * 2026-10-05 — Auditoría - corregido sin marcar: sps.sub calcula dipw1_WaterOk del sensor Parker (flujo en 0.1 l/min, mínimo 150 con histéresis 10) y $OUT[475] sigue a $IN[13] di013WaterEnable. GUN_OPEN_CHECK espera agua antes de entrar. Falta: confirmar el mínimo (el comentario cita una medición del 20R1) y la prueba en celda sin agua.
 * 2026-10-05 — Integrado - avance parcial: El agua se calcula del SV0500 (mínimo 150 = 15 l/min, histéresis 10) y GUN_OPEN_CHECK la exige antes de entrar y al salir; $OUT[475] sigue a $IN[13]. Faltan: espera de agua y transformador antes del weld start en CENTERLINE_WELD, límite confirmado por escrito y la prueba en celda.
+* 2026-10-05 — Evidencia parcial: Respaldo 14:46: nWaterFlow = 233 (23.3 l/min) con agua normal en este robot, arriba del mínimo de 15 l/min. Falta la prueba con agua cerrada y la espera antes del weld start.
 
 ---
 
@@ -1796,7 +1799,7 @@ Actualizado: 2026-10-05. Pendientes: **85** de 99. El detalle técnico de cada p
 
 ## F35 — El mastering reference deja $OUT[930] en ON para siempre
 
-**Severidad:** Medio · **Tipo:** Código + prueba en celda · **Responsable:** Programador robot · **Estado:** Abierto
+**Severidad:** Alto · **Tipo:** Código + prueba en celda · **Responsable:** Programador robot · **Estado:** Abierto
 
 **Módulos:** `KRC/R1/Program/masref_user.src`, `KRC/R1/System/masref_main.src`
 
@@ -1820,6 +1823,7 @@ Actualizado: 2026-10-05. Pendientes: **85** de 99. El detalle técnico de cada p
 **Historial:**
 
 * 2026-10-04 — Alta (Ethos): Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02).
+* 2026-10-05 — Severidad subida a Alto: Con AutomationCore_BKG activo (F49), $OUT[930] pegado en ON impide conceder el Request to Enter: $OUT[145] doCriticalWZ queda en TRUE y AC_PointArrival ya no detiene el robot cuando el operador pide entrar. Corregir F35 antes de producción.
 
 ---
 
@@ -2062,6 +2066,7 @@ Actualizado: 2026-10-05. Pendientes: **85** de 99. El detalle técnico de cada p
 * 2026-10-04 — Alta (Calvin): Revisión Ethos del respaldo 658424; el punto sale de la lista de Calvin (Calvin #29).
 * 2026-10-05 — Auditoría - riesgo nuevo: Con AutomationCore_BKG activo, do111Gun1ElectrodeChange sigue a dipw1_EndofStepper: cell.src ya llama GunElectrodeChange cuando el stepper llega al final. El camino que F43 describe como nunca ejecutado ahora corre: probarlo antes de producción.
 * 2026-10-05 — Integrado - riesgo: En la versión integrada GunElectrodeChange se ejecuta al final del stepper. Probar antes de producción.
+* 2026-10-05 — Riesgo activo: Con el background activo, el cambio de electrodo corre al final del stepper y espera $IN[92] del PLC en un diálogo; nunca se ha probado. Además $OUT[111] comparte bit del adaptador con $OUT[930] (F18).
 
 ---
 
@@ -2201,6 +2206,7 @@ Actualizado: 2026-10-05. Pendientes: **85** de 99. El detalle técnico de cada p
 * 2026-10-05 — Alta (auditoría): Encontrado en el respaldo bmw_03_10_r1.
 * 2026-10-05 — Corregido en oficina: Excluido de la integración por decisión de Edgar: el zip integrado regresa el interlock de drop-off antes del primer movimiento y AtDrop3 al punto original. Probar 5 ciclos de drop al conveyor.
 * 2026-10-05 — Decisión: Edgar: se conserva el AtDrop3 del programador (la pieza cae mejor en el conveyor; validado con él). Solo el interlock de drop-off regresa a su lugar original.
+* 2026-10-05 — Respaldo 14:46: El programador además quitó PTP P1: un LIN de 330 mm de P5 a AtDrop3 bajando 166 mm a unos 30°, con el permiso de drop-off en P5. En la versión integrada el robot espera el permiso en el punto de cámara P3 con la aplicación 1 ya liberada: mover AC_Application(1,TRUE) a después de salir de la cámara.
 
 ---
 
@@ -2230,6 +2236,30 @@ Actualizado: 2026-10-05. Pendientes: **85** de 99. El detalle técnico de cada p
 
 * 2026-10-05 — Alta (auditoría): Encontrado en el respaldo bmw_03_10_r1.
 * 2026-10-05 — Integrado - pendiente decisión: Activación y ediciones del proveedor integradas tal como estaban en el robot; comentarios ;CHECK: en sps.sub, cell.src y gunelectrodechange. Falta decisión de Gestamp y prueba con el PLC y del cambio de electrodo.
+* 2026-10-05 — Revisión independiente - riesgos confirmados: (1) Request to Enter: con $OUT[930] pegado (F35) el robot ya no se detiene al pedir entrar. (2) El background escribe $OUT[481]/$OUT[482] (habilitaciones del Bosch) cada ciclo y pisa las de CENTERLINE_WELD; en dry cycle puede colgar WAIT FOR dipw1_Ready. (3) Cambio de electrodo activo sin probar (F43). (4) AC_MODE sin inicializar en el CWRITE del auto select. (5) do004ProcessFault en cada reset. (6) bACEntryGranted persistente. Corre así en el robot desde el 2026-10-05.
+
+---
+
+## F50 — Permiso de aplicación 1 (nut check / cámara) revisado después de llegar a P22
+
+**Severidad:** Alto · **Tipo:** Código + prueba en celda · **Responsable:** Programador robot · **Estado:** Abierto
+
+**Módulos:** `KRC/R1/Program/StyleApps/Options/style1app2opt1.src`
+
+**Qué está mal.** En el respaldo de las 14:46 el programador movió AC_ApplicationCheck(1) (espera $IN[70]) a después de PTP P22. P22 es el punto de aproximación de la estación de inspección (unos 170 mm del punto de cámara P6 y 480 mm abajo de los puntos del nut check): el robot entra sin permiso del PLC mientras $OUT[70]/$OUT[24] siguen diciendo que está libre.
+
+**Qué hacer.** Dejar AC_ApplicationCheck(1) antes del primer movimiento, como en la versión integrada. Si se movió por tiempo de ciclo, ver con el PLC si se puede pedir el permiso antes (al salir del pedestal).
+
+**Criterio de cierre** (se verifica en el respaldo):
+
+* AC_ApplicationCheck(1) antes de PTP P22 en el respaldo.
+* Prueba en celda: con $IN[70] OFF el robot espera antes de moverse a P22 (mensaje de espera); con $IN[70] ON el ciclo sigue normal. Anotar fecha y resultado.
+
+**Evidencia del programador.** Resultado de la prueba con fecha; razón del cambio si la hubo.
+
+**Historial:**
+
+* 2026-10-05 — Alta (auditoría): Encontrado en el respaldo de las 14:46; confirmado por revisión independiente.
 
 ---
 

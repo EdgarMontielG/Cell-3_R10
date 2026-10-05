@@ -88,6 +88,7 @@ hangs. *Medium*: robustness or diagnosis. *Low*: hygiene.
 | F47 | Medium | *R10:* brake-test path taught with tool 3 / base 1 named for 03-30-R1 | re-teach |
 | F48 | High | *Audit 2026-10-05:* drop-off interlock moved after the approach to the conveyor (undone in the integrated version); AtDrop3 re-taught (kept) | code |
 | F49 | High | *Audit 2026-10-05:* AutomationCore_BKG switched on and the vendor routine edited, no recorded decision | Gestamp decision |
+| F50 | High | *Audit 2026-10-05 14:46:* application-1 permission (nut check / camera) checked after the robot reaches P22 | code |
 
 Gestamp compliance items are at the end (C01–C28).
 
@@ -113,6 +114,20 @@ electrode, clamp or advanced slide.
 *Fix:* before each approach, wait with timeout and message for gun open
 (LPT > 120000), clamp open (`$IN[466]`) and QFP returned
 (`$IN[482] AND NOT $IN[470]`); make PRELOAD step 20 require `$IN[482]`.
+
+*Programmer's gun interlock (2026-10-05, integrated), independent review:*
+GUN_OPEN_CHECK and interrupts 20-22 are valid KRL and the integration is
+faithful, but interrupts fire only on a FALSE→TRUE change: (1) after the weld
+the gun is confirmed open inside CENTERLINE_WELD and the interrupts come back
+on only after the clamp/QFP waits and the rest pressure — a gun that left the
+range meanwhile is never caught; (2) on entry GUN_OPEN_CHECK checks the submit
+only at its start, before the interrupts are on. *Fix:* INTERRUPT ON 20-22
+before each GUN_OPEN_CHECK call. Also: after the operator acknowledges
+GUN_OPEN_LOST the robot can wait with no message; monitoring goes off one point
+before the robot is out (P20/P06/P17); a block selection past the INTERRUPT ON
+skips the interlock; the open range is written twice (interrupts and .dat;
+global variables are allowed in interrupt conditions, e.g. tm_bib.src). Clamp
+open and QFP returned are still not checked.
 
 ### F02 — High — options 2, 7, 8 ignore the nut sensor
 
@@ -712,6 +727,12 @@ layout that P5/P1 are outside the conveyor zone; explain the new AtDrop3.
 *Integrated version (2026-10-05):* `AC_DropOffCheck(1)` stays before the first
 motion. The new AtDrop3 is kept: the part falls better on the conveyor
 (validated by Edgar Montiel with the programmer). To test on the cell.
+*Backup 14:46:* the programmer also removed PTP P1: one 330 mm LIN from P5 to
+AtDrop3, dropping 166 mm at about 30°, with the drop-off check at P5. In the
+integrated version the robot waits for the drop-off at the camera point P3
+with application 1 already reported clear (`AC_Application(1,TRUE)` at the
+end of style1app2opt2): release application 1 after the robot leaves the
+camera area.
 
 ### F49 — High — AutomationCore background switched on (audit 2026-10-05)
 
@@ -724,6 +745,35 @@ selected automatically in EXT, every program reset sets `do004ProcessFault`,
 and `do111Gun1ElectrodeChange` follows the stepper end, so cell.src now runs
 GunElectrodeChange (F43). *Decide* with Gestamp, test every signal with the
 PLC and the electrode change, list the vendor edits (C28).
+
+Independent review of 2026-10-05 (confirmed in the code):
+* **Request to enter.** `AC_PointArrival` (bas.src motion triggers) halts the
+  robot on `$IN[6]` di006RequestToEnter only while `$OUT[145]` doCriticalWZ is
+  FALSE. With the background on, doCriticalWZ = NOT granted, and entry is
+  never granted while `$OUT[930]` do930MasterRefInProcess is ON — which it
+  stays for ever after a mastering reference test (F35). The robot then no
+  longer stops on a request to enter. Before, nothing wrote `$OUT[145]` and
+  the robot always stopped.
+* **Two writers on the Bosch enables.** The task writes `$OUT[481]`
+  dopw1_WeldContactEnable and `$OUT[482]` dopw1_WeldOnExternal = NOT dry cycle
+  every submit cycle, overriding CENTERLINE_WELD's reset and disable; in dry
+  cycle it overrides the enable and `WAIT FOR dipw1_Ready` can hang.
+* **Electrode change** runs at the stepper end and waits for the PLC's
+  `$IN[92]` in a dialog; `$OUT[111]` shares its adapter bit with the stuck
+  `$OUT[930]` (F18).
+* **AC_MODE** (CWRITE of the mainline auto select) is declared without a
+  value; KUKA's template sets MODE=#SYNC first.
+* Every program reset sets `$OUT[4]` do004ProcessFault until MaintainSystem.
+* `bACEntryGranted` is persistent: a grant survives a submit restart.
+
+### F50 — High — application permission after the motion (audit 2026-10-05 14:46)
+
+In the programmer's backup of 14:46, style1app2opt1 runs `PTP P22` before
+`AC_ApplicationCheck(1)` (wait for `$IN[70]`). P22 is the approach point of the
+inspection station (about 170 mm from the camera approach P6, 480 mm below the
+nut-check points), so the robot enters it without the PLC's permission while
+`$OUT[70]`/`$OUT[24]` still report it clear. *Fix:* check before the motion,
+as in the integrated version.
 ## Gestamp compliance
 
 Reference: GESTAMP FANUC Reference Guide V23 and NA-ST-002 rev 11, as
