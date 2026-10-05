@@ -61,6 +61,7 @@ DECL BOOL bRes
          Msg.Msg_txt[]="Nut welder air pressure not OK (dipw1_AirOK) - robot waiting"
          Par[1].Par_Type=#EMPTY
          nHandle=Set_KrlMsg(#STATE, Msg, Par[], Opt)
+         ;WAIT AIR PRESSURE - SIGNAL $IN[3132] dipw1_AirOK ON (NO TIMEOUT, STATE MESSAGE)
          WAIT FOR dipw1_AirOK
          bRes=Clear_KrlMsg(nHandle)
       ENDIF
