@@ -1,0 +1,70 @@
+--- HEAD:KRC/R1/TP/GripperSpotTech/grp_data.dat
++++ backup:KRC/R1/TP/GripperSpotTech/grp_data.dat
+@@ -1,6 +1,4 @@
+-&ACCESS  RV
+-&PARAM DISKPATH = TP/GripperSpotTech
+-DEFDAT  grp_data PUBLIC
++DEFDAT  Grp_Data PUBLIC
+ ;##############################################
+ ;# File-Version: 1.0
+ ;# Don't Change: This File will be generated
+@@ -10,7 +8,7 @@
+ 
+ ;FOLD Gripper Enum & Structure
+ GLOBAL STRUC GRP_T CHAR Name[24],BOOL Act,INT NumState,NumOut,NumIn,OUT1,OUT2,OUT3,OUT4,OUT5,OUT6,IN1,IN2,IN3,IN4,IN5,IN6
+-GLOBAL STRUC GRP_GrpPar_T REAL PulsLen,INT TimeOut,BOOL GhOut1,GhOut2,GhOut3,GhOut4,GhOut5,GhOut6,GhIn1,GhIn2,GhIn3,GhIn4,GhIn5,GhIn6
++GLOBAL STRUC GRP_GrpPar_T REAL PulsLen, INT TimeOut,BOOL GhOut1,GhOut2,GhOut3,GhOut4,GhOut5,GhOut6,GhIn1,GhIn2,GhIn3,GhIn4,GhIn5,GhIn6
+ GLOBAL STRUC GRP_State_T CHAR Name[12],INT OUT1,OUT2,OUT3,OUT4,OUT5,OUT6,IN1,IN2,IN3,IN4,IN5,IN6,StateNo,FuncNo,InputNo,BOOL Value
+ GLOBAL ENUM GRP_ErrStrategy_T StopAtErr,DialAtT1T2,DialAtT1T2Aut,DialAllMode,UserErrStrategy
+ GLOBAL ENUM GRP_ErrStgConfig_T StopMovement,IgnoreError,ShowDialog,UserErrStrategy
+@@ -19,9 +17,9 @@
+ ;FOLD Gripper Variables
+ GLOBAL INT GRPg_MaxGrp=16
+ GLOBAL INT GRPg_Err2PLC=0
+-GLOBAL BOOL GRPg_GhostMode=FALSE
++GLOBAL BOOL GRPg_GhostMode=False
+ GLOBAL INT GRPg_GhostInput=0
+-GLOBAL INT GRPg_SignVal=5861033
++GLOBAL INT GRPg_SignVal=7850579
+ DECL GLOBAL GRP_ErrStrategy_T GRPg_ErrStrategy[3]
+ GRPg_ErrStrategy[1]=#DialAtT1T2
+ GRPg_ErrStrategy[2]=#DialAtT1T2
+@@ -50,22 +48,22 @@
+ 
+ ;FOLD Gripper Parameter 
+ DECL GLOBAL GRP_GrpPar_T GRPg_GrpPar[16]
+-GRPg_GrpPar[1]={PulsLen 0.500000,TimeOut 3000,GhOut1 TRUE,GhOut2 TRUE,GhOut3 FALSE,GhOut4 FALSE,GhOut5 FALSE,GhOut6 FALSE,GhIn1 FALSE,GhIn2 FALSE,GhIn3 FALSE,GhIn4 FALSE,GhIn5 FALSE,GhIn6 FALSE}
+-GRPg_GrpPar[2]={PulsLen 0.500000,TimeOut 3000,GhOut1 FALSE,GhOut2 FALSE,GhOut3 FALSE,GhOut4 FALSE,GhOut5 FALSE,GhOut6 FALSE,GhIn1 FALSE,GhIn2 FALSE,GhIn3 FALSE,GhIn4 FALSE,GhIn5 FALSE,GhIn6 FALSE}
+-GRPg_GrpPar[3]={PulsLen 0.500000,TimeOut 3000,GhOut1 FALSE,GhOut2 FALSE,GhOut3 FALSE,GhOut4 FALSE,GhOut5 FALSE,GhOut6 FALSE,GhIn1 FALSE,GhIn2 FALSE,GhIn3 FALSE,GhIn4 FALSE,GhIn5 FALSE,GhIn6 FALSE}
+-GRPg_GrpPar[4]={PulsLen 0.500000,TimeOut 3000,GhOut1 FALSE,GhOut2 FALSE,GhOut3 FALSE,GhOut4 FALSE,GhOut5 FALSE,GhOut6 FALSE,GhIn1 FALSE,GhIn2 FALSE,GhIn3 FALSE,GhIn4 FALSE,GhIn5 FALSE,GhIn6 FALSE}
+-GRPg_GrpPar[5]={PulsLen 0.500000,TimeOut 3000,GhOut1 FALSE,GhOut2 FALSE,GhOut3 FALSE,GhOut4 FALSE,GhOut5 FALSE,GhOut6 FALSE,GhIn1 TRUE,GhIn2 TRUE,GhIn3 FALSE,GhIn4 FALSE,GhIn5 FALSE,GhIn6 FALSE}
+-GRPg_GrpPar[6]={PulsLen 0.500000,TimeOut 3000,GhOut1 FALSE,GhOut2 FALSE,GhOut3 FALSE,GhOut4 FALSE,GhOut5 FALSE,GhOut6 FALSE,GhIn1 TRUE,GhIn2 TRUE,GhIn3 FALSE,GhIn4 FALSE,GhIn5 FALSE,GhIn6 FALSE}
+-GRPg_GrpPar[7]={PulsLen 0.500000,TimeOut 3000,GhOut1 FALSE,GhOut2 FALSE,GhOut3 FALSE,GhOut4 FALSE,GhOut5 FALSE,GhOut6 FALSE,GhIn1 TRUE,GhIn2 TRUE,GhIn3 FALSE,GhIn4 FALSE,GhIn5 FALSE,GhIn6 FALSE}
+-GRPg_GrpPar[8]={PulsLen 0.500000,TimeOut 3000,GhOut1 FALSE,GhOut2 FALSE,GhOut3 FALSE,GhOut4 FALSE,GhOut5 FALSE,GhOut6 FALSE,GhIn1 TRUE,GhIn2 TRUE,GhIn3 FALSE,GhIn4 FALSE,GhIn5 FALSE,GhIn6 FALSE}
+-GRPg_GrpPar[9]={PulsLen 0.500000,TimeOut 3000,GhOut1 FALSE,GhOut2 FALSE,GhOut3 FALSE,GhOut4 FALSE,GhOut5 FALSE,GhOut6 FALSE,GhIn1 TRUE,GhIn2 TRUE,GhIn3 FALSE,GhIn4 FALSE,GhIn5 FALSE,GhIn6 FALSE}
+-GRPg_GrpPar[10]={PulsLen 0.500000,TimeOut 3000,GhOut1 FALSE,GhOut2 FALSE,GhOut3 FALSE,GhOut4 FALSE,GhOut5 FALSE,GhOut6 FALSE,GhIn1 TRUE,GhIn2 TRUE,GhIn3 FALSE,GhIn4 FALSE,GhIn5 FALSE,GhIn6 FALSE}
+-GRPg_GrpPar[11]={PulsLen 0.500000,TimeOut 3000,GhOut1 FALSE,GhOut2 FALSE,GhOut3 FALSE,GhOut4 FALSE,GhOut5 FALSE,GhOut6 FALSE,GhIn1 TRUE,GhIn2 TRUE,GhIn3 FALSE,GhIn4 FALSE,GhIn5 FALSE,GhIn6 FALSE}
+-GRPg_GrpPar[12]={PulsLen 0.500000,TimeOut 3000,GhOut1 FALSE,GhOut2 FALSE,GhOut3 FALSE,GhOut4 FALSE,GhOut5 FALSE,GhOut6 FALSE,GhIn1 TRUE,GhIn2 TRUE,GhIn3 FALSE,GhIn4 FALSE,GhIn5 FALSE,GhIn6 FALSE}
+-GRPg_GrpPar[13]={PulsLen 0.500000,TimeOut 3000,GhOut1 FALSE,GhOut2 FALSE,GhOut3 FALSE,GhOut4 FALSE,GhOut5 FALSE,GhOut6 FALSE,GhIn1 TRUE,GhIn2 TRUE,GhIn3 FALSE,GhIn4 FALSE,GhIn5 FALSE,GhIn6 FALSE}
+-GRPg_GrpPar[14]={PulsLen 0.500000,TimeOut 3000,GhOut1 FALSE,GhOut2 FALSE,GhOut3 FALSE,GhOut4 FALSE,GhOut5 FALSE,GhOut6 FALSE,GhIn1 TRUE,GhIn2 TRUE,GhIn3 FALSE,GhIn4 FALSE,GhIn5 FALSE,GhIn6 FALSE}
+-GRPg_GrpPar[15]={PulsLen 0.500000,TimeOut 3000,GhOut1 FALSE,GhOut2 FALSE,GhOut3 FALSE,GhOut4 FALSE,GhOut5 FALSE,GhOut6 FALSE,GhIn1 TRUE,GhIn2 TRUE,GhIn3 FALSE,GhIn4 FALSE,GhIn5 FALSE,GhIn6 FALSE}
+-GRPg_GrpPar[16]={PulsLen 0.500000,TimeOut 3000,GhOut1 FALSE,GhOut2 FALSE,GhOut3 FALSE,GhOut4 FALSE,GhOut5 FALSE,GhOut6 FALSE,GhIn1 TRUE,GhIn2 TRUE,GhIn3 FALSE,GhIn4 FALSE,GhIn5 FALSE,GhIn6 FALSE}
++GRPg_GrpPar[1]={PulsLen 0.5,TimeOut 3000,GhOut1 True,GhOut2 True,GhOut3 False,GhOut4 False,GhOut5 False,GhOut6 False,GhIn1 False,GhIn2 False,GhIn3 False,GhIn4 False,GhIn5 False,GhIn6 False}
++GRPg_GrpPar[2]={PulsLen 0.5,TimeOut 3000,GhOut1 False,GhOut2 False,GhOut3 False,GhOut4 False,GhOut5 False,GhOut6 False,GhIn1 False,GhIn2 False,GhIn3 False,GhIn4 False,GhIn5 False,GhIn6 False}
++GRPg_GrpPar[3]={PulsLen 0.5,TimeOut 3000,GhOut1 False,GhOut2 False,GhOut3 False,GhOut4 False,GhOut5 False,GhOut6 False,GhIn1 False,GhIn2 False,GhIn3 False,GhIn4 False,GhIn5 False,GhIn6 False}
++GRPg_GrpPar[4]={PulsLen 0.5,TimeOut 3000,GhOut1 False,GhOut2 False,GhOut3 False,GhOut4 False,GhOut5 False,GhOut6 False,GhIn1 False,GhIn2 False,GhIn3 False,GhIn4 False,GhIn5 False,GhIn6 False}
++GRPg_GrpPar[5]={PulsLen 0.5,TimeOut 3000,GhOut1 False,GhOut2 False,GhOut3 False,GhOut4 False,GhOut5 False,GhOut6 False,GhIn1 True,GhIn2 True,GhIn3 False,GhIn4 False,GhIn5 False,GhIn6 False}
++GRPg_GrpPar[6]={PulsLen 0.5,TimeOut 3000,GhOut1 False,GhOut2 False,GhOut3 False,GhOut4 False,GhOut5 False,GhOut6 False,GhIn1 True,GhIn2 True,GhIn3 False,GhIn4 False,GhIn5 False,GhIn6 False}
++GRPg_GrpPar[7]={PulsLen 0.5,TimeOut 3000,GhOut1 False,GhOut2 False,GhOut3 False,GhOut4 False,GhOut5 False,GhOut6 False,GhIn1 True,GhIn2 True,GhIn3 False,GhIn4 False,GhIn5 False,GhIn6 False}
++GRPg_GrpPar[8]={PulsLen 0.5,TimeOut 3000,GhOut1 False,GhOut2 False,GhOut3 False,GhOut4 False,GhOut5 False,GhOut6 False,GhIn1 True,GhIn2 True,GhIn3 False,GhIn4 False,GhIn5 False,GhIn6 False}
++GRPg_GrpPar[9]={PulsLen 0.5,TimeOut 3000,GhOut1 False,GhOut2 False,GhOut3 False,GhOut4 False,GhOut5 False,GhOut6 False,GhIn1 True,GhIn2 True,GhIn3 False,GhIn4 False,GhIn5 False,GhIn6 False}
++GRPg_GrpPar[10]={PulsLen 0.5,TimeOut 3000,GhOut1 False,GhOut2 False,GhOut3 False,GhOut4 False,GhOut5 False,GhOut6 False,GhIn1 True,GhIn2 True,GhIn3 False,GhIn4 False,GhIn5 False,GhIn6 False}
++GRPg_GrpPar[11]={PulsLen 0.5,TimeOut 3000,GhOut1 False,GhOut2 False,GhOut3 False,GhOut4 False,GhOut5 False,GhOut6 False,GhIn1 True,GhIn2 True,GhIn3 False,GhIn4 False,GhIn5 False,GhIn6 False}
++GRPg_GrpPar[12]={PulsLen 0.5,TimeOut 3000,GhOut1 False,GhOut2 False,GhOut3 False,GhOut4 False,GhOut5 False,GhOut6 False,GhIn1 True,GhIn2 True,GhIn3 False,GhIn4 False,GhIn5 False,GhIn6 False}
++GRPg_GrpPar[13]={PulsLen 0.5,TimeOut 3000,GhOut1 False,GhOut2 False,GhOut3 False,GhOut4 False,GhOut5 False,GhOut6 False,GhIn1 True,GhIn2 True,GhIn3 False,GhIn4 False,GhIn5 False,GhIn6 False}
++GRPg_GrpPar[14]={PulsLen 0.5,TimeOut 3000,GhOut1 False,GhOut2 False,GhOut3 False,GhOut4 False,GhOut5 False,GhOut6 False,GhIn1 True,GhIn2 True,GhIn3 False,GhIn4 False,GhIn5 False,GhIn6 False}
++GRPg_GrpPar[15]={PulsLen 0.5,TimeOut 3000,GhOut1 False,GhOut2 False,GhOut3 False,GhOut4 False,GhOut5 False,GhOut6 False,GhIn1 True,GhIn2 True,GhIn3 False,GhIn4 False,GhIn5 False,GhIn6 False}
++GRPg_GrpPar[16]={PulsLen 0.5,TimeOut 3000,GhOut1 False,GhOut2 False,GhOut3 False,GhOut4 False,GhOut5 False,GhOut6 False,GhIn1 True,GhIn2 True,GhIn3 False,GhIn4 False,GhIn5 False,GhIn6 False}
+ ;ENDFOLD (Gripper Parameter)
+ 
+ ;FOLD Gripper Logic

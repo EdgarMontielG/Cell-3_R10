@@ -1,0 +1,32 @@
+--- HEAD:KRC/R1/TP/NutWeld/nutweldroutines.dat
++++ backup:KRC/R1/TP/NutWeld/nutweldroutines.dat
+@@ -11,7 +11,7 @@
+ 
+ GLOBAL ENUM Nut_Dump_Move Reload_PTP,Reload_LIN
+ DECL GLOBAL BOOL bDump_Nut
+-DECL GLOBAL INT nMaxGunNr=3
++DECL GLOBAL INT nMaxGunNr=1 ; Only 1 nut welder in this cell (GE4-002)
+ DECL GLOBAL INT nMaxWeldRetries=0
+ DECL GLOBAL INT nMaxFeedRetries=0
+ DECL GLOBAL INT nMaxDumpNutRetries=10
+@@ -72,9 +72,8 @@
+ ;GLOBAL SIGNAL dipw1_Reserved $IN[470]
+ ;GLOBAL SIGNAL dipw1_Reserved $IN[471]
+ ;GLOBAL SIGNAL dipw1_Reserved $IN[472]
+-GLOBAL SIGNAL dipw1_AirOK $IN[473]
+-;NOTE: dipw1_WaterOk IS A BOOL, NO LONGER THE INPUT $IN[474] di474WaterOk; SPS.SUB SETS IT
+-;TRUE IN EVERY SUBMIT CYCLE WHATEVER THE SV0500 WATER FLOW (F09)
++GLOBAL SIGNAL dipw1_AirOK $IN[3132] ; Air pressure switch: TBEN bit 3.4 (DI12, port C6 pin 4) - was $IN[473] (not mapped)
++;GLOBAL SIGNAL dipw1_WaterOk $IN[474]
+ GLOBAL BOOL dipw1_WaterOk=TRUE
+ 
+ GLOBAL SIGNAL dipw1_XtfmrTempOk $IN[475]
+@@ -93,7 +92,7 @@
+ ;GLOBAL SIGNAL dipw1_Reserved $OUT[468]
+ ;GLOBAL SIGNAL dipw1_Reserved $OUT[469]
+ GLOBAL SIGNAL dopw1_Hidraulyc_Valve $OUT[470]
+-GLOBAL SIGNAL dopw1_GunHome $OUT[471] ;ADDED - CENTERLINE GUN OPEN VALVE
++GLOBAL SIGNAL dopw1_GunHome $OUT[471] ;Nueva
+ GLOBAL SIGNAL dopw1_GunWork $OUT[472]
+ GLOBAL SIGNAL dopw1_Nut1Intensify_Home $OUT[473]
+ GLOBAL SIGNAL dopw1_Nut1Intensify $OUT[474]

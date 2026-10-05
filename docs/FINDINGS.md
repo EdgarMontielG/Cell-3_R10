@@ -86,6 +86,8 @@ hangs. *Medium*: robustness or diagnosis. *Low*: hygiene.
 | F45 | Low | *R10:* clamp routines: grippers 2-4 disabled, only gripper 1 exists | — (cleanup) |
 | F46 | Medium | *R10:* vendor EndOfCycle edited: Work Complete is never sent to the PLC | Gestamp decision |
 | F47 | Medium | *R10:* brake-test path taught with tool 3 / base 1 named for 03-30-R1 | re-teach |
+| F48 | High | *Audit 2026-10-05:* drop-off interlock moved after the approach to the conveyor; AtDrop3 re-taught | code + layout |
+| F49 | High | *Audit 2026-10-05:* AutomationCore_BKG switched on and the vendor routine edited, no recorded decision | Gestamp decision |
 
 Gestamp compliance items are at the end (C01–C28).
 
@@ -697,6 +699,27 @@ and base 1 hold. `braketestback.src` returns with tool 1. The vendor files also
 carry the `do931BrakeTestInProcess` edit. *Check:* run the brake test slowly
 in T1; re-teach the path with tool 1 / base 0 (joint points preferred).
 
+
+### F48 — High — drop-off interlock after the approach (audit 2026-10-05)
+
+In the programmer's backup of 2026-10-05, `AC_DropOffCheck(1)` (wait for
+`$IN[75]` di075DropOffMachine1) moved from before the first motion to after
+`PTP P5` and `PTP P1` in style1drop1opt1: the robot approaches the conveyor
+before the PLC grants the drop-off. AtDrop3 was re-taught 26° in B and 34° in
+C. *Fix:* check the drop-off before the first motion, or prove with the
+layout that P5/P1 are outside the conveyor zone; explain the new AtDrop3.
+
+### F49 — High — AutomationCore background switched on (audit 2026-10-05)
+
+The same backup calls `AutomationCore_BKG()` in sps.sub (F12) and edits the
+vendor routine: the outputs of nut welders 2-3 are removed and
+`AC_Request_to_enter` no longer waits inside the submit (it latches
+`bACEntryGranted`; `$OUT[145]` doCriticalWZ = NOT granted). With the
+background on, the status bits to the PLC update every cycle, CELL is
+selected automatically in EXT, every program reset sets `do004ProcessFault`,
+and `do111Gun1ElectrodeChange` follows the stepper end, so cell.src now runs
+GunElectrodeChange (F43). *Decide* with Gestamp, test every signal with the
+PLC and the electrode change, list the vendor edits (C28).
 ## Gestamp compliance
 
 Reference: GESTAMP FANUC Reference Guide V23 and NA-ST-002 rev 11, as

@@ -1,0 +1,24 @@
+--- HEAD:KRC/R1/Program/tm_useraction.src
++++ backup:KRC/R1/Program/tm_useraction.src
+@@ -1,17 +1,10 @@
+ &ACCESS R
+-&COMMENT 03-10-R1 COLLISION STOP
+ DEF TM_USERACTION( )
+-;********************************
+-; Gestamp Standards
+-; Line - BMW G65 (cell 03)
+-; Robot 03-10-R1 (BMW-03-10-R1)
+-; Application - COLLISION DETECTION REACTION
+-;********************************
+-;NOTE: CALLED BY THE KUKA TORQUE MONITORING (tm_bib.src, AFTER BRAKE F) ON A DETECTED COLLISION.
+-;NOTE: IT ONLY HALTS - NO MESSAGE OF ITS OWN AND NO FAULT TO THE PLC (C21).
+-;NOTE: COLLISION DETECTION IS NOT COMMISSIONED ON THIS ROBOT (F39, C09)
+ 
+-;STOP THE ROBOT PROGRAM
++;===================
++; Stop robot
++;===================
++
+ HALT
+ 
+ END

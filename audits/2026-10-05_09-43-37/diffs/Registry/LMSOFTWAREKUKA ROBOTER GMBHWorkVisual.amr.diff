@@ -1,0 +1,20 @@
+--- HEAD:Registry/LMSOFTWAREKUKA ROBOTER GMBHWorkVisual.amr
++++ backup:Registry/LMSOFTWAREKUKA ROBOTER GMBHWorkVisual.amr
+@@ -1,10 +1,12 @@
+ [\LocalMachine\SOFTWARE\KUKA ROBOTER GMBH\WorkVisual]
+ "CurrentProjectId"="46f20e87-b3f9-4d08-8d6e-a47c0fb9f44c"
+-"CurrentProjectName"="V431-03-10R1_v6Active_Centerline_18"
+-"CurrentProjectDescription"=""Barcode: 26110454550000120000311507"
+-"CurrentProjectVersion"="1.187.0"
+-"CurrentProjectActivationDate"="2026-09-20 00:04:59Z"
+-@=""
++"CurrentProjectName"="BMW-03-10R1_v8"
++"CurrentProjectDescription"="Barcode: 26110454550000120000311507
++Robot: KUKA Roboter KR 210 R2700 extra
++Cabinet: KRC4 NA SC4.1 X51 X14B X66 X42 XFMR IO
++"
++"CurrentProjectVersion"="1.192.0"
++"CurrentProjectActivationDate"="2026-10-05 13:41:58Z"
+ 
+ 
+ 

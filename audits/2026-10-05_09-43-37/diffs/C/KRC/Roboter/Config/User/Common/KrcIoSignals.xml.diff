@@ -1,0 +1,25 @@
+--- HEAD:C/KRC/Roboter/Config/User/Common/KrcIoSignals.xml
++++ backup:C/KRC/Roboter/Config/User/Common/KrcIoSignals.xml
+@@ -397,6 +397,22 @@
+   <Signal type="$IN" krcStartIndex="3029" bitWidth="1" class="MASTER" iecType="BOOL" permitOverride="true" />
+   <Signal type="$IN" krcStartIndex="3030" bitWidth="1" class="MASTER" iecType="BOOL" permitOverride="true" />
+   <Signal type="$IN" krcStartIndex="3031" bitWidth="1" class="MASTER" iecType="BOOL" permitOverride="true" />
++  <Signal type="$IN" krcStartIndex="3120" bitWidth="1" class="MASTER" iecType="BOOL" permitOverride="true" />
++  <Signal type="$IN" krcStartIndex="3121" bitWidth="1" class="MASTER" iecType="BOOL" permitOverride="true" />
++  <Signal type="$IN" krcStartIndex="3122" bitWidth="1" class="MASTER" iecType="BOOL" permitOverride="true" />
++  <Signal type="$IN" krcStartIndex="3123" bitWidth="1" class="MASTER" iecType="BOOL" permitOverride="true" />
++  <Signal type="$IN" krcStartIndex="3124" bitWidth="1" class="MASTER" iecType="BOOL" permitOverride="true" />
++  <Signal type="$IN" krcStartIndex="3125" bitWidth="1" class="MASTER" iecType="BOOL" permitOverride="true" />
++  <Signal type="$IN" krcStartIndex="3126" bitWidth="1" class="MASTER" iecType="BOOL" permitOverride="true" />
++  <Signal type="$IN" krcStartIndex="3127" bitWidth="1" class="MASTER" iecType="BOOL" permitOverride="true" />
++  <Signal type="$IN" krcStartIndex="3128" bitWidth="1" class="MASTER" iecType="BOOL" permitOverride="true" />
++  <Signal type="$IN" krcStartIndex="3129" bitWidth="1" class="MASTER" iecType="BOOL" permitOverride="true" />
++  <Signal type="$IN" krcStartIndex="3130" bitWidth="1" class="MASTER" iecType="BOOL" permitOverride="true" />
++  <Signal type="$IN" krcStartIndex="3131" bitWidth="1" class="MASTER" iecType="BOOL" permitOverride="true" />
++  <Signal type="$IN" krcStartIndex="3132" bitWidth="1" class="MASTER" iecType="BOOL" permitOverride="true" />
++  <Signal type="$IN" krcStartIndex="3133" bitWidth="1" class="MASTER" iecType="BOOL" permitOverride="true" />
++  <Signal type="$IN" krcStartIndex="3134" bitWidth="1" class="MASTER" iecType="BOOL" permitOverride="true" />
++  <Signal type="$IN" krcStartIndex="3135" bitWidth="1" class="MASTER" iecType="BOOL" permitOverride="true" />
+   <Signal type="$OUT" krcStartIndex="1" bitWidth="1" class="SLAVE" iecType="BOOL" permitOverride="true" />
+   <Signal type="$OUT" krcStartIndex="2" bitWidth="1" class="SLAVE" iecType="BOOL" permitOverride="true" />
+   <Signal type="$OUT" krcStartIndex="3" bitWidth="1" class="SLAVE" iecType="BOOL" permitOverride="true" />

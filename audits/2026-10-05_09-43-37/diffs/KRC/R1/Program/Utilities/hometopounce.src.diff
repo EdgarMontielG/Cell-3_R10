@@ -1,0 +1,28 @@
+--- HEAD:KRC/R1/Program/Utilities/hometopounce.src
++++ backup:KRC/R1/Program/Utilities/hometopounce.src
+@@ -1,6 +1,5 @@
+ &ACCESS RVP3
+ &REL 1
+-&COMMENT 03-10-R1 NOT CALLED POUNCE
+ &PARAM DISKPATH = Program/Utilities
+ DEF  HomeToPounce ( )
+ ;FOLD INI;%{PE}
+@@ -14,18 +13,7 @@
+ 
+   ;ENDFOLD (USER INI)
+ ;ENDFOLD (INI)
+-;********************************
+-; Gestamp Standards
+-; Line - BMW G65 (cell 03)
+-; Robot 03-10-R1 (BMW-03-10-R1)
+-; Application - NOT CALLED - AUTOMATIONCORE POUNCE SKELETON
+-;********************************
+-; AUTOMATIONCORE STANDARD PATH HOME TO POUNCE: PTP HOME, PTP POUNCE (GLOBAL XPOUNCE).
+-; NO PROGRAM CALLS IT - IT IS ONLY DECLARED (EXT) IN automationcoredata.dat (C12)
+-;NOTE: NO INTERFERENCE ZONE IS REQUESTED (C11, C13)
+-;********************************
+ 
+-;PTP HOME (XHOME), THEN PTP POUNCE (GLOBAL XPOUNCE)
+ ;FOLD PTP HOME  Vel= 100 % DEFAULT;%{PE}%MKUKATPBASIS,%CMOVE,%VPTP,%P 1:PTP, 2:HOME, 3:, 5:100, 7:DEFAULT
+ $BWDSTART = FALSE
+ PDAT_ACT=PDEFAULT

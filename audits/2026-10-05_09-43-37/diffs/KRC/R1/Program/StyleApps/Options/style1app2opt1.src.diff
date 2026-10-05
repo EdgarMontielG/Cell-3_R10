@@ -1,0 +1,202 @@
+--- HEAD:KRC/R1/Program/StyleApps/Options/style1app2opt1.src
++++ backup:KRC/R1/Program/StyleApps/Options/style1app2opt1.src
+@@ -1,10 +1,25 @@
+ &ACCESS RVO1
+ &REL 19
+-&COMMENT 03-10-R1 NUT CHECK SENSOR
+ &PARAM EDITMASK = *
+ &PARAM TEMPLATE = C:\KRC\TP\Nutweld\Template\NutWeld_Vorgabe
+ &PARAM DISKPATH = KRC:\R1\Program\StyleApps\Options
+ DEF style1app2opt1( )
++;FOLD PROGRAM INFO
++;**********************************************************
++;* Customer : Gestamp
++;* Cell     : BMW-03-10 / Robot R1
++;* Part     : GE4-002
++;* Program  : style1app2opt1
++;* Function : Nut presence check (sensor) on PN1-PN3.
++;*            Production (nOption 1,2,7,8): sets bScrapGE4
++;*            if a nut is missing. Red Rabbit (nOption 12):
++;*            sets PASSED/FAILED.
++;* Rev.     : 2026-10-05 - GOTO jumps replaced with
++;*            structured IF logic
++;*            2026-10-05 - Scrap evaluation for nOption
++;*            1,2,7,8 and Red Rabbit for nOption 12
++;**********************************************************
++;ENDFOLD
+ ;FOLD INI
+   ;FOLD BASISTECH INI
+     GLOBAL INTERRUPT DECL 3 WHEN $STOPMESS==TRUE DO IR_STOPM ( )
+@@ -18,22 +33,7 @@
+ 
+   ;ENDFOLD (USER INI)
+ ;ENDFOLD (INI)
+-;********************************
+-; Gestamp Standards
+-; Line - BMW G65 (cell 03)
+-; Robot 03-10-R1 (BMW-03-10-R1-MH1)
+-; Application - NUT PRESENCE CHECK OF THE 3 NUTS (SENSOR)
+-;********************************
+-; CALLED BY Style1Opt1 AND Style1Opt10AutoRR. PRESENTS EACH WELDED NUT TO THE NUT-PRESENT
+-; SENSOR $IN[227] di227NutPresent1 (P28, P32, P36) AND SETS PARTPRESENT1..3; THEN DECIDES:
+-; OPTION 1 -> bscrapGE4, OPTION 10 -> RED RABBIT RESULT ($OUT[141] / $OUT[142]).
+-;NOTE: OPTIONS 2, 7 AND 8 (PRODUCTION) AND 12 (RED RABBIT) HAVE NO CASE: NOTHING IS DECIDED
+-;  AND bscrapGE4 KEEPS ITS LAST VALUE (F02, F19)
+-;NOTE: APPLICATION 1 IS REQUESTED HERE AND RELEASED AT THE END OF style1app2opt2 (CAMERA)
+ 
+-;APPLICATION 1 REQUEST - AC_ApplicationCheck(1): WAIT SIGNAL $IN[70] di070ApplicationMachine1 ON
+-;(WAITING MESSAGE, NO TIMEOUT), THEN SIGNALS $OUT[70] do070ApplicationClear1 OFF,
+-;$OUT[24] do024ApplClrTooling OFF
+    ;FOLD Application[1] Request
+       ;FOLD ;%{h}
+          ;Params IlfProvider=ac_zoneilf; AC_CmdZones=Application; AC_CmdParam=1; AC_ZoneRepo=False; AC_Blending=False
+@@ -41,7 +41,6 @@
+       AC_ApplicationCheck (1)
+    ;ENDFOLD
+ 
+-;APPROACH THE NUT CHECK SENSOR - P22
+ ;FOLD PTP P22 Vel=100 % PDAT16 Tool[1]:TOOL 1 Base[0];%{PE}%R 8.3.43,%MKUKATPBASIS,%CMOVE,%VPTP,%P 1:PTP, 2:P22, 3:, 5:100, 7:PDAT16
+ $BWDSTART=FALSE
+ PDAT_ACT=PPDAT16
+@@ -50,7 +49,7 @@
+ PTP XP22 
+ ;ENDFOLD
+ 
+-;NUT 1 AT THE SENSOR - LIN P28 (EXACT STOP)
++;--- Nut check PN1 ---
+ ;FOLD LIN P28 Vel=2 m/s CPDAT15 Tool[1]:TOOL 1 Base[0];%{PE}%R 8.3.43,%MKUKATPBASIS,%CMOVE,%VLIN,%P 1:LIN, 2:P28, 3:, 5:2, 7:CPDAT15
+ $BWDSTART=FALSE
+ LDAT_ACT=LCPDAT15
+@@ -59,15 +58,17 @@
+ LIN XP28 
+ ;ENDFOLD
+ ;FOLD NUT CHECK1
+-;NUT 1 CHECK - OUTSIDE DRY CYCLE (SIGNAL $IN[4] di004UseDryCycle OFF), AFTER 0.2 S AT THE POINT
+-;NOTE: THE WAIT SEC ALSO STOPS THE ADVANCE RUN: THE SENSOR IS READ WITH THE ROBOT STANDING
+-;  AT THE POINT, F28. A MISSING NUT WRITES FALSE (F03)
+-IF NOT di004UseDryCycle THEN
+-   WAIT SEC 0.2
+-   ;PARTPRESENT1 = SIGNAL $IN[227] di227NutPresent1 (TRUE OR FALSE)
+-   PARTPRESENT1=di227NutPresent1
+-ENDIF
+-;ENDFOLD
++
++IF di004UseDryCycle==FALSE THEN ; Dry cycle: skip nut check
++
++IF ($IN[227]==TRUE) THEN
++         PARTPRESENT1=TRUE 
++         ENDIF
++         WAIT SEC 0.2 
++       
++         ENDIF
++
++ ;ENDFOLD      
+ ;FOLD PTP P31 Vel=100 % PDAT35 Tool[1]:TOOL 1 Base[0];%{PE}%R 8.3.43,%MKUKATPBASIS,%CMOVE,%VPTP,%P 1:PTP, 2:P31, 3:, 5:100, 7:PDAT35
+ $BWDSTART=FALSE
+ PDAT_ACT=PPDAT35
+@@ -76,7 +77,7 @@
+ PTP XP31 
+ ;ENDFOLD
+ 
+-;NUT 2 AT THE SENSOR - LIN P32 (EXACT STOP)
++;--- Nut check PN2 ---
+ ;FOLD LIN P32 Vel=2 m/s CPDAT16 Tool[1]:TOOL 1 Base[0];%{PE}%R 8.3.43,%MKUKATPBASIS,%CMOVE,%VLIN,%P 1:LIN, 2:P32, 3:, 5:2, 7:CPDAT16
+ $BWDSTART=FALSE
+ LDAT_ACT=LCPDAT16
+@@ -85,15 +86,17 @@
+ LIN XP32 
+ ;ENDFOLD
+ ;FOLD NUT CHECK2
+-;NUT 2 CHECK - OUTSIDE DRY CYCLE (SIGNAL $IN[4] di004UseDryCycle OFF), AFTER 0.2 S AT THE POINT
+-;NOTE: THE WAIT SEC ALSO STOPS THE ADVANCE RUN: THE SENSOR IS READ WITH THE ROBOT STANDING
+-;  AT THE POINT, F28. A MISSING NUT WRITES FALSE (F03)
+-IF NOT di004UseDryCycle THEN
+-   WAIT SEC 0.2
+-   ;PARTPRESENT2 = SIGNAL $IN[227] di227NutPresent1 (TRUE OR FALSE)
+-   PARTPRESENT2=di227NutPresent1
+-ENDIF
+-;ENDFOLD
++
++IF di004UseDryCycle==FALSE THEN ; Dry cycle: skip nut check
++
++IF ($IN[227]==TRUE) THEN
++         PARTPRESENT2=TRUE 
++         ENDIF
++         WAIT SEC 0.2 
++       
++         ENDIF
++
++ ;ENDFOLD 
+ ;FOLD PTP P38 Vel=100 % PDAT36 Tool[1]:TOOL 1 Base[0];%{PE}%R 8.3.43,%MKUKATPBASIS,%CMOVE,%VPTP,%P 1:PTP, 2:P38, 3:, 5:100, 7:PDAT36
+ $BWDSTART=FALSE
+ PDAT_ACT=PPDAT36
+@@ -102,7 +105,7 @@
+ PTP XP38 
+ ;ENDFOLD
+ 
+-;NUT 3 AT THE SENSOR - LIN P36 (EXACT STOP)
++;--- Nut check PN3 ---
+ ;FOLD LIN P36 Vel=2 m/s CPDAT17 Tool[1]:TOOL 1 Base[0];%{PE}%R 8.3.43,%MKUKATPBASIS,%CMOVE,%VLIN,%P 1:LIN, 2:P36, 3:, 5:2, 7:CPDAT17
+ $BWDSTART=FALSE
+ LDAT_ACT=LCPDAT17
+@@ -111,15 +114,17 @@
+ LIN XP36 
+ ;ENDFOLD
+ ;FOLD NUT CHECK3
+-;NUT 3 CHECK - OUTSIDE DRY CYCLE (SIGNAL $IN[4] di004UseDryCycle OFF), AFTER 0.2 S AT THE POINT
+-;NOTE: THE WAIT SEC ALSO STOPS THE ADVANCE RUN: THE SENSOR IS READ WITH THE ROBOT STANDING
+-;  AT THE POINT, F28. A MISSING NUT WRITES FALSE (F03)
+-IF NOT di004UseDryCycle THEN
+-   WAIT SEC 0.2
+-   ;PARTPRESENT3 = SIGNAL $IN[227] di227NutPresent1 (TRUE OR FALSE)
+-   PARTPRESENT3=di227NutPresent1
+-ENDIF
+-;ENDFOLD
++
++IF di004UseDryCycle==FALSE THEN ; Dry cycle: skip nut check
++
++IF ($IN[227]==TRUE) THEN
++         PARTPRESENT3=TRUE 
++         ENDIF
++         WAIT SEC 0.2 
++       
++         ENDIF
++
++ ;ENDFOLD 
+ ;FOLD PTP P37 Vel=100 % PDAT37 Tool[1]:TOOL 1 Base[0];%{PE}%R 8.3.43,%MKUKATPBASIS,%CMOVE,%VPTP,%P 1:PTP, 2:P37, 3:, 5:100, 7:PDAT37
+ $BWDSTART=FALSE
+ PDAT_ACT=PPDAT37
+@@ -127,23 +132,19 @@
+ BAS(#PTP_PARAMS,100)
+ PTP XP37 
+ ;ENDFOLD
+-;DECISION - OUTSIDE DRY CYCLE, AFTER 0.2 S, BY OPTION nOption:
+-;OPTION 1: ALL 3 NUTS PRESENT -> bscrapGE4 = FALSE (GOOD), ELSE bscrapGE4 = TRUE (SCRAP)
+-;OPTION 10: ALL 3 PRESENT -> SIGNAL $OUT[141] do141RedRabbitFailed ON;
+-;           NONE PRESENT -> SIGNAL $OUT[142] do142RedRabbitPassed ON
+-;NOTE: THE RED RABBIT CYCLE RUNS AS OPTION 12 (Style_1), SO THE OPTION 10 CASE NEVER RUNS (F19)
+ ;FOLD NUT CHECK
+-;OUTSIDE DRY CYCLE ONLY - SIGNAL $IN[4] di004UseDryCycle OFF
+-IF NOT di004UseDryCycle THEN
++IF di004UseDryCycle==FALSE THEN ; Dry cycle: skip nut check
++
++
+ WAIT SEC 0.2
+      SWITCH nOption
+-          CASE 1
++          CASE 1,2,7,8   ; Production: scrap part if any nut is missing
+          IF (PARTPRESENT1==TRUE ) AND (PARTPRESENT2==TRUE) AND (PARTPRESENT3==TRUE) THEN
+             bscrapGE4 = FALSE
+          ELSE
+             bscrapGE4=TRUE
+          ENDIF
+-          CASE 10
++          CASE 12  ; Red Rabbit: all nuts found = FAILED, none found = PASSED
+             IF (PARTPRESENT1==TRUE ) AND (PARTPRESENT2==TRUE) AND (PARTPRESENT3==TRUE) THEN
+ do141RedRabbitFailed=TRUE
+ ENDIF
+@@ -161,3 +162,4 @@
+ 
+ 
+ END
++

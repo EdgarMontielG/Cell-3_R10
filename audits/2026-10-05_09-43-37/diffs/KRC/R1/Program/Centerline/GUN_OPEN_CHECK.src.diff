@@ -1,0 +1,170 @@
+--- /dev/null
++++ backup:KRC/R1/Program/Centerline/GUN_OPEN_CHECK.src
+@@ -0,0 +1,167 @@
++&ACCESS RVO1
++&REL 2
++&COMMENT NUT WELDER GUN OPEN CHECK
++&PARAM EDITMASK = *
++&PARAM TEMPLATE = C:\KRC\Roboter\Template\vorgabe
++DEF GUN_OPEN_CHECK( )
++;FOLD PROGRAM INFO
++;**********************************************************
++;* Customer : Gestamp
++;* Cell     : BMW-03-10 / Robot R1
++;* Part     : GE4-002
++;* Program  : GUN_OPEN_CHECK
++;* Function : Interlock - confirms before the robot moves
++;*            the part into or out of the nut welder:
++;*            1. Submit (SPS) running (gun position valid)
++;*            2. Welder air pressure OK (dipw1_AirOK)
++;*            2b. Cooling water flow OK (dipw1_WaterOk)
++;*            3. Gun open (retract range of
++;*               CL_GunStrokePositionLPT)
++;*            The gun has nGunOpenWaitMs to reach the open
++;*            range. If a condition is not met, the robot
++;*            does not move: a message is shown on the
++;*            SmartPAD and the program waits.
++;*            Settings are in GUN_OPEN_CHECK.dat
++;*
++;*            GUN_OPEN_LOST (below) is the interrupt routine
++;*            of the gun monitoring interrupts 20-22 in
++;*            style1app1opt1 - style1app1opt3.
++;* Rev.     : 2026-10-05 - New program
++;*            2026-10-05 - Air pressure check and
++;*            interrupt routine GUN_OPEN_LOST added
++;*            2026-10-05 - Cooling water flow check
++;**********************************************************
++;ENDFOLD
++DECL KrlMsg_T Msg
++DECL KrlMsg_T MsgW
++DECL KrlMsgPar_T Par[3]
++DECL KrlMsgOpt_T Opt
++DECL INT nHandle, nWaitMs
++DECL BOOL bRes
++
++   ; Stop the advance run: the gun position must be read now,
++   ; when the robot is stopped, not ahead of the motion
++   WAIT SEC 0
++
++   ;FOLD MESSAGE SETUP
++   Msg.Modul[]="GunOpenCheck"
++   MsgW.Modul[]="GunOpenCheck"
++   Par[1].Par_Type=#EMPTY
++   Par[2].Par_Type=#EMPTY
++   Par[3].Par_Type=#EMPTY
++   Opt.VL_Stop=TRUE
++   Opt.Clear_P_Reset=TRUE
++   Opt.Clear_P_SAW=FALSE
++   Opt.Log_To_DB=TRUE
++   ;ENDFOLD
++
++   ;--- 1. Gun position is only valid while the Submit (SPS) is running ---
++   ; CL_GunStrokePositionLPT is calculated in sps.sub. If the
++   ; Submit is stopped, the value is frozen and cannot be trusted.
++   IF $PRO_STATE0<>#P_ACTIVE THEN
++      Msg.Nr=1
++      Msg.Msg_txt[]="Submit (SPS) not running - gun position not valid - robot waiting"
++      Par[1].Par_Type=#EMPTY
++      nHandle=Set_KrlMsg(#STATE, Msg, Par[], Opt)
++      WAIT FOR $PRO_STATE0==#P_ACTIVE
++      bRes=Clear_KrlMsg(nHandle)
++      WAIT SEC 0.5   ; Let the Submit refresh the gun position
++   ENDIF
++
++   ;--- 2. Welder air pressure switch ---
++   ; Without air the gun cannot be held open
++   IF bGunAirCheck THEN
++      IF NOT dipw1_AirOK THEN
++         Msg.Nr=3
++         Msg.Msg_txt[]="Nut welder air pressure not OK (dipw1_AirOK) - robot waiting"
++         Par[1].Par_Type=#EMPTY
++         nHandle=Set_KrlMsg(#STATE, Msg, Par[], Opt)
++         WAIT FOR dipw1_AirOK
++         bRes=Clear_KrlMsg(nHandle)
++      ENDIF
++   ENDIF
++
++   ;--- 2b. Cooling water flow (calculated in sps.sub) ---
++   ; The weld gun must not be used without cooling water
++   IF bGunWaterCheck THEN
++      IF NOT dipw1_WaterOk THEN
++         MsgW.Nr=6
++         MsgW.Msg_txt[]="Nut welder cooling water flow too low (%1 x0.1 l/min) - robot waiting"
++         Par[1].Par_Type=#VALUE
++         Par[1].Par_Int=nWaterFlow
++         nHandle=Set_KrlMsg(#STATE, MsgW, Par[], Opt)
++         WAIT FOR dipw1_WaterOk
++         bRes=Clear_KrlMsg(nHandle)
++         Par[1].Par_Type=#EMPTY
++      ENDIF
++   ENDIF
++
++   ;--- 3a. Normal opening time: wait without message ---
++   nWaitMs=0
++   WHILE ((CL_GunStrokePositionLPT<nGunOpenMin) OR (CL_GunStrokePositionLPT>nGunOpenMax)) AND (nWaitMs<nGunOpenWaitMs)
++      WAIT SEC 0.05
++      nWaitMs=nWaitMs+50
++   ENDWHILE
++
++   ;--- 3b. Gun still not open: show message and wait ---
++   IF (CL_GunStrokePositionLPT<nGunOpenMin) OR (CL_GunStrokePositionLPT>nGunOpenMax) THEN
++      Msg.Nr=2
++      Msg.Msg_txt[]="Nut welder gun not open (position %1) - robot waiting"
++      Par[1].Par_Type=#VALUE
++      Par[1].Par_Int=CL_GunStrokePositionLPT
++      nHandle=Set_KrlMsg(#STATE, Msg, Par[], Opt)
++      WAIT FOR (CL_GunStrokePositionLPT>=nGunOpenMin) AND (CL_GunStrokePositionLPT<=nGunOpenMax)
++      bRes=Clear_KrlMsg(nHandle)
++   ENDIF
++
++END
++
++GLOBAL DEF GUN_OPEN_LOST( )
++;FOLD ROUTINE INFO
++;**********************************************************
++;* Interrupt routine of the gun monitoring (interrupts 20-22,
++;* declared in style1app1opt1 - style1app1opt3).
++;* Called when the gun leaves the open range, or the Submit
++;* stops, while the robot moves into / out of the welder.
++;* The robot stops on its path (BRAKE F). It continues only
++;* when the operator acknowledges the message AND the gun
++;* is open again.
++;**********************************************************
++;ENDFOLD
++DECL KrlMsg_T Msg
++DECL KrlMsgPar_T Par[3]
++DECL KrlMsgOpt_T Opt
++DECL INT nHandle
++
++   BRAKE F   ; Stop the robot on its path immediately
++
++   ;FOLD MESSAGE SETUP
++   Msg.Modul[]="GunOpenCheck"
++   Par[1].Par_Type=#EMPTY
++   Par[2].Par_Type=#EMPTY
++   Par[3].Par_Type=#EMPTY
++   Opt.VL_Stop=TRUE
++   Opt.Clear_P_Reset=TRUE
++   Opt.Clear_P_SAW=FALSE
++   Opt.Log_To_DB=TRUE
++   ;ENDFOLD
++
++   IF $PRO_STATE0<>#P_ACTIVE THEN
++      Msg.Nr=5
++      Msg.Msg_txt[]="Submit (SPS) stopped while robot in welder - robot stopped, acknowledge"
++   ELSE
++      Msg.Nr=4
++      Msg.Msg_txt[]="Gun not open while robot in welder (pos. %1) - robot stopped, acknowledge"
++      Par[1].Par_Type=#VALUE
++      Par[1].Par_Int=CL_GunStrokePositionLPT
++   ENDIF
++   nHandle=Set_KrlMsg(#QUIT, Msg, Par[], Opt)
++
++   ; Continue only when the message is acknowledged AND the
++   ; gun is open again with the Submit running
++   WHILE Exists_KrlMsg(nHandle) OR ($PRO_STATE0<>#P_ACTIVE) OR (CL_GunStrokePositionLPT<nGunOpenMin) OR (CL_GunStrokePositionLPT>nGunOpenMax)
++      WAIT SEC 0.1
++   ENDWHILE
++
++END
++

@@ -1,0 +1,75 @@
+--- /dev/null
++++ backup:KRC/R1/Program/Styles/optiones/style1opt1.src
+@@ -0,0 +1,72 @@
++&ACCESS RVP
++&REL 40
++&COMMENT GE4_002
++DEF Style1Opt1 ( )
++;FOLD PROGRAM INFO
++;**********************************************************
++;* Customer : Gestamp
++;* Cell     : BMW-03-10 / Robot R1
++;* Part     : GE4-002
++;* Program  : Style1Opt1
++;* Function : GE4-002 production cycle. Picks the part
++;*            from ST1 or ST2, welds nuts PN1-PN3, checks
++;*            nuts (sensor + camera) and drops OK parts on
++;*            the conveyor or rejects NOK parts.
++;* Rev.     : 2026-10-05 - GOTO jumps replaced with
++;*            structured IF/ELSE logic
++;**********************************************************
++;ENDFOLD
++
++   IF di065PickupMachine1 AND NOT di066PickupMachine2 THEN
++      ;--- Station 1 (ST1) ---
++      style1pick1opt1()       ; Pick part from ST1
++
++      style1app1opt1()        ; Nut welding PN1
++      Style1App1Opt2()        ; Nut welding PN2
++      Style1App1Opt3()        ; Nut welding PN3
++
++      style1app2opt1()        ; Nut presence check (sensor)
++      IF bScrapGE4==TRUE THEN
++         RejectGE4()          ; NOK part - reject
++      ELSE
++         style1app2opt2()     ; Nut check (camera)
++         IF bScrapGE4==TRUE THEN
++            RejectGE4()       ; NOK part - reject
++         ELSE
++            Style1Drop1Opt1() ; OK part - drop on conveyor
++         ENDIF
++      ENDIF
++
++   ELSE
++      ; ST2 is only evaluated when ST1 was not run in this cycle
++      IF di066PickupMachine2 AND NOT di065PickupMachine1 THEN
++         ;--- Station 2 (ST2) ---
++         style1pick1opt2()       ; Pick part from ST2
++
++         style1app1opt1()        ; Nut welding PN1
++         Style1App1Opt2()        ; Nut welding PN2
++         Style1App1Opt3()        ; Nut welding PN3
++
++         style1app2opt1()        ; Nut presence check (sensor)
++         IF bScrapGE4==TRUE THEN
++            RejectGE4()          ; NOK part - reject
++         ELSE
++            style1app2opt2()     ; Nut check (camera)
++            IF bScrapGE4==TRUE THEN
++               RejectGE4()       ; NOK part - reject
++            ELSE
++               Style1Drop1Opt1() ; OK part - drop on conveyor
++            ENDIF
++         ENDIF
++      ENDIF
++   ENDIF
++
++   ;FOLD RESET NUT CHECK FLAGS
++   ; Clear nut presence results for the next cycle
++   PARTPRESENT1=FALSE
++   PARTPRESENT2=FALSE
++   PARTPRESENT3=FALSE
++   ;ENDFOLD
++
++END
++

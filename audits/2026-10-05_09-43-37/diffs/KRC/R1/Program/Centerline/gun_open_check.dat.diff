@@ -1,0 +1,41 @@
+--- /dev/null
++++ backup:KRC/R1/Program/Centerline/gun_open_check.dat
+@@ -0,0 +1,38 @@
++&ACCESS  RV
++&COMMENT NUT WELDER GUN OPEN CHECK
++&PARAM EDITMASK = *
++&PARAM TEMPLATE = C:\KRC\Roboter\Template\vorgabe
++&REL 2
++DEFDAT  GUN_OPEN_CHECK PUBLIC
++;FOLD GUN OPEN SETTINGS
++; Open (retract) range of the nut welder gun - ROBOT 10R1,
++; signal CL_GunStrokePositionLPT (calculated in sps.sub)
++; Nominal retract position = 139815
++; Weld position range      = 69000 - 73000 (gun closed)
++; Interrupts 20/21 in style1app1opt1 - style1app1opt3 use
++; this same range as constants - change both together
++DECL GLOBAL INT nGunOpenMin=137000
++DECL GLOBAL INT nGunOpenMax=142000
++; Time allowed for the gun to open before the
++; "gun not open" message is shown [ms]
++DECL INT nGunOpenWaitMs=2000
++; Check welder air pressure switch dipw1_AirOK ($IN[3132])
++; TRUE = check active, FALSE = check disabled
++; 2026-10-05: switch mapped to $IN[3132] (TBEN bit 3.4). Check kept
++; disabled until tested: with the air closed $IN[3132] must
++; go OFF - then set TRUE
++DECL BOOL bGunAirCheck=FALSE
++; Cooling water flow (Parker 5097335, calculated in sps.sub)
++; Values in 0.1 l/min: 150 = 15.0 l/min (4.0 gpm)
++; Normal flow measured on 20R1 2026-10-05: about 23 - 26 l/min
++; nWaterFlowMin: water OK at or above this value - CONFIRM
++; nWaterFlowHyst: water NOT OK below (min - hysteresis)
++DECL GLOBAL INT nWaterFlow=226
++DECL GLOBAL INT nWaterFlowMin=150
++DECL GLOBAL INT nWaterFlowHyst=10
++; Check cooling water before entering / leaving the welder
++; TRUE = check active, FALSE = check disabled
++DECL BOOL bGunWaterCheck=TRUE
++;ENDFOLD
++ENDDAT
++

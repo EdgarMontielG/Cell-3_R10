@@ -1,0 +1,30 @@
+--- HEAD:KRC/R1/Program/HOME.src
++++ backup:KRC/R1/Program/HOME.src
+@@ -1,6 +1,5 @@
+ &ACCESS RVO1
+ &REL 5
+-&COMMENT 03-10-R1 MOVE HOME
+ &PARAM EDITMASK = *
+ DEF HOME( )
+ ;FOLD INI
+@@ -16,16 +15,13 @@
+ ;ENDFOLD (INI)
+ ;********************************
+ ; Gestamp Standards
+-; Line - BMW G65 (cell 03)
+-; Robot 03-10-R1 (BMW-03-10-R1)
++; Line - Volvo
++; Robot 03-10-R1
+ ; Application - MOVE HOME
+ ;********************************
+-; DIRECT PTP MOVE TO HOME FROM THE CURRENT POSITION - NO VIA POINTS. P1 (home.dat) HAS THE
+-; SAME AXIS VALUES AS XHOME ($config.dat); THE FORM IS A KSS 4.1.5 ONE (OLD BAS CALLS)
++; MOVE HOME
+ ;********************************
+-;NOTE: THE ONLY CALLER IS CELL, AFTER InitializeSystem, WHOSE HomeCheck HAS ALREADY BROUGHT
+-;NOTE: THE ROBOT INTO THE HOME WINDOW ($IN_HOME)
+-;FOLD PTP P1 Vel=100 % PDAT1 Tool[1]:TOOL 1 Base[0];%{PE}%R 4.1.5,%MKUKATPBASIS,%CMOVE,%VPTP,%P 1:PTP, 2:P1, 3:, 5:100, 7:PDAT1
++;FOLD PTP P1 Vel=100 % PDAT1 Tool[1]:EOAT 1 Base[0];%{PE}%R 4.1.5,%MKUKATPBASIS,%CMOVE,%VPTP,%P 1:PTP, 2:P1, 3:, 5:100, 7:PDAT1
+ $BWDSTART=FALSE
+ PDAT_ACT=PPDAT1
+ BAS(#PTP_DAT)

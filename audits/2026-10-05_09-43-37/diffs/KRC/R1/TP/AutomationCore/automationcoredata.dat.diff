@@ -1,0 +1,28 @@
+--- HEAD:KRC/R1/TP/AutomationCore/automationcoredata.dat
++++ backup:KRC/R1/TP/AutomationCore/automationcoredata.dat
+@@ -77,13 +77,13 @@
+ DECL GLOBAL INT nWorkComplete_Handle=12283
+ DECL GLOBAL INT nPLCWaiting_Handle=0
+ DECL GLOBAL INT nPLCInvalidApps_Handle=0
+-DECL GLOBAL INT nCycleStart_Handle=11564
+-DECL GLOBAL INT nCycTime_Handle=11563
++DECL GLOBAL INT nCycleStart_Handle=11566
++DECL GLOBAL INT nCycTime_Handle=11565
+ DECL GLOBAL INT nRepoRequest_Handle=0
+ DECL GLOBAL INT nProcRequest_Handle=0
+ DECL GLOBAL INT nReqEnter_Handle=10558
+ DECL GLOBAL INT nWaitMsg_Handle=0
+-DECL GLOBAL INT nLogOnlyMsg_Handle=10032
++DECL GLOBAL INT nLogOnlyMsg_Handle=11568
+ DECL GLOBAL INT nAutoCore_Submit_Handle[10]
+ nAutoCore_Submit_Handle[1]=0
+ nAutoCore_Submit_Handle[2]=0
+@@ -140,6 +140,8 @@
+ EXT  HomeToRepair ( )
+ ;ENDFOLD (Automation Core Ext Prog Decl)
+ ;ENDFOLD (Automation Core System Variables)
++; GLOBAL ENUM NutWeld_Style_Type NUTWELD,STUDWELD
++; DECL GLOBAL NutWeld_Style_Type PNWStyle=#NUTWELD
+ ;FOLD Process Counter
+ GLOBAL ENUM MyCountCmd Init,Count1up,Check
+ DECL GLOBAL MyCountCmd geProcessCount=#Init

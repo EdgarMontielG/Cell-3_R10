@@ -1,7 +1,7 @@
 {
  "_comment": "Lista maestra de puntos abiertos del R10: G01-G22 son los puntos de la revisión de Gestamp (2026-10-02, BMW-03-10R1), Fnn/Cnn los de la revisión de Ethos (docs/FINDINGS.md). La lista de Calvin (2026-10-03) se verificó punto por punto: su referencia va en origen_ref. La actualiza la auditoría.",
  "proyecto": "Gestamp celda 3 - robot R10 (BMW-03-10-R1)",
- "actualizado": "2026-10-04",
+ "actualizado": "2026-10-05",
  "auditorias": [
   {
    "fecha": "2026-10-04",
@@ -10,6 +10,14 @@
    "reabiertos": 0,
    "cambios": "12 módulos con cambios de lógica, 8 equivalentes tras renombres, 1 borrado (centerline_loop.src), 2 movidos (Styles/optiones → Styles/Options), 104 idénticos (tools/check_equivalence.py contra la base fb8a4c8)",
    "notas": "Alta de los 22 puntos de Gestamp, F01-F47 y C01-C28. Corregidos en oficina, por probar en celda: G11-G17 y G20 (y F24, F28, F30, F32, F36), más G04 (borrado en la depuración, falta borrarlo en el controlador); cerrados por la depuración: F45, C03, C24, C26; con avance de oficina y todavía abiertos: G05, G10, F03, F07, F16, F17, F29, F31. Base: commit de depuración fb8a4c8; cambios listados en tools/code_changes.json. La lista de Calvin (Gstamp_Robot_Open_Issues_2026-10-03) se verificó punto por punto: cada fila de 10R1 o All tiene su punto (referencias en origen_ref)."
+  },
+  {
+   "fecha": "2026-10-05",
+   "respaldo": "bmw_03_10_r1.zip (am.ini 2026-10-05 09:43, robot BMW_03_10_R1, serie 658424)",
+   "cerrados": 0,
+   "reabiertos": 0,
+   "cambios": "62 archivos cambiados, 7 agregados (GUN_OPEN_CHECK, proyecto WorkVisual BMW-03-10R1_v8), 39 KRL con cambios de código (-230/+1323 líneas) contra el estado auditado (b5a8803)",
+   "notas": "La versión de oficina NO se cargó: 29 archivos son el original byte por byte, 16 se editaron encima del original y siguen en el controlador los 22 archivos borrados por la depuración. El programador trabajó sobre el original: quitó los GOTO (G11), reinició los timers del gun (F07), agregó GUN_OPEN_CHECK e interrupts de vigilancia del gun (F01 parcial), flujo de agua real (F09), evaluación por option en sensor y cámara (F02, F19 parcial), cambió el nombre del robot (G01) y activó AutomationCore_BKG editando el proveedor (F12, nuevo F49). Nuevo F48: interlock de drop-off movido después de la aproximación. Sin Excel del programador: ningún punto se marcó como corregido. Siguiente paso: integrar sus cambios en la versión depurada y cargar esa. Reporte en audits/2026-10-05_09-43-37."
   }
  ],
  "items": [
@@ -50,6 +58,11 @@
      "fecha": "2026-10-04",
      "resultado": "Alta (Gestamp)",
      "nota": "Punto 1 de la revisión de Gestamp del 2026-10-02 (BMW-03-10R1)."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Auditoría - avance parcial",
+     "nota": "El nombre del robot ya es BMW_03_10_R1 (am.ini y RobotData.xml). Falta el formato confirmado por Gestamp por escrito (criterio 1); si difiere, se cambia otra vez."
     }
    ]
   },
@@ -168,6 +181,11 @@
      "fecha": "2026-10-04",
      "resultado": "Alta (Gestamp)",
      "nota": "Punto 4 de la revisión de Gestamp del 2026-10-02 (BMW-03-10R1)."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Auditoría - no cargado",
+     "nota": "Respaldo bmw_03_10_r1 (2026-10-05): la versión de oficina no está cargada; el robot tiene el programa original (29 archivos idénticos al respaldo de partida, 16 editados encima del original). Sin prueba posible."
     }
    ]
   },
@@ -213,6 +231,11 @@
      "fecha": "2026-10-04",
      "resultado": "Alta (Gestamp)",
      "nota": "Punto 5 de la revisión de Gestamp del 2026-10-02 (BMW-03-10R1)."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Auditoría - pendiente",
+     "nota": "Los 22 archivos borrados en la depuración siguen en el controlador; dos copias AutoRR fueron editadas (sin uso)."
     }
    ]
   },
@@ -475,6 +498,16 @@
      "fecha": "2026-10-04",
      "resultado": "Alta (Gestamp)",
      "nota": "Punto 11 de la revisión de Gestamp del 2026-10-02 (BMW-03-10R1)."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Auditoría - no cargado",
+     "nota": "Respaldo bmw_03_10_r1 (2026-10-05): la versión de oficina no está cargada; el robot tiene el programa original (29 archivos idénticos al respaldo de partida, 16 editados encima del original). Sin prueba posible."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Auditoría - avance en el original",
+     "nota": "El programador quitó los GOTO por su cuenta en el programa original (apps, CENTERLINE_WELD, picks, nut check, cámara, Style1Opt1). La lógica es equivalente a la versión de oficina; hay que integrarla en la versión depurada, no cargar la suya."
     }
    ]
   },
@@ -520,6 +553,11 @@
      "fecha": "2026-10-04",
      "resultado": "Alta (Gestamp)",
      "nota": "Punto 12 de la revisión de Gestamp del 2026-10-02 (BMW-03-10R1)."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Auditoría - no cargado",
+     "nota": "Respaldo bmw_03_10_r1 (2026-10-05): la versión de oficina no está cargada; el robot tiene el programa original (29 archivos idénticos al respaldo de partida, 16 editados encima del original). Sin prueba posible."
     }
    ]
   },
@@ -565,6 +603,11 @@
      "fecha": "2026-10-04",
      "resultado": "Alta (Gestamp)",
      "nota": "Punto 13 de la revisión de Gestamp del 2026-10-02 (BMW-03-10R1)."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Auditoría - no cargado",
+     "nota": "Respaldo bmw_03_10_r1 (2026-10-05): la versión de oficina no está cargada; el robot tiene el programa original (29 archivos idénticos al respaldo de partida, 16 editados encima del original). Sin prueba posible."
     }
    ]
   },
@@ -603,6 +646,11 @@
      "fecha": "2026-10-04",
      "resultado": "Alta (Gestamp)",
      "nota": "Punto 14 de la revisión de Gestamp del 2026-10-02 (BMW-03-10R1)."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Auditoría - no cargado",
+     "nota": "Respaldo bmw_03_10_r1 (2026-10-05): la versión de oficina no está cargada; el robot tiene el programa original (29 archivos idénticos al respaldo de partida, 16 editados encima del original). Sin prueba posible."
     }
    ]
   },
@@ -654,6 +702,11 @@
      "fecha": "2026-10-04",
      "resultado": "Alta (Gestamp)",
      "nota": "Punto 15 de la revisión de Gestamp del 2026-10-02 (BMW-03-10R1)."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Auditoría - no cargado",
+     "nota": "Respaldo bmw_03_10_r1 (2026-10-05): la versión de oficina no está cargada; el robot tiene el programa original (29 archivos idénticos al respaldo de partida, 16 editados encima del original). Sin prueba posible."
     }
    ]
   },
@@ -696,6 +749,11 @@
      "fecha": "2026-10-04",
      "resultado": "Alta (Gestamp)",
      "nota": "Punto 16 de la revisión de Gestamp del 2026-10-02 (BMW-03-10R1)."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Auditoría - no cargado",
+     "nota": "Respaldo bmw_03_10_r1 (2026-10-05): la versión de oficina no está cargada; el robot tiene el programa original (29 archivos idénticos al respaldo de partida, 16 editados encima del original). Sin prueba posible."
     }
    ]
   },
@@ -737,6 +795,11 @@
      "fecha": "2026-10-04",
      "resultado": "Alta (Gestamp)",
      "nota": "Punto 17 de la revisión de Gestamp del 2026-10-02 (BMW-03-10R1)."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Auditoría - no cargado",
+     "nota": "Respaldo bmw_03_10_r1 (2026-10-05): la versión de oficina no está cargada; el robot tiene el programa original (29 archivos idénticos al respaldo de partida, 16 editados encima del original). Sin prueba posible."
     }
    ]
   },
@@ -864,6 +927,11 @@
      "fecha": "2026-10-04",
      "resultado": "Alta (Gestamp)",
      "nota": "Punto 20 de la revisión de Gestamp del 2026-10-02 (BMW-03-10R1)."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Auditoría - no cargado",
+     "nota": "Respaldo bmw_03_10_r1 (2026-10-05): la versión de oficina no está cargada; el robot tiene el programa original (29 archivos idénticos al respaldo de partida, 16 editados encima del original). Sin prueba posible."
     }
    ]
   },
@@ -996,6 +1064,11 @@
      "fecha": "2026-10-04",
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Auditoría - avance parcial",
+     "nota": "Nuevo GUN_OPEN_CHECK antes de entrar y al terminar la soldadura (gun en 137000-142000, submit corriendo, agua; aire desactivado hasta probar $IN[3132]) e interrupts 20-22 con BRAKE F mientras el robot entra y sale. Falta: clamp abierto ($IN[466]) y QFP regresado ($IN[482]) antes de entrar, y la prueba en celda. Los límites 137000/142000 están dos veces (interrupts y GUN_OPEN_CHECK.dat): unificar con las constantes de G16."
     }
    ]
   },
@@ -1036,6 +1109,11 @@
      "fecha": "2026-10-04",
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Auditoría - corregido sin marcar",
+     "nota": "Sensor y cámara evalúan nOption 1, 2, 7 y 8; la cámara sin resultado válido da scrap. Falta la prueba en celda (una tuerca faltante con option 2) y la confirmación del PLC de qué options manda."
     }
    ]
   },
@@ -1078,6 +1156,11 @@
      "fecha": "2026-10-04",
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Auditoría - sin cambio",
+     "nota": "PARTPRESENTn sigue poniéndose solo en TRUE y se lee antes del WAIT SEC 0.2; se limpia al final de Style1Opt1, no al inicio."
     }
    ]
   },
@@ -1245,6 +1328,11 @@
      "fecha": "2026-10-04",
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Auditoría - avance en el original",
+     "nota": "En el original del programador los dos timers se reinician después del HALT (igual que la versión de oficina). Sigue sin mensaje y sin do004ProcessFault: el criterio no se cumple completo."
     }
    ]
   },
@@ -1326,6 +1414,11 @@
      "fecha": "2026-10-04",
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Auditoría - corregido sin marcar",
+     "nota": "sps.sub calcula dipw1_WaterOk del sensor Parker (flujo en 0.1 l/min, mínimo 150 con histéresis 10) y $OUT[475] sigue a $IN[13] di013WaterEnable. GUN_OPEN_CHECK espera agua antes de entrar. Falta: confirmar el mínimo (el comentario cita una medición del 20R1) y la prueba en celda sin agua."
     }
    ]
   },
@@ -1461,6 +1554,11 @@
      "fecha": "2026-10-04",
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Auditoría - cambio sin decisión",
+     "nota": "El programador activó AutomationCore_BKG en sps.sub y editó la rutina del proveedor (sin soldadores 2-3, Request to Enter sin WAIT). La decisión de Gestamp no está registrada. Ver F49."
     }
    ]
   },
@@ -1789,6 +1887,11 @@
      "fecha": "2026-10-04",
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Auditoría - avance parcial",
+     "nota": "Con option 12 el sensor y la cámara ya ponen $OUT[141]/$OUT[142]. No es un veredicto exclusivo (los dos chequeos pueden poner Failed y Passed a la vez) y el drop red rabbit los sigue borrando antes del fin de ciclo."
     }
    ]
   },
@@ -1996,6 +2099,11 @@
      "fecha": "2026-10-04",
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Auditoría - no cargado",
+     "nota": "Respaldo bmw_03_10_r1 (2026-10-05): la versión de oficina no está cargada; el robot tiene el programa original (29 archivos idénticos al respaldo de partida, 16 editados encima del original). Sin prueba posible."
     }
    ]
   },
@@ -2149,6 +2257,11 @@
      "fecha": "2026-10-04",
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Auditoría - no cargado",
+     "nota": "Respaldo bmw_03_10_r1 (2026-10-05): la versión de oficina no está cargada; el robot tiene el programa original (29 archivos idénticos al respaldo de partida, 16 editados encima del original). Sin prueba posible."
     }
    ]
   },
@@ -2220,6 +2333,11 @@
      "fecha": "2026-10-04",
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Auditoría - no cargado",
+     "nota": "Respaldo bmw_03_10_r1 (2026-10-05): la versión de oficina no está cargada; el robot tiene el programa original (29 archivos idénticos al respaldo de partida, 16 editados encima del original). Sin prueba posible."
     }
    ]
   },
@@ -2308,6 +2426,11 @@
      "fecha": "2026-10-04",
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Auditoría - no cargado",
+     "nota": "Respaldo bmw_03_10_r1 (2026-10-05): la versión de oficina no está cargada; el robot tiene el programa original (29 archivos idénticos al respaldo de partida, 16 editados encima del original). Sin prueba posible."
     }
    ]
   },
@@ -2462,6 +2585,11 @@
      "fecha": "2026-10-04",
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Auditoría - no cargado",
+     "nota": "Respaldo bmw_03_10_r1 (2026-10-05): la versión de oficina no está cargada; el robot tiene el programa original (29 archivos idénticos al respaldo de partida, 16 editados encima del original). Sin prueba posible."
     }
    ]
   },
@@ -2750,6 +2878,11 @@
      "fecha": "2026-10-04",
      "resultado": "Alta (Calvin)",
      "nota": "Revisión Ethos del respaldo 658424; el punto sale de la lista de Calvin (Calvin #29)."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Auditoría - riesgo nuevo",
+     "nota": "Con AutomationCore_BKG activo, do111Gun1ElectrodeChange sigue a dipw1_EndofStepper: cell.src ya llama GunElectrodeChange cuando el stepper llega al final. El camino que F43 describe como nunca ejecutado ahora corre: probarlo antes de producción."
     }
    ]
   },
@@ -2905,6 +3038,81 @@
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
     }
    ]
+  },
+  {
+   "id": "F48",
+   "titulo": "Drop al conveyor: el interlock de drop-off se movió después de la aproximación; AtDrop3 re-enseñado",
+   "severidad": "Alto",
+   "tipo": "Código + prueba en celda",
+   "responsable": "Programador robot / Gestamp controles",
+   "modulos": [
+    "KRC/R1/Program/StyleDrops/Options/style1drop1opt1.src",
+    "KRC/R1/Program/StyleDrops/Options/style1drop1opt1.dat"
+   ],
+   "que_esta_mal": "AC_DropOffCheck(1) (espera $IN[75] di075DropOffMachine1) estaba antes de cualquier movimiento; ahora va después de PTP P5 y PTP P1: el robot se acerca al conveyor sin permiso del PLC. AtDrop3 se re-enseñó con 26° más en B y 34° en C, sin explicación.",
+   "que_hacer": "Regresar AC_DropOffCheck(1) antes del primer movimiento, o demostrar con el layout que P5 y P1 están fuera de la zona del conveyor y documentarlo. Explicar el cambio de AtDrop3.",
+   "criterio_cierre": [
+    "AC_DropOffCheck(1) antes del primer movimiento hacia el conveyor, o P5/P1 confirmados fuera de la zona por Gestamp por escrito.",
+    "Razón del re-enseñado de AtDrop3 anotada; prueba en celda: 5 ciclos dejando la pieza en el conveyor sin contacto ni marca.",
+    "Respaldo completo con el cambio en la versión depurada (no en el original)."
+   ],
+   "evidencia_programador": "Razón del cambio, croquis o foto de la zona, resultado de los 5 ciclos y fecha.",
+   "depende_de": [],
+   "estado": "Abierto",
+   "nota": "",
+   "historial": [
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Alta (auditoría)",
+     "nota": "Encontrado en el respaldo bmw_03_10_r1."
+    }
+   ],
+   "nota_programador": "",
+   "modulos_modificados": "",
+   "evidencia": "",
+   "fecha_programador": "",
+   "fecha_alta": "2026-10-05",
+   "origen": "Auditoría Ethos del respaldo bmw_03_10_r1 (2026-10-05)"
+  },
+  {
+   "id": "F49",
+   "titulo": "AutomationCore_BKG activado y editado sin decisión registrada",
+   "severidad": "Alto",
+   "tipo": "Decisión Gestamp + código",
+   "responsable": "Gestamp controles + Programador robot",
+   "modulos": [
+    "KRC/R1/System/sps.sub",
+    "KRC/R1/TP/AutomationCore/automationcoreroutines.src",
+    "KRC/R1/TP/AutomationCore/automationcoreroutines.dat"
+   ],
+   "que_esta_mal": "sps.sub ahora llama AutomationCore_BKG (F12). Escribe cada ciclo los bits de estado al PLC (aire, agua, tolvas, nut ready/fault, batería, velocidad), auto-selecciona CELL en EXT, pone do004ProcessFault en cada reset de programa, activa el camino de cambio de electrodo (F43) y el Request to Enter ($OUT[145] doCriticalWZ). La rutina del proveedor se editó: sin soldadores 2-3 y Request to Enter sin WAIT (antes congelaba el submit).",
+   "que_hacer": "Registrar la decisión de Gestamp de activar el background. Probar en celda cada salida nueva con el PLC (aire, agua, tolvas, nut ready/fault, request to enter) y el cambio de electrodo. Documentar las ediciones del proveedor (C28).",
+   "criterio_cierre": [
+    "Decisión de Gestamp por escrito (activar AutomationCore_BKG; NutWeld_BKG sigue apagado o se decide aparte).",
+    "Prueba en celda con el PLC: request to enter concedido solo sin gun en trabajo ni gripper/brake test/mastering en proceso; cada bit de estado leído en el PLC con su condición forzada; un cambio de electrodo completo (F43).",
+    "Ediciones del proveedor listadas en la entrega (C28)."
+   ],
+   "evidencia_programador": "Correo de Gestamp, tabla de señales probadas con fecha y resultado, prueba de cambio de electrodo.",
+   "depende_de": [
+    "F12",
+    "F43",
+    "C28"
+   ],
+   "estado": "Requiere decisión",
+   "nota": "La edición del Request to Enter es razonable: el WAIT original detenía todo el submit (posición del gun, preload, gripper) mientras la petición estaba activa.",
+   "historial": [
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Alta (auditoría)",
+     "nota": "Encontrado en el respaldo bmw_03_10_r1."
+    }
+   ],
+   "nota_programador": "",
+   "modulos_modificados": "",
+   "evidencia": "",
+   "fecha_programador": "",
+   "fecha_alta": "2026-10-05",
+   "origen": "Auditoría Ethos del respaldo bmw_03_10_r1 (2026-10-05)"
   },
   {
    "id": "C01",
@@ -4167,6 +4375,11 @@
      "fecha": "2026-10-04",
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
+    },
+    {
+     "fecha": "2026-10-05",
+     "resultado": "Auditoría - ediciones nuevas",
+     "nota": "Ediciones nuevas en archivos del proveedor: automationcoreroutines.src (AutomationCore_Bkg, AC_Request_to_enter), automationcoreroutines.dat (bACEntryGranted), nutweldroutines.dat (nMaxGunNr=1, dipw1_AirOK en $IN[3132]). Listarlas en la entrega."
     }
    ]
   }

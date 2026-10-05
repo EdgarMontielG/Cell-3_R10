@@ -1,0 +1,6 @@
+--- HEAD:C/KRC/Roboter/Rdc/RobotData.xml
++++ backup:C/KRC/Roboter/Rdc/RobotData.xml
+@@ -1,2 +1,2 @@
+ ï»¿<?xml version="1.0" encoding="utf-8"?>
+-<RdcConfiguration Version="1.0" RobotName="V431_03_10_R1" NetworkArchivePath="" DomainAndUser="" PassWord="Nug8zGQNi9E0dPKXT+WgSw==" />
++<RdcConfiguration Version="1.0" RobotName="BMW_03_10_R1" NetworkArchivePath="" DomainAndUser="" PassWord="Nug8zGQNi9E0dPKXT+WgSw==" />
