@@ -41,8 +41,8 @@ PICK2 = 'KRC/R1/Program/StylePicks/Options/style1pick1opt2.src'
 CELL = 'KRC/R1/cell.src'
 PRELOAD = 'KRC/R1/Program/Centerline/PRELOAD.src'
 MAYBEHOME = 'KRC/R1/Program/POUNCE.src'
-APP1 = 'KRC/R1/Program/StyleApps/Options/style1app1opt1.src'
-APP1_DAT = 'KRC/R1/Program/StyleApps/Options/style1app1opt1.dat'
+APP1 = 'KRC/R1/Program/StyleApps/Options/style1app1opt1A.src'
+APP1_DAT = 'KRC/R1/Program/StyleApps/Options/style1app1opt1A.dat'
 CONFIG = 'KRC/R1/System/$config.dat'
 ACDATA = 'KRC/R1/TP/AutomationCore/automationcoredata.dat'
 
@@ -270,7 +270,7 @@ class BackupTest(unittest.TestCase):
     def test_o_items_workbook_of_make_items_xlsx(self):
         """The layout tools/make_items_xlsx.py writes: header in row 1, the item's
         'Módulos' and the programmer's 'Módulos modificados', multi-line criteria."""
-        opt = 'KRC/R1/Program/StyleApps/Options/style1app1opt%d.src'
+        opt = 'KRC/R1/Program/StyleApps/Options/style1app1opt%dA.src'
         changes = {opt % k: self.edit(opt % k, '; Gestamp Standards', '; Gestamp Standards - rev 2')
                    for k in (1, 2)}
         zip_path = self.backup(changes)
@@ -280,7 +280,7 @@ class BackupTest(unittest.TestCase):
                  'Fecha auditoría', 'Nota auditoría']
         f01 = ['F01', 'Crítico', 'Entrada al pedestal', 'código', 'Ethos', 'style1app1opt1..5, PRELOAD',
                '• espera supervisada antes del LIN\n• prueba en celda con clamp cerrado', '',
-               'Corregido - por auditar', 'espera antes del LIN', 'style1app1opt1.src ... style1app1opt3.src',
+               'Corregido - por auditar', 'espera antes del LIN', 'style1app1opt1A.src, style1app1opt2A.src, style1app1opt3A.src',
                'T1 50 %: se detuvo antes de P22', '2026-10-06', '', '', '']
         f26 = ['F26', 'Bajo', 'Timers', 'documentación', 'Ethos', 'centerline_weld', '', '', 'En proceso',
                '', '', '', '', '', '', '']
@@ -290,9 +290,9 @@ class BackupTest(unittest.TestCase):
         (item,) = s['items']['claimed']
         self.assertEqual(item['id'], 'F01')
         self.assertEqual([m['module'] for m in item['modified']],
-                         ['style1app1opt1.src', 'style1app1opt2.src', 'style1app1opt3.src'])
+                         ['style1app1opt1A.src', 'style1app1opt2A.src', 'style1app1opt3A.src'])
         self.assertEqual(item['red_flag'],
-                         'listed as modified by the programmer but unchanged: style1app1opt3.src')
+                         'listed as modified by the programmer but unchanged: style1app1opt3A.src')
         self.assertEqual(item['code_changed_files'], [])        # a comment only
         self.assertIn('  - prueba en celda con clamp cerrado', self.report)
         self.assertIn('Only comments changed in its modules', self.report)
