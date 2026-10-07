@@ -1,0 +1,231 @@
+{
+ "tool": "tools/audit_backup.py",
+ "generated": "2026-10-07T19:41:01",
+ "backup": {
+  "zip": "/tmp/claude-0/-home-user/50f56c92-2919-5ae3-94c9-0de4476bbe87/scratchpad/s1/build/658424_R10_2026-10-07_1340.zip",
+  "sha256": "d3ecd66309722a80a6b4888072ecd40e892ace675f90f6c78ad5581be290d8bd",
+  "log_entries_skipped": 8,
+  "am_ini": {
+   "name": "e:\\bmw_03_10_r1.zip\\",
+   "date": "2026-10-05_14-46-44",
+   "config": "All",
+   "rob_name": "BMW_03_10_R1",
+   "serial": "658424",
+   "version": "V8.3.29"
+  },
+  "serial_ok": true
+ },
+ "base": {
+  "ref": "1b28a7e",
+  "commit": "1b28a7ee872afde32f846ce84b6a198ed7bf9883",
+  "subject": "Delivery of 2026-10-05 evening: program package on the 14:46 backup; Excel and PDF"
+ },
+ "first_commit": "22a98cc8efd85b7482a0051da13d7eb2c47b4998",
+ "counts": {
+  "entries": 316,
+  "unchanged": 304,
+  "changed": 10,
+  "added": 2,
+  "missing": 0,
+  "unexpected": 0,
+  "deleted_still_present": 0,
+  "pre_cleanup": 0,
+  "pre_cleanup_based": 0,
+  "code_changed_files": 11,
+  "code_lines_removed": 21,
+  "code_lines_added": 112,
+  "comment_only_files": 1,
+  "runtime_value_files": 0,
+  "FAIL": 0,
+  "WARN": 0,
+  "INFO": 0
+ },
+ "alerts": [
+  [
+   "INFO",
+   "KRC/R1/Program/StylePicks/Options/style1pick1opt1autorr.src: spelled KRC/R1/Program/StylePicks/Options/style1pick1opt1AutoRR.src in the base (the controller ignores case)"
+  ]
+ ],
+ "changed": [
+  "KRC/R1/Program/Centerline/PRELOAD.src",
+  "KRC/R1/Program/Centerline/Request_next_nut.src",
+  "KRC/R1/Program/Centerline/centerline_weld.src",
+  "KRC/R1/Program/StyleApps/Options/style1app1opt1A.src",
+  "KRC/R1/Program/StyleApps/Options/style1app1opt1B.src",
+  "KRC/R1/Program/StyleApps/Options/style1app1opt2A.src",
+  "KRC/R1/Program/StyleApps/Options/style1app1opt2B.src",
+  "KRC/R1/Program/StyleApps/Options/style1app1opt3A.src",
+  "KRC/R1/Program/StyleApps/Options/style1app1opt3B.src",
+  "KRC/R1/System/$config.dat"
+ ],
+ "added": [
+  "KRC/R1/Program/Centerline/CL_CYCLE_TIME.dat",
+  "KRC/R1/Program/Centerline/CL_CYCLE_TIME.src"
+ ],
+ "missing": [],
+ "unexpected": [],
+ "case_differences": [
+  [
+   "KRC/R1/Program/StylePicks/Options/style1pick1opt1autorr.src",
+   "KRC/R1/Program/StylePicks/Options/style1pick1opt1AutoRR.src"
+  ]
+ ],
+ "duplicate_entries": [],
+ "runtime_value_files": [],
+ "deleted_still_present": [],
+ "pre_cleanup": [],
+ "pre_cleanup_based": [],
+ "files": {
+  "KRC/R1/Program/Centerline/PRELOAD.src": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 16,
+   "code_added": 22,
+   "comment_only_changes": 95,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/Centerline/PRELOAD.src.diff"
+  },
+  "KRC/R1/Program/Centerline/Request_next_nut.src": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 9,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/Centerline/Request_next_nut.src.diff"
+  },
+  "KRC/R1/Program/Centerline/centerline_weld.src": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 3,
+   "code_added": 19,
+   "comment_only_changes": 27,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/Centerline/centerline_weld.src.diff"
+  },
+  "KRC/R1/Program/StyleApps/Options/style1app1opt1A.src": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 6,
+   "comment_only_changes": 15,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/StyleApps/Options/style1app1opt1A.src.diff"
+  },
+  "KRC/R1/Program/StyleApps/Options/style1app1opt1B.src": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 6,
+   "comment_only_changes": 15,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/StyleApps/Options/style1app1opt1B.src.diff"
+  },
+  "KRC/R1/Program/StyleApps/Options/style1app1opt2A.src": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 1,
+   "code_added": 7,
+   "comment_only_changes": 19,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/StyleApps/Options/style1app1opt2A.src.diff"
+  },
+  "KRC/R1/Program/StyleApps/Options/style1app1opt2B.src": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 1,
+   "code_added": 7,
+   "comment_only_changes": 19,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/StyleApps/Options/style1app1opt2B.src.diff"
+  },
+  "KRC/R1/Program/StyleApps/Options/style1app1opt3A.src": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 3,
+   "comment_only_changes": 6,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/StyleApps/Options/style1app1opt3A.src.diff"
+  },
+  "KRC/R1/Program/StyleApps/Options/style1app1opt3B.src": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 3,
+   "comment_only_changes": 6,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/StyleApps/Options/style1app1opt3B.src.diff"
+  },
+  "KRC/R1/System/$config.dat": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 2,
+   "comment_only_changes": 19,
+   "attributes": [],
+   "data_changes": [
+    "added 2 BOOL: NUT_FEED_START, NUT_LOAD_OK"
+   ],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/System/$config.dat.diff"
+  },
+  "KRC/R1/Program/Centerline/CL_CYCLE_TIME.dat": {
+   "area": "integrator program",
+   "status": "added",
+   "code_removed": 0,
+   "code_added": 8,
+   "comment_only_changes": 15,
+   "attributes": [
+    "+&ACCESS  RV",
+    "+&COMMENT 03-10-R1 PNW1 CYCLE TIME MEASUREMENT",
+    "+&PARAM EDITMASK = *",
+    "+&PARAM TEMPLATE = C:\\KRC\\Roboter\\Template\\vorgabe",
+    "+&REL 1"
+   ],
+   "data_changes": [
+    "added 1 DEFDAT: CL_CYCLE_TIME",
+    "added 3 INT: CL_T_LOG, CL_T_NUT, CL_T_ROW"
+   ],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/Centerline/CL_CYCLE_TIME.dat.diff"
+  },
+  "KRC/R1/Program/Centerline/CL_CYCLE_TIME.src": {
+   "area": "integrator program",
+   "status": "added",
+   "code_removed": 0,
+   "code_added": 29,
+   "comment_only_changes": 25,
+   "attributes": [
+    "+&ACCESS RVO1",
+    "+&REL 1",
+    "+&COMMENT 03-10-R1 PNW1 CYCLE TIME MEASUREMENT",
+    "+&PARAM EDITMASK = *",
+    "+&PARAM TEMPLATE = C:\\KRC\\Roboter\\Template\\vorgabe"
+   ],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/Centerline/CL_CYCLE_TIME.src.diff"
+  }
+ },
+ "signal_changes": [],
+ "findings": []
+}
