@@ -45,6 +45,7 @@ APP1 = 'KRC/R1/Program/StyleApps/Options/style1app1opt1A.src'
 APP1_DAT = 'KRC/R1/Program/StyleApps/Options/style1app1opt1A.dat'
 CONFIG = 'KRC/R1/System/$config.dat'
 ACDATA = 'KRC/R1/TP/AutomationCore/automationcoredata.dat'
+CYCLE_DAT = 'KRC/R1/Program/Centerline/CL_CYCLE_TIME.dat'
 
 
 def archive_files(ref):
@@ -482,15 +483,21 @@ class BackupTest(unittest.TestCase):
         cfg = self.edit(CONFIG, 'DECL BOOL NUT_READY=TRUE', 'DECL BOOL NUT_READY=FALSE')
         cfg = cfg.replace('DECL INT NUT_PRELOAD_STEP=0', 'DECL INT NUT_PRELOAD_STEP=20')
         acd = self.edit(ACDATA, 'nCycleStart_Handle=11564', 'nCycleStart_Handle=11877')
+        # the measurement writes array elements the .dat did not list before (F52)
+        cyc = self.edit(CYCLE_DAT, 'CL_T_ROW[2]=0', 'CL_T_ROW[2]=1')
+        cyc = cyc.replace('DECL INT CL_T_LOG[3,10,13]',
+                          'DECL INT CL_T_LOG[3,10,13]\r\nCL_T_LOG[2,1,1]=1530\r\nCL_T_LOG[2,1,2]=2210', 1)
         xlsx = os.path.join(self.tmp, 'items.xlsx')
         write_minimal_xlsx(xlsx, [['ID', 'Estado', 'Módulos', 'Qué cambió el programador'],
                                   ['F04', 'Corregido - por auditar', 'PRELOAD, $config.dat', 'dry cycle']])
-        s = self.audit(self.backup({APP1_DAT: dat, CONFIG: cfg, ACDATA: acd}), '--items', xlsx)
+        s = self.audit(self.backup({APP1_DAT: dat, CONFIG: cfg, ACDATA: acd, CYCLE_DAT: cyc}), '--items', xlsx)
         f = s['files'][APP1_DAT]
         self.assertEqual(f['data_changes'], ['XP19 (E6POS) re-taught: moved 12.5 mm'])
         self.assertEqual((f['code_removed'], f['code_added']), (1, 1))
         self.assertTrue(any(r.startswith('LAST_BASIS:') for r in f['runtime_values']))
-        self.assertEqual(sorted(s['runtime_value_files']), sorted([ACDATA, CONFIG]))
+        self.assertEqual(sorted(s['runtime_value_files']), sorted([ACDATA, CONFIG, CYCLE_DAT]))
+        self.assertEqual(s['files'][CYCLE_DAT]['runtime_values'],
+                         ['CL_T_LOG[2,1,1]: - -> 1530', 'CL_T_LOG[2,1,2]: - -> 2210', 'CL_T_ROW[2]: 0 -> 1'])
         self.assertEqual(s['files'][CONFIG]['runtime_values'],
                          ['NUT_PRELOAD_STEP: 0 -> 20', 'NUT_READY: TRUE -> FALSE'])
         self.assertEqual(s['counts']['code_changed_files'], 1)

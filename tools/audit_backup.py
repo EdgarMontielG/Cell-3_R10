@@ -823,7 +823,9 @@ def written_names(texts):
     wrote to its variables (persistent data), so a backup taken after the
     robot ran shows new values for them without any program change."""
     found = set()
-    pat = re.compile(r'(?<![\w$.])([A-Za-z_$][\w$]*)[ \t]*(?:\[[^\]\n]*\])?(?:\.[A-Za-z_]\w*)*[ \t]*=(?!=)')
+    # the index may hold one nested index: CL_T_LOG[n,CL_T_ROW[n],s]=...
+    pat = re.compile(r'(?<![\w$.])([A-Za-z_$][\w$]*)[ \t]*(?:\[(?:[^\[\]\n]|\[[^\[\]\n]*\])*\])?'
+                     r'(?:\.[A-Za-z_]\w*)*[ \t]*=(?!=)')
     for p, t in texts.items():
         if p.lower().endswith(('.src', '.sub')):
             for line in live(t).split('\n'):
@@ -834,8 +836,9 @@ def written_names(texts):
 
 def split_runtime_values(old_code, new_code, written):
     """Take out of two numbered_code() lists of a .dat the value-only changes
-    of variables the program writes at run time, and of the editor's
-    suggestion data. Returns (old, new, [(name, old value, new value)])."""
+    of variables the program writes at run time (and the first value of an
+    element of an array it writes), and of the editor's suggestion data.
+    Returns (old, new, [(name, old value, new value)])."""
     def keyed(code):
         out, dup = {}, set()
         for i, (_, c) in enumerate(code):
