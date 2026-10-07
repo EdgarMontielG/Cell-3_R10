@@ -302,7 +302,7 @@
    "items": [
     "F52"
    ],
-   "what": "Cycle-time measurement: CL_CYCLE_TIME (new module) records $TIMER[16] in ms from the robot stopped at the wait point of each weld app (CL_CYCLE_START, after a WAIT SEC 0 at the point where the robot already stops for the nut wait) to the nut ready (step 1) and to 12 steps of CENTERLINE_WELD (2-13), last 10 cycles per nut, in CL_CYCLE_TIME.dat. Only writes its own data and $TIMER[16]: no signal, wait or motion. To remove when the cycle-time work is closed.",
+   "what": "Cycle-time measurement: CL_CYCLE_TIME (new module) records $TIMER[20] in ms from the robot stopped at the wait point of each weld app (CL_CYCLE_START, after a WAIT SEC 0 at the point where the robot already stops for the nut wait) to the nut ready (step 1) and to 12 steps of CENTERLINE_WELD (2-13), last 10 cycles per nut, in CL_CYCLE_TIME.dat. Only writes its own data and $TIMER[20]: no signal, wait or motion. To remove when the cycle-time work is closed.",
    "files": [
     "KRC/R1/Program/Centerline/centerline_weld.src",
     "KRC/R1/Program/StyleApps/Options/style1app1opt1A.src",
@@ -326,7 +326,7 @@
   "KRC/R1/Program/StyleApps/Options/style1app1opt2B.dat": "Weld app 2 for parts picked at pickup 2, programmer's weld positions of 2026-10-05 14:46 (F51).",
   "KRC/R1/Program/StyleApps/Options/style1app1opt3B.src": "Weld app 3 for parts picked at pickup 2, programmer's weld positions of 2026-10-05 14:46 (F51).",
   "KRC/R1/Program/StyleApps/Options/style1app1opt3B.dat": "Weld app 3 for parts picked at pickup 2, programmer's weld positions of 2026-10-05 14:46 (F51).",
-  "KRC/R1/Program/Centerline/CL_CYCLE_TIME.src": "Cycle-time measurement of the nut weld: CL_CYCLE_TIME(step) and CL_CYCLE_START(nut), $TIMER[16] (F52).",
+  "KRC/R1/Program/Centerline/CL_CYCLE_TIME.src": "Cycle-time measurement of the nut weld: CL_CYCLE_TIME(step) and CL_CYCLE_START(nut), $TIMER[20] (F52).",
   "KRC/R1/Program/Centerline/CL_CYCLE_TIME.dat": "Data of the cycle-time measurement: last 10 cycles per nut, 13 steps (F52)."
  },
  "moved_files": {

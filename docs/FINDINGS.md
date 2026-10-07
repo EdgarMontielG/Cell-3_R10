@@ -485,8 +485,11 @@ PRELOAD uses `$TIMER[10..13]`, CENTERLINE_WELD `$TIMER[14..15]`. No active
 collision with vendor code. `$TIMER[13]` is never stopped at the end of a
 preload. *Fix:* named constants with an ownership comment.
 *2026-10-07 (F52):* PRELOAD no longer uses `$TIMER[12]`; the cycle-time
-measurement uses `$TIMER[16]` (vendor code uses 7, 8, 18 and 55). The
-ownership is written in `$config.dat` (fold preload).
+measurement uses `$TIMER[20]`. Vendor code uses 7, 8, 18 (TQM), 41, 42
+(NutWeld) and 55 (AutomationCore); GlueTech claims 12-16 and 35 (`iTimerSystem`,
+`iTimerGlueTech`, `nGLUProcessTmr`) but none of its process routines runs on
+this cell - an overlap with PRELOAD and CENTERLINE_WELD that was already there.
+The ownership is written in `$config.dat` (fold preload).
 
 ### F27 — Low — contradicting comments (corrected)
 
@@ -846,7 +849,7 @@ once per part, one ready wait, weld pressure earlier, the 0.2 s valve delays
 and the 300 ms window - each value to agree with CenterLine/Bosch; the 300 ms
 window is the only no-nut / double-nut detection).
 
-*Measurement:* `CL_CYCLE_TIME` (new module, `$TIMER[16]`) writes, for the last
+*Measurement:* `CL_CYCLE_TIME` (new module, `$TIMER[20]`) writes, for the last
 10 cycles of each nut, the time of 13 steps from the robot stopped at the wait
 point (nut ready, at the weld position, pedestal ready, Bosch ready, clamp
 closed, gun closed, ready again, intensify OK, weld complete on/off, gun open,

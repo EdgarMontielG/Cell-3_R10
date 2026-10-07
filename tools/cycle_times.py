@@ -48,22 +48,29 @@ def read_dat(path):
 
 
 def cycles(text):
-    """{nut: [{step: ms}, ...]} of the complete cycles (step 13 reached)."""
+    """({nut: [{step: ms}, ...]}, rows left out) of the complete cycles: step 13
+    reached and the times never going back (a cycle aborted and restarted by a
+    block selection can write its steps into the row of an older one)."""
     log = {}
     for nut, row, step, ms in ELEM.findall(text):
         log.setdefault((int(nut), int(row)), {})[int(step)] = int(ms)
-    out = {}
+    out, skipped = {}, 0
     for (nut, _), steps in sorted(log.items()):
-        if all(steps.get(s, -1) >= 0 for s in range(1, STEPS + 1)):
+        t = [steps.get(s, -1) for s in range(1, STEPS + 1)]
+        if min(t) >= 0 and all(a <= b for a, b in zip(t, t[1:])):
             out.setdefault(nut, []).append({0: 0, **steps})
-    return out
+        elif any(v >= 0 for v in t):
+            skipped += 1
+    return out, skipped
 
 
 def report(text):
-    data = cycles(text)
+    data, skipped = cycles(text)
     if not data:
         return 'Sin ciclos completos registrados en CL_CYCLE_TIME.dat.\n'
     out = []
+    if skipped:
+        out += [f'Ciclos incompletos o interrumpidos que no se cuentan: {skipped}.', '']
 
     def row(label, values):
         avg = sum(values) / len(values)

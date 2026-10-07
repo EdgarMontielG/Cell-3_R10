@@ -72,7 +72,7 @@ def main():
         text.write(f'Version del repositorio: {head}\n\n')
         text.write(f'REEMPLAZAR ({len(replace)})\n')
         text.writelines(f'  {n}\n' for n in replace)
-        text.write(f'\nAGREGAR ({len(add)})\n')
+        text.write(f'\nAGREGAR ({len(add)}) - modulos nuevos que llaman los demas: sin ellos no compila\n')
         text.writelines(f'  {n}\n' for n in add)
         text.write(f'\nBORRAR EN EL ROBOT ({len(delete)}) - WorkVisual no los borra. Quitarlos en el mismo\n'
                    '  deploy: si quedan, no compila (modulos con el mismo nombre, senales renombradas).\n')

@@ -217,7 +217,7 @@ def instructions_sheet(ws):
         ('Ejemplo de una fila llenada (formato esperado)', True),
         ('Estado: Corregido - por auditar', False),
         ('Qué cambió el programador: style1app1opt1..3: espera supervisada antes del LIN de aproximación '
-         '(gun open LPT > 120000, $IN[466], $IN[482], NOT $IN[470]) con $TIMER[16] 3 s, mensaje y '
+         '(gun open LPT > 120000, $IN[466], $IN[482], NOT $IN[470]) con $TIMER[21] 3 s, mensaje y '
          'do004ProcessFault. PRELOAD paso 20 ahora espera $IN[482].', False),
         ('Módulos modificados: style1app1opt1.src ... style1app1opt3.src, PRELOAD.src', False),
         ('Evidencia / prueba en celda: 2026-10-06, T1 50 %: clamp cerrado a mano, el robot se detuvo '

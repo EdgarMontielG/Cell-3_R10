@@ -1572,7 +1572,7 @@ Actualizado: 2026-10-07. Pendientes: **87** de 102. El detalle técnico de cada 
 **Historial:**
 
 * 2026-10-04 — Alta (Ethos): Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02).
-* 2026-10-07 — Nota (F52): PRELOAD ya no usa $TIMER[12]; la medición de tiempo ciclo usa $TIMER[16]. Dueños anotados en $config.dat.
+* 2026-10-07 — Nota (F52): PRELOAD ya no usa $TIMER[12]; la medición de tiempo ciclo usa $TIMER[20]. Dueños anotados en $config.dat.
 
 ---
 
@@ -2302,7 +2302,7 @@ Actualizado: 2026-10-07. Pendientes: **87** de 102. El detalle técnico de cada 
 
 **Qué está mal.** Gestamp pide 12 s por pieza de proceso de soldadura con el robot parado (sin contar movimientos). En el video del 2026-10-05 son ~20 s: por tuerca ~2.8 s de llegada a soldadura y ~1.2 s para salir, y antes de las tuercas 2 y 3 ~4 s esperando la tuerca. Esa espera es toda la precarga (alimentar 2000 ms, avance del QFP, soplo 800 ms, 800 ms tras el regreso), que arrancaba hasta que el robot salía del pedestal, aunque alimentar la tuerca al shuttle solo necesita el shuttle en casa.
 
-**Qué hacer.** Etapa 1 (hecha en oficina): las apps 1 y 2 piden alimentar la siguiente tuerca al shuttle en cuanto su tuerca está lista (NUT_FEED_START); PRELOAD alimenta mientras el robot entra y suelda y espera; Request_next_nut a la salida (app 1 en P8 como antes, app 2 ahora en P05 en vez de P0) solo carga la tuerca al pin. Paso 20 termina con el QFP regresado confirmado. PRELOAD y CENTERLINE_WELD ya no se pisan $OUT[494] ni $OUT[476] durante la soldadura. Medición de tiempos CL_CYCLE_TIME ($TIMER[16]) por paso, últimos 10 ciclos por tuerca. Etapa 2 (pendiente, con datos de la medición y OK de CenterLine/Bosch): recortes dentro de CENTERLINE_WELD.
+**Qué hacer.** Etapa 1 (hecha en oficina): las apps 1 y 2 piden alimentar la siguiente tuerca al shuttle en cuanto su tuerca está lista (NUT_FEED_START); PRELOAD alimenta mientras el robot entra y suelda y espera; Request_next_nut a la salida (app 1 en P8 como antes, app 2 ahora en P05 en vez de P0) solo carga la tuerca al pin. Paso 20 termina con el QFP regresado confirmado. PRELOAD y CENTERLINE_WELD ya no se pisan $OUT[494] ni $OUT[476] durante la soldadura. Medición de tiempos CL_CYCLE_TIME ($TIMER[20]) por paso, últimos 10 ciclos por tuerca. Etapa 2 (pendiente, con datos de la medición y OK de CenterLine/Bosch): recortes dentro de CENTERLINE_WELD.
 
 **Criterio de cierre** (se verifica en el respaldo):
 
