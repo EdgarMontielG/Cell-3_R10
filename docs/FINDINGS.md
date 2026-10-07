@@ -90,6 +90,7 @@ hangs. *Medium*: robustness or diagnosis. *Low*: hygiene.
 | F49 | High | *Audit 2026-10-05:* AutomationCore_BKG switched on and the vendor routine edited, no recorded decision | Gestamp decision |
 | F50 | High | *Audit 2026-10-05 14:46:* application-1 permission (nut check / camera) checked after the robot reaches P22 | code |
 | F51 | Low | *Audit 2026-10-05 14:46:* weld apps duplicated per pick station (A/B): every change must go into both | documentation |
+| F52 | High | *Cycle time:* the robot waits about 4 s for the nut before nuts 2 and 3 - the next nut is fed only after the weld (stage 1 fixed in the office; measurement added) | code + cell test |
 
 Gestamp compliance items are at the end (C01–C28).
 
@@ -321,6 +322,10 @@ blow-off, 800 ms after the return command); `$IN[481] dipw1_FeedComplt` (on the
 bus) and `dipw1_HopperLowLevel` are not read. *Fix:* step timeouts that raise
 the fault and a message; require feed complete and hopper level before
 `NUT_READY`; weld apps wait for ready OR fault.
+*2026-10-07 (F52):* step 20 now ends when the QFP is seen returned
+(`$IN[482]` on, `$IN[470]` off) instead of 800 ms after the return command, so
+the robot no longer moves in on a timer with the shuttle possibly still out.
+The other points stay open.
 Calvin rates this High (#6). We keep Medium: a missing nut lets the gun close
 past the 69000..73000 window, so the gun-closed check stops the cycle (F07)
 instead of welding an empty pin — the cell stops, the part is not wrong.
@@ -479,6 +484,9 @@ local path or turn it into a preload request) — the same is proposed here.
 PRELOAD uses `$TIMER[10..13]`, CENTERLINE_WELD `$TIMER[14..15]`. No active
 collision with vendor code. `$TIMER[13]` is never stopped at the end of a
 preload. *Fix:* named constants with an ownership comment.
+*2026-10-07 (F52):* PRELOAD no longer uses `$TIMER[12]`; the cycle-time
+measurement uses `$TIMER[16]` (vendor code uses 7, 8, 18 and 55). The
+ownership is written in `$config.dat` (fold preload).
 
 ### F27 — Low — contradicting comments (corrected)
 
@@ -796,6 +804,64 @@ for parts from pickup 1 (positions unchanged) and 1B..3B for pickup 2 (weld
 positions re-taught 1-5 mm: the part sits differently in the gripper).
 Style1Opt1 calls A or B by the pick station. The code of A and B is the same:
 any later change to a weld app has to be made in both. Integrated as it is.
+
+### F52 — High — cycle time: the nut preload waits for the weld (2026-10-07)
+
+Gestamp expects 12 s per part of welding process with the robot stopped
+(robot motions not counted). The video of 2026-10-05 shows about 20 s: per
+nut about 2.8 s from arrival to the weld and 1.2 s to leave, and before nuts 2
+and 3 about 4 s at the wait point. That wait is the whole preload - feed
+2000 ms, QFP advance, 800 ms blow-off, 800 ms timer after the return - which
+started only when the robot had left the pedestal (Request_next_nut on the
+exit), although feeding the next nut into the shuttle needs the shuttle home
+and nothing else; the owner confirmed it can be done during the weld.
+
+*Stage 1, fixed in the office (to test on the cell):*
+
+* Weld apps 1 and 2, once their nut is ready at the wait point, set
+  `NUT_FEED_START` (only with no preload running and outside dry cycle).
+  PRELOAD runs only step 0: the next nut is fed into the shuttle while the
+  robot moves in and welds, then the feed output goes off and the preload
+  waits for `NUT_LOAD_OK`. `NUT_READY` stays TRUE: the nut of the current
+  weld is still on the pin.
+* `Request_next_nut` on the exit (app 1 at P8 as before, app 2 now at P05
+  instead of P0) is the load request: PRELOAD runs steps 10 and 20 (QFP
+  advance, blow-off onto the pin, QFP return). The QFP therefore moves with
+  the robot in the same area as before (P8, P0, P5, P05, app 3's P20, all
+  about 180 mm from the weld positions; P05 is 4 mm from P5, where the robot
+  already waited while the QFP loaded). A `NUT_START` with nothing fed (pick,
+  dry cycle just switched off, a skipped feed request) feeds and loads as
+  before.
+* Step 20 ends on the QFP returned switch, not on 800 ms (F13).
+* The two programs no longer fight over outputs during the weld: PRELOAD
+  writes `$OUT[494]` only with the load allowed (CENTERLINE_WELD switches it on
+  for the intensify), and CENTERLINE_WELD switches the feed `$OUT[476]` off
+  only when no preload is running.
+
+The feed starts at the wait point, not at the weld position, so its 2000 ms
+end before the intensify (`$OUT[494]` on) even if the weld gets shorter. Expected
+gain: about 3 s per nut 2 and 3 - from about 20 s to about 13-14 s of robot
+stopped per part. The rest is in CENTERLINE_WELD itself (stage 2: Bosch enable
+once per part, one ready wait, weld pressure earlier, the 0.2 s valve delays
+and the 300 ms window - each value to agree with CenterLine/Bosch; the 300 ms
+window is the only no-nut / double-nut detection).
+
+*Measurement:* `CL_CYCLE_TIME` (new module, `$TIMER[16]`) writes, for the last
+10 cycles of each nut, the time of 13 steps from the robot stopped at the wait
+point (nut ready, at the weld position, pedestal ready, Bosch ready, clamp
+closed, gun closed, ready again, intensify OK, weld complete on/off, gun open,
+clamp open, end) into `CL_CYCLE_TIME.dat`. It writes only its own data; a
+`WAIT SEC 0` was added at the wait points, where the robot already stopped for
+the nut wait. `tools/cycle_times.py <backup.zip>` prints the averages and the
+robot-stopped time per part. Remove the module and its calls when the
+cycle-time work is closed.
+
+*Cell test:* in T1, watch the first cycles: the shuttle must stay home while
+the part is in the pedestal and move only with the robot at P8/P0/P5/P05/P20;
+one nut per feed (no double nut in the shuttle); nuts 2 and 3 on the pin before
+the robot moves in; dry cycle on and off; a program reset in the middle of a
+part and a restart (the fed nut is loaded at the next request, not fed again);
+then 10 cycles in automatic and a backup for the times.
 ## Gestamp compliance
 
 Reference: GESTAMP FANUC Reference Guide V23 and NA-ST-002 rev 11, as

@@ -91,6 +91,20 @@ Every changed, added, deleted or moved file must be listed in
 changes and the cell test each one needs are in the open items (state
 *Corregido en oficina - probar en celda*) and in section 3 of the PDF.
 
+## Cycle time (stage 1, 2026-10-07)
+
+Gestamp expects 12 s per part of welding process with the robot stopped. The
+robot waited about 4 s for the nut before nuts 2 and 3 because the next nut was
+fed only after the weld. Stage 1 (F52) feeds it into the shuttle while the robot
+moves in and welds, and loads it onto the pin on the way out, at the same robot
+positions as before; it also adds a measurement (`CL_CYCLE_TIME`, last 10
+cycles per nut, 13 steps of the weld). After 10 cycles in automatic, a backup
+gives the times:
+
+```
+python3 tools/cycle_times.py <backup.zip>
+```
+
 ## Loading onto the robot
 
 The office version changes code: run the cell tests of the items "Corregido en
@@ -156,6 +170,7 @@ tools/code_changes.json       every code change after the cleanup, with its item
 tools/renames.json            renamed identifiers and constants for check_equivalence
 tools/build_archive.py        builds the full archive of the version, on top of the last audited backup
 tools/make_package.py         builds the programmer's package: changed programs and the delete list
+tools/cycle_times.py          cycle times of the nut weld from a backup (CL_CYCLE_TIME, F52)
 docs/open_items.json          master list (Gestamp G01-G22, F01-F47, C01-C28), state and history
 docs/OPEN_ITEMS.es.md         readable view of the open items (generated, Spanish)
 docs/PROCESO.es.md            the daily close-and-audit process (Spanish)

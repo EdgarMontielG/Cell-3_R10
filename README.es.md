@@ -101,6 +101,20 @@ atiende; si no, falla. Los cambios y la prueba en celda que pide cada uno
 están en los puntos abiertos (estado *Corregido en oficina - probar en
 celda*) y en la sección 3 del PDF.
 
+## Tiempo ciclo (etapa 1, 2026-10-07)
+
+Gestamp pide 12 s por pieza de proceso de soldadura con el robot parado. El
+robot esperaba unos 4 s la tuerca antes de las tuercas 2 y 3 porque la
+siguiente tuerca se alimentaba hasta después de soldar. La etapa 1 (F52) la
+alimenta al shuttle mientras el robot entra y suelda, y la carga al pin a la
+salida, en las mismas posiciones del robot que antes; además agrega una
+medición (`CL_CYCLE_TIME`, últimos 10 ciclos por tuerca, 13 pasos de la
+soldadura). Después de 10 ciclos en automático, un respaldo da los tiempos:
+
+```
+python3 tools/cycle_times.py <respaldo.zip>
+```
+
 ## Carga en el robot
 
 La versión de oficina cambia código: hacer las pruebas en celda de los puntos
@@ -176,6 +190,7 @@ tools/code_changes.json       cada cambio de código posterior a la depuración,
 tools/renames.json            identificadores renombrados y constantes para check_equivalence
 tools/build_archive.py        genera el zip completo de la versión, sobre el último respaldo auditado
 tools/make_package.py         genera el paquete para el programador: programas que cambian y lista de borrado
+tools/cycle_times.py          tiempos de la soldadura de tuerca desde un respaldo (CL_CYCLE_TIME, F52)
 docs/open_items.json          lista maestra (G01-G22 de Gestamp, F01-F47, C01-C28), estado e historial
 docs/OPEN_ITEMS.es.md         vista legible de los puntos abiertos (generada)
 docs/PROCESO.es.md            el proceso diario de cierre y auditoría

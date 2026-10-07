@@ -2,7 +2,7 @@
 
 *Archivo generado por `tools/make_items_md.py` a partir de `docs/open_items.json` — no se edita a mano.*
 
-Actualizado: 2026-10-05. Pendientes: **86** de 101. El detalle técnico de cada punto (en inglés, para Gestamp) está en [FINDINGS.md](FINDINGS.md); el proceso en [PROCESO.es.md](PROCESO.es.md).
+Actualizado: 2026-10-07. Pendientes: **87** de 102. El detalle técnico de cada punto (en inglés, para Gestamp) está en [FINDINGS.md](FINDINGS.md); el proceso en [PROCESO.es.md](PROCESO.es.md).
 
 **Puntos de Gestamp (G01–G22)**: revisión de Gestamp del 2026-10-02 (BMW-03-10R1), con su texto original. 9 están corregidos en la versión de oficina y falta probarlos en celda (estado *Corregido en oficina - probar en celda*). Los Fnn/Cnn son de la revisión de Ethos (numeración del R20); los marcados "Calvin #n" también están en la lista de Calvin (2026-10-03), verificada punto por punto. Esta lista es la única que se usa.
 
@@ -88,6 +88,7 @@ Actualizado: 2026-10-05. Pendientes: **86** de 101. El detalle técnico de cada 
 | F49 | AutomationCore_BKG activado y editado sin decisión registrada | Alto | Gestamp controles + Programador robot | **Requiere decisión** |
 | F50 | Permiso de aplicación 1 (nut check / cámara) revisado después de llegar a P22 | Alto | Programador robot | **Abierto** |
 | F51 | ~~Apps de soldadura duplicadas por estación de pick (A/B): cada cambio va en las dos~~ | Bajo | Programador robot | Sin acción - documentado |
+| F52 | Tiempo ciclo: el robot espera ~4 s la tuerca antes de las tuercas 2 y 3 (la precarga arrancaba hasta después de soldar) | Alto | Programador robot | **Corregido en oficina - probar en celda** |
 | C01 | ~~AutomationCore_Bkg deshabilitado: el estatus al PLC no se actualiza~~ | - | Gestamp controles / Ethos (Edgar) | Se cierra con otro punto |
 | C02 | Designación BMW-03-10-R1 en los encabezados; confirmar formato con Gestamp | - | Ethos (Edgar) / Gestamp controles | **Requiere decisión** |
 | C03 | ~~Encabezado estándar Gestamp en cada módulo del integrador~~ | - | Programador robot | Cerrado - depuración |
@@ -1166,6 +1167,7 @@ Actualizado: 2026-10-05. Pendientes: **86** de 101. El detalle técnico de cada 
 **Historial:**
 
 * 2026-10-04 — Alta (Ethos): Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02).
+* 2026-10-07 — Avance parcial (F52): El paso 20 ya termina con el QFP regresado confirmado ($IN[482] ON, $IN[470] OFF) en vez de 800 ms. Timeouts, falla y feed complete siguen pendientes.
 
 ---
 
@@ -1570,6 +1572,7 @@ Actualizado: 2026-10-05. Pendientes: **86** de 101. El detalle técnico de cada 
 **Historial:**
 
 * 2026-10-04 — Alta (Ethos): Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02).
+* 2026-10-07 — Nota (F52): PRELOAD ya no usa $TIMER[12]; la medición de tiempo ciclo usa $TIMER[16]. Dueños anotados en $config.dat.
 
 ---
 
@@ -2288,6 +2291,35 @@ Actualizado: 2026-10-05. Pendientes: **86** de 101. El detalle técnico de cada 
 **Historial:**
 
 * 2026-10-05 — Alta (auditoría): Integrado en la versión depurada.
+
+---
+
+## F52 — Tiempo ciclo: el robot espera ~4 s la tuerca antes de las tuercas 2 y 3 (la precarga arrancaba hasta después de soldar)
+
+**Severidad:** Alto · **Tipo:** Código + prueba en celda · **Responsable:** Programador robot · **Estado:** Corregido en oficina - probar en celda
+
+**Módulos:** `KRC/R1/Program/Centerline/PRELOAD.src`, `KRC/R1/Program/Centerline/centerline_weld.src`, `KRC/R1/Program/Centerline/Request_next_nut.src`, `KRC/R1/Program/Centerline/CL_CYCLE_TIME.src`, `KRC/R1/Program/StyleApps/Options/style1app1opt1A..3B`, `KRC/R1/System/$config.dat`
+
+**Qué está mal.** Gestamp pide 12 s por pieza de proceso de soldadura con el robot parado (sin contar movimientos). En el video del 2026-10-05 son ~20 s: por tuerca ~2.8 s de llegada a soldadura y ~1.2 s para salir, y antes de las tuercas 2 y 3 ~4 s esperando la tuerca. Esa espera es toda la precarga (alimentar 2000 ms, avance del QFP, soplo 800 ms, 800 ms tras el regreso), que arrancaba hasta que el robot salía del pedestal, aunque alimentar la tuerca al shuttle solo necesita el shuttle en casa.
+
+**Qué hacer.** Etapa 1 (hecha en oficina): las apps 1 y 2 piden alimentar la siguiente tuerca al shuttle en cuanto su tuerca está lista (NUT_FEED_START); PRELOAD alimenta mientras el robot entra y suelda y espera; Request_next_nut a la salida (app 1 en P8 como antes, app 2 ahora en P05 en vez de P0) solo carga la tuerca al pin. Paso 20 termina con el QFP regresado confirmado. PRELOAD y CENTERLINE_WELD ya no se pisan $OUT[494] ni $OUT[476] durante la soldadura. Medición de tiempos CL_CYCLE_TIME ($TIMER[16]) por paso, últimos 10 ciclos por tuerca. Etapa 2 (pendiente, con datos de la medición y OK de CenterLine/Bosch): recortes dentro de CENTERLINE_WELD.
+
+**Criterio de cierre** (se verifica en el respaldo):
+
+* Prueba en T1: el shuttle no se mueve con la pieza en el pedestal; solo con el robot en P8/P0/P5/P05/P20 de la app 3.
+* Una tuerca por alimentación (sin doble tuerca en el shuttle); tuercas 2 y 3 en el pin antes de que el robot entre.
+* Dry cycle encendido y apagado; reset de programa a media pieza y rearranque: la tuerca ya alimentada se carga en la siguiente petición, no se alimenta otra.
+* 10 ciclos en automático y respaldo: tools/cycle_times.py muestra la espera de tuerca de las tuercas 2 y 3 cerca de 0 y el tiempo de robot parado por pieza.
+* Etapa 2 decidida con los tiempos medidos (o documentado que no se hace).
+
+**Evidencia del programador.** Resultado de las pruebas con fecha y el respaldo después de 10 ciclos en automático.
+
+**Nota.** Etapa 1 de tiempo ciclo. Ganancia esperada ~3 s por tuerca 2 y 3: de ~20 s a ~13-14 s de robot parado por pieza. La medición (CL_CYCLE_TIME) se quita al cerrar el tema de tiempo ciclo.
+
+**Historial:**
+
+* 2026-10-07 — Alta: Análisis del video y del código; el dueño confirma que se puede alimentar la tuerca durante la soldadura.
+* 2026-10-07 — Corregido en oficina: Etapa 1 y medición; revisión independiente antes de la entrega.
 
 ---
 

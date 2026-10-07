@@ -848,7 +848,14 @@ def split_runtime_values(old_code, new_code, written):
     old_k, new_k = keyed(old_code), keyed(new_code)
     drop_old, drop_new, changes = set(), set(), []
     for key, (j, (_, shown, var, typ, value)) in new_k.items():
-        if key not in old_k or old_k[key][1][4] == value:
+        if key not in old_k:
+            # an element of an array the program writes appears in the .dat the
+            # first time the program writes it (CL_CYCLE_TIME.dat, CL_T_LOG)
+            if key[0] == 'elem' and var.lower() in written:
+                drop_new.add(j)
+                changes.append((shown, '-', value))
+            continue
+        if old_k[key][1][4] == value:
             continue
         if var.lower() in written or (typ and EDITOR_TYPE.search(typ)):
             drop_old.add(old_k[key][0])

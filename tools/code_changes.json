@@ -280,6 +280,38 @@
    "files": [
     "KRC/R1/System/sps.sub"
    ]
+  },
+  {
+   "items": [
+    "F52",
+    "F13"
+   ],
+   "what": "Cycle time, stage 1: the next nut is fed into the shuttle while the robot moves in and welds. Weld apps 1-2 set NUT_FEED_START at the wait point when their nut is ready (no preload running, not dry cycle); PRELOAD then runs step 0 only (feed 2000 ms, feed off at the end of the step) and waits for NUT_LOAD_OK, which Request_next_nut gives (NUT_START) with the robot clear: app 1 at P8 as before, app 2 at P05 (trigger DISTANCE 1 -> 0, P05 is 4 mm from P5). A NUT_START with no preload running feeds and loads as before. PRELOAD writes $OUT[494] dopw1_BlowOff in step 0 only with the load allowed; CENTERLINE_WELD switches $OUT[476] dopw1_StartFeed off only when no preload is running. Step 20 ends when the QFP is seen returned ($IN[482] on, $IN[470] off) instead of 800 ms after the return command ($TIMER[12] no longer used, F13). On completion NUTCYCLE_ACTIVE is cleared before the ready flags. New flags NUT_FEED_START and NUT_LOAD_OK in $config.dat.",
+   "files": [
+    "KRC/R1/Program/Centerline/PRELOAD.src",
+    "KRC/R1/Program/Centerline/centerline_weld.src",
+    "KRC/R1/Program/Centerline/Request_next_nut.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt1A.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt1B.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt2A.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt2B.src",
+    "KRC/R1/System/$config.dat"
+   ]
+  },
+  {
+   "items": [
+    "F52"
+   ],
+   "what": "Cycle-time measurement: CL_CYCLE_TIME (new module) records $TIMER[16] in ms from the robot stopped at the wait point of each weld app (CL_CYCLE_START, after a WAIT SEC 0 at the point where the robot already stops for the nut wait) to the nut ready (step 1) and to 12 steps of CENTERLINE_WELD (2-13), last 10 cycles per nut, in CL_CYCLE_TIME.dat. Only writes its own data and $TIMER[16]: no signal, wait or motion. To remove when the cycle-time work is closed.",
+   "files": [
+    "KRC/R1/Program/Centerline/centerline_weld.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt1A.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt1B.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt2A.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt2B.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt3A.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt3B.src"
+   ]
   }
  ],
  "deleted_files": {
@@ -293,7 +325,9 @@
   "KRC/R1/Program/StyleApps/Options/style1app1opt2B.src": "Weld app 2 for parts picked at pickup 2, programmer's weld positions of 2026-10-05 14:46 (F51).",
   "KRC/R1/Program/StyleApps/Options/style1app1opt2B.dat": "Weld app 2 for parts picked at pickup 2, programmer's weld positions of 2026-10-05 14:46 (F51).",
   "KRC/R1/Program/StyleApps/Options/style1app1opt3B.src": "Weld app 3 for parts picked at pickup 2, programmer's weld positions of 2026-10-05 14:46 (F51).",
-  "KRC/R1/Program/StyleApps/Options/style1app1opt3B.dat": "Weld app 3 for parts picked at pickup 2, programmer's weld positions of 2026-10-05 14:46 (F51)."
+  "KRC/R1/Program/StyleApps/Options/style1app1opt3B.dat": "Weld app 3 for parts picked at pickup 2, programmer's weld positions of 2026-10-05 14:46 (F51).",
+  "KRC/R1/Program/Centerline/CL_CYCLE_TIME.src": "Cycle-time measurement of the nut weld: CL_CYCLE_TIME(step) and CL_CYCLE_START(nut), $TIMER[16] (F52).",
+  "KRC/R1/Program/Centerline/CL_CYCLE_TIME.dat": "Data of the cycle-time measurement: last 10 cycles per nut, 13 steps (F52)."
  },
  "moved_files": {
   "KRC/R1/Program/Styles/optiones/style1opt1.src": "KRC/R1/Program/Styles/Options/style1opt1.src",
