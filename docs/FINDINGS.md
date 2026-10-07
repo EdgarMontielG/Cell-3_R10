@@ -859,8 +859,26 @@ the nut wait. `tools/cycle_times.py <backup.zip>` prints the averages and the
 robot-stopped time per part. Remove the module and its calls when the
 cycle-time work is closed.
 
+*Independent review (2026-10-07), fixed:* CENTERLINE_WELD's own nut feed
+(F25) no longer runs while a preload is running - after a gun-closed timeout
+and a retry it would have advanced the shuttle holding the next nut and fed
+again; the retry now welds with what is on the pin and, with no nut, the
+gun-closed check stops again (F07). PRELOAD reads `NUT_START` once and clears
+it only when it takes it. The skipped-trigger comments in apps 1 and 2 were
+wrong: `NEXT_NUT_READY` is still TRUE from the previous nut, so the robot goes
+in with no nut and the gun-closed check stops it (F14). The measurement moved
+from `$TIMER[16]` to `$TIMER[20]` (GlueTech claims 16, F26).
+*Known, not changed:* switching dry cycle on in the middle of a feed leaves
+the feed output on until it is switched off again, as before (F04). A
+feed-only preload waiting for its load request survives a program reset and
+CENTERLINE_HOME; if the shuttle is emptied by hand meanwhile, the next load
+puts no nut on the pin and the gun-closed check stops the cycle - a reset of
+the preload state belongs to F38. `$OUT[494]` (intensify) may overlap the end of
+the feed: the measurement shows it (step 8 less than 2 s after step 1).
+
 *Cell test:* in T1, watch the first cycles: the shuttle must stay home while
-the part is in the pedestal and move only with the robot at P8/P0/P5/P05/P20;
+the part is in the pedestal and move only with the robot at P8/P0/P5/P05/P20
+or travelling between them - check the clearance at 100 % override too;
 one nut per feed (no double nut in the shuttle); nuts 2 and 3 on the pin before
 the robot moves in; dry cycle on and off; a program reset in the middle of a
 part and a restart (the fed nut is loaded at the next request, not fed again);

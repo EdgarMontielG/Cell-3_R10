@@ -312,6 +312,23 @@
     "KRC/R1/Program/StyleApps/Options/style1app1opt3A.src",
     "KRC/R1/Program/StyleApps/Options/style1app1opt3B.src"
    ]
+  },
+  {
+   "items": [
+    "F52",
+    "F25",
+    "F14"
+   ],
+   "what": "Independent review of the cycle-time change: CENTERLINE_WELD's local nut feed runs only when no preload is running (NOT NUT_READY AND NOT NUTCYCLE_ACTIVE), so a retry after a gun-closed timeout cannot advance a shuttle that already holds the next nut; PRELOAD clears NUT_START only when it takes it; measurement on $TIMER[20] (GlueTech claims 16); skipped-trigger comments in apps 1-2 corrected.",
+   "files": [
+    "KRC/R1/Program/Centerline/centerline_weld.src",
+    "KRC/R1/Program/Centerline/PRELOAD.src",
+    "KRC/R1/Program/Centerline/CL_CYCLE_TIME.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt1A.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt1B.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt2A.src",
+    "KRC/R1/Program/StyleApps/Options/style1app1opt2B.src"
+   ]
   }
  ],
  "deleted_files": {

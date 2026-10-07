@@ -2306,7 +2306,7 @@ Actualizado: 2026-10-07. Pendientes: **87** de 102. El detalle técnico de cada 
 
 **Criterio de cierre** (se verifica en el respaldo):
 
-* Prueba en T1: el shuttle no se mueve con la pieza en el pedestal; solo con el robot en P8/P0/P5/P05/P20 de la app 3.
+* Prueba en T1 y a 100 %: el shuttle no se mueve con la pieza en el pedestal; solo con el robot en P8/P0/P5/P05/P20 de la app 3 o entre ellos, con holgura.
 * Una tuerca por alimentación (sin doble tuerca en el shuttle); tuercas 2 y 3 en el pin antes de que el robot entre.
 * Dry cycle encendido y apagado; reset de programa a media pieza y rearranque: la tuerca ya alimentada se carga en la siguiente petición, no se alimenta otra.
 * 10 ciclos en automático y respaldo: tools/cycle_times.py muestra la espera de tuerca de las tuercas 2 y 3 cerca de 0 y el tiempo de robot parado por pieza.
@@ -2320,6 +2320,7 @@ Actualizado: 2026-10-07. Pendientes: **87** de 102. El detalle técnico de cada 
 
 * 2026-10-07 — Alta: Análisis del video y del código; el dueño confirma que se puede alimentar la tuerca durante la soldadura.
 * 2026-10-07 — Corregido en oficina: Etapa 1 y medición; revisión independiente antes de la entrega.
+* 2026-10-07 — Revisión independiente: Dos revisores: sin errores de compilación ni rutas del ciclo normal con el shuttle en movimiento con la pieza en el pedestal. Corregido: la alimentación local de CENTERLINE_WELD no corre con una precarga activa (reintento tras timeout de pistola), NUT_START se borra solo cuando se toma, medición en $TIMER[20] (GlueTech reclama el 16), comentarios de trigger saltado.
 
 ---
 
