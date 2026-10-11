@@ -1,0 +1,277 @@
+&ACCESS RVP3
+&REL 38
+&PARAM TEMPLATE = C:\KRC\Roboter\Template\vorgabe
+DEF CENTERLINE_WELD()
+;FOLD PROGRAM INFO
+;**********************************************************
+;* Customer : Gestamp
+;* Cell     : BMW-03-10 / Robot R1
+;* Part     : GE4-002
+;* Program  : CENTERLINE_WELD
+;* Function : Nut weld sequence on the Centerline nut
+;*            welder: nut feed (only if no nut is
+;*            preloaded), part clamp, gun close and
+;*            position check, weld, gun open (confirmed by
+;*            GUN_OPEN_CHECK) and return of pins, clamp
+;*            and nut feed slide.
+;* Rev.     : 2026-10-05 - GOTO jumps replaced with
+;*            structured IF/LOOP logic. Gun open is now
+;*            confirmed with GUN_OPEN_CHECK (open range
+;*            137000-142000) instead of > 120000.
+;*            Gun close check: timers are restarted
+;*            after HALT, so the check works again when
+;*            the program is restarted.
+;*            2026-10-11 - cycle time measurement
+;*            (CT_WELD_START / CT_WELD_END)
+;**********************************************************
+;ENDFOLD
+
+;FOLD REFERENCE VALUES
+;UPPER PIN RETRACT =  27252      RANGE 26000 - 28000
+;UPPER PIN EXTENDED = 6602       RANGE 6500- 7000
+;UPPER PIN WELD POSITION = 11674 RANGE 10000 - 13500
+
+
+;GUN RETRACT = 139815            RANGE 137000 - 142000
+;GUN EXTENDED = 61450            RANGE 60000 - 63000
+;GUN WELD POSITION = 70915       RANGE 65000 - 76000
+
+
+;FORMULA CMD = (MPa / 0.9) * 4095
+
+;PRESSURE 455   0.10MPa    14.50 PSI
+;PRESSURE 910   0.20MPa    29.01 PSI
+;PRESSURE 1365  0.30MPa    43.51 PSI
+;PRESSURE 1820  0.40MPa    58.02 PSI
+;PRESSURE 2275  0.50MPa    72.52 PSI
+;PRESSURE 2503  0.55MPa    79.77 PSI
+;PRESSURE 2730  0.60MPa    87.02 PSI
+;ENDFOLD
+
+CT_WELD_START()   ; Cycle time measurement: robot at the weld position (GUN_OPEN_CHECK.src, 2026-10-11)
+
+;--- Initial state ---
+; Gun open (dopw1_GunHome / valve 2)
+$OUT[472]=FALSE
+$OUT[471]=TRUE
+
+; Upper pin return
+$OUT[498]=FALSE
+$OUT[499]=TRUE
+
+; Part clamp open (CL_PartClampOpen)
+$OUT[501]=FALSE
+$OUT[502]=TRUE
+WAIT FOR $IN[466]   ; Clamp open confirmed
+
+; Lower pin (CL_LowerPinExtend)
+$OUT[496]=FALSE
+$OUT[495]=TRUE
+
+; Nut feed slide return (CL_QFPReturn)
+$OUT[503]=FALSE
+$OUT[504]=TRUE
+WAIT FOR $IN[482]   ; Nut feed slide returned
+
+;--- Nut feed (skipped if a nut is already preloaded) ---
+IF NOT NUT_READY THEN
+   ; Lower pin forward
+   $OUT[496]=FALSE
+   $OUT[495]=TRUE
+   $OUT[494]=TRUE
+
+   ; Nut feed slide advance
+   $OUT[504]=FALSE
+   $OUT[503]=TRUE
+   WAIT FOR $IN[470]   ; Nut feed slide advanced
+
+   ; Feed nut
+   dopw1_StartFeed=TRUE
+   ;WAIT FOR dipw1_FeedComplt
+   dopw1_StartFeed=FALSE
+   WAIT SEC 1.5
+   $OUT[494]=FALSE
+
+   ; Nut feed slide return
+   $OUT[503]=FALSE
+   $OUT[504]=TRUE
+   WAIT FOR $IN[482]   ; Nut feed slide returned
+
+   ; Upper pin forward
+   $OUT[499]=FALSE
+   $OUT[498]=TRUE
+ENDIF
+
+;--- Upper pin forward ---
+$OUT[499]=FALSE
+$OUT[498]=TRUE
+
+;--- Weld controller (Bosch) setup ---
+; General pressure
+CL_GunPressureCmd=405
+
+; Reset weld signals
+dopw1_WeldInit=FALSE
+dopw1_WeldContactEnable=FALSE
+dopw1_WeldOnExternal=FALSE
+gdopw1_SpotNumber=0
+dopw1_StartFeed=FALSE
+dopw1_Nut1Intensify=FALSE
+dopw1_Nut1Intensify_Home=TRUE
+dopw1_BlowOff=FALSE
+CL_GunPressureCmd=405
+
+; Enable Bosch weld controller
+dopw1_WeldContactEnable=TRUE
+dopw1_WeldOnExternal=TRUE
+
+WAIT FOR dipw1_Ready   ; Bosch ready
+
+;--- Part clamp close ---
+$OUT[502]=FALSE
+$OUT[501]=TRUE
+WAIT FOR $IN[467]   ; Clamp closed confirmed
+
+;--- Gun close ---
+$OUT[471]=FALSE
+WAIT SEC 0.2
+$OUT[472]=TRUE
+
+; Release lower pin air
+$OUT[495]=FALSE
+$OUT[496]=FALSE
+
+;--- Confirm gun closed in weld position (69000 - 73000) ---
+; $TIMER[14] = timeout for the gun to close (1000 ms)
+; $TIMER[15] = time the gun must stay in range (300 ms)
+$TIMER_STOP[14]=TRUE
+$TIMER[14]=0
+$TIMER_STOP[14]=FALSE
+
+$TIMER_STOP[15]=TRUE
+$TIMER[15]=0
+$TIMER_STOP[15]=FALSE
+
+LOOP
+   IF (CL_GunStrokePositionLPT>=69000) AND (CL_GunStrokePositionLPT<=73000) THEN
+      ; In weld range - gun closed OK after 300 ms stable
+      IF $TIMER[15]>=300 THEN
+         $TIMER_STOP[14]=TRUE
+         $TIMER[14]=0
+         $TIMER_STOP[15]=TRUE
+         $TIMER[15]=0
+         EXIT
+      ENDIF
+   ELSE
+      ; Out of weld range - restart stable time
+      $TIMER_STOP[15]=TRUE
+      $TIMER[15]=0
+      $TIMER_STOP[15]=FALSE
+
+      ; Timeout - gun did not close: program stops (HALT)
+      IF $TIMER[14]>=1000 THEN
+         $TIMER_STOP[14]=TRUE
+         $TIMER[14]=0
+         $TIMER_STOP[15]=TRUE
+         $TIMER[15]=0
+         NUT_READY=FALSE
+
+         HALT
+
+         ; Program restarted by operator: restart both timers
+         ; so the gun close check runs again from zero
+         $TIMER[14]=0
+         $TIMER_STOP[14]=FALSE
+         $TIMER[15]=0
+         $TIMER_STOP[15]=FALSE
+      ENDIF
+   ENDIF
+ENDLOOP
+
+;--- Weld ---
+dopw1_WeldOnExternal=TRUE
+
+; Weld schedule (SCHEDULE 7)
+gdopw1_SpotNumber=2
+
+WAIT FOR dipw1_Ready   ; Bosch ready
+
+; Intensify pressure
+CL_GunPressureCmd=1820
+
+dopw1_BlowOff=TRUE
+dopw1_Nut1Intensify_Home=FALSE
+dopw1_Nut1Intensify=TRUE
+
+WAIT FOR dipw1_IntensfPresOk   ; Intensify pressure OK
+
+; Confirm gun in weld position before welding
+WAIT FOR (CL_GunStrokePositionLPT>=69000) AND (CL_GunStrokePositionLPT<=73000)
+
+; Weld
+dopw1_WeldInit=TRUE
+
+WAIT FOR dipw1_WeldComplete
+
+dopw1_WeldInit=FALSE
+WAIT FOR NOT dipw1_WeldComplete
+
+; Remove intensify
+dopw1_Nut1Intensify=FALSE
+dopw1_Nut1Intensify_Home=TRUE
+dopw1_BlowOff=FALSE
+
+; General pressure
+CL_GunPressureCmd=405
+
+; Clear weld schedule
+gdopw1_SpotNumber=0
+
+$TIMER_STOP[14]=TRUE
+$TIMER[14]=0
+
+;--- Gun open ---
+$OUT[472]=FALSE
+WAIT SEC 0.2
+$OUT[471]=TRUE
+
+; Interlock: gun must be confirmed open before the part
+; is released and the robot leaves the welder
+GUN_OPEN_CHECK()
+WAIT SEC 0.2
+
+;--- Upper pin return ---
+$OUT[498]=FALSE
+$OUT[499]=TRUE
+
+;--- Part clamp open ---
+$OUT[501]=FALSE
+$OUT[502]=TRUE
+WAIT FOR $IN[466]   ; Clamp open confirmed
+
+;--- Lower pin return ---
+$OUT[496]=FALSE
+$OUT[495]=TRUE
+
+;--- Nut feed slide return ---
+$OUT[503]=FALSE
+$OUT[504]=TRUE
+WAIT FOR $IN[482]   ; Nut feed slide returned
+
+;--- Final reset ---
+dopw1_StartFeed=FALSE
+dopw1_WeldInit=FALSE
+gdopw1_SpotNumber=0
+
+dopw1_Nut1Intensify=FALSE
+dopw1_Nut1Intensify_Home=TRUE
+dopw1_BlowOff=FALSE
+; CHECK: 39425 is outside the 0-4095 pressure scale of this
+; cell (405 = general pressure above) - value kept as found
+CL_GunPressureCmd=39425
+
+dopw1_WeldContactEnable=FALSE
+dopw1_WeldOnExternal=FALSE
+
+CT_WELD_END()   ; Cycle time measurement: end of the nut (GUN_OPEN_CHECK.src, 2026-10-11)
+END

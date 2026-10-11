@@ -1,0 +1,71 @@
+&ACCESS  RV
+&COMMENT NUT WELDER GUN OPEN CHECK
+&PARAM EDITMASK = *
+&PARAM TEMPLATE = C:\KRC\Roboter\Template\vorgabe
+&REL 2
+DEFDAT  GUN_OPEN_CHECK PUBLIC
+;FOLD GUN OPEN SETTINGS
+; Open (retract) range of the nut welder gun - ROBOT 10R1,
+; signal CL_GunStrokePositionLPT (calculated in sps.sub)
+; Nominal retract position = 139815
+; Weld position range      = 69000 - 73000 (gun closed)
+; Interrupts 20/21 in style1app1opt1 - style1app1opt3 use
+; this same range as constants - change both together
+DECL GLOBAL INT nGunOpenMin=137000
+DECL GLOBAL INT nGunOpenMax=142000
+; Time allowed for the gun to open before the
+; "gun not open" message is shown [ms]
+DECL INT nGunOpenWaitMs=2000
+; Check welder air pressure switch dipw1_AirOK ($IN[3132])
+; TRUE = check active, FALSE = check disabled
+; 2026-10-05: switch mapped to $IN[3132] (TBEN bit 3.4). Check kept
+; disabled until tested: with the air closed $IN[3132] must
+; go OFF - then set TRUE
+DECL BOOL bGunAirCheck=FALSE
+; Cooling water flow (Parker 5097335, calculated in sps.sub)
+; Values in 0.1 l/min: 150 = 15.0 l/min (4.0 gpm)
+; Normal flow measured on 20R1 2026-10-05: about 23 - 26 l/min
+; nWaterFlowMin: water OK at or above this value - CONFIRM
+; nWaterFlowHyst: water NOT OK below (min - hysteresis)
+DECL GLOBAL INT nWaterFlow=233
+DECL GLOBAL INT nWaterFlowMin=150
+DECL GLOBAL INT nWaterFlowHyst=10
+; Check cooling water before entering / leaving the welder
+; TRUE = check active, FALSE = check disabled
+DECL BOOL bGunWaterCheck=TRUE
+; Cycle time measurement (CT_* in GUN_OPEN_CHECK.src) - 2026-10-11, as 20R1.
+;  Last part, ms, index = nut 1..3. Written by the program, only to read on the SmartPAD:
+;  nCtNutToNut[n]: robot at weld position of the previous nut -> at weld position of nut n
+;                  ([1] = from nut 3 of the previous part: inspection, drop, HOME, pick)
+;  nCtNutWait[n] : robot stopped at the approach point waiting for the nut before nut n
+;  nCtInWelder[n]: CENTERLINE_WELD of nut n (clamp, gun, weld, gun open, clamp open)
+;  nCtPart       : robot at weld position of nut 1 -> end of nut 3
+;  nCtWaitSum    : total nut wait of the part (nCtNutWait[1..3])
+;  nCtCycle      : nut 1 -> nut 1 of the next part (whole robot cycle, part to part)
+;  nCtHomeWait   : robot at HOME after the cycle until the PLC starts the next one (cell.src)
+;  nCtPlcWait[k] : robot stopped waiting for a PLC permission: 1 pickup, 2 application 1
+;                  (nut check, style1app2opt1), 3 drop-off (style1drop1opt1)
+;  Uses $TIMER[20] (nut to nut), [21] (nut wait), [22] (in welder), [23] (cycle), [24] (PLC waits)
+DECL GLOBAL INT nCtNut=0
+DECL GLOBAL INT nCtNutToNut[3]
+nCtNutToNut[1]=0
+nCtNutToNut[2]=0
+nCtNutToNut[3]=0
+DECL GLOBAL INT nCtNutWait[3]
+nCtNutWait[1]=0
+nCtNutWait[2]=0
+nCtNutWait[3]=0
+DECL GLOBAL INT nCtInWelder[3]
+nCtInWelder[1]=0
+nCtInWelder[2]=0
+nCtInWelder[3]=0
+DECL GLOBAL INT nCtPart=0
+DECL GLOBAL INT nCtWaitSum=0
+DECL GLOBAL INT nCtCycle=0
+DECL GLOBAL INT nCtHomeWait=0
+DECL GLOBAL INT nCtPlcWait[3]
+nCtPlcWait[1]=0
+nCtPlcWait[2]=0
+nCtPlcWait[3]=0
+;ENDFOLD
+ENDDAT

@@ -88,7 +88,7 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 | F49 | ~~AutomationCore_BKG activado y editado sin decisión registrada~~ | Alto | Gestamp controles + Programador robot | Aceptado sin cambio |
 | F50 | Permiso de aplicación 1 (nut check / cámara) revisado después de llegar a P22 | Alto | Programador robot | **Abierto** |
 | F51 | ~~Apps de soldadura duplicadas por estación de pick (A/B): cada cambio va en las dos~~ | Bajo | Programador robot | Sin acción - documentado |
-| F52 | Tiempo ciclo: el robot espera ~4 s la tuerca antes de las tuercas 2 y 3 (la precarga arrancaba hasta después de soldar) | Alto | Programador robot | **Abierto** |
+| F52 | Tiempo ciclo de R10: medir y bajarlo por debajo de R20 (la espera de tuerca antes de las tuercas 2 y 3 es la mayor parte) | Alto | Programador robot | **En proceso** |
 | C01 | ~~AutomationCore_Bkg deshabilitado: el estatus al PLC no se actualiza~~ | - | Gestamp controles / Ethos (Edgar) | Cerrado - auditado |
 | C02 | Designación BMW-03-10-R1 en los encabezados; confirmar formato con Gestamp | - | Ethos (Edgar) / Gestamp controles | **Requiere decisión** |
 | C03 | ~~Encabezado estándar Gestamp en cada módulo del integrador~~ | - | Programador robot | Cerrado - depuración |
@@ -2336,21 +2336,21 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 
 ---
 
-## F52 — Tiempo ciclo: el robot espera ~4 s la tuerca antes de las tuercas 2 y 3 (la precarga arrancaba hasta después de soldar)
+## F52 — Tiempo ciclo de R10: medir y bajarlo por debajo de R20 (la espera de tuerca antes de las tuercas 2 y 3 es la mayor parte)
 
-**Severidad:** Alto · **Tipo:** Código + prueba en celda · **Responsable:** Programador robot · **Estado:** Abierto
+**Severidad:** Alto · **Tipo:** Código + prueba en celda · **Responsable:** Programador robot · **Estado:** En proceso
 
 **Módulos:** `KRC/R1/Program/Centerline/PRELOAD.src`, `KRC/R1/Program/Centerline/centerline_weld.src`, `KRC/R1/Program/Centerline/Request_next_nut.src`, `KRC/R1/Program/Centerline/CL_CYCLE_TIME.src`, `KRC/R1/Program/StyleApps/Options/style1app1opt1A..3B`, `KRC/R1/System/$config.dat`
 
 **Qué está mal.** Gestamp pide 12 s por pieza de proceso de soldadura con el robot parado (sin contar movimientos). En el video del 2026-10-05 son ~20 s: por tuerca ~2.8 s de llegada a soldadura y ~1.2 s para salir, y antes de las tuercas 2 y 3 ~4 s esperando la tuerca. Esa espera es toda la precarga (alimentar 2000 ms, avance del QFP, soplo 800 ms, 800 ms tras el regreso), que arrancaba hasta que el robot salía del pedestal, aunque alimentar la tuerca al shuttle solo necesita el shuttle en casa.
 
-**Qué hacer.** Palanca d) del plan de tiempo ciclo: pedir la tuerca con anticipación, escondida en el traslado. Primero se mide (CT_*); el cambio se entrega sobre el último respaldo del programador solo cuando Edgar lo pida.
+**Qué hacer.** Prioridad de Edgar (2026-10-11): R10 debajo de R20 (57.3 s, meta 53 s) con margen; meta exacta por confirmar. Primero medir: entrega entregas/2026-10-11_F52_medicion (timers CT_* como en R20: pieza a pieza, tuerca a tuerca, dentro de la pistola, espera de tuerca, esperas del PLC en HOME y en permisos). Después, palancas en orden a–e (audits/2026-10-11_tiempo_ciclo/PALANCAS.es.md): paradas exactas en espacio libre, paradas del avance entre movimientos, esperas fijas ya confirmadas por sensor, petición de tuerca anticipada (etapa 1 de oficina como referencia) y handshakes de AutomationCore solo con OK de Gestamp.
 
 **Criterio de cierre** (se verifica en el respaldo):
 
-* Medición en el robot (pieza a pieza, tuerca a tuerca, espera de tuerca) antes y después del cambio.
-* Prueba en T1 y a 100 %: el shuttle no se mueve con la pieza en el pedestal fuera de lo que hace hoy; una tuerca por alimentación; tuercas 2 y 3 en el pin antes de que el robot entre.
-* Dry cycle encendido y apagado; reset de programa a media pieza y rearranque.
+* Medición cargada y respaldo con 10 piezas: nCtCycle, nCtNutWait, nCtInWelder, nCtHomeWait y nCtPlcWait leídos.
+* Meta de R10 confirmada con Edgar y alcanzada en automático, medida con nCtCycle (o el tiempo del PLC).
+* Cada cambio de tiempo ciclo probado en T1 y a 100 % sin tocar el tiempo de soldadura, los chequeos de calidad ni los interlocks de seguridad.
 
 **Evidencia del programador.** Resultado de las pruebas con fecha y el respaldo después de 10 ciclos en automático.
 
@@ -2362,6 +2362,8 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 * 2026-10-07 — Corregido en oficina: Etapa 1 y medición; revisión independiente antes de la entrega.
 * 2026-10-07 — Revisión independiente: Dos revisores: sin errores de compilación ni rutas del ciclo normal con el shuttle en movimiento con la pieza en el pedestal. Corregido: la alimentación local de CENTERLINE_WELD no corre con una precarga activa (reintento tras timeout de pistola), NUT_START se borra solo cuando se toma, medición en $TIMER[20] (GlueTech reclama el 16), comentarios de trigger saltado.
 * 2026-10-11 — Cambio de base: Base = programa del programador (respaldo del 2026-10-05 14:46). La etapa 1 de oficina (commits 17064bc a 3e748dc, paquete del 2026-10-07) no está en su programa y ya no se le pide cargarla. Queda como referencia para la palanca d).
+* 2026-10-11 — Cambio entregado: Ethos entregó la medición sobre su respaldo del 05/10 14:46: rutinas CT_NUT_WAIT, CT_WELD_START/END y CT_PLC_START/END en GUN_OPEN_CHECK (como su R20), variables nCt* en gun_open_check.dat, $TIMER[20..24]; 14 archivos, mismo comportamiento. Falta cargar, correr 10 piezas y mandar el respaldo. Paquete: entregas/2026-10-11_F52_medicion (archivos que cambian, cambios.diff, LEEME.txt y PDF de instrucciones).
+* 2026-10-11 — Análisis: Palancas con evidencia y rangos en audits/2026-10-11_tiempo_ciclo/PALANCAS.es.md: d) tuerca anticipada 5-7 s; b) dry cycle leído después de la aproximación 0.6-1.2 s, permisos después de llegar 0.3-0.8 s; a) ~10 paradas exactas en espacio libre 1-3 s; c) esperas fijas de 0.2 s 1-2.6 s. Sin medir; nada prometido.
 
 ---
 

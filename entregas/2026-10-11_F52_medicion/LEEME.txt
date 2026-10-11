@@ -1,0 +1,49 @@
+R10 (BMW-03-10-R1) - Medicion de tiempo ciclo (F52) - Ethos, 2026-10-11
+=========================================================================
+
+Hecho sobre tu respaldo del 2026-10-05 14:46. Solo vienen los 14 archivos que
+cambian. Agrega timers como tus rutinas CT_* del 20R1 (mismos nombres): pieza
+a pieza, tuerca a tuerca, dentro de la pistola, espera de tuerca, espera en
+HOME y espera de permisos del PLC (pickup, application 1, drop-off).
+El robot hace lo mismo que hoy: misma trayectoria, mismas esperas; las rutinas
+solo escriben tiempos. Cada WAIT SEC 0 nuevo va donde el robot ya se detenia.
+
+IMPORTANTE ANTES DE CARGAR
+- Si ya pusiste tus propias rutinas CT_* en el R10 despues del 05/10, NO
+  cargues este paquete: avisame y lo ajusto.
+- Si cambiaste alguno de estos archivos despues del 05/10 14:46, NO lo
+  copies: aplica a mano las lineas de cambios.diff (- se quitan, + se agregan).
+- gun_open_check.dat va completo (agrega las variables nCt* al final).
+- $config.dat no se toca.
+- Orden: primero GUN_OPEN_CHECK.src y gun_open_check.dat, luego los demas.
+- Despues de cargar: el navegador no debe mostrar ningun modulo en rojo.
+
+ARCHIVOS (KRC:\R1\Program\, cell.src en KRC:\R1\)
+  Centerline\GUN_OPEN_CHECK.src         rutinas CT_NUT_WAIT, CT_WELD_START/END, CT_PLC_START/END
+  Centerline\gun_open_check.dat         variables nCt* (ms, ultima pieza)
+  Centerline\centerline_weld.src        CT_WELD_START al inicio, CT_WELD_END al final
+  StyleApps\Options\style1app1opt1A..3A, 1B..3B.src
+                                        WAIT FOR NUT_READY / NEXT_NUT_READY -> CT_NUT_WAIT(n)
+  StyleApps\Options\style1app2opt1.src  CT_PLC_START / CT_PLC_END(2) alrededor de Application[1] Request
+  StyleDrops\Options\style1drop1opt1.src CT_PLC_START / CT_PLC_END(3) alrededor de DropOff[1] Request
+  StylePicks\Options\style1pick1opt1.src, style1pick1opt2.src
+                                        CT_PLC_START / CT_PLC_END(1) alrededor de PickUp Request
+  ..\cell.src                           CT_PLC_START al terminar el ciclo, CT_PLC_END(0) al arrancar
+  Las lineas nuevas van fuera de los folds de inline form.
+
+QUE MIDE (gun_open_check.dat, ms, ultima pieza)
+  nCtCycle        pieza a pieza (tuerca 1 -> tuerca 1 de la pieza siguiente)
+  nCtPart         tuerca 1 -> fin de la tuerca 3
+  nCtNutToNut[n]  tuerca a tuerca ([1] = desde la tuerca 3 de la pieza anterior)
+  nCtInWelder[n]  dentro de la pistola (CENTERLINE_WELD)
+  nCtNutWait[n]   robot esperando la tuerca n en el punto de espera
+  nCtWaitSum      suma de la espera de tuerca de la pieza
+  nCtHomeWait     robot en HOME hasta que el PLC arranca el ciclo
+  nCtPlcWait[k]   espera de permiso del PLC: 1 pickup, 2 application 1, 3 drop-off
+  Timers $TIMER[20] a $TIMER[24].
+
+PRUEBA
+  Un ciclo en T1 con override reducido en las dos estaciones: misma trayectoria.
+  10 piezas en automatico, leer las variables y sacar respaldo completo.
+  Si puedes, anota nCtCycle, nCtWaitSum y nCtHomeWait de 5 piezas en el Excel
+  (punto F52, columna "Que cambio el programador").

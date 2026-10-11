@@ -3619,7 +3619,7 @@
   },
   {
    "id": "F52",
-   "titulo": "Tiempo ciclo: el robot espera ~4 s la tuerca antes de las tuercas 2 y 3 (la precarga arrancaba hasta después de soldar)",
+   "titulo": "Tiempo ciclo de R10: medir y bajarlo por debajo de R20 (la espera de tuerca antes de las tuercas 2 y 3 es la mayor parte)",
    "severidad": "Alto",
    "tipo": "Código + prueba en celda",
    "responsable": "Programador robot",
@@ -3632,15 +3632,15 @@
     "KRC/R1/System/$config.dat"
    ],
    "que_esta_mal": "Gestamp pide 12 s por pieza de proceso de soldadura con el robot parado (sin contar movimientos). En el video del 2026-10-05 son ~20 s: por tuerca ~2.8 s de llegada a soldadura y ~1.2 s para salir, y antes de las tuercas 2 y 3 ~4 s esperando la tuerca. Esa espera es toda la precarga (alimentar 2000 ms, avance del QFP, soplo 800 ms, 800 ms tras el regreso), que arrancaba hasta que el robot salía del pedestal, aunque alimentar la tuerca al shuttle solo necesita el shuttle en casa.",
-   "que_hacer": "Palanca d) del plan de tiempo ciclo: pedir la tuerca con anticipación, escondida en el traslado. Primero se mide (CT_*); el cambio se entrega sobre el último respaldo del programador solo cuando Edgar lo pida.",
+   "que_hacer": "Prioridad de Edgar (2026-10-11): R10 debajo de R20 (57.3 s, meta 53 s) con margen; meta exacta por confirmar. Primero medir: entrega entregas/2026-10-11_F52_medicion (timers CT_* como en R20: pieza a pieza, tuerca a tuerca, dentro de la pistola, espera de tuerca, esperas del PLC en HOME y en permisos). Después, palancas en orden a–e (audits/2026-10-11_tiempo_ciclo/PALANCAS.es.md): paradas exactas en espacio libre, paradas del avance entre movimientos, esperas fijas ya confirmadas por sensor, petición de tuerca anticipada (etapa 1 de oficina como referencia) y handshakes de AutomationCore solo con OK de Gestamp.",
    "criterio_cierre": [
-    "Medición en el robot (pieza a pieza, tuerca a tuerca, espera de tuerca) antes y después del cambio.",
-    "Prueba en T1 y a 100 %: el shuttle no se mueve con la pieza en el pedestal fuera de lo que hace hoy; una tuerca por alimentación; tuercas 2 y 3 en el pin antes de que el robot entre.",
-    "Dry cycle encendido y apagado; reset de programa a media pieza y rearranque."
+    "Medición cargada y respaldo con 10 piezas: nCtCycle, nCtNutWait, nCtInWelder, nCtHomeWait y nCtPlcWait leídos.",
+    "Meta de R10 confirmada con Edgar y alcanzada en automático, medida con nCtCycle (o el tiempo del PLC).",
+    "Cada cambio de tiempo ciclo probado en T1 y a 100 % sin tocar el tiempo de soldadura, los chequeos de calidad ni los interlocks de seguridad."
    ],
    "evidencia_programador": "Resultado de las pruebas con fecha y el respaldo después de 10 ciclos en automático.",
    "depende_de": [],
-   "estado": "Abierto",
+   "estado": "En proceso",
    "nota": "Etapa 1 de tiempo ciclo. Ganancia esperada ~3 s por tuerca 2 y 3: de ~20 s a ~13-14 s de robot parado por pieza. La medición (CL_CYCLE_TIME) se quita al cerrar el tema de tiempo ciclo. Referencia: así lo resolvió la versión de oficina (commit 84442ac): Etapa 1 (hecha en oficina): las apps 1 y 2 piden alimentar la siguiente tuerca al shuttle en cuanto su tuerca está lista (NUT_FEED_START); PRELOAD alimenta mientras el robot entra y suelda y espera; Request_next_nut a la salida (app 1 en P8 como antes, app 2 ahora en P05 en vez de P0) solo carga la tuerca al pin. Paso 20 termina con el QFP regresado confirmado. PRELOAD y CENTERLINE_WELD ya no se pisan $OUT[494] ni $OUT[476] durante la soldadura. Medición de tiempos CL_CYCLE_TIME ($TIMER[20]) por paso, últimos 10 ciclos por tuerca. Etapa 2 (pendiente, con datos de la medición y OK de CenterLine/Bosch): recortes dentro de CENTERLINE_WELD.",
    "fecha_alta": "2026-10-07",
    "origen": "Revisión Ethos de tiempo ciclo (video 2026-10-05; 12 s de Gestamp)",
@@ -3668,6 +3668,16 @@
      "fecha": "2026-10-11",
      "resultado": "Cambio de base",
      "nota": "Base = programa del programador (respaldo del 2026-10-05 14:46). La etapa 1 de oficina (commits 17064bc a 3e748dc, paquete del 2026-10-07) no está en su programa y ya no se le pide cargarla. Queda como referencia para la palanca d)."
+    },
+    {
+     "fecha": "2026-10-11",
+     "resultado": "Cambio entregado",
+     "nota": "Ethos entregó la medición sobre su respaldo del 05/10 14:46: rutinas CT_NUT_WAIT, CT_WELD_START/END y CT_PLC_START/END en GUN_OPEN_CHECK (como su R20), variables nCt* en gun_open_check.dat, $TIMER[20..24]; 14 archivos, mismo comportamiento. Falta cargar, correr 10 piezas y mandar el respaldo. Paquete: entregas/2026-10-11_F52_medicion (archivos que cambian, cambios.diff, LEEME.txt y PDF de instrucciones)."
+    },
+    {
+     "fecha": "2026-10-11",
+     "resultado": "Análisis",
+     "nota": "Palancas con evidencia y rangos en audits/2026-10-11_tiempo_ciclo/PALANCAS.es.md: d) tuerca anticipada 5-7 s; b) dry cycle leído después de la aproximación 0.6-1.2 s, permisos después de llegar 0.3-0.8 s; a) ~10 paradas exactas en espacio libre 1-3 s; c) esperas fijas de 0.2 s 1-2.6 s. Sin medir; nada prometido."
     }
    ]
   },

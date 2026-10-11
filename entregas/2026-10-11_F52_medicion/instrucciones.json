@@ -1,0 +1,278 @@
+{
+ "archivo": "R10_instrucciones_F52_medicion.pdf",
+ "titulo": "R10 (BMW-03-10-R1) — Medición de tiempo ciclo",
+ "subtitulo": "Instrucciones de carga y prueba para el programador · Ethos Automation México · 2026-10-11",
+ "pie": "R10 (BMW-03-10-R1) · Medición de tiempo ciclo (F52) · Ethos Automation México",
+ "intro": [
+  {
+   "p": "Este paquete trae solo los **14 archivos que cambian**, hechos sobre tu respaldo del 2026-10-05 14:46. Agrega timers como las rutinas CT_* que hiciste en el 20R1, con los mismos nombres: pieza a pieza, tuerca a tuerca, dentro de la pistola, espera de tuerca, y además las esperas del PLC en HOME y en los permisos de pickup, application y drop-off."
+  },
+  {
+   "p": "El robot hace lo mismo que hoy: misma trayectoria y mismas esperas. Las rutinas solo escriben tiempos en variables. Cada `WAIT SEC 0` nuevo va donde el robot ya se detenía (la espera de tuerca, el chequeo de AutomationCore o HOME)."
+  },
+  {
+   "p": "Contenido: carpeta `KRC` con los archivos, `cambios.diff` con las líneas exactas que cambian y `LEEME.txt` con este mismo resumen."
+  }
+ ],
+ "secciones": [
+  {
+   "titulo": "1. Antes de cargar",
+   "bloques": [
+    {
+     "lista": [
+      "Si ya pusiste tus propias rutinas CT_* en el R10 después del 05/10, **no cargues este paquete**: avísame y lo ajusto a tu programa.",
+      "Si cambiaste alguno de los 14 archivos después del 05/10 14:46, **no copies ese archivo**: aplica a mano las líneas de `cambios.diff` (las que empiezan con - se quitan y las que empiezan con + se agregan).",
+      "`gun_open_check.dat` va completo: agrega las variables `nCt*` al final; lo demás queda igual (nWaterFlow lo vuelve a escribir el submit).",
+      "`$config.dat` no se toca."
+     ]
+    }
+   ]
+  },
+  {
+   "titulo": "2. Pasos de carga, en este orden",
+   "bloques": [
+    {
+     "pasos": [
+      "Respaldo completo (Archive → All).",
+      "Copia primero `GUN_OPEN_CHECK.src` y `gun_open_check.dat` (las rutinas), y después los demás archivos de la tabla de la sección 3, reemplazando los actuales. Marca cada uno.",
+      "Revisa el navegador: **ningún módulo en rojo**. Si alguno sale en rojo, no sigas: regresa al respaldo del paso 1 y manda foto del error.",
+      "Haz las pruebas de la sección 5."
+     ]
+    }
+   ]
+  },
+  {
+   "titulo": "3. Archivos que se cargan",
+   "bloques": [
+    {
+     "p": "Todos van en `KRC:\\R1\\Program\\`, salvo `cell.src` que va en `KRC:\\R1\\`. Si en la última columna marcas que el archivo cambió después del 05/10, aplica el diff a mano."
+    },
+    {
+     "tabla": {
+      "anchos_mm": [
+       8,
+       84,
+       38,
+       18,
+       34
+      ],
+      "filas": [
+       [
+        "#",
+        "Archivo (KRC:\\R1\\Program\\)",
+        "Qué mide",
+        "Cargado",
+        "Cambió después del 05/10"
+       ],
+       [
+        "1",
+        "`Centerline\\GUN_OPEN_CHECK.src`",
+        "rutinas CT_*",
+        "[ ]",
+        "[ ]"
+       ],
+       [
+        "2",
+        "`Centerline\\gun_open_check.dat`",
+        "variables nCt*",
+        "[ ]",
+        "[ ]"
+       ],
+       [
+        "3",
+        "`Centerline\\centerline_weld.src`",
+        "dentro de la pistola",
+        "[ ]",
+        "[ ]"
+       ],
+       [
+        "4",
+        "`StyleApps\\Options\\style1app1opt1A.src`",
+        "espera tuerca 1",
+        "[ ]",
+        "[ ]"
+       ],
+       [
+        "5",
+        "`StyleApps\\Options\\style1app1opt2A.src`",
+        "espera tuerca 2",
+        "[ ]",
+        "[ ]"
+       ],
+       [
+        "6",
+        "`StyleApps\\Options\\style1app1opt3A.src`",
+        "espera tuerca 3",
+        "[ ]",
+        "[ ]"
+       ],
+       [
+        "7",
+        "`StyleApps\\Options\\style1app1opt1B.src`",
+        "espera tuerca 1",
+        "[ ]",
+        "[ ]"
+       ],
+       [
+        "8",
+        "`StyleApps\\Options\\style1app1opt2B.src`",
+        "espera tuerca 2",
+        "[ ]",
+        "[ ]"
+       ],
+       [
+        "9",
+        "`StyleApps\\Options\\style1app1opt3B.src`",
+        "espera tuerca 3",
+        "[ ]",
+        "[ ]"
+       ],
+       [
+        "10",
+        "`StyleApps\\Options\\style1app2opt1.src`",
+        "permiso application 1",
+        "[ ]",
+        "[ ]"
+       ],
+       [
+        "11",
+        "`StyleDrops\\Options\\style1drop1opt1.src`",
+        "permiso drop-off",
+        "[ ]",
+        "[ ]"
+       ],
+       [
+        "12",
+        "`StylePicks\\Options\\style1pick1opt1.src`",
+        "permiso pickup 1",
+        "[ ]",
+        "[ ]"
+       ],
+       [
+        "13",
+        "`StylePicks\\Options\\style1pick1opt2.src`",
+        "permiso pickup 2",
+        "[ ]",
+        "[ ]"
+       ],
+       [
+        "14",
+        "`..\\cell.src`",
+        "espera en HOME",
+        "[ ]",
+        "[ ]"
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "titulo": "4. Qué mide cada variable",
+   "bloques": [
+    {
+     "p": "Todas en milisegundos, de la última pieza, en `gun_open_check.dat` (Display → Variable → Single). Índice = tuerca 1..3."
+    },
+    {
+     "tabla": {
+      "anchos_mm": [
+       36,
+       146
+      ],
+      "filas": [
+       [
+        "Variable",
+        "Qué es"
+       ],
+       [
+        "`nCtCycle`",
+        "Pieza a pieza: robot en la posición de soldadura de la tuerca 1 → la misma posición en la pieza siguiente."
+       ],
+       [
+        "`nCtPart`",
+        "Robot en la tuerca 1 → fin de la tuerca 3 (las tres tuercas)."
+       ],
+       [
+        "`nCtNutToNut[n]`",
+        "Tuerca a tuerca: posición de soldadura de la tuerca anterior → la de la tuerca n. `[1]` = desde la tuerca 3 de la pieza anterior (inspección, drop, HOME, pick)."
+       ],
+       [
+        "`nCtInWelder[n]`",
+        "Dentro de la pistola: CENTERLINE_WELD de la tuerca n (clamp, pistola, soldadura, pistola abierta, clamp abierto)."
+       ],
+       [
+        "`nCtNutWait[n]`",
+        "Robot parado en el punto de espera esperando la tuerca n (NUT_READY / NEXT_NUT_READY)."
+       ],
+       [
+        "`nCtWaitSum`",
+        "Suma de la espera de tuerca de la pieza."
+       ],
+       [
+        "`nCtHomeWait`",
+        "Robot en HOME después del ciclo hasta que el PLC arranca el siguiente."
+       ],
+       [
+        "`nCtPlcWait[k]`",
+        "Robot parado esperando permiso del PLC: 1 pickup, 2 application 1 (nut check), 3 drop-off."
+       ],
+       [
+        "Timers",
+        "`$TIMER[20]` a `$TIMER[24]` (nadie más los usa en el R10)."
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "titulo": "5. Pruebas y resultado esperado",
+   "bloques": [
+    {
+     "tabla": {
+      "anchos_mm": [
+       64,
+       92,
+       26
+      ],
+      "filas": [
+       [
+        "Prueba",
+        "Resultado esperado",
+        "OK / fecha"
+       ],
+       [
+        "Navegador después de cargar",
+        "Ningún módulo en rojo.",
+        "[ ]"
+       ],
+       [
+        "Un ciclo en T1 con override reducido, estación 1 y estación 2",
+        "Misma trayectoria que antes; el robot se detiene solo donde ya se detenía (HOME, punto de espera de cada tuerca, posición de soldadura, P22, P5 del drop).",
+        "[ ]"
+       ],
+       [
+        "10 piezas seguidas en automático",
+        "Ciclo normal, sin mensajes nuevos.",
+        "[ ]"
+       ],
+       [
+        "Leer las variables al final",
+        "`nCtCycle` parecido al tiempo que ves en el PLC o con cronómetro; `nCtInWelder` de 3 a 5 s por tuerca; `nCtNutWait[1..3]` y `nCtPlcWait` con valores en ms (0 si no esperó).",
+        "[ ]"
+       ],
+       [
+        "Respaldo completo después de las 10 piezas",
+        "Mándalo con el Excel: de ahí leemos los tiempos de la última pieza.",
+        "[ ]"
+       ]
+      ]
+     }
+    },
+    {
+     "p": "Si puedes, anota `nCtCycle`, `nCtWaitSum` y `nCtHomeWait` de 5 piezas seguidas en la columna \"Qué cambió el programador\" del punto F52."
+    }
+   ]
+  }
+ ]
+}
