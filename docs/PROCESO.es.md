@@ -51,11 +51,10 @@ de R20; la aplicación a R10 está en
 
 ## Tiempo ciclo: prioridad
 
-R20 será el cuello de botella de la celda (57.3 s pieza a pieza, meta 53 s):
-R10 tiene que quedar por debajo de R20 con margen. Antes de prometer números
-se confirma la meta con Edgar y se mide en el robot (pieza a pieza, tuerca a
-tuerca, dentro de la pistola, espera de tuerca, esperas del PLC en HOME y en
-permisos). Palancas, en este orden: (a) paradas exactas en espacio libre (CONT,
+Meta de R10: **38 s pieza a pieza** (Edgar, 2026-10-11; R20: 57.3 s hoy,
+meta 53 s). Antes de prometer números se mide en el robot (pieza a pieza,
+tuerca a tuerca, dentro de la pistola, espera de tuerca, esperas del PLC en
+HOME y en permisos). Palancas, en este orden: (a) paradas exactas en espacio libre (CONT,
 PTP en lugar de LIN donde no hace falta línea recta); (b) lo que detiene el
 avance entre movimientos (salidas por TRIGGER o con CONTINUE, chequeos juntos
 en una parada planeada antes del pedestal); (c) esperas fijas después de

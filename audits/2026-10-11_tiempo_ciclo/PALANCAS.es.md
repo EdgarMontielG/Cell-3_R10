@@ -1,8 +1,7 @@
 # R10 — palancas de tiempo ciclo sobre el programa del programador (actualizado con su respaldo del 10/10)
 
-Base: su respaldo del 2026-10-10 21:20 (commit `cd17b34`). Meta: R10 por debajo de R20 (57.3 s hoy, meta 53 s) con
-margen; la meta exacta de R10 está por confirmar con Edgar. Las líneas son de la variante A; las B (estación 2) son
-iguales salvo donde se indica.
+Base: su respaldo del 2026-10-10 21:20 (commit `cd17b34`). **Meta de R10: 38 s pieza a pieza** (Edgar, 2026-10-11;
+R20: 57.3 s hoy, meta 53 s). Las líneas son de la variante A; las B (estación 2) son iguales salvo donde se indica.
 
 No se tocan: el tiempo de soldadura, los chequeos de calidad (nut check con su WAIT SEC 0.2 por sensor, cámara,
 ventana de pistola cerrada) ni los interlocks de seguridad (PEDESTAL_CLEAR_CHECK antes de entrar y al salir,
@@ -19,6 +18,18 @@ vigilancia con las interrupciones 20-24 y su paro al salir del pedestal).
 Tuerca 1 → fin de tuerca 3: 17.2 s; espera de tuerca por pieza: 0.56 s (en el video del 05/10 eran ~4 s antes de
 las tuercas 2 y 3). Es un solo ciclo: `nCtCycle` = 276.8 s no sirve (la pieza vino después de un paro). Falta medir
 10 piezas seguidas y las esperas del PLC (`entregas/2026-10-11_F52_esperas_PLC`: `nCtHomeWait`, `nCtPlcWait[1..3]`).
+
+## Presupuesto contra los 38 s
+
+| Tramo | Tiempo | Fuente |
+|---|---:|---|
+| Tuerca 1 en posición → fin de tuerca 3 (3 × ~4.0 s en la pistola + 2 × ~2.7 s de salir y entrar) | 17.2 s medido | nCtPart, nCtInWelder, nCtNutToNut |
+| Todo lo demás: salida tras la tuerca 3, nut check, cámara, drop, HOME, esperas del PLC, pick, traslado y entrada a la tuerca 1 | 20.8 s disponibles | sin medir |
+| de eso, esperas fijas: cámara 2.0 s, nut check 4 × 0.2 s, gripper 3 × 0.2 s | 3.4 s | style1app2opt2.src:60; style1app2opt1.src:72, :98, :124, :145; style1pick1opt1.src:46, :102; style1drop1opt1.src:67 |
+
+Dentro de la pistola (12 s por pieza) no se toca el tiempo de soldadura; un recorte ahí (secuencia de clamp, pines,
+pistola y presión) necesita el desglose por paso y el OK de CenterLine/Bosch. Si con la medición de 10 piezas el resto
+del ciclo no cabe en 20.8 s, las palancas de abajo dan ~3.5-7 s.
 
 ## Lo que ya hizo (del 06 al 10/10)
 

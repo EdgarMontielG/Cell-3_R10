@@ -69,6 +69,9 @@ La entrega de medición de Ethos sobre el 05/10 (`entregas/2026-10-11_F52_medici
 sus CT_*. Se retiró del repositorio y se reemplazó por `entregas/2026-10-11_F52_esperas_PLC` (sobre este respaldo,
 7 archivos, solo agrega `nCtHomeWait` y `nCtPlcWait[1..3]` con `$TIMER[24]`; mismo comportamiento).
 
+Meta de R10 (Edgar, 2026-10-11): 38 s pieza a pieza. La soldadura de las 3 tuercas ya ocupa 17.2 s; quedan 20.8 s
+para el resto del ciclo (3.4 s de esperas fijas), sin medir todavía.
+
 Palancas que quedan, con rangos y líneas: `audits/2026-10-11_tiempo_ciclo/PALANCAS.es.md` (~3.5-7 s por pieza sin
 medir; la mayor y más barata, la espera de 2.0 s de la cámara).
 

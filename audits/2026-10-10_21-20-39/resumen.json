@@ -55,7 +55,7 @@
  "plan": [
   "Que cargue la entrega de esperas del PLC (entregas/2026-10-11_F52_esperas_PLC), corra 10 piezas seguidas en automático y mande el respaldo.",
   "Con esa medición, palancas en orden (PALANCAS.es.md): espera de la cámara, dry cycle después de la aproximación, permisos antes de llegar (F48, F50), tuerca con $IN[481].",
-  "Confirmar con Edgar la meta de R10 y la decisión de F11."
+  "Meta de R10: 38 s pieza a pieza (Edgar). La soldadura de las 3 tuercas ya ocupa 17.2 s; quedan 20.8 s para el resto del ciclo. Pendiente con Edgar: la decisión de F11."
  ],
  "pedir": [
   "Por qué subió la espera de la cámara de 0.2 a 2.0 s.",

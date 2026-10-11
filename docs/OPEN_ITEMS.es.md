@@ -88,7 +88,7 @@ Actualizado: 2026-10-11. Pendientes: **62** de 103. El detalle técnico de cada 
 | F49 | ~~AutomationCore_BKG activado y editado sin decisión registrada~~ | Alto | Gestamp controles + Programador robot | Aceptado sin cambio |
 | F50 | Permiso de aplicación 1 (nut check / cámara) revisado después de llegar a P22 | Alto | Programador robot | **Abierto** |
 | F51 | ~~Apps de soldadura duplicadas por estación de pick (A/B): cada cambio va en las dos~~ | Bajo | Programador robot | Sin acción - documentado |
-| F52 | Tiempo ciclo de R10: medir y bajarlo por debajo de R20 (la espera de tuerca antes de las tuercas 2 y 3 es la mayor parte) | Alto | Programador robot | **En proceso** |
+| F52 | Tiempo ciclo de R10: meta 38 s pieza a pieza (medir el ciclo completo y bajarlo) | Alto | Programador robot | **En proceso** |
 | F53 | ~~Tiempo ciclo del programador: pre-alimenta la tuerca, la pide con la pieza aún en la pistola, CONT/PTP y sin esperas de 0.2 s~~ | Alto | Programador robot | Aceptado sin cambio |
 | C01 | ~~AutomationCore_Bkg deshabilitado: el estatus al PLC no se actualiza~~ | - | Gestamp controles / Ethos (Edgar) | Cerrado - auditado |
 | C02 | Designación BMW-03-10-R1 en los encabezados; confirmar formato con Gestamp | - | Ethos (Edgar) / Gestamp controles | **Requiere decisión** |
@@ -2366,7 +2366,7 @@ Actualizado: 2026-10-11. Pendientes: **62** de 103. El detalle técnico de cada 
 
 ---
 
-## F52 — Tiempo ciclo de R10: medir y bajarlo por debajo de R20 (la espera de tuerca antes de las tuercas 2 y 3 es la mayor parte)
+## F52 — Tiempo ciclo de R10: meta 38 s pieza a pieza (medir el ciclo completo y bajarlo)
 
 **Severidad:** Alto · **Tipo:** Código + prueba en celda · **Responsable:** Programador robot · **Estado:** En proceso
 
@@ -2374,12 +2374,12 @@ Actualizado: 2026-10-11. Pendientes: **62** de 103. El detalle técnico de cada 
 
 **Qué está mal.** Gestamp pide 12 s por pieza de proceso de soldadura con el robot parado (sin contar movimientos). En el video del 2026-10-05 son ~20 s: por tuerca ~2.8 s de llegada a soldadura y ~1.2 s para salir, y antes de las tuercas 2 y 3 ~4 s esperando la tuerca. Esa espera es toda la precarga (alimentar 2000 ms, avance del QFP, soplo 800 ms, 800 ms tras el regreso), que arrancaba hasta que el robot salía del pedestal, aunque alimentar la tuerca al shuttle solo necesita el shuttle en casa.
 
-**Qué hacer.** Prioridad de Edgar (2026-10-11): R10 debajo de R20 (57.3 s, meta 53 s) con margen; meta exacta por confirmar. Sus timers CT_* ya miden pieza, tuercas, pistola y espera de tuerca (10/10: tuerca 1 → fin de tuerca 3 = 17.2 s, 0.56 s de espera de tuerca por pieza). Falta: cargar entregas/2026-10-11_F52_esperas_PLC (esperas del PLC en HOME y en los permisos de pickup, application 1 y drop-off) y mandar el respaldo después de 10 piezas seguidas en automático. Después, las palancas que quedan (audits/2026-10-11_tiempo_ciclo/PALANCAS.es.md): espera fija de 2.0 s antes de leer la cámara (era 0.2 s), dry cycle leído después de la aproximación, permisos de application y drop-off después de llegar (F50, F48), tuerca confirmada con $IN[481] en lugar de 5 s fijos, paradas exactas del pick 1, esperas fijas de GripperTech; handshakes de AutomationCore solo con OK de Gestamp.
+**Qué hacer.** Meta de R10: 38 s pieza a pieza (Edgar, 2026-10-11; R20: 57.3 s hoy, meta 53 s). Presupuesto: la soldadura de las 3 tuercas (tuerca 1 en posición → fin de tuerca 3) ya mide 17.2 s; quedan 20.8 s para todo lo demás (pick, traslado, nut check, cámara, drop, HOME y esperas del PLC), de los que 3.4 s son esperas fijas (cámara 2.0 s, nut check 0.8 s, gripper 0.6 s). Sus timers CT_* ya miden pieza, tuercas, pistola y espera de tuerca (10/10: tuerca 1 → fin de tuerca 3 = 17.2 s, 0.56 s de espera de tuerca por pieza). Falta: cargar entregas/2026-10-11_F52_esperas_PLC (esperas del PLC en HOME y en los permisos de pickup, application 1 y drop-off) y mandar el respaldo después de 10 piezas seguidas en automático. Después, las palancas que quedan (audits/2026-10-11_tiempo_ciclo/PALANCAS.es.md): espera fija de 2.0 s antes de leer la cámara (era 0.2 s), dry cycle leído después de la aproximación, permisos de application y drop-off después de llegar (F50, F48), tuerca confirmada con $IN[481] en lugar de 5 s fijos, paradas exactas del pick 1, esperas fijas de GripperTech; handshakes de AutomationCore solo con OK de Gestamp.
 
 **Criterio de cierre** (se verifica en el respaldo):
 
 * Respaldo con 10 piezas seguidas en automático: nCtCycle, nCtWaitSum, nCtInWelder, nCtHomeWait y nCtPlcWait leídos.
-* Meta de R10 confirmada con Edgar y alcanzada en automático, medida con nCtCycle (o el tiempo del PLC).
+* 38 s pieza a pieza en automático (nCtCycle de 10 piezas seguidas); la espera en HOME por otras estaciones (nCtHomeWait) se reporta aparte.
 * Cada cambio de tiempo ciclo probado en T1 y a 100 % sin tocar el tiempo de soldadura, los chequeos de calidad ni los interlocks de seguridad.
 
 **Evidencia del programador.** Resultado de las pruebas con fecha y el respaldo después de 10 ciclos en automático.
@@ -2397,6 +2397,7 @@ Actualizado: 2026-10-11. Pendientes: **62** de 103. El detalle técnico de cada 
 * 2026-10-11 — Medición del programador: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). Ya tiene sus timers CT_* (como R20): dentro de la pistola 4.03 / 3.92 / 3.91 s, tuerca a tuerca 6.71 / 6.61 s, espera de tuerca 0 / 0.24 / 0.32 s (0.56 s por pieza), tuerca 1 → fin de tuerca 3 = 17.2 s. nCtCycle = 276.8 s: la última pieza vino después de un paro, no sirve; faltan varias piezas seguidas. La entrega de medición de Ethos del 11/10 queda sin efecto (se hizo sobre el 05/10); solo falta medir las esperas del PLC.
 * 2026-10-11 — Cambio entregado: Ethos entregó sobre su respaldo del 10/10 solo la medición de las esperas del PLC: CT_PLC_START / CT_PLC_END al final de gun_open_check.src, nCtHomeWait y nCtPlcWait[1..3] en gun_open_check.dat, $TIMER[24]; 7 archivos, mismo comportamiento. La entrega de medición sobre el 05/10 (entregas/2026-10-11_F52_medicion) se retiró: no se carga. Paquete: entregas/2026-10-11_F52_esperas_PLC (archivos que cambian, cambios.diff, LEEME.txt y PDF de instrucciones).
 * 2026-10-11 — Análisis: Palancas actualizadas con el respaldo del 10/10 (audits/2026-10-11_tiempo_ciclo/PALANCAS.es.md). Nuevo: la espera antes de leer la cámara pasó de 0.2 a 2.0 s (style1app2opt2.src:60; el comentario sigue diciendo 0.2 s), hasta 1.8 s por pieza: preguntar por qué; si el resultado tarda, esperar di100 o di101 con timeout. Quedan ~3.5-7 s por pieza en rangos, sin medir el ciclo completo.
+* 2026-10-11 — Decisión: Meta de R10: 38 s pieza a pieza (Edgar). Con lo medido el 10/10, la soldadura de las 3 tuercas ocupa 17.2 s (45 % de la meta); quedan 20.8 s para el resto del ciclo, que todavía no se ha medido completo.
 
 ---
 
