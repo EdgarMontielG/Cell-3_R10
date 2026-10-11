@@ -1,0 +1,87 @@
+&ACCESS RVO
+&REL 16
+&COMMENT GE4_NutCHK
+&PARAM EDITMASK = *
+&PARAM DISKPATH = KRC:\R1\Program\StyleApps\Options
+DEF style1app2opt2AutoRR( )
+;FOLD PROGRAM INFO
+;**********************************************************
+;* Customer : Gestamp
+;* Cell     : BMW-03-10 / Robot R1
+;* Part     : GE4-002
+;* Program  : style1app2opt2AutoRR
+;* Function : Alternate Red Rabbit camera check.
+;*            Not called in the current cycle: Red Rabbit
+;*            (nOption 12) uses style1app2opt2.
+;* Rev.     : 2026-10-05 - GOTO jumps replaced with
+;*            structured IF logic
+;**********************************************************
+;ENDFOLD
+   ;FOLD INI
+      ;FOLD BASISTECH INI
+         GLOBAL INTERRUPT DECL 3 WHEN $STOPMESS==TRUE DO IR_STOPM ( )
+         INTERRUPT ON 3 
+         BAS (#INITMOV,0 )
+      ;ENDFOLD (BASISTECH INI)
+      ;FOLD USER INI
+         ;Make your modifications here
+         
+      ;ENDFOLD (USER INI)
+   ;ENDFOLD (INI)
+;FOLD PTP P6 Vel=100 % PDAT10 Tool[1]:TOOL 1 Base[3]:NUT WELDER;%{PE}%R 8.3.43,%MKUKATPBASIS,%CMOVE,%VPTP,%P 1:PTP, 2:P6, 3:, 5:100, 7:PDAT10
+$BWDSTART=FALSE
+PDAT_ACT=PPDAT10
+FDAT_ACT=FP6
+BAS(#PTP_PARAMS,100)
+PTP XP6 
+;ENDFOLD
+
+;--- Camera inspection position ---
+;FOLD LIN P3 Vel=1 m/s CPDAT0 Tool[1]:TOOL 1 Base[0];%{PE}%R 8.3.43,%MKUKATPBASIS,%CMOVE,%VLIN,%P 1:LIN, 2:P3, 3:, 5:1, 7:CPDAT0
+$BWDSTART=FALSE
+LDAT_ACT=LCPDAT0
+FDAT_ACT=FP3
+BAS(#CP_PARAMS,1)
+LIN XP3 
+;ENDFOLD
+;FOLD NUT CHECK
+do080RepositionTooling1=TRUE
+
+   WAIT FOR di080ToolRepositioned1
+           
+ 
+
+IF di004UseDryCycle==FALSE THEN ; Dry cycle: skip evaluation
+
+
+WAIT SEC 0.2
+     SWITCH nOption
+          CASE 1
+          
+         IF (di100CameraJudmentOK==TRUE) AND (di101CameraJudmentNG==FALSE) THEN
+            bscrapGE4 = FALSE
+         ELSE
+            bscrapGE4=TRUE
+         ENDIF
+          CASE 10
+            IF (di100CameraJudmentOK==TRUE) AND (di101CameraJudmentNG==FALSE) THEN
+               do141RedRabbitFailed=TRUE
+            ENDIF
+
+            IF (di100CameraJudmentOK==FALSE) AND (di101CameraJudmentNG==TRUE) THEN 
+               do142RedRabbitPassed=TRUE
+             ENDIF
+     ENDSWITCH 
+
+ENDIF
+
+
+;ENDFOLD 
+            
+   ;FOLD Application[1] Reset
+      ;FOLD ;%{h}
+         ;Params IlfProvider=ac_zoneilf; AC_CmdZones=Application; AC_CmdParam=2; AC_ZoneRepo=True; AC_Blending=False
+      ;ENDFOLD
+      AC_Application (1,True)
+   ;ENDFOLD
+END
