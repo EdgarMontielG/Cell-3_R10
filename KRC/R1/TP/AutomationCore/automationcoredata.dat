@@ -1,5 +1,4 @@
-&ACCESS  R
-&PARAM DISKPATH = TP/AutomationCore
+&ACCESS R5
 DEFDAT  automationcoredata PUBLIC
 ;******************************
 ;* Package:     AutomationCoreData  *
@@ -72,18 +71,18 @@ DECL GLOBAL KRLMSGPAR_T AutoCoreSPS_MsgPar[3]
 DECL GLOBAL KRLMSGOPT_T AutoCore_MsgOpt_Stop={VL_STOP TRUE,CLEAR_P_RESET TRUE,CLEAR_P_SAW TRUE,LOG_TO_DB TRUE}
 DECL GLOBAL KRLMSGOPT_T AutoCore_MsgOpt_NoStop={VL_STOP FALSE,CLEAR_P_RESET TRUE,CLEAR_P_SAW TRUE,LOG_TO_DB TRUE}
 DECL GLOBAL KRLMSGOPT_T AutoCore_MsgOpt_NoLog={VL_STOP FALSE,CLEAR_P_RESET TRUE,CLEAR_P_SAW TRUE,LOG_TO_DB FALSE}
-DECL GLOBAL INT nAutoCore_Handle=11572
+DECL GLOBAL INT nAutoCore_Handle=10263
 DECL GLOBAL INT nAutoCore_Handle_SPS=0
 DECL GLOBAL INT nWorkComplete_Handle=12283
 DECL GLOBAL INT nPLCWaiting_Handle=0
 DECL GLOBAL INT nPLCInvalidApps_Handle=0
-DECL GLOBAL INT nCycleStart_Handle=11595
-DECL GLOBAL INT nCycTime_Handle=11594
+DECL GLOBAL INT nCycleStart_Handle=10553
+DECL GLOBAL INT nCycTime_Handle=10552
 DECL GLOBAL INT nRepoRequest_Handle=0
 DECL GLOBAL INT nProcRequest_Handle=0
 DECL GLOBAL INT nReqEnter_Handle=10558
 DECL GLOBAL INT nWaitMsg_Handle=0
-DECL GLOBAL INT nLogOnlyMsg_Handle=11593
+DECL GLOBAL INT nLogOnlyMsg_Handle=10136
 DECL GLOBAL INT nAutoCore_Submit_Handle[10]
 nAutoCore_Submit_Handle[1]=0
 nAutoCore_Submit_Handle[2]=0
@@ -108,7 +107,7 @@ DECL GLOBAL MODUS_T AC_MODE
 ;ENDFOLD (Automation Core Custom Variables)
 ;FOLD Automation Core BOOL Variables
 DECL GLOBAL BOOL bAutoCore_RobStop=FALSE
-DECL GLOBAL BOOL bACProcessReset=FALSE
+DECL GLOBAL BOOL bACProcessReset=TRUE
 DECL GLOBAL BOOL bACMainLine=FALSE
 DECL GLOBAL BOOL bACMainLineReset=FALSE
 DECL GLOBAL BOOL bOption1=FALSE
@@ -126,7 +125,7 @@ DECL GLOBAL INT nOption=0
 DECL GLOBAL INT nPickUp=0
 DECL GLOBAL INT nApps=0
 DECL GLOBAL INT nDropOff=0
-DECL GLOBAL INT nCycleTime=50
+DECL GLOBAL INT nCycleTime=39
 ;ENDFOLD (Automation Core INT Variables)
 ;FOLD Automation Core FRAME/POS Variables
 DECL GLOBAL E6POS PosCheck={X 874.811523,Y -100.694267,Z 2352.82349,A -4.40716410,B 2.42973685,C 0.669219,S 'B0010',T 'B1010',E1 0.0,E2 0.0,E3 0.0,E4 0.0,E5 0.0,E6 0.0}
@@ -140,8 +139,6 @@ EXT  RepairToHome ( )
 EXT  HomeToRepair ( )
 ;ENDFOLD (Automation Core Ext Prog Decl)
 ;ENDFOLD (Automation Core System Variables)
-; GLOBAL ENUM NutWeld_Style_Type NUTWELD,STUDWELD
-; DECL GLOBAL NutWeld_Style_Type PNWStyle=#NUTWELD
 ;FOLD Process Counter
 GLOBAL ENUM MyCountCmd Init,Count1up,Check
 DECL GLOBAL MyCountCmd geProcessCount=#Init

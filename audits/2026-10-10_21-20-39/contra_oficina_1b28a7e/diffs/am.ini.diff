@@ -1,0 +1,16 @@
+--- 1b28a7e:am.ini
++++ backup:am.ini
+@@ -1,10 +1,10 @@
+ [Archive]
+-Name=e:\bmw_03_10_r1.zip\
++Name=C:\windows\TEMP\tmpB87B.tmp\
+ Config=All
+ DiskNo=0
+ LastDisk=1
+-ID=c5d12104-8391-4029-9729-31022f3d019a
+-Date=2026-10-05_14-46-44
++ID=1bbc727a-430d-4f86-80e3-302bdec9094a
++Date=2026-10-10_21-20-39
+ [Roboter]
+ RobName=BMW_03_10_R1
+ IRSerialNr=658424

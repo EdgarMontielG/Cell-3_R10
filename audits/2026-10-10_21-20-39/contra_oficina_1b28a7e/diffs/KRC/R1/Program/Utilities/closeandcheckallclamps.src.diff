@@ -1,0 +1,8 @@
+--- 1b28a7e:KRC/R1/Program/Utilities/closeandcheckallclamps.src
++++ backup:KRC/R1/Program/Utilities/closeandcheckallclamps.src
+@@ -1,4 +1,4 @@
+-&ACCESS RVO1
++&ACCESS RVO4
+ &REL 3
+ &COMMENT 03-10-R1 CLOSE GRIPPER 1
+ &PARAM EDITMASK = *

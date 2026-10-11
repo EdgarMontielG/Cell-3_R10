@@ -1,0 +1,27 @@
+--- 1b28a7e:KRC/R1/Program/StylePicks/Options/style1pick1opt1AutoRR.src
++++ backup:KRC/R1/Program/StylePicks/Options/style1pick1opt1AutoRR.src
+@@ -35,7 +35,7 @@
+ ;WAIT GRIPPER EMPTY BEFORE ANY GRIPPER COMMAND - SIGNALS $IN[253] di253PartPresent1 OFF,
+ ;$IN[254] di254PartPresent2 OFF (GESTAMP REVIEW POINT 14)
+ ;FOLD WAIT FOR ( NOT IN 253 'di253PartPresent1' ) AND ( NOT IN 254 'di254PartPresent2' );%{PE}%R 8.3.43,%MKUKATPBASIS,%CEXT_WAIT_FOR,%VEXT_WAIT_FOR,%P 2:, 4:NOT, 5:$IN, 6:253, 7:di253PartPresent1, 9:AND, 10:, 12:NOT, 13:$IN, 14:254, 15:di254PartPresent2, 17:
+-WAIT FOR  (  NOT $IN[253] ) AND (  NOT $IN[254]) 
++WAIT FOR  (  NOT di253PartPresent1 ) AND (  NOT di254PartPresent2) 
+ ;ENDFOLD
+ ;GRIPPER 1 OPEN - SIGNALS $OUT[249] do249Group1Home ON, $OUT[250] do250Group1Work OFF, WAIT 0.2 S,
+ ;THEN CHECK $IN[257] di257Cylinder1Home ON, $IN[258] di258Cylinder1Work OFF (STRATEGY 1)
+@@ -109,13 +109,13 @@
+ IF NOT di004UseDryCycle THEN
+ ;WAIT PART IN GRIPPER - SIGNALS $IN[253] di253PartPresent1 ON, $IN[254] di254PartPresent2 ON
+ ;FOLD WAIT FOR ( IN 253 'di253PartPresent1' ) AND ( IN 254 'di254PartPresent2' );%{PE}%R 8.3.43,%MKUKATPBASIS,%CEXT_WAIT_FOR,%VEXT_WAIT_FOR,%P 2:, 4:, 5:$IN, 6:253, 7:di253PartPresent1, 9:AND, 10:, 12:, 13:$IN, 14:254, 15:di254PartPresent2, 17:
+-WAIT FOR  ( $IN[253] ) AND ( $IN[254] ) 
++WAIT FOR  ( di253PartPresent1 ) AND ( di254PartPresent2 ) 
+ ;ENDFOLD
+ ;PART IN GRIPPER - SIGNAL $OUT[18] do018Part1InGripper ON
+ ;NOTE: THE FORM TEXT do018PartInGripper1 IS NOT A DECLARED NAME (DECLARED: do018Part1InGripper).
+ ;NOTE: $OUT[18] IS SET HERE AND RESET AT THE DROP - IT DOES NOT FOLLOW THE SENSORS (GESTAMP POINT 9)
+    ;FOLD OUT 18 'do018PartInGripper1' State=TRUE ;%{PE}%R 8.3.43,%MKUKATPBASIS,%COUT,%VOUTX,%P 2:18, 3:do018PartInGripper1, 5:TRUE, 6:
+-      $OUT[18]=TRUE
++      do018Part1InGripper=TRUE
+    ;ENDFOLD
+ ENDIF
+ 

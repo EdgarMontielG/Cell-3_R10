@@ -1,0 +1,10 @@
+--- 1b28a7e:KRC/R1/Program/Utilities/RejectGE4.dat
++++ backup:KRC/R1/Program/Utilities/RejectGE4.dat
+@@ -1,5 +1,6 @@
+-&ACCESS RVO2
++&ACCESS RVO1
+ &REL 41
++&COMMENT 03-10-R1 REJECT
+ &PARAM DISKPATH = KRC:\R1\Program\Utilities
+ DEFDAT  RejectGE4
+ ;FOLD EXTERNAL DECLARATIONS;%{PE}%MKUKATPBASIS,%CEXT,%VCOMMON,%P

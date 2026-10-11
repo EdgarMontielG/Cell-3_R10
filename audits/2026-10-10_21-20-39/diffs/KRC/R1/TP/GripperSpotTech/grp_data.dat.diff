@@ -1,0 +1,11 @@
+--- HEAD:KRC/R1/TP/GripperSpotTech/grp_data.dat
++++ backup:KRC/R1/TP/GripperSpotTech/grp_data.dat
+@@ -19,7 +19,7 @@
+ GLOBAL INT GRPg_Err2PLC=0
+ GLOBAL BOOL GRPg_GhostMode=False
+ GLOBAL INT GRPg_GhostInput=0
+-GLOBAL INT GRPg_SignVal=7850579
++GLOBAL INT GRPg_SignVal=11310649
+ DECL GLOBAL GRP_ErrStrategy_T GRPg_ErrStrategy[3]
+ GRPg_ErrStrategy[1]=#DialAtT1T2
+ GRPg_ErrStrategy[2]=#DialAtT1T2

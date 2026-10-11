@@ -1,0 +1,10 @@
+--- 1b28a7e:KRC/R1/Program/Utilities/closeandcheckallclamps.dat
++++ backup:KRC/R1/Program/Utilities/closeandcheckallclamps.dat
+@@ -1,5 +1,6 @@
+-&ACCESS RVO1
++&ACCESS RVO4
+ &REL 3
++&COMMENT 03-10-R1 CLOSE GRIPPER 1
+ &PARAM EDITMASK = *
+ &PARAM TEMPLATE = C:\KRC\TP\Nutweld\Template\NutWeld_Vorgabe
+ DEFDAT CloseAndCheckAllClamps

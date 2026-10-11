@@ -1,5 +1,6 @@
 &ACCESS RVP4
 &REL 1
+&COMMENT 03-10-R1 POUNCE TO HOME
 &PARAM DISKPATH = Program/Utilities
 DEF  PounceToHome ( )
 ;FOLD INI;%{PE}
@@ -13,7 +14,18 @@ DEF  PounceToHome ( )
 
   ;ENDFOLD (USER INI)
 ;ENDFOLD (INI)
+;********************************
+; Gestamp Standards
+; Line - BMW G65 (cell 03)
+; Robot 03-10-R1 (BMW-03-10-R1)
+; Application - AUTOMATIONCORE PATH POUNCE TO HOME
+;********************************
+; CALLED BY AutomationCore HomeCheck WHEN THE ROBOT IS NOT HOME, IN EXTERNAL MODE AND
+; $OUT[7] do007RobotAtPounce IS ON - THAT BIT IS WRITTEN ONLY BY THE DISABLED BACKGROUND
+; TASK (F12), SO IN PRACTICE HomeCheck ASKS THE OPERATOR INSTEAD
+;********************************
 
+;PTP POUNCE (GLOBAL XPOUNCE), THEN PTP HOME (XHOME)
 ;FOLD PTP POUNCE  Vel= 100 % DEFAULT;%{PE}%MKUKATPBASIS,%CMOVE,%VPTP,%P 1:PTP, 2:POUNCE, 3:, 5:100, 7:DEFAULT
 $BWDSTART = FALSE
 PDAT_ACT=PPOUNCE

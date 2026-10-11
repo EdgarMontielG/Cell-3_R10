@@ -1,0 +1,13 @@
+--- HEAD:Registry/LMSOFTWAREKUKA ROBOTER GMBHWorkVisual.amr
++++ backup:Registry/LMSOFTWAREKUKA ROBOTER GMBHWorkVisual.amr
+@@ -5,8 +5,7 @@
+ Robot: KUKA Roboter KR 210 R2700 extra
+ Cabinet: KRC4 NA SC4.1 X51 X14B X66 X42 XFMR IO
+ "
+-"CurrentProjectVersion"="1.192.0"
+-"CurrentProjectActivationDate"="2026-10-05 13:41:58Z"
++"CurrentProjectVersion"="1.196.0"
++"CurrentProjectActivationDate"="2026-10-06 18:23:45Z"
+ 
+ 
+-

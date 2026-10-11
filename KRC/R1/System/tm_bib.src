@@ -1,5 +1,5 @@
-&ACCESS R7
-&REL 953
+&ACCESS R5
+&REL 962
 &COMMENT Collision Detection Library
 &PARAM DISKPATH = KRC:\R1\System
 DEF TM_BIB()

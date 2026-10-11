@@ -1,0 +1,6 @@
+--- 1b28a7e:C/KRC/Roboter/Config/User/Common/SCTLCRC.XML
++++ backup:C/KRC/Roboter/Config/User/Common/SCTLCRC.XML
+@@ -1,2 +1,2 @@
+ ï»¿<?xml version="1.0" encoding="utf-8"?>
+-<SafetyInfo ParameterCrc="603CA334" />
++<SafetyInfo ParameterCrc="8E5EA486" />

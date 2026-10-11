@@ -1,0 +1,9 @@
+--- HEAD:KRC/STEU/Mada/$machine.dat
++++ backup:KRC/STEU/Mada/$machine.dat
+@@ -1,4 +1,5 @@
+-&ACCESS RV$
++&ACCESS  RV
++&PARAM DISKPATH = MADA
+ DEFDAT  $MACHINE PUBLIC
+ CHAR $V_STEUMADA[32]
+ $V_STEUMADA[]="V1.0.0/KUKA8.3" ;VERSIONSKENNUNG

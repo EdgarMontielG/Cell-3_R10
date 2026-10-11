@@ -1,0 +1,9 @@
+--- 1b28a7e:KRC/R1/Program/home.dat
++++ backup:KRC/R1/Program/home.dat
+@@ -1,5 +1,6 @@
+ &ACCESS RVO1
+ &REL 5
++&COMMENT 03-10-R1 MOVE HOME
+ &PARAM EDITMASK = *
+ DEFDAT  home
+ ;FOLD EXTERNAL DECLARATIONS;%{PE}%MKUKATPBASIS,%CEXT,%VCOMMON,%P

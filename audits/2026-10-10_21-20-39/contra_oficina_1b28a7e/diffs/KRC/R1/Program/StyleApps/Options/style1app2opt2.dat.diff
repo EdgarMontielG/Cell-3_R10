@@ -1,0 +1,15 @@
+--- 1b28a7e:KRC/R1/Program/StyleApps/Options/style1app2opt2.dat
++++ backup:KRC/R1/Program/StyleApps/Options/style1app2opt2.dat
+@@ -1,9 +1,9 @@
+ &ACCESS RVO1
+-&REL 16
+-&COMMENT GE4_NutCHK
++&REL 17
++&COMMENT 03-10-R1 NUT CHECK CAMERA
+ &PARAM EDITMASK = *
+ &PARAM DISKPATH = KRC:\R1\Program\StyleApps\Options
+-DEFDAT  Style1App2Opt2
++DEFDAT  style1app2opt2
+ ;FOLD EXTERNAL DECLARATIONS;%{PE}%MKUKATPBASIS,%CEXT,%VCOMMON,%P
+ ;FOLD BASISTECH EXT;%{PE}%MKUKATPBASIS,%CEXT,%VEXT,%P
+ EXT  BAS (BAS_COMMAND  :IN,REAL  :IN )

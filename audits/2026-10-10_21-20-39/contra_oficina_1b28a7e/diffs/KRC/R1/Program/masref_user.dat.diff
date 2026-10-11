@@ -1,0 +1,11 @@
+--- 1b28a7e:KRC/R1/Program/masref_user.dat
++++ backup:KRC/R1/Program/masref_user.dat
+@@ -1,6 +1,6 @@
+-&ACCESS RVO1
++&ACCESS RVO4
+ &REL 171
+-&COMMENT Mastering Reference User Program
++&COMMENT 03-10-R1 MASTERING REF
+ &PARAM DISKPATH = KRC:\R1\Program
+ DEFDAT  masref_user
+ ;FOLD EXTERNAL DECLARATIONS;%{PE}%MKUKATPBASIS,%CEXT,%VCOMMON,%P

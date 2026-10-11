@@ -1,8 +1,4 @@
-&ACCESS  R
-&COMMENT GripperSpotTech package
-&PARAM DISKPATH = TP/GripperSpotTech
-&PARAM KUKATPGRP_VERSION = 4.0
-&REL 1
+&ACCESS R5
 DEFDAT  grp_func PUBLIC
 ;############################################
 ;# File-Version: 1.0                        #

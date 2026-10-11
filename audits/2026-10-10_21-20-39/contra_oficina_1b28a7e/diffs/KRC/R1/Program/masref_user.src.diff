@@ -1,0 +1,8 @@
+--- 1b28a7e:KRC/R1/Program/masref_user.src
++++ backup:KRC/R1/Program/masref_user.src
+@@ -1,4 +1,4 @@
+-&ACCESS RVO1
++&ACCESS RVO4
+ &REL 171
+ &COMMENT 03-10-R1 MASTERING REF
+ &PARAM DISKPATH = KRC:\R1\Program

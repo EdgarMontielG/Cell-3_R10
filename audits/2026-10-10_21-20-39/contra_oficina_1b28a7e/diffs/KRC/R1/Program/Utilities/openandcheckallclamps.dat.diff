@@ -1,0 +1,10 @@
+--- 1b28a7e:KRC/R1/Program/Utilities/openandcheckallclamps.dat
++++ backup:KRC/R1/Program/Utilities/openandcheckallclamps.dat
+@@ -1,5 +1,6 @@
+-&ACCESS RVO1
++&ACCESS RVO4
+ &REL 4
++&COMMENT 03-10-R1 OPEN GRIPPER 1
+ &PARAM EDITMASK = *
+ &PARAM TEMPLATE = C:\KRC\TP\Nutweld\Template\NutWeld_Vorgabe
+ &PARAM DISKPATH = Program/Utilities

@@ -1,0 +1,10 @@
+--- 1b28a7e:KRC/R1/TP/AutomationCore/automationcoreroutines.dat
++++ backup:KRC/R1/TP/AutomationCore/automationcoreroutines.dat
+@@ -1,6 +1,4 @@
+-&ACCESS  R
+-&PARAM DISKPATH = TP/AutomationCore
+-&REL 11
++&ACCESS RO5
+ DEFDAT  automationcoreroutines PUBLIC
+ 
+ DECL GLOBAL INT nCycleTimer=55

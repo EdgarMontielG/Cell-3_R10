@@ -332,7 +332,7 @@
     <RobotID>1</RobotID>
     <loadID>20170403_104515_384</loadID>
     <tool>Tool 1</tool>
-    <date>2017-04-03T10:45:15.3828637+02:00</date>
+    <date>2017-04-03T04:45:15.3828637-04:00</date>
     <engineer />
     <m>129.297027587891</m>
     <cx>38.8044738769531</cx>
@@ -359,6 +359,51 @@
     <IyA2>0</IyA2>
     <IzA2>0</IzA2>
     <mA3>30</mA3>
+    <cxA3>-400</cxA3>
+    <cyA3>0</cyA3>
+    <czA3>-1315</czA3>
+    <IxA3>10</IxA3>
+    <IyA3>10</IyA3>
+    <IzA3>10</IzA3>
+    <DeterminationID>3</DeterminationID>
+    <calibration_with_tool>128</calibration_with_tool>
+    <determinationInfo>V6.2.6#25</determinationInfo>
+    <valuation>The robot type is approved</valuation>
+    <toolNr>1</toolNr>
+  </LoadingCase>
+  <LoadingCase>
+    <ID>2</ID>
+    <description />
+    <RobotID>1</RobotID>
+    <loadID>20261010_113806_015</loadID>
+    <tool>TOOL 1</tool>
+    <date>2026-10-10T11:38:06.0141594-04:00</date>
+    <engineer />
+    <m>67.2787094116211</m>
+    <cx>-2.62049794197083</cx>
+    <cy>17.9348812103272</cy>
+    <cz>219.182006835938</cz>
+    <Ix>5.25</Ix>
+    <Iy>5.25</Iy>
+    <Iz>5.25</Iz>
+    <A>-90.003494</A>
+    <B>-0.200046</B>
+    <C>0.065183</C>
+    <mA1>0</mA1>
+    <cxA1>0</cxA1>
+    <cyA1>0</cyA1>
+    <czA1>0</czA1>
+    <IxA1>0</IxA1>
+    <IyA1>0</IyA1>
+    <IzA1>0</IzA1>
+    <mA2>0</mA2>
+    <cxA2>0</cxA2>
+    <cyA2>0</cyA2>
+    <czA2>0</czA2>
+    <IxA2>0</IxA2>
+    <IyA2>0</IyA2>
+    <IzA2>0</IzA2>
+    <mA3>50</mA3>
     <cxA3>-400</cxA3>
     <cyA3>0</cyA3>
     <czA3>-1315</czA3>

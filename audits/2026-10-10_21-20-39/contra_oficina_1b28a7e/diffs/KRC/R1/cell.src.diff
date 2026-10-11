@@ -1,0 +1,11 @@
+--- 1b28a7e:KRC/R1/cell.src
++++ backup:KRC/R1/cell.src
+@@ -83,7 +83,7 @@
+ 		  	HomeToRepair( )
+ ;WAIT FOR RETURN FROM REPAIR - SIGNAL $IN[8] di008ReturnFromRepair ON (NO TIMEOUT, F15)
+ ;FOLD WAIT FOR ( IN 8 'di008ReturnFromRepair' );%{PE}%R 8.3.43,%MKUKATPBASIS,%CEXT_WAIT_FOR,%VEXT_WAIT_FOR,%P 2:, 4:, 5:$IN, 6:8, 7:di008ReturnFromRepair, 9:
+-WAIT FOR  ( $IN[8] )
++WAIT FOR  ( di008ReturnFromRepair )
+ ;ENDFOLD
+ 		  		RepairToHome( )
+ 		  ENDIF

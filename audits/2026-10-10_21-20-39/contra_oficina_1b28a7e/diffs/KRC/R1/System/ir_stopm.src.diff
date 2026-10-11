@@ -1,0 +1,23 @@
+--- 1b28a7e:KRC/R1/System/ir_stopm.src
++++ backup:KRC/R1/System/ir_stopm.src
+@@ -25,7 +25,8 @@
+   ;ENDFOLD (BASISTECH INIT) 
+   
+ ;FOLD GLUETECH TECHSTOP
+-  GLUE_TechStop ()
++  ;GLUE_TechStop ()   ;2026-10-09: OFF - GlueTech is installed but not used in this cell; its SystemNo has
++  ;  no value and every stop gave KSS01422 "SystemNo value invalid"
+ ;ENDFOLD (GLUETECH TECHSTOP)
+   ;FOLD USER STOP
+ ;Make your modifications here
+@@ -58,8 +59,8 @@
+ ;Make your modifications here
+ 
+   ;ENDFOLD (USER RESTART)
+-;FOLD GLUETECH RESTART 
+-  GLUE_Restart ()
++;FOLD GLUETECH RESTART
++  ;GLUE_Restart ()   ;2026-10-09: OFF - GlueTech not used in this cell (KSS01422 SystemNo)
+ ;ENDFOLD (GLUETECH RESTART)
+   
+   ;FOLD BASISTECH REACTIVATE

@@ -1,0 +1,50 @@
+--- HEAD:C/KRC/Roboter/Config/User/Common/SafetyConfigData.xml
++++ backup:C/KRC/Roboter/Config/User/Common/SafetyConfigData.xml
+@@ -623,6 +623,28 @@
+         <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
+         <MessageParams />
+         <Timestamp>2026-09-13T15:53:49.7715543-04:00</Timestamp>
++      </ProtocolEntry>
++      <ProtocolEntry>
++        <MessageKey>ChangeLog_ReferenceAdjustmentParameterChanged</MessageKey>
++        <MessageParams />
++        <Timestamp>2026-10-09T09:09:13.4883812-04:00</Timestamp>
++      </ProtocolEntry>
++      <ProtocolEntry>
++        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
++        <MessageParams />
++        <Timestamp>2026-10-09T09:09:25.4434519-04:00</Timestamp>
++      </ProtocolEntry>
++      <ProtocolEntry>
++        <MessageKey>ChangeLog_ToolParameterChanged</MessageKey>
++        <MessageParams>
++          <string>EOAT 1 GE4-001</string>
++        </MessageParams>
++        <Timestamp>2026-10-10T11:12:26.8656156-04:00</Timestamp>
++      </ProtocolEntry>
++      <ProtocolEntry>
++        <MessageKey>ChangeLog_ConfigurationSaved</MessageKey>
++        <MessageParams />
++        <Timestamp>2026-10-10T11:12:35.5392838-04:00</Timestamp>
+       </ProtocolEntry>
+     </Entries>
+   </ChangeLog>
+@@ -630,12 +652,14 @@
+     <Overwrites />
+   </OverwriteEntries>
+   <DevDescrRevision>589825</DevDescrRevision>
+-  <LastModified>2026-09-13T15:53:49.8554787-04:00</LastModified>
++  <LastModified>2026-10-10T11:12:35.631845-04:00</LastModified>
+   <MachineDataLastModified>2026-07-24T09:12:27.0329094-04:00</MachineDataLastModified>
+   <ProjectName>-</ProjectName>
+-  <ToolNameItems />
+-  <Version>52</Version>
+-  <WorksheetCrc>883113056</WorksheetCrc>
++  <ToolNameItems>
++    <string>EOAT 1 GE4-001</string>
++  </ToolNameItems>
++  <Version>54</Version>
++  <WorksheetCrc>2258919054</WorksheetCrc>
+   <MonitoringSpaceNameItems>
+     <string xsi:nil="true" />
+     <string>Nest Workspace</string>
