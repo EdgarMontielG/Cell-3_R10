@@ -1,0 +1,66 @@
+{
+ "titulo": "Auditoría del respaldo del 2026-10-10 21:20",
+ "respaldo": "V431_03_WINDOWS-2CPT70E_BMW_03_10_R1_658424.zip (am.ini 2026-10-10 21:20, robot BMW_03_10_R1, serie 658424); importado byte por byte, es la nueva base",
+ "fecha_auditoria": "2026-10-11 08:00",
+ "base": "Comparado contra su respaldo del 05/10 14:46. Cargó la versión de oficina del 05/10 y trabajó encima del 06 al 10/10: 51 KRL con cambios de código, 8 módulos sobrantes borrados. Criterio: no más de lo que hace el respaldo de Gestamp NUT07_10R1; lo resuelto en R20 se aplica igual.",
+ "cierre": "Cerrados: G12 a G17, G20, F01 (entrada al pedestal, era crítico), F20 y F36. En proceso: G03/C08 (carga real de 67.28 kg, falta la evidencia) y F12. F53 nuevo (pre-alimentación y tuerca pedida con la pieza en la pistola) aceptado como R20 F51. Queda un crítico: F11 (PRELOAD en el submit), por decidir como en R20.",
+ "bueno": [
+  "PEDESTAL_CLEAR_CHECK confirma pistola abierta, clamp abierto y pin retraído antes de entrar y al salir, con vigilancia por interrupciones (F01).",
+  "Soldadura con timeout y falla del Bosch, mensaje de pistola cerrada fuera de ventana y reintento de tuerca con tope (G17, F08).",
+  "Sin GOTO, sin $IN/$OUT con número, constantes en $config.dat, nut check como Gestamp, gripper vacío antes del comando.",
+  "Tiempo ciclo: la espera de tuerca bajó de ~4 s antes de las tuercas 2 y 3 a 0.56 s por pieza; ya mide con timers CT_*."
+ ],
+ "riesgos": [
+  {
+   "texto": "Ventana de pistola cerrada de 150 ms (Gestamp 200 ms estables): más riesgo de soldar sin tuerca o con doble tuerca.",
+   "items": [
+    "F07",
+    "F53"
+   ]
+  },
+  {
+   "texto": "Tuercas faltantes (8 reintentos en el respaldo); la alimentación se confirma por tiempo (5 s) sin leer $IN[481].",
+   "items": [
+    "F13"
+   ]
+  },
+  {
+   "texto": "NUT_READY no se borra al soldar: ~1.5 s de margen para no entrar con el NUT_READY anterior.",
+   "items": [
+    "F14"
+   ]
+  },
+  {
+   "texto": "Drop y nut check piden permiso al PLC después de llegar al punto.",
+   "items": [
+    "F48",
+    "F50"
+   ]
+  },
+  {
+   "texto": "Red rabbit con AND y resultado borrado en el drop; Work Complete comentado.",
+   "items": [
+    "G21",
+    "F19",
+    "F46"
+   ]
+  },
+  {
+   "texto": "Espera fija de 2.0 s antes de leer la cámara (era 0.2 s); el comentario sigue diciendo 0.2 s.",
+   "items": [
+    "F52"
+   ]
+  }
+ ],
+ "plan": [
+  "Que cargue la entrega de esperas del PLC (entregas/2026-10-11_F52_esperas_PLC), corra 10 piezas seguidas en automático y mande el respaldo.",
+  "Con esa medición, palancas en orden (PALANCAS.es.md): espera de la cámara, dry cycle después de la aproximación, permisos antes de llegar (F48, F50), tuerca con $IN[481].",
+  "Confirmar con Edgar la meta de R10 y la decisión de F11."
+ ],
+ "pedir": [
+  "Por qué subió la espera de la cámara de 0.2 a 2.0 s.",
+  "Prueba sin tuerca y con doble tuerca con la ventana de 150 ms, o regresarla a 200 ms.",
+  "Evidencia de Load Data Determination de la herramienta 1 (G03).",
+  "Respaldo después de 10 piezas seguidas, con el Excel."
+ ]
+}

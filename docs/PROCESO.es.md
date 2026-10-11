@@ -15,8 +15,9 @@ nombre: el respaldo del robot `658424_R10_AAAA-MM-DD_HHMM.zip`, el Excel
 
 Decisión de Edgar (igual que en R20): ya no se le exige al programador cargar
 la versión de oficina. **Su último respaldo es la base auditada**: el árbol del
-programa del repositorio es su respaldo del 2026-10-05 14:46 byte por byte
-(commit `468e29f`). La versión de oficina (depuración, correcciones de la
+programa del repositorio es su último respaldo byte por byte: hoy el del
+2026-10-10 21:20 (commit `cd17b34`); el cambio de base fue sobre su respaldo
+del 2026-10-05 14:46 (commit `468e29f`). La versión de oficina (depuración, correcciones de la
 revisión de Gestamp, integraciones y la etapa 1 de tiempo ciclo) queda en el
 historial en `84442ac`, solo como referencia. Los dos commits están en
 `tools/audit_base.json`.
@@ -112,22 +113,22 @@ de entrar. Los estimados van en rangos y con evidencia (archivo:línea).
 
 ### Cómo se revisa, sin multiplicar agentes
 
-* Primero las herramientas mecánicas: `audit_backup.py`,
-  `check_cleanup.py --head <base>`, `check_equivalence.py` y, si se tocó el
-  auditor, `test_audit_backup.py`. Son deterministas y cubren lo repetitivo.
+* Primero las herramientas mecánicas: `audit_backup.py` contra el respaldo
+  anterior (y, como referencia, contra la versión de oficina) y, si se tocó
+  el auditor, `test_audit_backup.py`. Son deterministas y cubren lo
+  repetitivo.
 * El auditor lee él mismo el diff solo de código (sin comentarios ni
-  renombres) contra el último estado auditado y contra el original. No se
+  renombres) contra el respaldo anterior. No se
   reparte la revisión en un agente por módulo ni por tema.
-* Revisión independiente (uno o dos agentes, con el alcance acotado a los
-  archivos y las preguntas concretas) solo en dos casos: cuando el cambio
+* Revisión independiente con agentes solo si Edgar lo pide (uno o dos, con el
+  alcance acotado a los archivos y las preguntas concretas), en dos casos: cuando el cambio
   toca seguridad o interlocks (entrada al pedestal, interrupts, PRELOAD,
   rutinas del proveedor, inline forms), y antes de entregar un zip para
   cargar. El revisor confirma o refuta hallazgos concretos; no vuelve a
   auditar todo.
-* Pendiente para el próximo respaldo del R10: revisión independiente de
-  GUN_OPEN_CHECK y los interrupts 20-22 (apps 1-3), del background de
-  AutomationCore con sus ediciones del proveedor y de la integración hecha a
-  mano el 2026-10-05.
+* Si Edgar lo pide: revisión independiente de PEDESTAL_CLEAR_CHECK y las
+  interrupciones 20-24 (apps 1-3) y del background de AutomationCore con sus
+  ediciones del proveedor, sobre el respaldo del 10/10.
 
 ## Qué hace reabrir un punto
 

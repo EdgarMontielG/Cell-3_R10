@@ -197,6 +197,17 @@ def audit_base():
     return data if data.get('programmer_base_commit') else None
 
 
+def last_backup():
+    """(date and time, short commit) of the newest programmer backup imported as received,
+    from its commit subject; the switch commit of 2026-10-05 14:46 when none came after it."""
+    out = git('log', '-1', '--format=%h %s', '--grep', "^Programmer's backup of").decode().strip()
+    m = re.match(r"(\w+) Programmer's backup of (\d{4}-\d\d-\d\d \d\d:\d\d)", out)
+    if m:
+        return m.group(2), m.group(1)
+    switch = audit_base()
+    return '2026-10-05 14:46', switch['programmer_base_commit'][:7] if switch else ''
+
+
 def added_lines(path, base=BASE):
     """Line numbers of the HEAD version added or changed since `base`."""
     diff = git('diff', '-U0', base, 'HEAD', '--', path).decode('latin-1')
@@ -254,8 +265,9 @@ def cover(st, items, now):
                                                                        'Corregido')))
     if switch:
         title = 'Auditoría del programa del programador y puntos abiertos'
-        base = (f'Base auditada desde el 2026-10-11: el programa del programador, respaldo del 2026-10-05 14:46 (commit '
-                f'{switch["programmer_base_commit"][:7]}). La versión de oficina (commit '
+        when, commit = last_backup()
+        base = (f'Base auditada desde el 2026-10-11: el programa del programador, su último respaldo, del {when} '
+                f'(commit {commit}). La versión de oficina (commit '
                 f'{switch["office_last_commit"][:7]}) no se cargó y queda como referencia. ')
     else:
         title = 'Depuración, correcciones de la revisión Gestamp y puntos abiertos'
@@ -326,7 +338,7 @@ def summary(st, items):
 def summary_programmer_base(st, items, crit, high):
     out = [Paragraph('1. Resumen', st['h1']),
            Paragraph('Desde el 2026-10-11, por decisión de Edgar (igual que en R20), la base es el programa que corre '
-                     'en el robot: el respaldo del programador del 05/10 14:46, su último. Ya no se le pide cargar la versión de oficina. Cada '
+                     f'en el robot: su último respaldo, del {last_backup()[0]}. Ya no se le pide cargar la versión de oficina. Cada '
                      'respaldo se audita contra el anterior (tools/audit_backup.py) y cada punto contra su '
                      'criterio de cierre sobre su programa.', st['body']),
            Paragraph('La depuración y las correcciones de oficina (2026-10-02 a 2026-10-07) se entregaron como '
@@ -346,10 +358,11 @@ def summary_programmer_base(st, items, crit, high):
             f'(BMW-03-10R1), en la lista como G01–G{len(gest):02d}. Sobre el programa del programador: '
             f'{len(done)} cerrados, {len(work)} en proceso y {len(gest) - len(done) - len(work)} pendientes '
             '(sección 3).', st['body']))
-    if crit:
-        out.append(Paragraph('<font color="#b42318">Críticos</font>', st['h2']))
+    crit_open = [i for i in crit if not is_closed(i)]
+    if crit_open:
+        out.append(Paragraph('<font color="#b42318">Críticos abiertos</font>', st['h2']))
         out += [Paragraph(f'<font color="#b42318"><b>{esc(i["id"])} — {esc(i["titulo"])}</b></font>',
-                          st['bullet'], bulletText='•') for i in crit]
+                          st['bullet'], bulletText='•') for i in crit_open]
     return out
 
 
@@ -605,9 +618,9 @@ def process(st):
     if switch:
         out.append(Paragraph('Base', st['h2']))
         out += bullets([
-            'La base es el programa del programador (su respaldo del 2026-10-05 14:46, commit '
-            f'{switch["programmer_base_commit"][:7]}). No se carga ninguna versión de oficina.',
-            'Los 12 módulos sobrantes (G05) se borran cuando la celda esté probada al 100 %; antes no se evalúan. '
+            f'La base es el programa del programador (su último respaldo, del {last_backup()[0]}, commit '
+            f'{last_backup()[1]}). No se carga ninguna versión de oficina.',
+            'Los módulos sobrantes (G05: capchange, electrodechange, redrabbit y POUNCE) se borran cuando la celda esté probada al 100 %; antes no se evalúan. '
             'Guardar el proyecto WorkVisual desde el controlador antes de cualquier deploy.',
             'Ethos cambia código solo cuando Edgar lo pide, siempre sobre el último respaldo del programador, y '
             'entrega solo los archivos que cambian en entregas/<fecha>_<puntos>/ (cambios.diff, LEEME.txt y PDF de '

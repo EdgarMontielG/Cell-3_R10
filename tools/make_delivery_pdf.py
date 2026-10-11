@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Write the programmer's instruction PDF of a delivery folder (entregas/<date>_<items>/).
 
-    python3 tools/make_delivery_pdf.py entregas/2026-10-11_F52_medicion
+    python3 tools/make_delivery_pdf.py entregas/2026-10-11_F52_esperas_PLC
 
 The text lives in <folder>/instrucciones.json, so each delivery only writes its
 content; the look is the one of make_report.py. Inline markup in any text:

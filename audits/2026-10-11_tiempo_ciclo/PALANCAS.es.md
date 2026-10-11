@@ -1,30 +1,48 @@
-# R10 — palancas de tiempo ciclo sobre el programa del programador (2026-10-11)
+# R10 — palancas de tiempo ciclo sobre el programa del programador (actualizado con su respaldo del 10/10)
 
-Base: su respaldo del 2026-10-05 14:46 (commit `468e29f`). **Nada de esto está medido todavía**: los rangos son
-estimados a partir del código y del video del 2026-10-05, y se confirman con la medición
-(`entregas/2026-10-11_F52_medicion`, variables `nCt*`). Meta: R10 por debajo de R20 (57.3 s hoy, meta 53 s) con
+Base: su respaldo del 2026-10-10 21:20 (commit `cd17b34`). Meta: R10 por debajo de R20 (57.3 s hoy, meta 53 s) con
 margen; la meta exacta de R10 está por confirmar con Edgar. Las líneas son de la variante A; las B (estación 2) son
 iguales salvo donde se indica.
 
-Lo que ya se sabe: en el video del 05/10 las soldaduras de una pieza van cada ~9.5 s; antes de las tuercas 2 y 3
-el robot espera ~4 s la tuerca. En R20, con sus timers CT_*, el programador midió 3.8–4.1 s dentro de la pistola
-por tuerca y 57.3 s pieza a pieza.
-
 No se tocan: el tiempo de soldadura, los chequeos de calidad (nut check con su WAIT SEC 0.2 por sensor, cámara,
-ventana de pistola cerrada) ni los interlocks de seguridad (GUN_OPEN_CHECK antes de entrar, vigilancia de pistola
-con las interrupciones 20-22 y su paro al salir).
+ventana de pistola cerrada) ni los interlocks de seguridad (PEDESTAL_CLEAR_CHECK antes de entrar y al salir,
+vigilancia con las interrupciones 20-24 y su paro al salir del pedestal).
 
-| # | Palanca | Evidencia | Estimado por pieza | Condición |
+## Lo que ya midió (sus timers CT_*, gun_open_check.dat:57-81)
+
+| Tramo | Tuerca 1 | Tuerca 2 | Tuerca 3 |
+|---|---:|---:|---:|
+| Dentro de la pistola (CENTERLINE_WELD) | 4.03 s | 3.92 s | 3.91 s |
+| Tuerca a tuerca (pose de soldadura a pose de soldadura) | — | 6.71 s | 6.61 s |
+| Espera de tuerca en la aproximación | 0 | 0.24 s | 0.32 s |
+
+Tuerca 1 → fin de tuerca 3: 17.2 s; espera de tuerca por pieza: 0.56 s (en el video del 05/10 eran ~4 s antes de
+las tuercas 2 y 3). Es un solo ciclo: `nCtCycle` = 276.8 s no sirve (la pieza vino después de un paro). Falta medir
+10 piezas seguidas y las esperas del PLC (`entregas/2026-10-11_F52_esperas_PLC`: `nCtHomeWait`, `nCtPlcWait[1..3]`).
+
+## Lo que ya hizo (del 06 al 10/10)
+
+- Palanca d): pre-alimenta la siguiente tuerca al QFP en cuanto la anterior queda en el pin (PRELOAD paso 30) y pide
+  la tuerca justo después de CENTERLINE_WELD (style1app1opt1a.src:119). Aceptado como R20 F51 (F53).
+- Palanca c): quitó los WAIT SEC 0.2 al cerrar y abrir la pistola y después de GUN_OPEN_CHECK
+  (centerline_weld.src:181, :313, :323); un solo `dipw1_Ready` por tuerca; el Bosch queda habilitado fuera de dry
+  cycle; la ventana de pistola cerrada bajó de 300 a 150 ms (`CL_GUN_IN_WINDOW_TIME`, $config.dat:846; Gestamp pide
+  200 ms estables, ver F07/F53).
+- Palanca a): CONT en las salidas de las apps (P0, P8, P20), en P22 del nut check y en P6 de la cámara.
+
+## Lo que queda
+
+| # | Palanca | Evidencia (respaldo 10/10) | Estimado por pieza | Condición |
 |---|---|---|---|---|
-| d | Pedir la tuerca con anticipación: hoy la precarga completa (alimentar 2 s, avanzar, soplar 0.8 s, 0.8 s fijos tras el regreso) arranca hasta la salida; el robot espera ~4 s antes de las tuercas 2 y 3 | `Request_next_nut` por TRIGGER al salir: style1app1opt1A.src:137, style1app1opt2A.src:133; espera: :69 / :68; PRELOAD.src:47, :126, :145 | 5–7 s | Diseño de oficina F52 etapa 1 (en el historial) o como R20 F51 (pedir la tuerca justo después de soldar; aceptado porque el spear de Gestamp alimenta con el robot en la pose). Con la medición se ve cuánto queda |
-| b | Lectura de dry cycle justo después de la aproximación: el `IF di004UseDryCycle` lee una entrada y quita el CONT de P20/P6/P13 (paro exacto antes de bajar a soldar) | style1app1opt1A.src:80→83, style1app1opt2A.src:78→81, style1app1opt3A.src:72→75 | 0.6–1.2 s | Leerlo una vez en la espera de tuerca (el robot ya está parado) y usar la variable; también resuelve F05 |
-| b | Permisos de AutomationCore después de llegar al punto: el robot se detiene en P22 y en P5 del drop | style1app2opt1.src:43→50 (F50), style1drop1opt1.src:24→30 (F48) | 0.3–0.8 s (más la espera real del PLC) | Pedirlos antes del primer movimiento, como en Gestamp (cada programa de revisión pide el suyo); cierra F48 y F50 |
-| b | Petición de reposicionar la herramienta de la cámara hasta llegar a P3 | style1app2opt2.src:46→49-53 (`do080`, `WAIT FOR di080`, 0.2 s) | 0.2–1.0 s | Mandarla por TRIGGER en la aproximación; confirmar con PLC/mecánica que puede moverse mientras el robot llega |
-| a | Paradas exactas en espacio libre (sin CONT y el siguiente movimiento sigue directo) | style1pick1opt1.src:60, :122, :129 (pick2: :116); style1app1opt1A.src:138; style1app1opt2A.src:126; style1app1opt3A.src:118; style1app2opt1.src:77, :105; style1app2opt2.src:37 | 1–3 s (≈0.1–0.3 s cada una) | CONT donde no haya obstáculo; revisar los TRIGGER de esos movimientos (DISTANCE=1 dispara al empezar el redondeo). LIN → PTP solo donde no haga falta línea recta (pedestal y pick no) |
-| c | Esperas fijas de 0.2 s en la pistola después de acciones que el LPT ya confirma | centerline_weld.src:133 (cruce de válvulas al cerrar), :231 (al abrir), :237 (después de GUN_OPEN_CHECK, que ya confirmó la pistola abierta) | 0.6–1.8 s (3 tuercas) | :237 sale sin riesgo; :133 y :231 con el mínimo que confirme CenterLine |
-| c | `GRPg_SetStateAndCheck(…, 0.2, 1)`: espera fija de 0.2 s y luego revisa los sensores con timeout | style1pick1opt1.src:40, :96; style1drop1opt1.src:44 (GripperTech Grp_Func.src: `WAIT SEC rWaitTime` antes de `GRPg_CheckWithTimeOut`) | 0.2–0.6 s | Tiempo de espera 0 en el form: el chequeo con timeout ya confirma el estado |
-| c | WAIT SEC 0.2 después del último sensor, antes de evaluar (no hay lectura después) | style1app2opt1.src:139 | 0.2 s | Las tres esperas por sensor se quedan (estándar Gestamp) |
-| e | Esperas del PLC (HOME, pickup, application, drop-off) y liberaciones con paro exacto antes (`AC_pickUP` después de P8, `AC_DropOff` después de P3) | cell.src; style1pick1opt1.src:136→143; style1drop1opt1.src:79→86 | por medir (`nCtHomeWait`, `nCtPlcWait`) | Solo con OK de Gestamp |
+| c | Espera fija de **2.0 s** antes de leer la cámara: el 05/10 era 0.2 s; el comentario sigue diciendo 0.2 s | style1app2opt2.src:60 | hasta 1.8 s | Preguntar por qué la subió. Si el resultado de la cámara tarda, esperar `di100` o `di101` con timeout en lugar del tiempo fijo; el chequeo se queda |
+| b | Dry cycle leído justo después de la aproximación: el `IF di004UseDryCycle` lee una entrada y quita el CONT (paro exacto antes de bajar a soldar) | style1app1opt1a.src:83→89 (P20), style1app1opt2a.src:72→78 (P6, ya sin CONT), style1app1opt3a.src:73→79 (P13); igual en las B | 0.6–1.2 s | Leerlo una vez durante la espera de tuerca (el robot ya está parado) y usar la variable; también resuelve F05 |
+| b | Permisos de AutomationCore después de llegar: el robot se detiene en P22 (el CONT nuevo se pierde) y en P5 del drop | style1app2opt1.src:46→56 (F50), style1drop1opt1.src:38→49 (F48) | 0.3–0.8 s (más la espera real del PLC) | Pedirlos antes del primer movimiento, como Gestamp; cierra F48 y F50 |
+| b | Petición de la cámara hasta llegar a P3 | style1app2opt2.src:44→50-53 (`do080`, `WAIT FOR di080`) | 0.2–1.0 s | Mandarla por TRIGGER en la aproximación; confirmar con PLC que puede preparar la inspección mientras el robot llega |
+| d | Tuerca confirmada por tiempo: el paso 30 dura 2000 ms + `nFeedSettleMs` 3000 ms; quedan 0.24–0.32 s de espera en las tuercas 2 y 3 | preload.src:276-281, preload.dat:28 | 0–0.6 s | Confirmar la tuerca con `$IN[481] dipw1_FeedComplt` (F13, F25) en lugar de 5 s fijos; además da la falla de tuerca faltante |
+| a | Paradas exactas en espacio libre en el pick 1 | style1pick1opt1.src:63 (P12), :127 (P40), :134 (P9); P8 (:141) lo detiene la liberación que sigue | 0.3–0.9 s | CONT donde no haya obstáculo; revisar el TRIGGER de NUT_START antes de P12 (DISTANCE=0 dispara al empezar el movimiento) |
+| c | `GRPg_SetStateAndCheck(…, 0.2, 1)`: espera fija de 0.2 s y luego revisa los sensores con timeout | style1pick1opt1.src:46, :102; style1pick1opt2.src:48, :97; style1drop1opt1.src:67 | 0.4–0.6 s | Tiempo de espera 0 en el form: el chequeo con timeout ya confirma el estado |
+| c | WAIT SEC 0.2 después del último sensor del nut check, antes de evaluar (no hay lectura después) | style1app2opt1.src:145 | 0.2 s | Las tres esperas por sensor se quedan (estándar Gestamp) |
+| e | Esperas del PLC (HOME, pickup, application, drop-off) y liberaciones con paro exacto antes (`AC_pickUP` después de P8, `AC_DropOff` después de P3) | cell.src; style1pick1opt1.src:141→149; style1drop1opt1.src:108 | por medir (`nCtHomeWait`, `nCtPlcWait`) | Solo con OK de Gestamp |
 
-Suma de rangos, sin medir: ~8–15 s por pieza; la palanca d) es la mayor. El orden de trabajo sigue a–e, pero con la
-medición se decide dónde está el tiempo. Ningún número se promete antes de medir.
+Suma de rangos, sin medir el ciclo completo: ~3.5–7 s por pieza; la espera de la cámara es la mayor y la más
+barata. Ningún número se promete antes de tener 10 piezas seguidas medidas.

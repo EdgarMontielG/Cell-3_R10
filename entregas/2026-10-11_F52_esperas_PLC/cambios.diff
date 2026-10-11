@@ -1,0 +1,125 @@
+--- a/KRC/R1/Program/Centerline/gun_open_check.dat
++++ b/KRC/R1/Program/Centerline/gun_open_check.dat
+@@ -80,4 +80,13 @@
+ DECL GLOBAL INT nCtWaitSum=564
+ DECL GLOBAL INT nCtCycle=276828
++;PLC WAITS (CT_PLC_START / CT_PLC_END IN GUN_OPEN_CHECK.SRC) - 2026-10-11, MS, LAST PART:
++;  nCtHomeWait   : ROBOT AT HOME AFTER THE CYCLE UNTIL THE PLC STARTS THE NEXT ONE (CELL.SRC)
++;  nCtPlcWait[k] : ROBOT STOPPED WAITING FOR A PLC PERMISSION: 1 PICKUP, 2 APPLICATION 1
++;                  (NUT CHECK, style1app2opt1), 3 DROP-OFF (style1drop1opt1). USES $TIMER[24]
++DECL GLOBAL INT nCtHomeWait=0
++DECL GLOBAL INT nCtPlcWait[3]
++nCtPlcWait[1]=0
++nCtPlcWait[2]=0
++nCtPlcWait[3]=0
+ ;PEDESTAL STATES FOR INTERRUPTS 23/24 OF THE WELD APPS, SET BY SPS.SUB EVERY CYCLE
+ DECL GLOBAL BOOL CL_ClampOpen=FALSE
+--- a/KRC/R1/Program/Centerline/gun_open_check.src
++++ b/KRC/R1/Program/Centerline/gun_open_check.src
+@@ -513,2 +513,36 @@
+ 
+ END
++
++GLOBAL DEF CT_PLC_START( )
++;FOLD ROUTINE INFO
++;**********************************************************
++;* CYCLE TIME MEASUREMENT (2026-10-11): THE ROBOT STARTS TO
++;* WAIT FOR THE PLC - AT HOME AFTER THE CYCLE (CELL.SRC) OR
++;* BEFORE AN AUTOMATIONCORE PERMISSION CHECK. WAIT SEC 0 =
++;* THE SAME ADVANCE RUN STOP THE CHECK MAKES: THE ROBOT IS
++;* ALREADY STOPPED THERE, THE PATH DOES NOT CHANGE.
++;**********************************************************
++;ENDFOLD
++   WAIT SEC 0
++   $TIMER[24]=0
++   $TIMER_STOP[24]=FALSE
++END
++
++GLOBAL DEF CT_PLC_END(nWhich:IN)
++;FOLD ROUTINE INFO
++;**********************************************************
++;* CYCLE TIME MEASUREMENT (2026-10-11): END OF THE PLC WAIT
++;* STARTED BY CT_PLC_START, MS.
++;* nWhich 0 = HOME, CYCLE START (nCtHomeWait)
++;*        1 = PICKUP, 2 = APPLICATION 1 (NUT CHECK),
++;*        3 = DROP-OFF (nCtPlcWait[nWhich])
++;**********************************************************
++;ENDFOLD
++DECL INT nWhich
++   IF nWhich==0 THEN
++      nCtHomeWait=$TIMER[24]
++   ENDIF
++   IF (nWhich>=1) AND (nWhich<=3) THEN
++      nCtPlcWait[nWhich]=$TIMER[24]
++   ENDIF
++END
+--- a/KRC/R1/Program/StyleApps/Options/style1app2opt1.src
++++ b/KRC/R1/Program/StyleApps/Options/style1app2opt1.src
+@@ -50,4 +50,5 @@
+ ;(WAITING MESSAGE, NO TIMEOUT), THEN SIGNALS $OUT[70] do070ApplicationClear1 OFF,
+ ;$OUT[24] do024ApplClrTooling OFF
++   CT_PLC_START()   ;CYCLE TIME MEASUREMENT: WAIT FOR THE PLC APPLICATION 1 PERMISSION (GUN_OPEN_CHECK.SRC, 2026-10-11)
+    ;FOLD Application[1] Request
+       ;FOLD ;%{h}
+@@ -56,4 +57,5 @@
+       AC_ApplicationCheck (1)
+    ;ENDFOLD
++   CT_PLC_END(2)
+ 
+ ;NUT 1 AT THE SENSOR - LIN P28 (EXACT STOP)
+--- a/KRC/R1/Program/StyleDrops/Options/style1drop1opt1.src
++++ b/KRC/R1/Program/StyleDrops/Options/style1drop1opt1.src
+@@ -43,4 +43,5 @@
+ ;$OUT[25] do025DropClearTooling OFF
+ ;WARNING: HIDDEN AC_CmdParam=2 - CONFIRMING THIS FORM REGENERATES AC_DropOffCheck(2) (F21)
++CT_PLC_START()   ;CYCLE TIME MEASUREMENT: WAIT FOR THE PLC DROP-OFF PERMISSION (GUN_OPEN_CHECK.SRC, 2026-10-11)
+ ;FOLD DropOff[1] Request
+ ;FOLD ;%{h}
+@@ -49,4 +50,5 @@
+ AC_DropOffCheck (1)
+ ;ENDFOLD
++CT_PLC_END(3)
+ 
+ ;FOLD LIN AtDrop3 Vel=2 m/s CPDAT1 Tool[1]:TOOL 1 Base[0];%{PE}%R 8.3.43,%MKUKATPBASIS,%CMOVE,%VLIN,%P 1:LIN, 2:AtDrop3, 3:, 5:2, 7:CPDAT1
+--- a/KRC/R1/Program/StylePicks/Options/style1pick1opt1.src
++++ b/KRC/R1/Program/StylePicks/Options/style1pick1opt1.src
+@@ -26,4 +26,5 @@
+ ;PICKUP 1 REQUEST - AC_pickUPCheck(1): WAIT SIGNAL $IN[65] di065PickupMachine1 ON,
+ ;THEN SIGNALS $OUT[65] do065PickupClear1 OFF, $OUT[23] do023PickClearTooling OFF
++   CT_PLC_START()   ;CYCLE TIME MEASUREMENT: WAIT FOR THE PLC PICKUP PERMISSION (GUN_OPEN_CHECK.SRC, 2026-10-11)
+    ;FOLD PickUp[1] Request
+       ;FOLD ;%{h}
+@@ -32,4 +33,5 @@
+       AC_pickUPCheck (1)
+    ;ENDFOLD  
++   CT_PLC_END(1)
+ ;WAIT GRIPPER EMPTY BEFORE ANY GRIPPER COMMAND - SIGNALS $IN[253] di253PartPresent1 OFF,
+ ;$IN[254] di254PartPresent2 OFF (GESTAMP REVIEW POINT 14)
+--- a/KRC/R1/Program/StylePicks/Options/style1pick1opt2.src
++++ b/KRC/R1/Program/StylePicks/Options/style1pick1opt2.src
+@@ -28,4 +28,5 @@
+ ;WARNING: THE HIDDEN FORM PARAMETER IS AC_CmdParam=1 - OPENING AND CONFIRMING THIS FORM
+ ;  REGENERATES AC_pickUPCheck(1) (PICKUP 1). DO NOT TOUCH UP THIS FOLD (F21)
++   CT_PLC_START()   ;CYCLE TIME MEASUREMENT: WAIT FOR THE PLC PICKUP PERMISSION (GUN_OPEN_CHECK.SRC, 2026-10-11)
+    ;FOLD PickUp[2] Request
+       ;FOLD ;%{h}
+@@ -34,4 +35,5 @@
+       AC_pickUPCheck (2)
+    ;ENDFOLD  
++   CT_PLC_END(1)
+ ;WAIT GRIPPER EMPTY BEFORE ANY GRIPPER COMMAND - SIGNALS $IN[253] di253PartPresent1 OFF,
+ ;$IN[254] di254PartPresent2 OFF (GESTAMP REVIEW POINT 14)
+--- a/KRC/R1/cell.src
++++ b/KRC/R1/cell.src
+@@ -55,4 +55,5 @@
+ 	    ;START THE CYCLE TIMER
+ 	    StartCycTime( )
++	    CT_PLC_END(0)   ;CYCLE TIME MEASUREMENT: ROBOT WAITED AT HOME FOR THE CYCLE START (GUN_OPEN_CHECK.SRC, 2026-10-11)
+ 	    ;ENDFOLD (Start Cycle)
+ 	    ;SELECT THE STYLE PROGRAM BY STYLE NUMBER nStyle (gdiStyle); ONLY STYLE 1 EXISTS
+@@ -73,4 +74,5 @@
+ 		    ;STOP THE CYCLE TIMER
+ 		    StopCycTime( )
++		    CT_PLC_START()   ;CYCLE TIME MEASUREMENT: ROBOT BACK AT HOME, THE WAIT FOR THE PLC STARTS
+         ENDIF
+ 	  	;ENDFOLD (Finish Cycle)

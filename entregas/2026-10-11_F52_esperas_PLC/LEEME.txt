@@ -1,0 +1,31 @@
+R10 (BMW-03-10-R1) - Medicion de esperas del PLC (F52) - Ethos, 2026-10-11
+==========================================================================
+
+Hecho sobre tu respaldo del 2026-10-10 21:20. Solo vienen los 7 archivos que
+cambian. Tus timers CT_* ya miden pieza, tuercas, pistola y espera de tuerca;
+esto agrega cuanto espera el robot al PLC: en HOME antes de arrancar el ciclo
+y en los permisos de pickup, application 1 (nut check) y drop-off.
+El robot hace lo mismo que hoy: cada WAIT SEC 0 nuevo va donde el robot ya se
+detenia (HOME o el chequeo de AutomationCore). Lineas fuera de los folds.
+
+IMPORTANTE ANTES DE CARGAR
+- Si cambiaste alguno de estos archivos despues del respaldo del 10/10, NO lo
+  copies: aplica a mano las lineas de cambios.diff (- se quitan, + se agregan).
+- gun_open_check.dat va completo (tu archivo del 10/10 + 9 lineas debajo de
+  nCtCycle). $config.dat no se toca.
+- Orden: primero gun_open_check.src y gun_open_check.dat, luego los demas.
+- Despues de cargar: ningun modulo en rojo en el navegador.
+
+ARCHIVOS (KRC:\R1\Program\, cell.src en KRC:\R1\)
+  Centerline\gun_open_check.src          CT_PLC_START / CT_PLC_END (al final)
+  Centerline\gun_open_check.dat          nCtHomeWait, nCtPlcWait[1..3]
+  StylePicks\Options\style1pick1opt1.src, style1pick1opt2.src
+                                         alrededor de PickUp Request -> nCtPlcWait[1]
+  StyleApps\Options\style1app2opt1.src   alrededor de Application[1] Request -> nCtPlcWait[2]
+  StyleDrops\Options\style1drop1opt1.src alrededor de DropOff[1] Request -> nCtPlcWait[3]
+  ..\cell.src                            fin de ciclo -> arranque del siguiente -> nCtHomeWait
+
+PRUEBA
+  Un ciclo en T1 con override reducido en las dos estaciones: misma trayectoria.
+  10 piezas seguidas en automatico, sin paros; leer nCtCycle, nCtWaitSum,
+  nCtHomeWait y nCtPlcWait[1..3]; sacar respaldo completo y mandarlo con el Excel.

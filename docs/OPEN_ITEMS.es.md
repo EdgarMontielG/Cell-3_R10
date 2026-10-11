@@ -2,7 +2,7 @@
 
 *Archivo generado por `tools/make_items_md.py` a partir de `docs/open_items.json` — no se edita a mano.*
 
-Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada punto (en inglés, para Gestamp) está en [FINDINGS.md](FINDINGS.md); el proceso en [PROCESO.es.md](PROCESO.es.md).
+Actualizado: 2026-10-11. Pendientes: **62** de 103. El detalle técnico de cada punto (en inglés, para Gestamp) está en [FINDINGS.md](FINDINGS.md); el proceso en [PROCESO.es.md](PROCESO.es.md).
 
 **Puntos de Gestamp (G01–G22)**: revisión de Gestamp del 2026-10-02 (BMW-03-10R1), con su texto original. Desde el 2026-10-11 la base es el programa del programador: cada punto se revisa contra su programa y la versión de oficina queda como referencia (nota de cada punto). Los Fnn/Cnn son de la revisión de Ethos (numeración del R20); los marcados "Calvin #n" también están en la lista de Calvin (2026-10-03), verificada punto por punto. Esta lista es la única que se usa.
 
@@ -12,7 +12,7 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 |---|---|---|---|---|---|---|
 | G01 | Robot name needs to change | Cambiar el nombre del robot | Medio | Programador robot (en celda) / Gestamp confirma el formato | **Abierto** | C02 |
 | G02 | Safety Tool is not equal to Default TCP | Herramienta de seguridad igual al TCP de la herramienta 1 | Alto | Programador robot / Seguridad | **Abierto** | F42 |
-| G03 | Tool 1 is used without Load data determination | Determinar los datos de carga de la herramienta 1 | Alto | Programador robot / Puesta en marcha | **Abierto** | C08, F39, C09 |
+| G03 | Tool 1 is used without Load data determination | Determinar los datos de carga de la herramienta 1 | Alto | Programador robot / Puesta en marcha | **En proceso** | C08, F39, C09 |
 | G04 | Program Red Rabbit() is blocked, might be an unnecessary copy | ~~Programa RedRabbit bloqueado: borrado~~ | Bajo | Programador robot (prueba en celda) | Se cierra con otro punto | G05 |
 | G05 | Unused programs | Programas sin uso | Bajo | Programador robot / Gestamp controles | **Abierto** | G04, C28 |
 | G06 | Electrode change confirmation only 0.1 s, no handshake | Cambio de electrodo: confirmación de 0.1 s y sin handshake | Medio | Programador robot / Gestamp controles | **Requiere decisión** | F43, F12 |
@@ -21,15 +21,15 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 | G09 | Part control to PLC is set/reset instead of reflecting the real part controls | ~~Pieza en gripper al PLC fijada por programa, no por los sensores~~ | Medio | Programador robot / Gestamp controles | Aceptado sin cambio | F12, C01, C16 |
 | G10 | Gripper commands not used at all times | ~~Comandos de gripper GripperTech en todos los movimientos de gripper~~ | Medio | Programador robot / Puesta en marcha | Se cierra con otro punto | F31, F33 |
 | G11 | Use of Goto labels | ~~Sin GOTO ni etiquetas~~ | Medio | Programador robot (prueba en celda) | Cerrado - auditado | F30, F07 |
-| G12 | Use of I/O numbers instead of signal names | Nombres de señal en lugar de números de E/S | Medio | Programador robot (prueba en celda) | **Abierto** | F17, C23, F29 |
-| G13 | Poor programming (10 lines for nut present) | Código simplificado (nut present en una línea, duplicados fuera) | Medio | Programador robot (prueba en celda) | **Abierto** | F28, F03, F31 |
-| G14 | Gripper opened before the part control check | Revisar gripper vacío antes del comando de gripper | Medio | Programador robot (prueba en celda) | **Abierto** |  |
-| G15 | Names, variables and comments not in English | Nombres, variables y comentarios en inglés | Bajo | Programador robot (prueba en celda) | **Abierto** | C26, F36 |
-| G16 | NO variables for e.g. stroke limits | Constantes para límites de carrera, presiones y tiempos | Medio | Programador robot (prueba en celda) | **Abierto** | F16, F44, F41 |
-| G17 | Nut_weld_Retry logic useless | Lógica Nut_weld_Retry inútil | Bajo | Programador robot (prueba en celda) | **Abierto** | F24 |
+| G12 | Use of I/O numbers instead of signal names | ~~Nombres de señal en lugar de números de E/S~~ | Medio | Programador robot (prueba en celda) | Cerrado - auditado | F17, C23, F29 |
+| G13 | Poor programming (10 lines for nut present) | ~~Código simplificado (nut present en una línea, duplicados fuera)~~ | Medio | Programador robot (prueba en celda) | Cerrado - auditado | F28, F03, F31 |
+| G14 | Gripper opened before the part control check | ~~Revisar gripper vacío antes del comando de gripper~~ | Medio | Programador robot (prueba en celda) | Cerrado - auditado |  |
+| G15 | Names, variables and comments not in English | ~~Nombres, variables y comentarios en inglés~~ | Bajo | Programador robot (prueba en celda) | Cerrado - auditado | C26, F36 |
+| G16 | NO variables for e.g. stroke limits | ~~Constantes para límites de carrera, presiones y tiempos~~ | Medio | Programador robot (prueba en celda) | Cerrado - auditado | F16, F44, F41 |
+| G17 | Nut_weld_Retry logic useless | ~~Lógica Nut_weld_Retry inútil~~ | Bajo | Programador robot (prueba en celda) | Cerrado - auditado | F24 |
 | G18 | NO check for Weld OK, just weld finished | ~~Sin chequeo de soldadura buena~~ | Alto | Programador robot / Puesta en marcha | Aceptado sin cambio | F08 |
 | G19 | Next_Nut_Ready logic can fail at block selection, reset, reboot | Handshake de la tuerca frágil ante selección de bloque, reset y reinicio | Alto | Programador robot | **Abierto** | F38, F14 |
-| G20 | Change of xP0 deletes Request_next_nut inside inline forms | Request_next_nut y NUT_START fuera de los inline forms | Alto | Programador robot (prueba en celda) | **Abierto** | F32, F14 |
+| G20 | Change of xP0 deletes Request_next_nut inside inline forms | ~~Request_next_nut y NUT_START fuera de los inline forms~~ | Alto | Programador robot (prueba en celda) | Cerrado - auditado | F32, F14 |
 | G21 | Style1app2Opt1 will not work for RedRabbit | El nut check no funciona para red rabbit | Alto | Gestamp controles / Programador robot | **Abierto** | F19, G08 |
 | G22 | Use of AutomationCore is wrong in multiple places | Uso incorrecto de AutomationCore | Alto | Gestamp controles / Programador robot | **Abierto** | F12, C01, F46, F21, F20, C11, C12, C18, C19, C14, F35 |
 
@@ -37,7 +37,7 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 
 | ID | Punto | Sev. | Responsable | Estado |
 |---|---|---|---|---|
-| F01 | Entrada al pedestal sin confirmar gun abierto, clamp abierto y QFP regresado | Crítico | Programador robot | **Abierto** |
+| F01 | ~~Entrada al pedestal sin confirmar gun abierto, clamp abierto y QFP regresado~~ | Crítico | Programador robot | Cerrado - auditado |
 | F02 | ~~Options 2, 7 y 8 no evalúan el sensor de tuercas: solo decide la cámara~~ | Alto | Programador robot + Gestamp controles | Se cierra con otro punto |
 | F03 | PARTPRESENT1..3 y bscrapGE4 no se resetean al inicio del ciclo (Calvin #8) | Alto | Programador robot | **Abierto** |
 | F04 | Dry cycle se cuelga en la primera weld app: PRELOAD borra NUT_READY y nunca lo pone | Alto | Programador robot | **Abierto** |
@@ -48,7 +48,7 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 | F09 | Resultado del flujo de agua descartado; $OUT[475] forzado en ON | Alto | Programador robot + Puesta en marcha | **Abierto** |
 | F10 | Sin estado seguro del pedestal al cancelar o resetear el programa | Alto | Programador robot | **Abierto** |
 | F11 | PRELOAD en el submit mueve el pedestal en cualquier modo, sin dueño de las salidas | Crítico | Seguridad + Programador robot | **Requiere decisión** |
-| F12 | Background de AutomationCore y NutWeld deshabilitado: los bits de estado al PLC no cambian | Alto | Gestamp controles + Programador robot | **Abierto** |
+| F12 | Background de AutomationCore y NutWeld deshabilitado: los bits de estado al PLC no cambian | Alto | Gestamp controles + Programador robot | **En proceso** |
 | F13 | PRELOAD sin timeouts por paso, sin falla y banderas de tuerca lista sin confirmar alimentación (Calvin #6) | Medio | Programador robot | **Abierto** |
 | F14 | NUT_READY no se consume al soldar; la siguiente tuerca depende solo de TRIGGERs (Calvin #11) | Medio | Programador robot | **Abierto** |
 | F15 | Unos 35 WAIT FOR sobre entradas de proceso sin timeout ni mensaje (Calvin #1) | Medio | Programador robot | **Abierto** |
@@ -56,7 +56,7 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 | F17 | Declaraciones traslapadas; nombres dobles en los bits del pedestal | Medio | Programador robot | **Abierto** |
 | F18 | KRC_IO.xml mapea $OUT[820..979] y $IN[820..930] sobre los mismos bytes del adapter PLC | Medio | Gestamp controles / Programador robot | **Requiere decisión** |
 | F19 | Red rabbit: el ciclo no puede dar resultado y suelta la pieza por un mapeo duplicado (Calvin #26) | Alto | Programador robot / Gestamp controles | **Abierto** |
-| F20 | Rechazo por nut check: Application 1 sin liberar | Medio | Programador robot / Gestamp controles | **Abierto** |
+| F20 | ~~Rechazo por nut check: Application 1 sin liberar~~ | Medio | Programador robot / Gestamp controles | Cerrado - auditado |
 | F21 | Parámetros ocultos de inline forms AutomationCore no coinciden con la llamada | Medio | Programador robot | **Abierto** |
 | F22 | Movimientos del pedestal mezclan modo base y external TCP | Medio | Ethos (Edgar) / Programador robot | **Requiere decisión** |
 | F23 | Posición del LPT armada con 3 bytes en otro orden que en R20 | Bajo | Puesta en marcha / Programador robot | **Abierto** |
@@ -72,7 +72,7 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 | F33 | GripperConfig.xml del HMI desincronizado con grp_data.dat | Medio | Programador robot | **Abierto** |
 | F34 | CENTERLINE_HOME: polaridad de $OUT[473] y falta el reset del Bosch | Bajo | Programador robot / Puesta en marcha | **Requiere decisión** |
 | F35 | El mastering reference deja $OUT[930] en ON para siempre | Medio | Programador robot | **Abierto** |
-| F36 | $IN[227] declarado con dos nombres (NUT_PRESENT1, di227SensorCamera) | Bajo | Programador robot (prueba en celda) | **Abierto** |
+| F36 | ~~$IN[227] declarado con dos nombres (NUT_PRESENT1, di227SensorCamera)~~ | Bajo | Programador robot (prueba en celda) | Cerrado - auditado |
 | F37 | ~~Presión de intensificado no confirmada antes de weld start: no aplica en R10~~ (Calvin #1) | - | Programador robot | No aplica |
 | F38 | Estado de la tuerca no se reinicializa al arrancar, en reset ni después de un reinicio (Calvin #11) | Alto | Programador robot | **Abierto** |
 | F39 | Supervisión de par en cero; chequeo de datos de carga solo avisa; carga tecleada (Calvin #16) | Medio | Programador robot / Puesta en marcha | **Abierto** |
@@ -89,6 +89,7 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 | F50 | Permiso de aplicación 1 (nut check / cámara) revisado después de llegar a P22 | Alto | Programador robot | **Abierto** |
 | F51 | ~~Apps de soldadura duplicadas por estación de pick (A/B): cada cambio va en las dos~~ | Bajo | Programador robot | Sin acción - documentado |
 | F52 | Tiempo ciclo de R10: medir y bajarlo por debajo de R20 (la espera de tuerca antes de las tuercas 2 y 3 es la mayor parte) | Alto | Programador robot | **En proceso** |
+| F53 | ~~Tiempo ciclo del programador: pre-alimenta la tuerca, la pide con la pieza aún en la pistola, CONT/PTP y sin esperas de 0.2 s~~ | Alto | Programador robot | Aceptado sin cambio |
 | C01 | ~~AutomationCore_Bkg deshabilitado: el estatus al PLC no se actualiza~~ | - | Gestamp controles / Ethos (Edgar) | Cerrado - auditado |
 | C02 | Designación BMW-03-10-R1 en los encabezados; confirmar formato con Gestamp | - | Ethos (Edgar) / Gestamp controles | **Requiere decisión** |
 | C03 | ~~Encabezado estándar Gestamp en cada módulo del integrador~~ | - | Programador robot | Cerrado - depuración |
@@ -96,7 +97,7 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 | C05 | TCP remoto del pedestal (BASE_DATA[3]) sin medir | - | Puesta en marcha / Programador robot | **Abierto** |
 | C06 | Herramientas y bases con nombre: nombres de otro proyecto | - | Programador robot | **Abierto** |
 | C07 | Un user frame por utillaje: picks, nut check, reject y drops en WORLD | - | Gestamp controles / Ethos (Edgar) | **Requiere decisión** |
-| C08 | Datos de carga: LOAD_DATA[1] tecleado, sin determinar | - | Programador robot / Puesta en marcha | **Abierto** |
+| C08 | Datos de carga: LOAD_DATA[1] tecleado, sin determinar | - | Programador robot / Puesta en marcha | **En proceso** |
 | C09 | Detección de colisión apagada en todo el programa; la reacción es un HALT | - | Programador robot / Puesta en marcha | **Abierto** |
 | C10 | Falta el programa de mastering ZERO_G1 | - | Programador robot | **Abierto** |
 | C11 | Zonas sin documentar: ninguna zona pedida, falta la forma NA-FM-71-138.1 | - | Ethos (Edgar) / Gestamp controles | **Requiere decisión** |
@@ -185,7 +186,7 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 
 **Origen:** Gestamp - Robot Program Review - Findings (2026-10-02), BMW-03-10R1, punto 3. Texto de Gestamp: *"Tool 1 is used without Load data determination"*
 
-**Severidad:** Alto · **Tipo:** Prueba en celda · **Responsable:** Programador robot / Puesta en marcha · **Estado:** Abierto
+**Severidad:** Alto · **Tipo:** Prueba en celda · **Responsable:** Programador robot / Puesta en marcha · **Estado:** En proceso
 
 **Módulos:** `$config.dat (LOAD_DATA[1])`, `KRC/STEU/Mada/$custom.dat ($LDC_CONFIG[1])`
 
@@ -208,6 +209,7 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 
 * 2026-10-04 — Alta (Gestamp): Punto 3 de la revisión de Gestamp del 2026-10-02 (BMW-03-10R1).
 * 2026-10-11 — Estándar Gestamp: Gestamp tiene una carga determinada por herramienta (LOAD_DATA[1] 81 kg con centro de masa e inercias) y no usa carga aparte con pieza: se quita ese criterio (igual que R20). Hoy LOAD_DATA[1] sigue tecleado (210 kg, CM 270/0/240, inercias 105).
+* 2026-10-11 — Avance del programador: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). LOAD_DATA[1] = 67.28 kg con centro de masa (-2.62, 17.93, 219.18) e inercias: ya no es el tecleado de 210 kg. Falta la evidencia de Load Data Determination (captura o protocolo). LOAD_A3_DATA pasó de 30 a 50 kg.
 
 ---
 
@@ -253,7 +255,7 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 
 **Qué está mal.** Había 11 módulos que nada llamaba: CENTERLINE_WELD1, trigger1-3, CK1STXXX, POUNCE, capchange, electrodechange, redrabbit y las dos copias AutoRR del nut check y de la cámara; además CENTERLINE_LOOP (lazo manual de válvulas del pedestal sin salida ni interlocks). Quedan safetest.src (lazo PTP sin fin a un punto, prueba manual que nada llama) y el paquete GlueTech (TP/GLUETECH y Program/MoveToPurge.src), instalado en un robot de soldadura de tuercas y sin uso.
 
-**Qué hacer.** Módulos sobrantes en el programa del programador (12 módulos, 22 archivos): CK1STXXX, CENTERLINE_WELD1, centerline_loop, trigger1, trigger2, trigger3, POUNCE, style1app2opt1AutoRR, style1app2opt2AutoRR, electrodechange (ElectrodeChange.dat), redrabbit (RedRabbit.dat), capchange; además safetest y el paquete GlueTech como antes. Se borran cuando la celda esté probada al 100 %; no se evalúan antes.
+**Qué hacer.** Módulos sobrantes en su programa: capchange, electrodechange, redrabbit y POUNCE (el 10/10 ya borró CK1STXXX, CENTERLINE_WELD1, centerline_loop, trigger1-3 y las copias AutoRR del nut check y la cámara). redrabbit ya no compila: su .dat usa REDRABBIT, que la versión de oficina quitó de $config.dat (nadie lo llama). Además safetest y el paquete GlueTech. Se borran cuando la celda esté probada al 100 %; no se evalúan antes.
 
 **Criterio de cierre** (se verifica en el respaldo):
 
@@ -266,13 +268,14 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 
 **Depende de / se cierra con:** G04, C28
 
-**Nota.** Parte de oficina hecha (12 módulos borrados en el repositorio); falta la decisión de safetest, la desinstalación de GlueTech y el borrado en el controlador.
+**Nota.** Quedan 4 módulos sobrantes en el controlador (8 borrados por el programador el 10/10). Referencia: la versión de oficina borró los 12 en el repositorio. Falta la decisión de safetest y la desinstalación de GlueTech.
 
 **Historial:**
 
 * 2026-10-04 — Alta (Gestamp): Punto 5 de la revisión de Gestamp del 2026-10-02 (BMW-03-10R1).
 * 2026-10-05 — Auditoría - pendiente: Los 22 archivos borrados en la depuración siguen en el controlador; dos copias AutoRR fueron editadas (sin uso).
 * 2026-10-11 — Decisión: Base = programa del programador (respaldo del 2026-10-05 14:46). Decisión de Edgar (2026-10-11, igual que R20): la auditoría ya no marca los módulos que borró la oficina; los sobrantes se siguen solo en este punto y no se evalúan hasta que la celda esté probada al 100 %.
+* 2026-10-11 — Avance del programador: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). Borró 8 módulos sobrantes (14 archivos). Quedan capchange, electrodechange, redrabbit (no compila) y POUNCE.
 
 ---
 
@@ -300,6 +303,7 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 
 * 2026-10-04 — Alta (Gestamp): Punto 6 de la revisión de Gestamp del 2026-10-02 (BMW-03-10R1).
 * 2026-10-11 — Estándar Gestamp: El cell.src de Gestamp llama GunElectrodeChange() cuando do111Gun1ElectrodeChange (fin de stepper, escrito por AutomationCore_BKG) está activo. El nuestro ya lo hace igual (cell.src:70-71, BKG activo). Depende de que Gestamp resetee el stepper en el Bosch; en R20 la llamada está comentada porque allá el fin de stepper está siempre activo: confirmar en celda que aquí no.
+* 2026-10-11 — Estándar Gestamp: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). sps.sub escribe do111Gun1ElectrodeChange = dipw1_EndOfStepper y el estado del stepper al PLC, y cell.src llama GunElectrodeChange con do111, como el respaldo de Gestamp. Depende de que Gestamp resetee el stepper en el Bosch.
 
 ---
 
@@ -450,6 +454,7 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 * 2026-10-05 — Auditoría - avance en el original: El programador quitó los GOTO por su cuenta en el programa original (apps, CENTERLINE_WELD, picks, nut check, cámara, Style1Opt1). La lógica es equivalente a la versión de oficina; hay que integrarla en la versión depurada, no cargar la suya.
 * 2026-10-05 — Integrado - por probar: Sigue en la versión integrada (658424_R10_2026-10-05_0819.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto.
 * 2026-10-11 — Cambio de base: Base = programa del programador (respaldo del 2026-10-05 14:46). Ningún módulo activo tiene GOTO ni etiquetas: el programador los cambió por IF/LOOP (encabezados "Rev. 2026-10-05" de CENTERLINE_WELD y Style1Opt1). Solo quedan GOTO en trigger1-3, módulos sobrantes de G05.
+* 2026-10-11 — Cerrado - auditado: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). Sin GOTO ni etiquetas en ningún módulo activo (solo quedaban en trigger1-3, que ya borró).
 
 ---
 
@@ -457,7 +462,7 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 
 **Origen:** Gestamp - Robot Program Review - Findings (2026-10-02), BMW-03-10R1, punto 12. Texto de Gestamp: *"Use of I/O numbers instead of signal names"*
 
-**Severidad:** Medio · **Tipo:** Código + prueba en celda · **Responsable:** Programador robot (prueba en celda) · **Estado:** Abierto
+**Severidad:** Medio · **Tipo:** Código + prueba en celda · **Responsable:** Programador robot (prueba en celda) · **Estado:** Cerrado - auditado
 
 **Módulos:** `KRC/R1/Program/Centerline/centerline_weld.src`, `KRC/R1/Program/Centerline/PRELOAD.src`, `KRC/R1/Program/Centerline/CENTERLINE_HOME.src`, `KRC/R1/System/sps.sub`, `KRC/R1/TP/AutomationCore/automationcoreroutines.dat`, `KRC/R1/System/$config.dat`
 
@@ -483,6 +488,7 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 * 2026-10-05 — Integrado - por probar: Sigue en la versión integrada (658424_R10_2026-10-05_0819.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto.
 * 2026-10-11 — Cambio de base: Base = programa del programador (respaldo del 2026-10-05 14:46). Quedan $IN/$OUT numéricos en código escrito a mano: PRELOAD (28 líneas), CENTERLINE_WELD (45), CENTERLINE_HOME (17) y sps.sub (1); las direcciones del pedestal están declaradas como Reserved/Spare.
 * 2026-10-11 — Estándar Gestamp: Gestamp usa inline forms estándar con $IN/$OUT numéricos: eso se acepta. Su lógica escrita a mano es el paquete NutWeld, con señales declaradas por nombre. En R20 solo quedaron números en módulos sobrantes y textos de mensaje (G12 cerrado allá).
+* 2026-10-11 — Cerrado - auditado: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). Sin $IN/$OUT con número fuera de inline forms en los módulos activos: el pedestal usa los nombres de la versión de oficina (do498..do505, di466, di467, di470).
 
 ---
 
@@ -490,7 +496,7 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 
 **Origen:** Gestamp - Robot Program Review - Findings (2026-10-02), BMW-03-10R1, punto 13. Texto de Gestamp: *"Poor programming (10 lines for nut present)"*
 
-**Severidad:** Medio · **Tipo:** Código + prueba en celda · **Responsable:** Programador robot (prueba en celda) · **Estado:** Abierto
+**Severidad:** Medio · **Tipo:** Código + prueba en celda · **Responsable:** Programador robot (prueba en celda) · **Estado:** Cerrado - auditado
 
 **Módulos:** `KRC/R1/Program/StyleApps/Options/style1app2opt1.src`, `KRC/R1/Program/Centerline/centerline_weld.src`, `KRC/R1/Program/StylePicks/Options/style1pick1opt1.src`, `KRC/R1/Program/StylePicks/Options/style1pick1opt2.src`, `KRC/R1/Program/StylePicks/Options/style1pick1opt1AutoRR.src`, `KRC/R1/Program/StyleDrops/Options/style1drop1opt1.src`, `KRC/R1/Program/Utilities/RejectGE4.src`
 
@@ -515,6 +521,7 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 * 2026-10-05 — Integrado - por probar: Sigue en la versión integrada (658424_R10_2026-10-05_0819.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto.
 * 2026-10-11 — Cambio de base: Base = programa del programador (respaldo del 2026-10-05 14:46). Cada revisión es IF ($IN[227]==TRUE) THEN PARTPRESENTn=TRUE y el WAIT SEC 0.2 va después de leer (style1app2opt1.src:64-67, 92-95, 120-123): una tuerca faltante no escribe FALSE (F03) y la lectura es antes del asentamiento (F28).
 * 2026-10-11 — Estándar Gestamp: Gestamp revisa las tuercas en un solo IF con WAIT SEC 0.2 antes de leer.
+* 2026-10-11 — Cerrado - auditado: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). Nut check como Gestamp: WAIT SEC 0.2 y después PARTPRESENTn = di227NutPresent1 (style1app2opt1.src:65-68, igual en las 3 tuercas).
 
 ---
 
@@ -522,7 +529,7 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 
 **Origen:** Gestamp - Robot Program Review - Findings (2026-10-02), BMW-03-10R1, punto 14. Texto de Gestamp: *"Gripper opened before the part control check"*
 
-**Severidad:** Medio · **Tipo:** Código + prueba en celda · **Responsable:** Programador robot (prueba en celda) · **Estado:** Abierto
+**Severidad:** Medio · **Tipo:** Código + prueba en celda · **Responsable:** Programador robot (prueba en celda) · **Estado:** Cerrado - auditado
 
 **Módulos:** `KRC/R1/Program/StylePicks/Options/style1pick1opt1.src`, `KRC/R1/Program/StylePicks/Options/style1pick1opt2.src`, `KRC/R1/Program/StylePicks/Options/style1pick1opt1AutoRR.src`
 
@@ -546,6 +553,7 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 * 2026-10-05 — Integrado - por probar: Sigue en la versión integrada (658424_R10_2026-10-05_0819.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto.
 * 2026-10-11 — Cambio de base: Base = programa del programador (respaldo del 2026-10-05 14:46). En los 3 picks GRPg_SetStateAndCheck(1, 1, ...) (línea 40) va antes de la espera de gripper vacío (líneas 49-50).
 * 2026-10-11 — Estándar Gestamp: Gestamp revisa el estado del gripper (cilindros, pieza ausente) antes de mandarlo. En R20 sigue abierto con el mismo cambio.
+* 2026-10-11 — Cerrado - auditado: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). En los picks la espera de gripper vacío va antes del primer GRPg_SetStateAndCheck (style1pick1opt1.src:37 y :46).
 
 ---
 
@@ -553,7 +561,7 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 
 **Origen:** Gestamp - Robot Program Review - Findings (2026-10-02), BMW-03-10R1, punto 15. Texto de Gestamp: *"Names, variables and comments not in English"*
 
-**Severidad:** Bajo · **Tipo:** Código · **Responsable:** Programador robot (prueba en celda) · **Estado:** Abierto
+**Severidad:** Bajo · **Tipo:** Código · **Responsable:** Programador robot (prueba en celda) · **Estado:** Cerrado - auditado
 
 **Módulos:** `KRC/R1/TP/AutomationCore/automationcoreroutines.dat`, `KRC/R1/System/$config.dat`, `KRC/R1/Program/Centerline/PRELOAD.src`, `KRC/R1/Program/Centerline/Request_next_nut.src`, `KRC/R1/Program/StylePicks/Options/style1pick1opt1.src`, `KRC/R1/Program/StylePicks/Options/style1pick1opt2.src`, `KRC/R1/Program/StylePicks/Options/style1pick1opt1AutoRR.src`, `KRC/R1/Program/StyleApps/Options/style1app2opt1.src`, `KRC/R1/Program/StyleApps/Options/style1app2opt2.src`, `KRC/R1/Program/Styles/Options/style1opt1.src`, `KRC/R1/Program/Styles/Options/Style1Opt10AutoRR.src`, `KRC/R1/Program/Utilities/RejectGE4.src`
 
@@ -580,6 +588,7 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 * 2026-10-05 — Integrado - por probar: Sigue en la versión integrada (658424_R10_2026-10-05_0819.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto.
 * 2026-10-11 — Cambio de base: Base = programa del programador (respaldo del 2026-10-05 14:46). Comentarios en inglés (encabezados y comentarios del programador). Siguen CameraJudment, PartRejeted, di227SensorCamera (F36), NUT_STAR y la carpeta Styles/optiones.
 * 2026-10-11 — Estándar Gestamp: Como en R20: NUT_STAR es error de dedo, no español, y no impide el cierre.
+* 2026-10-11 — Cerrado - auditado: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). Nombres corregidos (CameraJudgment, PartRejected, di227NutPresent1, NUT_START). Quedan la carpeta Styles/optiones y el texto del encabezado de dos forms OUT 106: errores de dedo, no impiden el cierre (como NUT_STAR en R20).
 
 ---
 
@@ -587,7 +596,7 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 
 **Origen:** Gestamp - Robot Program Review - Findings (2026-10-02), BMW-03-10R1, punto 16. Texto de Gestamp: *"NO variables for e.g. stroke limits"*
 
-**Severidad:** Medio · **Tipo:** Código + prueba en celda · **Responsable:** Programador robot (prueba en celda) · **Estado:** Abierto
+**Severidad:** Medio · **Tipo:** Código + prueba en celda · **Responsable:** Programador robot (prueba en celda) · **Estado:** Cerrado - auditado
 
 **Módulos:** `KRC/R1/System/$config.dat`, `KRC/R1/Program/Centerline/centerline_weld.src`, `KRC/R1/Program/Centerline/CENTERLINE_HOME.src`
 
@@ -613,6 +622,7 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 * 2026-10-05 — Integrado - por probar: Sigue en la versión integrada (658424_R10_2026-10-05_0819.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto.
 * 2026-10-11 — Cambio de base: Base = programa del programador (respaldo del 2026-10-05 14:46). CENTERLINE_WELD y CENTERLINE_HOME siguen con los números escritos.
 * 2026-10-11 — Estándar Gestamp: Gestamp guarda los parámetros de soldadura en datos (nutwelddata.dat). En R20 se pasaron a $config.dat.
+* 2026-10-11 — Cerrado - auditado: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). CENTERLINE_WELD y CENTERLINE_HOME usan las constantes de $config.dat (ventana, tiempos, presiones, programa Bosch).
 
 ---
 
@@ -620,7 +630,7 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 
 **Origen:** Gestamp - Robot Program Review - Findings (2026-10-02), BMW-03-10R1, punto 17. Texto de Gestamp: *"Nut_weld_Retry logic useless"*
 
-**Severidad:** Bajo · **Tipo:** Código · **Responsable:** Programador robot (prueba en celda) · **Estado:** Abierto
+**Severidad:** Bajo · **Tipo:** Código · **Responsable:** Programador robot (prueba en celda) · **Estado:** Cerrado - auditado
 
 **Módulos:** `KRC/R1/Program/StyleApps/Options/style1app1opt1.src`, `KRC/R1/Program/StyleApps/Options/style1app1opt2.src`, `KRC/R1/Program/StyleApps/Options/style1app1opt3.src`, `KRC/R1/System/$config.dat`
 
@@ -646,6 +656,7 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 * 2026-10-05 — Integrado - por probar: Sigue en la versión integrada (658424_R10_2026-10-05_0819.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto.
 * 2026-10-11 — Cambio de base: Base = programa del programador (respaldo del 2026-10-05 14:46). El retry es un LOOP con NUT_WELD_RETRY (p. ej. style1app1opt1A.src:118-121) que nunca se pone en TRUE: sigue muerto (F24).
 * 2026-10-11 — Estándar Gestamp: El retry de Gestamp sí funciona (REPEAT UNTIL bNutFeedOK, tope nMaxDumpNutRetries=10). El nuestro nunca se activa: lo más simple es borrarlo, como en R20.
+* 2026-10-11 — Cerrado - auditado: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). El retry ya funciona: si la pistola cierra abajo de la ventana (sin tuerca) no suelda, el robot se queda, pide otra tuerca y suelda otra vez (NUT_WELD_RETRY, tope nNutRetryMax=1, mensaje NUT_RETRY_MSG); como el REPEAT UNTIL de Gestamp con tope. Llevaba 8 reintentos (nNutRetryTotal) en el respaldo.
 
 ---
 
@@ -673,6 +684,7 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 
 * 2026-10-04 — Alta (Gestamp): Punto 18 de la revisión de Gestamp del 2026-10-02 (BMW-03-10R1).
 * 2026-10-11 — Estándar Gestamp: El paquete NutWeld de Gestamp (WeldInitiate) solo espera WeldComplete, con timeout, reintentos y diálogo; no lee falla ni weld OK. El nuestro también toma WeldComplete como soldadura buena: en weld OK es igual a su respaldo. Aceptado sin cambio; el cierre final lo acepta Gestamp. El timeout y el mensaje de esa espera siguen en F15/C21.
+* 2026-10-11 — Avance del programador: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). Ahora además lee la falla del Bosch (WELD_COMPLETE_WAIT), igual que R20.
 
 ---
 
@@ -706,7 +718,7 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 
 **Origen:** Gestamp - Robot Program Review - Findings (2026-10-02), BMW-03-10R1, punto 20. Texto de Gestamp: *"Change of xP0 deletes Request_next_nut inside inline forms"*
 
-**Severidad:** Alto · **Tipo:** Código + prueba en celda · **Responsable:** Programador robot (prueba en celda) · **Estado:** Abierto
+**Severidad:** Alto · **Tipo:** Código + prueba en celda · **Responsable:** Programador robot (prueba en celda) · **Estado:** Cerrado - auditado
 
 **Módulos:** `KRC/R1/Program/StylePicks/Options/style1pick1opt1.src`, `KRC/R1/Program/StylePicks/Options/style1pick1opt2.src`, `KRC/R1/Program/StylePicks/Options/style1pick1opt1AutoRR.src`, `KRC/R1/Program/StyleApps/Options/style1app1opt1.src`, `KRC/R1/Program/StyleApps/Options/style1app1opt2.src`, `KRC/R1/Program/StyleDrops/Options/style1drop1opt2AutoRR.src`
 
@@ -732,6 +744,7 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 * 2026-10-05 — Integrado - por probar: Sigue en la versión integrada (658424_R10_2026-10-05_0819.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto.
 * 2026-10-11 — Cambio de base: Base = programa del programador (respaldo del 2026-10-05 14:46). Los TRIGGER de NUT_STAR (picks) y Request_next_nut (apps 1 y 2) siguen dentro de los folds de inline form (después de BAS(...)); el fold DropOff[2] Reset del drop red rabbit tiene 5 líneas escritas a mano.
 * 2026-10-11 — Estándar Gestamp: Gestamp no mete código propio dentro de los folds. En R20 se cerró cuando Request_next_nut y NUT_START quedaron fuera.
+* 2026-10-11 — Cerrado - auditado: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). El TRIGGER de NUT_START en los picks va antes del fold del movimiento; Request_next_nut es una llamada después de soldar; los borrados del red rabbit quedaron fuera del fold DropOff[2] Reset. En los forms OUT 18/106 queda la misma salida escrita con su nombre (do018Part1InGripper, do106PartRejected): reabrir el form regenera la misma salida (igual que R20). La auditoría lo marca FAIL por no ver $OUT[n]; revisado: no es error.
 
 ---
 
@@ -762,6 +775,7 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 
 * 2026-10-04 — Alta (Gestamp): Punto 21 de la revisión de Gestamp del 2026-10-02 (BMW-03-10R1).
 * 2026-10-11 — Estándar Gestamp: Gestamp (Style1App2Opt4): FAILED si hay cualquier tuerca (OR), PASSED si no hay ninguna; los resultados los borra solo MaintainSystem, nunca el drop. El nuestro da FAILED solo con las 3 tuercas (style1app2opt1.src:147-154) y el drop red rabbit borra do141/do142 dentro del fold DropOff[2] Reset (style1drop1opt2AutoRR.src:154-155): el PLC puede no ver el resultado.
+* 2026-10-11 — Sin cambio: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). El red rabbit sigue dando FAILED solo con las 3 tuercas (AND, style1app2opt1.src:164) y el drop red rabbit borra do141/do142 (ya fuera del fold).
 
 ---
 
@@ -795,7 +809,7 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 
 ## F01 — Entrada al pedestal sin confirmar gun abierto, clamp abierto y QFP regresado
 
-**Severidad:** Crítico · **Tipo:** Código + prueba en celda · **Responsable:** Programador robot · **Estado:** Abierto
+**Severidad:** Crítico · **Tipo:** Código + prueba en celda · **Responsable:** Programador robot · **Estado:** Cerrado - auditado
 
 **Módulos:** `KRC/R1/Program/StyleApps/Options/style1app1opt1.src`, `KRC/R1/Program/StyleApps/Options/style1app1opt2.src`, `KRC/R1/Program/StyleApps/Options/style1app1opt3.src`, `KRC/R1/Program/Centerline/PRELOAD.src`, `KRC/R1/Program/Centerline/centerline_weld.src`
 
@@ -822,6 +836,7 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 * 2026-10-05 — Integrado - avance parcial: GUN_OPEN_CHECK e interrupts 20-22 del programador integrados en la versión depurada (rango 137000-142000 en GUN_OPEN_CHECK.dat; CL_GUN_OPEN_MIN eliminado). Falta clamp abierto $IN[466] y QFP regresado $IN[482] antes de entrar, y la prueba en celda.
 * 2026-10-05 — Revisión independiente: GUN_OPEN_CHECK e interrupts 20-22: KRL válido e integración fiel. Huecos: los interrupts solo disparan en el cambio FALSE→TRUE; al salir se reactivan después de las esperas de clamp/QFP y de la presión de reposo, y al entrar el submit solo se revisa al inicio de GUN_OPEN_CHECK. Corrección: INTERRUPT ON 20-22 antes de cada GUN_OPEN_CHECK. Además: tras reconocer GUN_OPEN_LOST el robot puede quedar parado sin mensaje; la vigilancia se apaga un punto antes de salir; una selección de paso salta el interlock.
 * 2026-10-05 — Integrado - correcciones de la revisión: Versión integrada sobre el respaldo de las 14:46: INTERRUPT ON 20-22 antes de cada GUN_OPEN_CHECK (entrada y después de soldar) y mensaje de estado en GUN_OPEN_LOST después del reconocimiento. Sigue pendiente clamp abierto / QFP regresado antes de entrar.
+* 2026-10-11 — Cerrado - auditado: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). PEDESTAL_CLEAR_CHECK confirma pistola abierta, clamp abierto y pin superior retraído antes de entrar y de salir (detiene el avance, mensaje y espera); NUT_READY solo llega con el QFP visto regresado (PRELOAD paso 20); las interrupciones 20-24 vigilan pistola, submit, clamp y pin durante la entrada. Igual que R20, que lo cerró.
 
 ---
 
@@ -889,6 +904,7 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 
 * 2026-10-04 — Alta (Ethos): Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02).
 * 2026-10-05 — Auditoría - sin cambio: PARTPRESENTn sigue poniéndose solo en TRUE y se lee antes del WAIT SEC 0.2; se limpia al final de Style1Opt1, no al inicio.
+* 2026-10-11 — Avance del programador: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). PARTPRESENTn se asigna TRUE o FALSE en cada lectura y el nut check pone bscrapGE4=FALSE al empezar y lo decide en CASE 1,2,7,8. Falta el reset al inicio del ciclo (antes del pick) y la prueba.
 
 ---
 
@@ -1005,6 +1021,7 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 
 * 2026-10-04 — Alta (Ethos): Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02).
 * 2026-10-05 — Auditoría - avance en el original: En el original del programador los dos timers se reinician después del HALT (igual que la versión de oficina). Sigue sin mensaje y sin do004ProcessFault: el criterio no se cumple completo.
+* 2026-10-11 — Avance del programador: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). GUN_CLOSE_FAULT da mensaje (sin tuerca / doble tuerca) y prende la luz roja; antes reintenta una vez con tuerca nueva (G17). Después del reintento sigue un HALT (centerline_weld.src:235). La ventana bajó de 300 a 150 ms (CL_GUN_IN_WINDOW_TIME): Gestamp pide la pistola estable 200 ms (SensorSettle).
 
 ---
 
@@ -1038,6 +1055,7 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 
 * 2026-10-04 — Alta (Ethos): Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02).
 * 2026-10-11 — Estándar Gestamp: El paquete NutWeld de Gestamp (WeldInitiate) solo espera WeldComplete, con timeout, reintentos y diálogo; no lee falla ni weld OK. El nuestro también toma WeldComplete como soldadura buena: en weld OK es igual a su respaldo. Aceptado sin cambio; el cierre final lo acepta Gestamp. El timeout y el mensaje de esa espera siguen en F15/C21.
+* 2026-10-11 — Avance del programador: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). WELD_COMPLETE_WAIT espera WeldComplete con timeout (CL_WELD_COMPLETE_TIMEOUT 3000 ms) y lee la falla del Bosch ($IN[485]) con mensaje y luz roja: ya hace más que el paquete NutWeld de Gestamp.
 
 ---
 
@@ -1137,7 +1155,7 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 
 ## F12 — Background de AutomationCore y NutWeld deshabilitado: los bits de estado al PLC no cambian
 
-**Severidad:** Alto · **Tipo:** Decisión Gestamp · **Responsable:** Gestamp controles + Programador robot · **Estado:** Abierto
+**Severidad:** Alto · **Tipo:** Decisión Gestamp · **Responsable:** Gestamp controles + Programador robot · **Estado:** En proceso
 
 **Módulos:** `KRC/R1/System/sps.sub`, `KRC/R1/TP/AutomationCore/automationcoreroutines.src`, `KRC/R1/TP/NutWeld/nutweldroutines.src`, `KRC/R1/System/$config.dat`, `KRC/R1/Program/Utilities/pouncetohome.src`, `KRC/R1/Program/Utilities/gunelectrodechange.src`, `KRC/R1/cell.src`
 
@@ -1168,6 +1186,7 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 * 2026-10-05 — Integrado - pendiente decisión: AutomationCore_BKG queda activo en la versión integrada, como lo dejó el programador. Falta la decisión de Gestamp (F49).
 * 2026-10-05 — Integrado: Background de AutomationCore apagado otra vez en la versión integrada (F49).
 * 2026-10-11 — Estándar Gestamp: AutomationCore_BKG activo, como en Gestamp. NutWeld_BKG sigue apagado (en Gestamp está activo): faltan las señales del soldador que usa el PLC. En R20 el programador las replica en sps.sub "como NUT07". Se cierra cuando el PLC recibe las señales que usa.
+* 2026-10-11 — Avance del programador: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). sps.sub replica las señales del soldador "como NUT07" (do046 weld mode, do107 tolva, do118 nut ready, do134 nut fault, do094 aire, do013 agua, estado del stepper) y mantiene habilitado el Bosch fuera de dry cycle. Se cierra cuando el PLC confirme que recibe las señales que usa.
 
 ---
 
@@ -1203,6 +1222,7 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 
 * 2026-10-04 — Alta (Ethos): Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02).
 * 2026-10-07 — Avance parcial (F52): El paso 20 ya termina con el QFP regresado confirmado ($IN[482] ON, $IN[470] OFF) en vez de 800 ms. Timeouts, falla y feed complete siguen pendientes.
+* 2026-10-11 — Avance del programador: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). El paso 20 termina con el QFP regresado ($IN[482]). Sin timeouts ni falla. La alimentación sigue por tiempo: 2000 ms + nFeedSettleMs (3000 ms desde el 10/10 porque "el alimentador sopla hasta 5 s" y faltaban tuercas) sin leer $IN[481] dipw1_FeedComplt: con el sensor la tuerca se confirma en cuanto llega.
 
 ---
 
@@ -1237,6 +1257,7 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 **Historial:**
 
 * 2026-10-04 — Alta (Ethos): Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02).
+* 2026-10-11 — Avance del programador: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). Request_next_nut ya es una llamada después de CENTERLINE_WELD, no un TRIGGER. NUT_READY sigue sin borrarse al soldar: se borra cuando arranca el siguiente preload. Con la pre-alimentación (paso 30, 5 s con nFeedSettleMs=3000) la petición puede quedar en espera; si el paso 30 llegara a durar más que soldar y salir, el robot vería el NUT_READY de la tuerca anterior y entraría sin tuerca (hoy hay ~1.5 s de margen).
 
 ---
 
@@ -1397,12 +1418,13 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 * 2026-10-05 — Auditoría - avance parcial: Con option 12 el sensor y la cámara ya ponen $OUT[141]/$OUT[142]. No es un veredicto exclusivo (los dos chequeos pueden poner Failed y Passed a la vez) y el drop red rabbit los sigue borrando antes del fin de ciclo.
 * 2026-10-05 — Integrado - avance parcial: Option 12 ya pone $OUT[141]/$OUT[142] en sensor y cámara. Falta el veredicto único y que el drop no lo borre antes de que el PLC lo lea.
 * 2026-10-11 — Estándar Gestamp: Gestamp (Style1App2Opt4): FAILED si hay cualquier tuerca (OR), PASSED si no hay ninguna; los resultados los borra solo MaintainSystem, nunca el drop. El nuestro da FAILED solo con las 3 tuercas (style1app2opt1.src:147-154) y el drop red rabbit borra do141/do142 dentro del fold DropOff[2] Reset (style1drop1opt2AutoRR.src:154-155): el PLC puede no ver el resultado.
+* 2026-10-11 — Sin cambio: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). El red rabbit sigue dando FAILED solo con las 3 tuercas (AND, style1app2opt1.src:164) y el drop red rabbit borra do141/do142 (ya fuera del fold).
 
 ---
 
 ## F20 — Rechazo por nut check: Application 1 sin liberar
 
-**Severidad:** Medio · **Tipo:** Código + prueba en celda · **Responsable:** Programador robot / Gestamp controles · **Estado:** Abierto
+**Severidad:** Medio · **Tipo:** Código + prueba en celda · **Responsable:** Programador robot / Gestamp controles · **Estado:** Cerrado - auditado
 
 **Módulos:** `KRC/R1/Program/Utilities/RejectGE4.src`, `KRC/R1/Program/Styles/Options/style1opt1.src`, `KRC/R1/Program/StyleApps/Options/style1app2opt2.src`
 
@@ -1428,6 +1450,7 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 * 2026-10-04 — Alta (Ethos): Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02).
 * 2026-10-05 — Integrado - avance: RejectGE4 libera la aplicación 1 por TRIGGER en P23, también después de un scrap del sensor (antes nunca se liberaba en esa ruta). El lugar de rechazo sigue sin interlock con el PLC.
 * 2026-10-11 — Estándar Gestamp: El RejectGE4 de Gestamp tampoco pide permiso de drop-off: se quita ese requisito (igual que R20). Queda liberar Application 1 en el rechazo por nut check; en Gestamp cada programa de revisión hace su propio AC_ApplicationCheck / AC_Application.
+* 2026-10-11 — Cerrado - auditado: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). RejectGE4 libera Application 1 con TRIGGER (do070ApplicationClear1, rejectge4.src:44), también tras un rechazo por nut check; el reject no pide drop-off, igual que Gestamp.
 
 ---
 
@@ -1439,7 +1462,7 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 
 **Qué está mal.** style1pick1opt2 tiene AC_CmdParam=1 en sus dos folds de pick pero llama AC_pickUPCheck(2) / AC_pickUP(2,True); style1app2opt2 tiene AC_CmdParam=2 y llama AC_Application(1,True); style1drop1opt1 tiene AC_CmdParam=2 y llama DropOff 1, mientras el drop red rabbit tiene AC_CmdParam=2 y llama DropOff 2: no hay un desfase constante. Abrir y confirmar uno de estos forms regenera la llamada desde el parámetro oculto y puede cambiar el número de pickup, application o drop-off. La depuración no tocó esas líneas y puso un ;WARNING: sobre cada fold.
 
-**Qué hacer.** Corregir los 5 inline forms de AutomationCore cuyo AC_CmdParam oculto no es el número de la llamada: style1app2opt2.src:76 AC_Application(1) oculto 2; style1drop1opt1.src:30 AC_DropOffCheck(1) oculto 2 y :86 AC_DropOff(1) oculto 2; style1pick1opt2.src:33 AC_pickUPCheck(2) oculto 1 y :129 AC_pickUP(2) oculto 1.
+**Qué hacer.** Corregir los 4 inline forms de AutomationCore cuyo AC_CmdParam oculto no es el número de la llamada: style1drop1opt1.src:49 AC_DropOffCheck(1) y :108 AC_DropOff(1) (oculto 2); style1pick1opt2.src:34 AC_pickUPCheck(2) y :138 AC_pickUP(2) (oculto 1).
 
 **Criterio de cierre** (se verifica en el respaldo):
 
@@ -1456,6 +1479,7 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 
 * 2026-10-04 — Alta (Ethos): Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02).
 * 2026-10-11 — Estándar Gestamp: En todos los forms AutomationCore del respaldo de Gestamp el AC_CmdParam oculto es igual al número de la llamada: esa es la convención y ya no hace falta la prueba con foto. En el nuestro no coinciden 5.
+* 2026-10-11 — Sin cambio: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). Siguen 4 forms con AC_CmdParam oculto distinto a la llamada: style1drop1opt1.src:49 AC_DropOffCheck(1) y :108 AC_DropOff(1) con oculto 2; style1pick1opt2.src:34 AC_pickUPCheck(2) y :138 AC_pickUP(2) con oculto 1.
 
 ---
 
@@ -1870,12 +1894,13 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 * 2026-10-04 — Alta (Ethos): Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02).
 * 2026-10-05 — Severidad subida a Alto: Con AutomationCore_BKG activo (F49), $OUT[930] pegado en ON impide conceder el Request to Enter: $OUT[145] doCriticalWZ queda en TRUE y AC_PointArrival ya no detiene el robot cuando el operador pide entrar. Corregir F35 antes de producción.
 * 2026-10-05 — Severidad regresa a Medio: Con el background apagado en la versión integrada, $OUT[930] pegado ya no impide el Request to Enter. Sigue pendiente apagar $OUT[930] al final de la referencia de masterización.
+* 2026-10-11 — Nota: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). XREFSWITCH (switch de referencia) re-enseñado ~1 mm.
 
 ---
 
 ## F36 — $IN[227] declarado con dos nombres (NUT_PRESENT1, di227SensorCamera)
 
-**Severidad:** Bajo · **Tipo:** Código · **Responsable:** Programador robot (prueba en celda) · **Estado:** Abierto
+**Severidad:** Bajo · **Tipo:** Código · **Responsable:** Programador robot (prueba en celda) · **Estado:** Cerrado - auditado
 
 **Módulos:** `KRC/R1/System/$config.dat`, `KRC/R1/TP/AutomationCore/automationcoreroutines.dat`, `KRC/R1/Program/StyleApps/Options/style1app2opt1.src`, `KRC/R1/Program/Styles/Options/style1opt1.src`, `KRC/R1/Program/Styles/Options/Style1Opt10AutoRR.src`
 
@@ -1902,6 +1927,7 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 * 2026-10-05 — Auditoría - no cargado: Respaldo bmw_03_10_r1 (2026-10-05): la versión de oficina no está cargada; el robot tiene el programa original (29 archivos idénticos al respaldo de partida, 16 editados encima del original). Sin prueba posible.
 * 2026-10-05 — Integrado - por probar: Sigue en la versión integrada (658424_R10_2026-10-05_0819.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto.
 * 2026-10-11 — Cambio de base: Base = programa del programador (respaldo del 2026-10-05 14:46). $IN[227] sigue declarado dos veces (NUT_PRESENT1 y di227SensorCamera).
+* 2026-10-11 — Cerrado - auditado: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). $IN[227] tiene una sola declaración: di227NutPresent1.
 
 ---
 
@@ -2114,6 +2140,7 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 * 2026-10-05 — Integrado - riesgo: En la versión integrada GunElectrodeChange se ejecuta al final del stepper. Probar antes de producción.
 * 2026-10-05 — Riesgo activo: Con el background activo, el cambio de electrodo corre al final del stepper y espera $IN[92] del PLC en un diálogo; nunca se ha probado. Además $OUT[111] comparte bit del adaptador con $OUT[930] (F18).
 * 2026-10-11 — Estándar Gestamp: El cell.src de Gestamp llama GunElectrodeChange() cuando do111Gun1ElectrodeChange (fin de stepper, escrito por AutomationCore_BKG) está activo. El nuestro ya lo hace igual (cell.src:70-71, BKG activo). Depende de que Gestamp resetee el stepper en el Bosch; en R20 la llamada está comentada porque allá el fin de stepper está siempre activo: confirmar en celda que aquí no.
+* 2026-10-11 — Estándar Gestamp: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). Mismo estado que G06.
 
 ---
 
@@ -2197,6 +2224,7 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 
 * 2026-10-04 — Alta (Ethos): Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02).
 * 2026-10-11 — Estándar Gestamp: El EndOfCycle estándar manda Work Complete y espera el acuse; en R20 el programador ya lo tiene activo (respaldo del 09/10). Restaurarlo igual y probar con el PLC.
+* 2026-10-11 — Sin cambio: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). El EndOfCycle sigue con Work Complete comentado (automationcoreroutines.src:381-389).
 
 ---
 
@@ -2256,6 +2284,7 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 * 2026-10-05 — Respaldo 14:46: El programador además quitó PTP P1: un LIN de 330 mm de P5 a AtDrop3 bajando 166 mm a unos 30°, con el permiso de drop-off en P5. En la versión integrada el robot espera el permiso en el punto de cámara P3 con la aplicación 1 ya liberada: mover AC_Application(1,TRUE) a después de salir de la cámara.
 * 2026-10-05 — Integrado: P1 se conserva (preguntar al programador por qué lo quitó). La aplicación 1 ya no se libera en el punto de cámara: la libera un TRIGGER en el primer movimiento fuera de la cámara (P5 del drop, P23 del rechazo, P28 del red rabbit).
 * 2026-10-11 — Cambio de base: Base = programa del programador (respaldo del 2026-10-05 14:46). PTP P5 (línea 24) y después AC_DropOffCheck(1) (línea 30): el interlock sigue después de la aproximación.
+* 2026-10-11 — Sin cambio: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). AC_DropOffCheck(1) sigue después de PTP P5 (style1drop1opt1.src:38 y :49). P1 quitado.
 
 ---
 
@@ -2313,6 +2342,7 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 * 2026-10-05 — Alta (auditoría): Encontrado en el respaldo de las 14:46; confirmado por revisión independiente.
 * 2026-10-05 — Integrado: No se integra: en la versión integrada AC_ApplicationCheck(1) queda antes de PTP P22.
 * 2026-10-11 — Estándar Gestamp: En Gestamp cada programa de revisión hace su propio AC_ApplicationCheck / AC_Application. En el nuestro el nut check revisa el permiso después de P22 (style1app2opt1.src:43-50) y solo la cámara libera (style1app2opt2.src:76).
+* 2026-10-11 — Sin cambio: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). AC_ApplicationCheck(1) sigue después de PTP P22, ahora con CONT (style1app2opt1.src:46 y :56); el CONT se pierde por el chequeo.
 
 ---
 
@@ -2344,17 +2374,17 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 
 **Qué está mal.** Gestamp pide 12 s por pieza de proceso de soldadura con el robot parado (sin contar movimientos). En el video del 2026-10-05 son ~20 s: por tuerca ~2.8 s de llegada a soldadura y ~1.2 s para salir, y antes de las tuercas 2 y 3 ~4 s esperando la tuerca. Esa espera es toda la precarga (alimentar 2000 ms, avance del QFP, soplo 800 ms, 800 ms tras el regreso), que arrancaba hasta que el robot salía del pedestal, aunque alimentar la tuerca al shuttle solo necesita el shuttle en casa.
 
-**Qué hacer.** Prioridad de Edgar (2026-10-11): R10 debajo de R20 (57.3 s, meta 53 s) con margen; meta exacta por confirmar. Primero medir: entrega entregas/2026-10-11_F52_medicion (timers CT_* como en R20: pieza a pieza, tuerca a tuerca, dentro de la pistola, espera de tuerca, esperas del PLC en HOME y en permisos). Después, palancas en orden a–e (audits/2026-10-11_tiempo_ciclo/PALANCAS.es.md): paradas exactas en espacio libre, paradas del avance entre movimientos, esperas fijas ya confirmadas por sensor, petición de tuerca anticipada (etapa 1 de oficina como referencia) y handshakes de AutomationCore solo con OK de Gestamp.
+**Qué hacer.** Prioridad de Edgar (2026-10-11): R10 debajo de R20 (57.3 s, meta 53 s) con margen; meta exacta por confirmar. Sus timers CT_* ya miden pieza, tuercas, pistola y espera de tuerca (10/10: tuerca 1 → fin de tuerca 3 = 17.2 s, 0.56 s de espera de tuerca por pieza). Falta: cargar entregas/2026-10-11_F52_esperas_PLC (esperas del PLC en HOME y en los permisos de pickup, application 1 y drop-off) y mandar el respaldo después de 10 piezas seguidas en automático. Después, las palancas que quedan (audits/2026-10-11_tiempo_ciclo/PALANCAS.es.md): espera fija de 2.0 s antes de leer la cámara (era 0.2 s), dry cycle leído después de la aproximación, permisos de application y drop-off después de llegar (F50, F48), tuerca confirmada con $IN[481] en lugar de 5 s fijos, paradas exactas del pick 1, esperas fijas de GripperTech; handshakes de AutomationCore solo con OK de Gestamp.
 
 **Criterio de cierre** (se verifica en el respaldo):
 
-* Medición cargada y respaldo con 10 piezas: nCtCycle, nCtNutWait, nCtInWelder, nCtHomeWait y nCtPlcWait leídos.
+* Respaldo con 10 piezas seguidas en automático: nCtCycle, nCtWaitSum, nCtInWelder, nCtHomeWait y nCtPlcWait leídos.
 * Meta de R10 confirmada con Edgar y alcanzada en automático, medida con nCtCycle (o el tiempo del PLC).
 * Cada cambio de tiempo ciclo probado en T1 y a 100 % sin tocar el tiempo de soldadura, los chequeos de calidad ni los interlocks de seguridad.
 
 **Evidencia del programador.** Resultado de las pruebas con fecha y el respaldo después de 10 ciclos en automático.
 
-**Nota.** Etapa 1 de tiempo ciclo. Ganancia esperada ~3 s por tuerca 2 y 3: de ~20 s a ~13-14 s de robot parado por pieza. La medición (CL_CYCLE_TIME) se quita al cerrar el tema de tiempo ciclo. Referencia: así lo resolvió la versión de oficina (commit 84442ac): Etapa 1 (hecha en oficina): las apps 1 y 2 piden alimentar la siguiente tuerca al shuttle en cuanto su tuerca está lista (NUT_FEED_START); PRELOAD alimenta mientras el robot entra y suelda y espera; Request_next_nut a la salida (app 1 en P8 como antes, app 2 ahora en P05 en vez de P0) solo carga la tuerca al pin. Paso 20 termina con el QFP regresado confirmado. PRELOAD y CENTERLINE_WELD ya no se pisan $OUT[494] ni $OUT[476] durante la soldadura. Medición de tiempos CL_CYCLE_TIME ($TIMER[20]) por paso, últimos 10 ciclos por tuerca. Etapa 2 (pendiente, con datos de la medición y OK de CenterLine/Bosch): recortes dentro de CENTERLINE_WELD.
+**Nota.** El programador hizo su propia petición anticipada de tuerca (F53, aceptada como R20 F51): la espera antes de las tuercas 2 y 3 bajó de ~4 s (video del 05/10) a 0.24-0.32 s. Sus timers CT_* ($TIMER[20..23]) y los de la entrega de esperas del PLC ($TIMER[24]) se quitan al cerrar el tema de tiempo ciclo. Referencia: así lo resolvió la versión de oficina (commit 84442ac): las apps 1 y 2 pedían alimentar la siguiente tuerca al shuttle en cuanto su tuerca estaba lista (NUT_FEED_START); PRELOAD alimentaba mientras el robot entraba y soldaba; Request_next_nut a la salida solo cargaba la tuerca al pin; medición CL_CYCLE_TIME ($TIMER[20]) por paso.
 
 **Historial:**
 
@@ -2364,6 +2394,34 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 * 2026-10-11 — Cambio de base: Base = programa del programador (respaldo del 2026-10-05 14:46). La etapa 1 de oficina (commits 17064bc a 3e748dc, paquete del 2026-10-07) no está en su programa y ya no se le pide cargarla. Queda como referencia para la palanca d).
 * 2026-10-11 — Cambio entregado: Ethos entregó la medición sobre su respaldo del 05/10 14:46: rutinas CT_NUT_WAIT, CT_WELD_START/END y CT_PLC_START/END en GUN_OPEN_CHECK (como su R20), variables nCt* en gun_open_check.dat, $TIMER[20..24]; 14 archivos, mismo comportamiento. Falta cargar, correr 10 piezas y mandar el respaldo. Paquete: entregas/2026-10-11_F52_medicion (archivos que cambian, cambios.diff, LEEME.txt y PDF de instrucciones).
 * 2026-10-11 — Análisis: Palancas con evidencia y rangos en audits/2026-10-11_tiempo_ciclo/PALANCAS.es.md: d) tuerca anticipada 5-7 s; b) dry cycle leído después de la aproximación 0.6-1.2 s, permisos después de llegar 0.3-0.8 s; a) ~10 paradas exactas en espacio libre 1-3 s; c) esperas fijas de 0.2 s 1-2.6 s. Sin medir; nada prometido.
+* 2026-10-11 — Medición del programador: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). Ya tiene sus timers CT_* (como R20): dentro de la pistola 4.03 / 3.92 / 3.91 s, tuerca a tuerca 6.71 / 6.61 s, espera de tuerca 0 / 0.24 / 0.32 s (0.56 s por pieza), tuerca 1 → fin de tuerca 3 = 17.2 s. nCtCycle = 276.8 s: la última pieza vino después de un paro, no sirve; faltan varias piezas seguidas. La entrega de medición de Ethos del 11/10 queda sin efecto (se hizo sobre el 05/10); solo falta medir las esperas del PLC.
+* 2026-10-11 — Cambio entregado: Ethos entregó sobre su respaldo del 10/10 solo la medición de las esperas del PLC: CT_PLC_START / CT_PLC_END al final de gun_open_check.src, nCtHomeWait y nCtPlcWait[1..3] en gun_open_check.dat, $TIMER[24]; 7 archivos, mismo comportamiento. La entrega de medición sobre el 05/10 (entregas/2026-10-11_F52_medicion) se retiró: no se carga. Paquete: entregas/2026-10-11_F52_esperas_PLC (archivos que cambian, cambios.diff, LEEME.txt y PDF de instrucciones).
+* 2026-10-11 — Análisis: Palancas actualizadas con el respaldo del 10/10 (audits/2026-10-11_tiempo_ciclo/PALANCAS.es.md). Nuevo: la espera antes de leer la cámara pasó de 0.2 a 2.0 s (style1app2opt2.src:60; el comentario sigue diciendo 0.2 s), hasta 1.8 s por pieza: preguntar por qué; si el resultado tarda, esperar di100 o di101 con timeout. Quedan ~3.5-7 s por pieza en rangos, sin medir el ciclo completo.
+
+---
+
+## F53 — Tiempo ciclo del programador: pre-alimenta la tuerca, la pide con la pieza aún en la pistola, CONT/PTP y sin esperas de 0.2 s
+
+**Severidad:** Alto · **Tipo:** Prueba en celda · **Responsable:** Programador robot · **Estado:** Aceptado sin cambio
+
+**Módulos:** `KRC/R1/Program/Centerline/preload.src`, `KRC/R1/Program/Centerline/centerline_weld.src`, `KRC/R1/Program/StyleApps/Options/style1app1opt1a..3b`, `KRC/R1/System/sps.sub`, `KRC/R1/System/$config.dat`
+
+**Qué está mal.** Respaldo del 10/10: PRELOAD pre-alimenta la siguiente tuerca al QFP en cuanto la anterior queda en el pin (paso 30, 2000 ms + nFeedSettleMs 3000 ms) y la siguiente precarga se salta la alimentación; las apps llaman Request_next_nut() justo después de CENTERLINE_WELD, con la pieza aún en el pedestal (el QFP avanza mientras el robot sale); el Bosch queda habilitado fuera de dry cycle; un solo Ready por tuerca; sin los WAIT SEC 0.2 de la pistola; CONT y PTP en los traslados de las apps y del nut check; ventana de pistola cerrada de 300 a 150 ms. Medido: espera de tuerca 0.56 s por pieza, 3.9-4.0 s dentro de la pistola por tuerca.
+
+**Qué hacer.** Aceptado como en R20 (F51 de R20, decisión de Edgar: en el paquete NutWeld de Gestamp el spear alimenta con el robot ya parado en la pose de soldadura). Sugerencias: ventana de 200 ms como Gestamp o anotar una prueba sin tuerca y con doble tuerca; borrar NUT_READY al pedir la siguiente tuerca (F14) para que el robot nunca entre con el NUT_READY anterior; confirmar la tuerca con $IN[481] dipw1_FeedComplt en lugar de 5 s fijos (F13).
+
+**Criterio de cierre** (se verifica en el respaldo):
+
+* Validado en celda por el programador (ciclos en automático sin tuerca faltante ni doble).
+
+**Depende de / se cierra con:** F52
+
+**Nota.** Igual que F51 de R20. Diferencia con R20: en R10 NUT_READY no se borra al soldar y la pre-alimentación dura 5 s (nFeedSettleMs=3000).
+
+**Historial:**
+
+* 2026-10-11 — Alta (auditoría): Encontrado en el respaldo del 10/10.
+* 2026-10-11 — Decisión: Aceptado por analogía con R20 F51 (decisión de Edgar del 2026-10-10).
 
 ---
 
@@ -2553,7 +2611,7 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 
 ## C08 — Datos de carga: LOAD_DATA[1] tecleado, sin determinar
 
-**Severidad:** - · **Tipo:** Código + prueba en celda · **Responsable:** Programador robot / Puesta en marcha · **Estado:** Abierto
+**Severidad:** - · **Tipo:** Código + prueba en celda · **Responsable:** Programador robot / Puesta en marcha · **Estado:** En proceso
 
 **Módulos:** `KRC/R1/System/$config.dat`, `KRC/R1/Program/StylePicks/Options/style1pick1opt1.src`, `KRC/R1/Program/StylePicks/Options/style1pick1opt2.src`, `KRC/R1/Program/StylePicks/Options/style1pick1opt1AutoRR.src`, `KRC/R1/Program/StyleApps/Options/style1app1opt1.src`, `KRC/R1/Program/StyleApps/Options/style1app1opt2.src`, `KRC/R1/Program/StyleApps/Options/style1app1opt3.src`, `KRC/R1/Program/StyleApps/Options/style1app2opt1.src`, `KRC/R1/Program/StyleApps/Options/style1app2opt2.src`, `KRC/R1/Program/StyleDrops/Options/style1drop1opt1.src`, `KRC/R1/Program/StyleDrops/Options/style1drop1opt2AutoRR.src`, `KRC/R1/Program/Utilities/RejectGE4.src`
 
@@ -2577,6 +2635,7 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 
 * 2026-10-04 — Alta (Ethos): Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02).
 * 2026-10-11 — Estándar Gestamp: Gestamp tiene una carga determinada por herramienta (LOAD_DATA[1] 81 kg con centro de masa e inercias) y no usa carga aparte con pieza: se quita ese criterio (igual que R20). Hoy LOAD_DATA[1] sigue tecleado (210 kg, CM 270/0/240, inercias 105).
+* 2026-10-11 — Avance del programador: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). LOAD_DATA[1] = 67.28 kg con centro de masa (-2.62, 17.93, 219.18) e inercias: ya no es el tecleado de 210 kg. Falta la evidencia de Load Data Determination (captura o protocolo). LOAD_A3_DATA pasó de 30 a 50 kg.
 
 ---
 
@@ -2605,6 +2664,7 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 **Historial:**
 
 * 2026-10-04 — Alta (Ethos): Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02).
+* 2026-10-11 — Nota: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). tm_bib.dat: TQM_ACT T21..T26 bajaron de 100000 a 1000 (supervisión de par). Confirmar con el programador qué activó y si quedó probado.
 
 ---
 
@@ -3095,3 +3155,4 @@ Actualizado: 2026-10-11. Pendientes: **72** de 102. El detalle técnico de cada 
 * 2026-10-04 — Alta (Ethos): Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02).
 * 2026-10-05 — Auditoría - ediciones nuevas: Ediciones nuevas en archivos del proveedor: automationcoreroutines.src (AutomationCore_Bkg, AC_Request_to_enter), automationcoreroutines.dat (bACEntryGranted), nutweldroutines.dat (nMaxGunNr=1, dipw1_AirOK en $IN[3132]). Listarlas en la entrega.
 * 2026-10-05 — Integrado - ediciones listadas: Ediciones del proveedor integradas y declaradas en tools/code_changes.json: automationcoreroutines.src/.dat, nutweldroutines.dat.
+* 2026-10-11 — Nota: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). Ediciones nuevas en archivos de KUKA: ir_stopm.src sin GLUE_TechStop() ni GLUE_Restart() (GlueTech instalado y sin uso; usa $TIMER[12..16]) y tm_bib.dat (TQM_ACT T21..T26 de 100000 a 1000). Si se actualiza o desinstala GlueTech o TorqueMonitoring, revisarlas.

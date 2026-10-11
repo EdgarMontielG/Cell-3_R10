@@ -1,0 +1,206 @@
+{
+ "archivo": "R10_instrucciones_F52_esperas_PLC.pdf",
+ "titulo": "R10 (BMW-03-10-R1) — Medición de esperas del PLC",
+ "subtitulo": "Instrucciones de carga y prueba para el programador · Ethos Automation México · 2026-10-11",
+ "pie": "R10 (BMW-03-10-R1) · Esperas del PLC (F52) · Ethos Automation México",
+ "intro": [
+  {
+   "p": "Tus timers CT_* ya miden la pieza, cada tuerca, la pistola y la espera de tuerca. Este paquete agrega lo que falta: **cuánto espera el robot al PLC**, en HOME antes de arrancar el ciclo y en los permisos de pickup, application 1 (nut check) y drop-off. Son **7 archivos**, hechos sobre tu respaldo del 2026-10-10 21:20, y van junto a tus CT_* en GUN_OPEN_CHECK."
+  },
+  {
+   "p": "El robot hace lo mismo que hoy. Cada `WAIT SEC 0` nuevo va donde el robot ya se detenía: en HOME o antes del chequeo de AutomationCore, que de todos modos detiene el avance. Las líneas nuevas van fuera de los folds de inline form."
+  },
+  {
+   "p": "Contenido: carpeta `KRC` con los archivos, `cambios.diff` con las líneas exactas que cambian y `LEEME.txt` con este mismo resumen."
+  }
+ ],
+ "secciones": [
+  {
+   "titulo": "1. Antes de cargar",
+   "bloques": [
+    {
+     "lista": [
+      "Si cambiaste alguno de los 7 archivos después del respaldo del 10/10, **no copies ese archivo**: aplica a mano las líneas de `cambios.diff` (las que empiezan con - se quitan y las que empiezan con + se agregan).",
+      "`gun_open_check.dat` va completo: es tu archivo del 10/10 con 9 líneas nuevas debajo de `nCtCycle`.",
+      "`$config.dat` no se toca."
+     ]
+    }
+   ]
+  },
+  {
+   "titulo": "2. Pasos de carga, en este orden",
+   "bloques": [
+    {
+     "pasos": [
+      "Respaldo completo (Archive → All).",
+      "Copia primero `gun_open_check.src` y `gun_open_check.dat`, y después los demás archivos de la sección 3. Marca cada uno.",
+      "Revisa el navegador: **ningún módulo en rojo**. Si alguno sale en rojo, no sigas: regresa al respaldo del paso 1 y manda foto del error.",
+      "Haz las pruebas de la sección 5."
+     ]
+    }
+   ]
+  },
+  {
+   "titulo": "3. Archivos que se cargan",
+   "bloques": [
+    {
+     "p": "Todos van en `KRC:\\R1\\Program\\`, salvo `cell.src` que va en `KRC:\\R1\\`."
+    },
+    {
+     "tabla": {
+      "anchos_mm": [
+       8,
+       84,
+       44,
+       18,
+       28
+      ],
+      "filas": [
+       [
+        "#",
+        "Archivo (KRC:\\R1\\Program\\)",
+        "Qué mide",
+        "Cargado",
+        "Cambió después del 10/10"
+       ],
+       [
+        "1",
+        "`Centerline\\gun_open_check.src`",
+        "rutinas CT_PLC_START / CT_PLC_END",
+        "[ ]",
+        "[ ]"
+       ],
+       [
+        "2",
+        "`Centerline\\gun_open_check.dat`",
+        "nCtHomeWait, nCtPlcWait[1..3]",
+        "[ ]",
+        "[ ]"
+       ],
+       [
+        "3",
+        "`StylePicks\\Options\\style1pick1opt1.src`",
+        "permiso pickup 1",
+        "[ ]",
+        "[ ]"
+       ],
+       [
+        "4",
+        "`StylePicks\\Options\\style1pick1opt2.src`",
+        "permiso pickup 2",
+        "[ ]",
+        "[ ]"
+       ],
+       [
+        "5",
+        "`StyleApps\\Options\\style1app2opt1.src`",
+        "permiso application 1",
+        "[ ]",
+        "[ ]"
+       ],
+       [
+        "6",
+        "`StyleDrops\\Options\\style1drop1opt1.src`",
+        "permiso drop-off",
+        "[ ]",
+        "[ ]"
+       ],
+       [
+        "7",
+        "`..\\cell.src`",
+        "espera en HOME",
+        "[ ]",
+        "[ ]"
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "titulo": "4. Qué mide",
+   "bloques": [
+    {
+     "tabla": {
+      "anchos_mm": [
+       36,
+       146
+      ],
+      "filas": [
+       [
+        "Variable",
+        "Qué es (ms, última pieza, en gun_open_check.dat)"
+       ],
+       [
+        "`nCtHomeWait`",
+        "Robot en HOME después del ciclo hasta que el PLC arranca el siguiente."
+       ],
+       [
+        "`nCtPlcWait[1]`",
+        "Espera del permiso de pickup (AC_pickUPCheck)."
+       ],
+       [
+        "`nCtPlcWait[2]`",
+        "Espera del permiso de application 1, en el nut check (AC_ApplicationCheck)."
+       ],
+       [
+        "`nCtPlcWait[3]`",
+        "Espera del permiso de drop-off al conveyor (AC_DropOffCheck)."
+       ],
+       [
+        "Timer",
+        "`$TIMER[24]` (nadie más lo usa en el R10)."
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "titulo": "5. Pruebas y resultado esperado",
+   "bloques": [
+    {
+     "tabla": {
+      "anchos_mm": [
+       64,
+       92,
+       26
+      ],
+      "filas": [
+       [
+        "Prueba",
+        "Resultado esperado",
+        "OK / fecha"
+       ],
+       [
+        "Navegador después de cargar",
+        "Ningún módulo en rojo.",
+        "[ ]"
+       ],
+       [
+        "Un ciclo en T1 con override reducido, estación 1 y estación 2",
+        "Misma trayectoria que antes; el robot solo se detiene donde ya se detenía.",
+        "[ ]"
+       ],
+       [
+        "10 piezas seguidas en automático, sin paros",
+        "Ciclo normal, sin mensajes nuevos. nCtCycle de tus CT_* da el ciclo pieza a pieza (el del respaldo del 10/10, 276.8 s, vino de una pieza después de un paro).",
+        "[ ]"
+       ],
+       [
+        "Leer las variables al final",
+        "nCtHomeWait y nCtPlcWait[1..3] en ms (0 si el PLC ya había dado el permiso).",
+        "[ ]"
+       ],
+       [
+        "Respaldo completo después de las 10 piezas",
+        "Mándalo con el Excel: de ahí leemos todos los tiempos.",
+        "[ ]"
+       ]
+      ]
+     }
+    }
+   ]
+  }
+ ]
+}

@@ -19,10 +19,11 @@ compared.
 
 **Since 2026-10-11 the audited base is the programmer's own program**
 (Edgar's decision, same as R20): he is no longer asked to load the office
-version. The program tree of this repository is his backup of 2026-10-05
-14:46 byte for byte (commit `468e29f`, `tools/audit_base.json`); each new
-backup is audited against the last audited one with `tools/audit_backup.py`
-and imported. No item is held to more than Gestamp's reference backup
+version. The program tree of this repository is his last backup byte for
+byte: since 2026-10-11 the one of 2026-10-10 21:20 (commit `cd17b34`; the
+base switch was on his 2026-10-05 14:46 backup, commit `468e29f`,
+`tools/audit_base.json`); each new backup is audited against the previous one
+with `tools/audit_backup.py` and imported. No item is held to more than Gestamp's reference backup
 `NUT07_10R1` does (`audits/2026-10-11_estandar_gestamp`). The office version
 described below (cleanup, Gestamp review fixes, merges, F52 stage 1) stays in
 the history at `84442ac` as reference, and the tools of that phase
