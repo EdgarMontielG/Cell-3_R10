@@ -33,7 +33,11 @@ What it does
   * A changed KRL file whose bytes equal its version in the first commit is
     the pre-cleanup file: the cleaned program was not loaded or was
     overwritten. A changed file whose comments are closer to that version
-    than to the base was edited on top of the pre-cleanup file.
+    than to the base was edited on top of the pre-cleanup file. Since
+    2026-10-09 the base is the programmer's own program (tools/
+    audit_base.json): for a base descending from that commit these two
+    checks are off, and the modules the cleanup deleted that the base still
+    holds are ordinary files.
   * For each changed or added KRL file (.src/.dat/.sub): the change of the
     executable code (comments, blank lines and indentation removed, the
     '&' attribute lines apart) with line numbers, the number of comment-only
@@ -2008,9 +2012,26 @@ def comment_lines(raw):
     return [t for t in (comment_text(l) for l in lines_of(raw.decode('latin-1'))) if t]
 
 
-def cleanup_alerts(cls, files, base, first_tree, blobs):
+def programmer_base(base_commit):
+    """True when the base is the programmer's own program: tools/audit_base.json
+    names the commit where it became the audited state (2026-10-09) and the
+    base descends from it. His program grew from the archive as received, so
+    the pre-cleanup checks would flag every change he makes."""
+    path = os.path.join(REPO, 'tools', 'audit_base.json')
+    if not os.path.exists(path):
+        return False
+    with open(path) as f:
+        switch = json.load(f).get('programmer_base_commit')
+    if not switch:
+        return False
+    return subprocess.run(['git', '-C', REPO, 'merge-base', '--is-ancestor', switch, base_commit],
+                          capture_output=True).returncode == 0
+
+
+def cleanup_alerts(cls, files, base, first_tree, blobs, pre_checks=True):
     """Is the cleaned program what runs on the robot? Deleted modules still
-    present, files equal to (or edited from) the archive as received."""
+    present, files equal to (or edited from) the archive as received. Without
+    pre_checks (programmer's program as base) only the deleted modules."""
     alerts, deleted, pre_cleanup, pre_based = [], [], [], []
     for p in cls['deleted_present']:
         same = first_tree.get(p) == blob_id(files[p])
@@ -2019,7 +2040,7 @@ def cleanup_alerts(cls, files, base, first_tree, blobs):
         alerts.append(('FAIL', f'{p}: module deleted in the cleanup is still on the controller - '
                                f'delete it there'))
     for p in cls['changed']:
-        if not is_krl(p) or p not in first_tree:
+        if not pre_checks or not is_krl(p) or p not in first_tree:
             continue
         if first_tree[p] == blob_id(files[p]):
             pre_cleanup.append(p)
@@ -2228,19 +2249,22 @@ def run_import(cls, files, base, pre_cleanup, pre_based=(), root=None):
 
 def deleted_modules(base=None):
     """The 'deleted_files' of the cleanup allowlist and of the code-change
-    phase (tools/code_changes.json). A code-change deletion counts only when
-    the audit base no longer holds the file: auditing against an older base
-    (e.g. the cleanup commit) treats it as an ordinary file. check_cleanup
+    phase (tools/code_changes.json). A deletion counts only when the audit
+    base no longer holds the file: auditing against an older base (e.g. the
+    cleanup commit), or against the programmer's program, which still has
+    the deleted modules (since 2026-10-09), treats it as an ordinary file. check_cleanup
     reads its allowlist relative to the current directory: read it from the
     repository and give the caller its directory back."""
     cwd = os.getcwd()
     try:
         os.chdir(REPO)
-        deleted = dict(load_allowlist()[0]['deleted_files'])
+        in_base = {p.lower() for p in base} if base is not None else set()
+        deleted = {p: why for p, why in load_allowlist()[0]['deleted_files'].items()
+                   if p.lower() not in in_base}
         if os.path.exists('tools/code_changes.json'):
             with open('tools/code_changes.json') as f:
                 later = json.load(f).get('deleted_files', {})
-            deleted.update({p: why for p, why in later.items() if base is None or p not in base})
+            deleted.update({p: why for p, why in later.items() if p.lower() not in in_base})
         return deleted
     finally:
         os.chdir(cwd)
@@ -2302,7 +2326,7 @@ def main(argv=None, import_root=None):
     blobs = read_blobs([base[p] for p in cls['changed']] +
                        [base[p] for p in cls['missing'] if is_krl(p)] +
                        [first_tree[p] for p in cls['changed'] + cls['deleted_present'] if p in first_tree])
-    cleanup = cleanup_alerts(cls, files, base, first_tree, blobs)
+    cleanup = cleanup_alerts(cls, files, base, first_tree, blobs, pre_checks=not programmer_base(base_commit))
     ctx = make_context(cls, files, base, blobs, out_dir, args.base)
     audit, info = analyse_files(cls, files, base, blobs, cleanup[2], ctx,
                                 {p: blobs[first_tree[p]] for p in cleanup[3]})

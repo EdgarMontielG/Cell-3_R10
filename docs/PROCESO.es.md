@@ -11,36 +11,58 @@ nombre: el respaldo del robot `658424_R10_AAAA-MM-DD_HHMM.zip`, el Excel
 `R10_Puntos_Abiertos_AAAA-MM-DD_HHMM.xlsx` y el reporte
 `R10_reporte_AAAA-MM-DD_HHMM.pdf`.
 
-## Día 0 — punto de partida
+## Base: el programa del programador (desde el 2026-10-11)
 
-1. Cargar en el robot la versión de oficina con el paquete de
-   `tools/make_package.py` (programas que cambian y lista de borrado, armado
-   sobre el último respaldo auditado), por WorkVisual: abrir el proyecto
-   desde el robot, reemplazar y agregar los programas, borrar los de la
-   lista, deploy. Nunca hacer deploy de un proyecto WorkVisual guardado de
-   antes: trae el programa viejo (así se perdió la depuración el
-   2026-10-05).
-2. Borrar en el controlador los 22 archivos de módulos eliminados: 21 de la
-   depuración (`tools/cleanup_allowlist.json`) y 1 de las correcciones
-   (`centerline_loop.src`, `tools/code_changes.json`), y la carpeta vieja
-   `Program/Styles/optiones` (sus dos archivos ahora están en
-   `Program/Styles/Options`). Un restore no borra archivos. Las copias
-   AutoRR pueden aparecer en minúsculas (`style1app2opt1autorr.src`): son
-   las mismas.
-3. Actualizar el proyecto WorkVisual desde el controlador y guardarlo antes
-   de cualquier deploy; si no, el deploy regresa el programa viejo.
-4. Un ciclo en T1 con override reducido y uno en automático; después, las
-   pruebas en celda de los puntos en *Corregido en oficina - probar en
-   celda* (criterio de cierre de cada uno; resumen en la sección 3.3 del
-   PDF). Cada prueba que sale bien pasa el punto a *Corregido - por
-   auditar* con la evidencia; si falla, a *En proceso* con lo que pasó.
-5. Respaldo completo (Archive → All). La primera auditoría lo compara contra
-   el estado del repositorio; tiene que salir sin cambios de código
-   (salvo lo que el programador haya corregido y anotado).
+Decisión de Edgar (igual que en R20): ya no se le exige al programador cargar
+la versión de oficina. **Su último respaldo es la base auditada**: el árbol del
+programa del repositorio es su respaldo del 2026-10-05 14:46 byte por byte
+(commit `468e29f`). La versión de oficina (depuración, correcciones de la
+revisión de Gestamp, integraciones y la etapa 1 de tiempo ciclo) queda en el
+historial en `84442ac`, solo como referencia. Los dos commits están en
+`tools/audit_base.json`.
 
-El programador trabaja siempre sobre la versión cargada del zip, nunca sobre
-un proyecto WorkVisual viejo ni sobre una copia anterior: cada cambio hecho
-sobre el original hay que integrarlo a mano.
+- Cada respaldo nuevo se audita contra su respaldo anterior
+  (`tools/audit_backup.py`) y se importa. La auditoría ya no marca los
+  módulos que borró la oficina ni las reglas de la depuración.
+- Los módulos sobrantes se siguen solo en G05 y no se evalúan hasta que la
+  celda esté probada al 100 %.
+- El estado *Corregido en oficina - probar en celda* ya no se usa: esos puntos
+  se revisaron contra su programa (cerrados si ya cumple; si no, abiertos, en
+  proceso o requiere decisión) y la nota de cada uno dice cómo lo resolvió la
+  oficina.
+- `build_archive.py`, `make_package.py`, `check_cleanup.py` y
+  `check_equivalence.py` son herramientas de la etapa anterior.
+- Las anotaciones de Edgar con el programador van en la columna "Qué cambió
+  el programador" del Excel.
+
+## Estándar de referencia: el respaldo de Gestamp NUT07_10R1
+
+El programador se basó en un respaldo de otra celda que dio Gestamp
+(`nut07_10r1.zip`, robot `NUT07_10R1`, serie 658415, KSS 8.3.29,
+2026-08-18). **No se le exige más de lo que hace ese respaldo**: si un punto
+queda igual o mejor, o el respaldo de Gestamp tampoco lo hace, se cierra o se
+acepta sin cambio. En los puntos G el argumento es "igual que su propio
+respaldo", pero el cierre final lo acepta Gestamp. Esa celda usa el paquete
+NutWeld de KUKA con alimentador spear, sin CenterLine ni PRELOAD: los puntos
+del pedestal se comparan por analogía. El respaldo se revisó en la conversación
+de R20; la aplicación a R10 está en
+`audits/2026-10-11_estandar_gestamp/REVISION.es.md`.
+
+## Tiempo ciclo: prioridad
+
+R20 será el cuello de botella de la celda (57.3 s pieza a pieza, meta 53 s):
+R10 tiene que quedar por debajo de R20 con margen. Antes de prometer números
+se confirma la meta con Edgar y se mide en el robot (pieza a pieza, tuerca a
+tuerca, dentro de la pistola, espera de tuerca, esperas del PLC en HOME y en
+permisos). Palancas, en este orden: (a) paradas exactas en espacio libre (CONT,
+PTP en lugar de LIN donde no hace falta línea recta); (b) lo que detiene el
+avance entre movimientos (salidas por TRIGGER o con CONTINUE, chequeos juntos
+en una parada planeada antes del pedestal); (c) esperas fijas después de
+acciones que ya confirma un sensor o un handshake; (d) pedir la tuerca con
+anticipación, escondida en el traslado; (e) handshakes de AutomationCore, solo
+con OK de Gestamp. No se tocan el tiempo de soldadura, los chequeos de calidad
+ni los interlocks de seguridad, y el chequeo de pedestal no se mueve a después
+de entrar. Los estimados van en rangos y con evidencia (archivo:línea).
 
 ## Cada día
 
@@ -139,19 +161,20 @@ se reporta en la auditoría como hallazgo nuevo.
 |---|---|---|
 | Abierto | Auditoría | Pendiente de trabajar. |
 | Requiere decisión | Auditoría | Falta información o decisión (Gestamp, seguridad, Ethos) antes de programar. |
-| Corregido en oficina - probar en celda | Auditoría | Ethos lo corrigió en la versión entregada; falta la prueba en celda del programador. |
-| En proceso | Programador | Trabajo empezado, o prueba de oficina que falló. |
-| Corregido - por auditar | Programador | Cambio hecho (o corrección de oficina) y probado en celda, con evidencia. |
+| En proceso | Programador | Trabajo empezado (o cumple en código y falta la prueba en celda). |
+| Corregido - por auditar | Programador | Cambio hecho y probado en celda, con evidencia. |
 | Cerrado - auditado | Auditoría | Cumple el criterio de cierre en el respaldo. |
 | Reabierto | Auditoría | No se encontró el cambio o no cumple. |
 | Aceptado sin cambio | Ethos / Gestamp | Se decidió no corregir; queda la razón. |
 | Cerrado - depuración / No aplica / Sin acción / Se cierra con otro punto | Auditoría | Resuelto por la depuración, ya cumple, documentado, o duplica otro punto. |
 
-## Cambios de código de la oficina
+## Cambios que hace Ethos
 
-Cuando Ethos cambia código (como con la revisión de Gestamp), cada cambio se
-declara en `tools/code_changes.json` con sus puntos, y
-`tools/check_equivalence.py` prueba que lo demás no cambió (compara señales
-por dirección y constantes por valor). La auditoría diaria usa el mismo
-`audit_backup.py`: el programador recibe la versión de oficina como nueva
-base.
+Solo cuando Edgar lo pide, y siempre sobre el último respaldo del
+programador. Se entregan en `entregas/<fecha>_<puntos>/`: solo los archivos
+que cambian, `cambios.diff`, `LEEME.txt` y un PDF de instrucciones (orden de
+carga, tabla de archivos con casillas, qué cambia en cada punto y pruebas con
+resultado esperado). `$config.dat` nunca va completo: el LEEME dice qué líneas
+agregar o quitar. El árbol KRC del repositorio no se toca hasta que el cambio
+llega en un respaldo del programador. Mismo comportamiento salvo lo que el
+punto pide cambiar; se conservan los fines de línea originales y texto ASCII.

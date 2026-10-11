@@ -34,15 +34,16 @@ from openpyxl.worksheet.datavalidation import DataValidation
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-STATES = ['Abierto', 'Requiere decisión', 'Corregido en oficina - probar en celda', 'En proceso',
+# 'Corregido en oficina - probar en celda' was dropped on 2026-10-11: the programmer's program is the base.
+STATES = ['Abierto', 'Requiere decisión', 'En proceso',
           'Corregido - por auditar', 'Cerrado - auditado', 'Reabierto', 'Aceptado sin cambio',
           'Cerrado - depuración', 'No aplica', 'Sin acción - documentado', 'Se cierra con otro punto']
-PENDING = ['Abierto', 'Requiere decisión', 'Corregido en oficina - probar en celda', 'En proceso',
+PENDING = ['Abierto', 'Requiere decisión', 'En proceso',
            'Corregido - por auditar', 'Reabierto']
 PROGRAMMER_STATES = ['En proceso', 'Corregido - por auditar']
 # Closed: nothing is left to do. These rows are green, critical or not.
 CLOSED = ['Cerrado - auditado', 'Cerrado - depuración', 'Aceptado sin cambio', 'No aplica',
-          'Sin acción - documentado']
+          'Sin acción - documentado', 'Se cierra con otro punto']
 SEVERITIES = ['Crítico', 'Alto', 'Medio', 'Bajo', '-']
 
 # (header, width, owner) - owner: 'item' fixed text, 'prog' programmer input, 'audit' auditor.
@@ -205,7 +206,7 @@ def instructions_sheet(ws):
          'Estado, Qué cambió el programador, Módulos modificados, Evidencia / prueba en celda, Fecha '
          'programador.', False),
         ('3. Estado: pon "En proceso" si empezaste y no está listo, o "Corregido - por auditar" si el '
-         'cambio está hecho y probado (también los "Corregido en oficina" después de probarlos en celda). '
+         'cambio está hecho y probado. '
          'No pongas Cerrado: lo pone la auditoría.', False),
         ('4. La evidencia es lo que pide el criterio de cierre: prueba en celda con fecha y resultado, '
          'valor leído en el smartPAD, documento de Gestamp. Sin evidencia el punto se reabre.', False),
@@ -227,22 +228,24 @@ def instructions_sheet(ws):
         ('Puntos de Gestamp', True),
         ('Los puntos G01 a G22 vienen de la revisión de Gestamp del 2026-10-02 (BMW-03-10R1): columna Origen '
          '"Gestamp #n", fondo azul y el texto original de Gestamp en la columna Punto. Los Fnn/Cnn son de la revisión '
-         'de Ethos y conservan la numeración del R20 (F37 no aplica en el R10; F44 a F49 son solo del R10; F48 y F49 salieron de la auditoría del 2026-10-05). La lista '
+         'de Ethos y conservan la numeración del R20 (F37 no aplica en el R10; F44 a F52 son solo del R10). La lista '
          'de Calvin se verificó punto por punto: los puntos que él también señaló dicen "Calvin #n" en Origen. Esta '
          'lista es la única que se usa.', False),
-        ('"Corregido en oficina - probar en celda": Ethos ya cambió el programa en la versión que se entrega. Carga esa '
-         'versión, haz la prueba que pide el criterio de cierre y pon "Corregido - por auditar" con la evidencia; si '
-         'la prueba falla, pon "En proceso" y explica qué pasó.', False),
-        ('Fila en verde: punto cerrado (Cerrado - auditado, Cerrado - depuración, Aceptado sin cambio, No aplica, '
-         'Sin acción - documentado), aunque sea crítico. No hay nada que hacer en esas filas.', False),
+        ('Desde el 2026-10-11 la base es tu programa: no se carga ninguna versión de oficina. Cada respaldo se '
+         'audita contra el anterior. En los puntos que la oficina había corregido, la Nota auditoría dice qué le '
+         'falta a tu programa; el PDF y docs/OPEN_ITEMS.es.md traen qué hacer y, como referencia, cómo lo resolvió '
+         'la oficina.', False),
+        ('Fila completa en verde: punto cerrado (Cerrado, Aceptado sin cambio, No aplica, Sin acción o Se cierra '
+         'con otro punto), aunque sea crítico. No hay que hacer nada en esas filas.', False),
+        ('Las anotaciones que Edgar acuerda con el programador van en la columna "Qué cambió el programador".', False),
+        ('Estándar: no se pide más de lo que hace el respaldo de Gestamp NUT07_10R1 (ver la Nota auditoría de cada '
+         'punto).', False),
         ('', False),
         ('Estados', True),
     ]
     meaning = {
         'Abierto': 'Pendiente de trabajar.',
         'Requiere decisión': 'Falta información o decisión (Gestamp, seguridad, Ethos) antes de programar.',
-        'Corregido en oficina - probar en celda': 'Ethos lo cambió en la versión entregada; falta la prueba en celda '
-                                                  'del programador.',
         'En proceso': 'Lo pone el programador: trabajo empezado.',
         'Corregido - por auditar': 'Lo pone el programador: cambio hecho y probado, pide auditoría.',
         'Cerrado - auditado': 'Lo pone la auditoría: cumple el criterio de cierre en el respaldo.',

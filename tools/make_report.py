@@ -74,6 +74,7 @@ HEAD_BG = colors.HexColor('#e4e7eb')
 NEW_BG = colors.HexColor('#fff4c2')
 CODE_BG = colors.HexColor('#dcebfa')
 CRIT_BG = colors.HexColor('#f8c9c5')
+DONE_BG = colors.HexColor('#c6efce')
 CRIT = colors.HexColor('#b42318')
 SEV = {'Crítico': colors.HexColor('#b42318'), 'Alto': colors.HexColor('#c4561d'),
        'Medio': colors.HexColor('#a16207'), 'Bajo': colors.HexColor('#52606d'),
@@ -128,9 +129,15 @@ def is_critical(item):
     return item.get('severidad') == 'Crítico'
 
 
+def is_closed(item):
+    return item.get('estado', '').startswith(('Cerrado', 'No aplica', 'Aceptado sin cambio', 'Sin acción',
+                                              'Se cierra con otro punto'))
+
+
 def critical_rows(items, first_row=1):
-    """Table style commands that paint the rows of critical items red."""
-    return [('BACKGROUND', (0, n), (-1, n), CRIT_BG) for n, i in enumerate(items, first_row) if is_critical(i)]
+    """Table style commands that paint the whole row of a closed item green and of an open critical item red."""
+    return [('BACKGROUND', (0, n), (-1, n), DONE_BG if is_closed(i) else CRIT_BG)
+            for n, i in enumerate(items, first_row) if is_closed(i) or is_critical(i)]
 
 
 def origin_note(item):
@@ -179,6 +186,15 @@ def changed_programs():
 
 def code_changes():
     return json.load(open(os.path.join(REPO, 'tools', 'code_changes.json')))
+
+
+def audit_base():
+    """tools/audit_base.json when the programmer's program is the audited base, else None."""
+    path = os.path.join(REPO, 'tools', 'audit_base.json')
+    if not os.path.exists(path):
+        return None
+    data = json.load(open(path))
+    return data if data.get('programmer_base_commit') else None
 
 
 def added_lines(path, base=BASE):
@@ -231,16 +247,28 @@ def marked_comments():
 
 def cover(st, items, now):
     head = git('rev-parse', '--short', 'HEAD').decode().strip()
+    archive = code_changes().get('archive')
+    switch = audit_base()
     open_n = sum(1 for i in items if i.get('estado', '').startswith(('Abierto', 'Requiere',
                                                                        'En proceso', 'Reabierto',
                                                                        'Corregido')))
+    if switch:
+        title = 'Auditoría del programa del programador y puntos abiertos'
+        base = (f'Base auditada desde el 2026-10-11: el programa del programador, respaldo del 2026-10-05 14:46 (commit '
+                f'{switch["programmer_base_commit"][:7]}). La versión de oficina (commit '
+                f'{switch["office_last_commit"][:7]}) no se cargó y queda como referencia. ')
+    else:
+        title = 'Depuración, correcciones de la revisión Gestamp y puntos abiertos'
+        base = (f'Respaldo de partida: 658424 (v431_03_10_r1) del 2026-10-02 (commit {BASE}). '
+                + (f'Fusionado con el respaldo {esc(archive["zip"])} (commit {archive["commit"][:7]}). '
+                   if archive else ''))
     return [
         Paragraph('Robot R10 (BMW-03-10-R1)', st['title']),
-        Paragraph('Depuración, correcciones de la revisión Gestamp y puntos abiertos', st['h1']),
+        Paragraph(title, st['h1']),
         Paragraph(f'Gestamp, línea BMW G65, celda 03, estación 03-10-R1 · KUKA KR C4, KSS 8.3.29, '
                   f'robot 658424 · Ethos Automation México', st['subtitle']),
         Spacer(1, 4),
-        Paragraph(f'Respaldo de partida: 658424 (v431_03_10_r1) del 2026-10-02 (commit {BASE}). '
+        Paragraph(base +
                   f'Estado de este reporte: commit {head}, generado {now}. '
                   f'Puntos abiertos: {open_n} de {len(items)}.', st['small']),
         Spacer(1, 10),
@@ -250,6 +278,9 @@ def cover(st, items, now):
 def summary(st, items):
     crit = [i for i in items if i['severidad'] == 'Crítico']
     high = [i for i in items if i['severidad'] == 'Alto']
+    switch = audit_base()
+    if switch:
+        return summary_programmer_base(st, items, crit, high)
     out = [Paragraph('1. Resumen', st['h1']),
            Paragraph('Se depuró el programa del R10 sin cambiar lo que hace el robot. Se tradujeron '
                      'los comentarios al inglés, cada acción de I/O y cada espera nombra su señal con '
@@ -289,6 +320,77 @@ def summary(st, items):
         out.append(Paragraph('<font color="#b42318">Críticos</font>', st['h2']))
         out += [Paragraph(f'<font color="#b42318"><b>{esc(i["id"])} — {esc(i["titulo"])}</b></font>',
                           st['bullet'], bulletText='•') for i in crit]
+    return out
+
+
+def summary_programmer_base(st, items, crit, high):
+    out = [Paragraph('1. Resumen', st['h1']),
+           Paragraph('Desde el 2026-10-11, por decisión de Edgar (igual que en R20), la base es el programa que corre '
+                     'en el robot: el respaldo del programador del 05/10 14:46, su último. Ya no se le pide cargar la versión de oficina. Cada '
+                     'respaldo se audita contra el anterior (tools/audit_backup.py) y cada punto contra su '
+                     'criterio de cierre sobre su programa.', st['body']),
+           Paragraph('La depuración y las correcciones de oficina (2026-10-02 a 2026-10-07) se entregaron como '
+                     'paquetes y no se cargaron; quedan como referencia (sección 2). Los puntos que la oficina había '
+                     'corregido se revisaron contra su programa; la nota de cada uno dice cómo lo resolvió la '
+                     'oficina.', st['body']),
+           Paragraph(f'Puntos de la lista: {len(items)} en total, {len(crit)} críticos y {len(high)} altos. El '
+                     'programador los cierra modificando su programa; cada respaldo diario se audita contra el '
+                     'criterio de cierre de cada punto.', st['body'])]
+    gest = [i for i in items if i['id'].startswith('G')]
+    if gest:
+        done = [i for i in gest if i.get('estado', '').startswith(('Cerrado', 'No aplica', 'Aceptado',
+                                                                   'Se cierra'))]
+        work = [i for i in gest if i.get('estado') == 'En proceso']
+        out.append(Paragraph(
+            f'Gestamp revisó el programa el 2026-10-02 y entregó {len(gest)} puntos para esta estación '
+            f'(BMW-03-10R1), en la lista como G01–G{len(gest):02d}. Sobre el programa del programador: '
+            f'{len(done)} cerrados, {len(work)} en proceso y {len(gest) - len(done) - len(work)} pendientes '
+            '(sección 3).', st['body']))
+    if crit:
+        out.append(Paragraph('<font color="#b42318">Críticos</font>', st['h2']))
+        out += [Paragraph(f'<font color="#b42318"><b>{esc(i["id"])} — {esc(i["titulo"])}</b></font>',
+                          st['bullet'], bulletText='•') for i in crit]
+    return out
+
+
+def latest_audit():
+    """The newest audits/*/resumen.json (curated summary of a programmer-backup audit), or None."""
+    found = []
+    for path in glob.glob(os.path.join(REPO, 'audits', '*', 'resumen.json')):
+        data = json.load(open(path, encoding='utf-8'))
+        found.append((data.get('fecha_auditoria', ''), path, data))
+    if not found:
+        return None
+    _, path, data = max(found)
+    data['carpeta'] = os.path.relpath(os.path.dirname(path), REPO)
+    return data
+
+
+def last_audit(st):
+    a = latest_audit()
+    if not a:
+        return []
+    out = [PageBreak(), Paragraph(f"1.1 {esc(a['titulo'])}", st['h1']),
+           Paragraph(f"Respaldo: {esc(a['respaldo'])}. Auditado el {esc(a['fecha_auditoria'])}. Detalle "
+                     f"completo: "
+                     f"<font name='Mono'>{esc(a['carpeta'])}/REVISION.es.md</font>.", st['small']),
+           Spacer(1, 4),
+           Paragraph(esc(a['base']), st['body']),
+           Paragraph(esc(a['cierre']), st['body'])]
+    if a.get('bueno'):
+        out.append(Paragraph('Lo que hizo bien el programador', st['h2']))
+        out += bullets(a['bueno'], st)
+    if a.get('riesgos'):
+        out.append(Paragraph('Riesgos, de más a menos importante', st['h2']))
+        rows = [['#', 'Riesgo', 'Puntos']]
+        rows += [[str(n), r['texto'], ', '.join(r.get('items', []))] for n, r in enumerate(a['riesgos'], 1)]
+        out.append(table(rows, [7 * mm, 145 * mm, 28 * mm], st))
+    if a.get('plan'):
+        out.append(Paragraph('Plan', st['h2']))
+        out += [Paragraph(esc(p), st['bullet'], bulletText=f'{n}.') for n, p in enumerate(a['plan'], 1)]
+    if a.get('pedir'):
+        out.append(Paragraph('Qué pedir al programador', st['h2']))
+        out += bullets(a['pedir'], st)
     return out
 
 
@@ -458,14 +560,65 @@ def gestamp_review(st, items):
     return out
 
 
+def office_reference(st):
+    switch = audit_base()
+    out = [PageBreak(), Paragraph('2. Versión de oficina (referencia, no cargada)', st['h1'])]
+    out += bullets([
+        'Del 2026-10-02 al 2026-10-07 Ethos preparó una versión de oficina: depuración de comentarios y código '
+        'basura sin cambiar el comportamiento (03/10), correcciones de la revisión de Gestamp (04/10), integración '
+        'de los respaldos del programador (05/10) y la etapa 1 de tiempo ciclo, F52 (07/10).',
+        'Se entregó como paquetes de WorkVisual y no se cargó en el robot: el programador siguió trabajando sobre '
+        'su propio programa y resolvió por su lado varias de esas correcciones.',
+        f'El 2026-10-11 Edgar decidió tomar su programa como base (commit '
+        f'{switch["programmer_base_commit"][:7]}). La versión de oficina queda en el commit '
+        f'{switch["office_last_commit"][:7]}; build_archive.py, check_cleanup.py y check_equivalence.py son '
+        'herramientas de esa etapa.',
+        'En cada punto que la oficina había corregido, la nota dice cómo lo resolvió (referencia para el '
+        'programador). El detalle técnico sigue en docs/FINDINGS.md.'], st)
+    return out
+
+
+def gestamp_status(st, items):
+    gest = [i for i in items if i['id'].startswith('G')]
+    if not gest:
+        return []
+    out = [PageBreak(), Paragraph('3. Revisión de Gestamp sobre el programa del programador', st['h1']),
+           Paragraph('Documento de Gestamp "Robot Program Review – Findings" del 2026-10-02, sección '
+                     'BMW-03-10R1 (22 puntos), revisado contra el programa del programador. Columna Ver: '
+                     'hallazgo de Ethos con el que se cierra.', st['body'])]
+    rows = [['ID', 'Texto de Gestamp', 'Estado', 'Ver']]
+    for i in gest:
+        rows.append([i['id'], i.get('texto_gestamp', ''), i.get('estado', ''), ', '.join(i.get('depende_de', []))])
+    out.append(table(rows, [11 * mm, 96 * mm, 45 * mm, 30 * mm], st, extra=critical_rows(gest)))
+    out.append(Paragraph('3.1 Qué le falta a su programa', st['h2']))
+    rows = [['Punto', 'Qué hacer']]
+    for i in gest:
+        if not i.get('estado', '').startswith(('Cerrado', 'No aplica', 'Aceptado', 'Se cierra', 'Sin acción')):
+            rows.append([i['id'] + '\n' + i['titulo'], i['que_hacer']])
+    out.append(table(rows, [42 * mm, 140 * mm], st))
+    return out
+
+
 def process(st):
     out = [PageBreak(), Paragraph('4. Cómo vamos a trabajar', st['h1'])]
-    out.append(Paragraph('Día 0', st['h2']))
-    out += bullets([
-        'Cargar en el robot la versión de oficina por WorkVisual con el paquete de make_package.py (solo los '
-        'programas que cambian, armado sobre el último respaldo auditado) y borrar en el mismo deploy los archivos '
-        'de la lista de LEEME.txt y la carpeta vieja Styles/optiones: si quedan, no compila. Nunca hacer deploy de '
-        'un proyecto WorkVisual guardado de antes (trae el programa viejo: así se perdió la depuración el 2026-10-05).',
+    switch = audit_base()
+    if switch:
+        out.append(Paragraph('Base', st['h2']))
+        out += bullets([
+            'La base es el programa del programador (su respaldo del 2026-10-05 14:46, commit '
+            f'{switch["programmer_base_commit"][:7]}). No se carga ninguna versión de oficina.',
+            'Los 12 módulos sobrantes (G05) se borran cuando la celda esté probada al 100 %; antes no se evalúan. '
+            'Guardar el proyecto WorkVisual desde el controlador antes de cualquier deploy.',
+            'Ethos cambia código solo cuando Edgar lo pide, siempre sobre el último respaldo del programador, y '
+            'entrega solo los archivos que cambian en entregas/<fecha>_<puntos>/ (cambios.diff, LEEME.txt y PDF de '
+            'instrucciones); $config.dat nunca va completo.'], st)
+    else:
+        out.append(Paragraph('Día 0', st['h2']))
+    out += [] if switch else bullets([
+        'Cargar en el robot la versión de oficina (zip de build_archive.py: depuración más correcciones de '
+        'Gestamp) y borrar en el controlador los 17 archivos de módulos eliminados (12 de la depuración, 5 de '
+        'las correcciones; un restore no borra archivos). Actualizar el proyecto WorkVisual desde el '
+        'controlador antes de cualquier deploy.',
         'Hacer las pruebas en celda de los puntos "Corregido en oficina - probar en celda" (sección 3.3).',
         'Correr un ciclo en T1 con override reducido y uno en automático.',
         'Sacar un respaldo completo (Archive → All): es el punto de partida de las auditorías.'], st)
@@ -487,8 +640,6 @@ def process(st):
             ['Abierto', 'Auditoría', 'Pendiente de trabajar.'],
             ['Requiere decisión', 'Auditoría', 'Falta información o decisión (Gestamp, seguridad, Ethos) '
                                                'antes de programar.'],
-            [OFFICE, 'Auditoría', 'Ethos lo corrigió en la versión entregada; el programador lo prueba en '
-                                  'celda y lo pasa a "Corregido - por auditar" con la evidencia.'],
             ['En proceso', 'Programador', 'Trabajo empezado, aún no listo para auditar.'],
             ['Corregido - por auditar', 'Programador', 'Cambio hecho y probado; pide auditoría.'],
             ['Cerrado - auditado', 'Auditoría', 'Cumple todos los criterios de cierre en el respaldo.'],
@@ -497,6 +648,10 @@ def process(st):
                                                        'lo aceptó.'],
             ['Cerrado - depuración / No aplica / Se cierra con otro punto', 'Auditoría',
              'Resuelto por la depuración, cumple, o duplica otro punto.']]
+    if not switch:
+        rows.insert(3, [OFFICE, 'Auditoría', 'Ethos lo corrigió en la versión entregada; el programador lo '
+                                             'prueba en celda y lo pasa a "Corregido - por auditar" con la '
+                                             'evidencia.'])
     out.append(table(rows, [52 * mm, 30 * mm, 98 * mm], st))
     return out
 
@@ -516,7 +671,7 @@ def audits(st, data):
 
 def items_summary(st, items):
     out = [PageBreak(), Paragraph('5. Puntos abiertos — resumen', st['h1']),
-           Paragraph('Fondo rojo: puntos críticos. G01–G22: puntos de la revisión de Gestamp (fondo azul en el '
+           Paragraph('Fondo verde: puntos cerrados. Fondo rojo: puntos críticos abiertos. G01–G22: puntos de la revisión de Gestamp (fondo azul en el '
                      'ID). Fnn/Cnn: revisión de Ethos; los que vienen de la lista de Calvin dicen "Calvin #n".',
                      st['small'])]
     rows = [['ID', 'Sev.', 'Punto', 'Responsable', 'Estado']]
@@ -524,7 +679,7 @@ def items_summary(st, items):
     for n, i in enumerate(items, 1):
         rows.append([i['id'], i['severidad'], i['titulo'] + origin_note(i), i['responsable'], i.get('estado', '')])
         extra.append(('TEXTCOLOR', (1, n), (1, n), SEV.get(i['severidad'], INK)))
-        if i['id'].startswith('G'):
+        if i['id'].startswith('G') and not is_closed(i):
             extra.append(('BACKGROUND', (0, n), (0, n), CODE_BG))
     out.append(table(rows, [11 * mm, 14 * mm, 88 * mm, 33 * mm, 34 * mm], st, extra=extra))
     return out
@@ -632,8 +787,9 @@ def page_decor(canvas, doc):
     canvas.saveState()
     canvas.setFont('Sans', 7)
     canvas.setFillColor(MUTED)
-    canvas.drawString(18 * mm, 10 * mm, 'R10 (BMW-03-10-R1) · Depuración, correcciones Gestamp y puntos abiertos · '
-                                        'Ethos Automation México')
+    what = ('Auditoría del programa del programador y puntos abiertos' if audit_base()
+            else 'Depuración, correcciones Gestamp y puntos abiertos')
+    canvas.drawString(18 * mm, 10 * mm, f'R10 (BMW-03-10-R1) · {what} · Ethos Automation México')
     canvas.drawRightString(letter[0] - 18 * mm, 10 * mm, f'Página {doc.page}')
     canvas.restoreState()
 
@@ -657,13 +813,21 @@ def main():
     os.makedirs(os.path.dirname(os.path.abspath(args.out)), exist_ok=True)
     doc = SimpleDocTemplate(args.out, pagesize=letter, leftMargin=16 * mm, rightMargin=16 * mm,
                             topMargin=15 * mm, bottomMargin=16 * mm,
-                            title='R10 (BMW-03-10-R1) - Depuración, correcciones Gestamp y puntos abiertos',
+                            title='R10 (BMW-03-10-R1) - ' + ('Auditoría del programa del programador y '
+                                                             'puntos abiertos' if audit_base() else
+                                                             'Depuración, correcciones Gestamp y puntos '
+                                                             'abiertos'),
                             author='Ethos Automation México')
-    story = (cover(st, items, now) + summary(st, items) + what_was_done(st, allowlist())
-             + gestamp_review(st, items) + process(st) + audits(st, data))
+    switch = audit_base()
+    story = cover(st, items, now) + summary(st, items) + last_audit(st)
+    if switch:
+        story += office_reference(st) + gestamp_status(st, items) + process(st) + audits(st, data)
+    else:
+        story += what_was_done(st, allowlist()) + gestamp_review(st, items) + process(st)
     if items:
         story += items_summary(st, items) + items_detail(st, items)
-    story += annex_marked(st) + annex_listing(st)
+    # The shaded listing (annex B) compares against the office version: only while that was the base.
+    story += annex_marked(st) + ([] if switch else annex_listing(st))
     doc.build(story, onFirstPage=page_decor, onLaterPages=page_decor)
     if default:
         for old in naming.remove_older(args.out, 'R10_reporte', '.pdf'):

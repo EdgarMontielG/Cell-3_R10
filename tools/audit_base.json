@@ -1,0 +1,5 @@
+{
+  "_comment": "Since 2026-10-11 (Edgar's decision, same as R20 on 2026-10-09) the audited state is the programmer's own program, not the office version: each backup is audited against the last audited one and imported. programmer_base_commit is the commit where his program (backup of 2026-10-05 14:46) became the base; tools/audit_backup.py skips the pre-cleanup checks for any base that descends from it. The last office version (cleanup, Gestamp review fixes, merges, F52 stage 1) is office_last_commit, kept as reference. build_archive.py, check_cleanup.py and check_equivalence.py are tools of that earlier stage.",
+  "programmer_base_commit": "468e29f2d8d6fabf4f3e444051ae63b46d470407",
+  "office_last_commit": "84442ac21720ba26eee6eef533bb74cfd41f3886"
+}

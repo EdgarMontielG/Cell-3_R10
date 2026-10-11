@@ -17,6 +17,21 @@ compared.
 
 ## Status
 
+**Since 2026-10-11 the audited base is the programmer's own program**
+(Edgar's decision, same as R20): he is no longer asked to load the office
+version. The program tree of this repository is his backup of 2026-10-05
+14:46 byte for byte (commit `468e29f`, `tools/audit_base.json`); each new
+backup is audited against the last audited one with `tools/audit_backup.py`
+and imported. No item is held to more than Gestamp's reference backup
+`NUT07_10R1` does (`audits/2026-10-11_estandar_gestamp`). The office version
+described below (cleanup, Gestamp review fixes, merges, F52 stage 1) stays in
+the history at `84442ac` as reference, and the tools of that phase
+(`check_cleanup.py`, `check_equivalence.py`, `build_archive.py`,
+`make_package.py`, `code_changes.json`) apply to it, not to the current tree.
+Ethos changes code only when Edgar asks, on the programmer's last backup,
+delivered in `entregas/<date>_<items>/` (`docs/PROCESO.es.md`).
+
+
 The program has run in production and has **not** been accepted by Gestamp.
 This repository holds the controller archive as received (commit `22a98cc`,
 archive `v431_03_10_r1.zip` of 2026-10-02) plus a cleanup that changes **what

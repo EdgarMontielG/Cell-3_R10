@@ -10,10 +10,12 @@ timestamps of the original archive 658424 when that zip is available
 (AUDIT_ORIGINAL_ZIP, default the path it was uploaded to); otherwise the
 backup is built from git alone, which gives the same contents.
 
-The cleaned archive and the audit base are AUDIT_TEST_REF (default HEAD).
-The edits anchor on lines of the cleaned program (e.g. the first 'WAIT SEC
-0.2' of centerline_weld.src); once audited fixes are committed and an
-anchor is gone, run with AUDIT_TEST_REF=<the cleanup commit>.
+The cleaned archive and the audit base are AUDIT_TEST_REF (default: the
+last office version, office_last_commit of tools/audit_base.json - since
+2026-10-11 HEAD holds the programmer's program, which these anchors do not
+match). The edits anchor on lines of the cleaned program (e.g. the first
+'WAIT SEC 0.2' of centerline_weld.src). test_y_programmer_base audits
+against the programmer's program instead.
 """
 import contextlib
 import io
@@ -30,7 +32,9 @@ REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(REPO, 'tools'))
 import audit_backup as ab  # noqa: E402
 
-REF = os.environ.get('AUDIT_TEST_REF', 'HEAD')
+with open(os.path.join(REPO, 'tools', 'audit_base.json')) as _f:
+    AUDIT_BASE = json.load(_f)
+REF = os.environ.get('AUDIT_TEST_REF', AUDIT_BASE['office_last_commit'])
 ORIGINAL = os.environ.get(
     'AUDIT_ORIGINAL_ZIP',
     '/root/.claude/uploads/50f56c92-2919-5ae3-94c9-0de4476bbe87/667d8b38-v431_03_10_r1.zip')
@@ -665,6 +669,30 @@ class BackupTest(unittest.TestCase):
         with open(os.path.join(root, *WELD.split('/')), 'rb') as f:
             self.assertEqual(f.read(), weld)
         self.assertIn('not imported (PRE-CLEANUP files', buf.getvalue())
+
+    def test_y_programmer_base(self):
+        """Since 2026-10-11 the base is the programmer's program
+        (tools/audit_base.json). It still holds the modules the cleanup
+        deleted and grew from the archive as received: neither is flagged,
+        only the change he makes is reported."""
+        ref = AUDIT_BASE['programmer_base_commit']
+        files = archive_files(ref)
+        home = next(p for p in files if p.lower() == 'krc/r1/program/centerline/centerline_home.src')
+        text = files[home].decode('latin-1')
+        self.assertIn('WAIT SEC 1.5', text, 'test anchor missing')
+        files[home] = text.replace('WAIT SEC 1.5', 'WAIT SEC 1.0', 1).encode('latin-1')
+        dest = os.path.join(self.tmp, 'programmer.zip')
+        with zipfile.ZipFile(dest, 'w', zipfile.ZIP_DEFLATED) as z:
+            for p in sorted(files):
+                z.writestr(zipfile.ZipInfo(p, (2026, 10, 11, 7, 0, 0)), files[p])
+        out = os.path.join(self.tmp, 'prog')
+        with contextlib.redirect_stdout(io.StringIO()):
+            s = ab.main([dest, '--base', ref, '--out', out])
+        c = s['counts']
+        self.assertEqual((c['changed'], c['code_changed_files']), (1, 1))
+        self.assertEqual((c['deleted_still_present'], c['pre_cleanup'], c['pre_cleanup_based']), (0, 0, 0))
+        self.assertFalse([a for a in s['alerts'] if 'pre-cleanup' in a[1] or 'deleted in the cleanup' in a[1]],
+                         s['alerts'])
 
 
 # ------------------------------------------------------------ workbooks

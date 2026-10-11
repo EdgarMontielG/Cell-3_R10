@@ -12,7 +12,6 @@ import os
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CLOSED = ('Cerrado', 'No aplica', 'Aceptado sin cambio', 'Sin acción', 'Se cierra con otro punto')
-OFFICE = 'Corregido en oficina - probar en celda'
 
 
 def closed(item):
@@ -31,8 +30,8 @@ def main():
            'El detalle técnico de cada punto (en inglés, para Gestamp) está en '
            '[FINDINGS.md](FINDINGS.md); el proceso en [PROCESO.es.md](PROCESO.es.md).', '',
            f"**Puntos de Gestamp (G01–G{len(gestamp):02d})**: revisión de Gestamp del 2026-10-02 (BMW-03-10R1), "
-           f"con su texto original. {sum(1 for i in gestamp if i.get('estado') == OFFICE)} están corregidos en la "
-           'versión de oficina y falta probarlos en celda (estado *Corregido en oficina - probar en celda*). '
+           'con su texto original. Desde el 2026-10-11 la base es el programa del programador: cada punto se '
+           'revisa contra su programa y la versión de oficina queda como referencia (nota de cada punto). '
            'Los Fnn/Cnn son de la revisión de Ethos (numeración del R20); los marcados "Calvin #n" también están '
            'en la lista de Calvin (2026-10-03), verificada punto por punto. Esta lista es la única que se usa.', '',
            '## Resumen — puntos de Gestamp', '',

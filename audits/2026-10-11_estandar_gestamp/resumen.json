@@ -1,0 +1,29 @@
+{
+ "titulo": "Cambio de base y revisión contra el estándar de Gestamp (respaldo NUT07_10R1)",
+ "respaldo": "bmw_03_10_r1.zip del 2026-10-05 14:46 (último del programador, ahora la base); referencia nut07_10r1.zip (robot NUT07_10R1, serie 658415, KSS 8.3.29, 2026-08-18)",
+ "fecha_auditoria": "2026-10-11",
+ "base": "Decisión de Edgar (2026-10-11, igual que en R20): la base es el programa del programador y cada respaldo se audita contra el anterior; la versión de oficina queda como referencia (commit 84442ac). No se le exige más de lo que hace el respaldo de Gestamp NUT07_10R1 (paquete NutWeld con spear, sin CenterLine ni PRELOAD: el pedestal se compara por analogía). No llegó respaldo nuevo del robot.",
+ "cierre": "De los 16 puntos corregidos en oficina: G11 cerrado; F30 en proceso (falta la prueba); G04, F24, F28 y F32 se cierran con otro punto; los demás quedan abiertos con lo que le falta a su programa. Por el estándar de Gestamp: G08, G09, G18, F08, F49 y C12 aceptados sin cambio; C01 y C19 cerrados; G10, F02 y C14 se cierran con otro punto. Los puntos G los acepta al final Gestamp.",
+ "bueno": [
+  "Quitó los GOTO de todos los módulos activos (CENTERLINE_WELD, Style1Opt1, apps): IF/LOOP y encabezados con fecha de cambio.",
+  "Style1Opt1 cumple en código las tres propiedades: después de un rechazo no corre nada más, una estación no corre la otra y todos los caminos borran PARTPRESENT.",
+  "GripperTech en todos los movimientos de gripper y $OUT[18] con inline forms, como Gestamp.",
+  "AutomationCore_BKG activo como en Gestamp; el nut check ya evalúa las options 1, 2, 7 y 8."
+ ],
+ "riesgos": [
+  {"texto": "El drop al conveyor se acerca a P5 sin permiso del PLC (AC_DropOffCheck después del movimiento).", "items": ["F48"]},
+  {"texto": "Red rabbit: FAILED solo con las 3 tuercas y el drop borra el resultado antes de que el PLC lo vea; Gestamp usa OR y borra solo en MaintainSystem.", "items": ["G21", "F19"]},
+  {"texto": "TRIGGER de la tuerca dentro de inline forms: un Touch Up los borra y el robot espera para siempre o entra sin tuerca.", "items": ["G20", "F32"]},
+  {"texto": "5 inline forms de AutomationCore con número oculto distinto al de la llamada: reabrirlos cambia el pickup, la application o el drop-off.", "items": ["F21"]},
+  {"texto": "Work Complete comentado en el EndOfCycle: el PLC no recibe fin de ciclo; R20 ya lo tiene activo.", "items": ["F46"]}
+ ],
+ "plan": [
+  "Tiempo ciclo primero: medir con timers en el robot (pieza, tuerca, pistola, espera de tuerca, esperas del PLC) antes de cambiar la secuencia.",
+  "Próximo respaldo: auditar contra este y confirmar lo que el programador reporte.",
+  "Confirmar con Gestamp el nombre del robot (G01) y las options (G07)."
+ ],
+ "pedir": [
+  "Respaldo nuevo del robot con lo que haya cambiado desde el 05/10.",
+  "Excel de puntos con las anotaciones de Edgar con el programador en la columna \"Qué cambió el programador\"."
+ ]
+}

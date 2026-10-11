@@ -17,6 +17,23 @@ numeración del R20 para poder comparar los dos robots.
 
 ## Estado
 
+**Desde el 2026-10-11 la base auditada es el programa del propio
+programador** (decisión de Edgar, igual que en R20): ya no se le pide cargar
+la versión de oficina. El árbol del programa de este repositorio es su
+respaldo del 2026-10-05 14:46 byte por byte (commit `468e29f`,
+`tools/audit_base.json`); cada respaldo nuevo se audita contra el último
+auditado con `tools/audit_backup.py` y se importa. No se le exige más de lo
+que hace el respaldo de Gestamp `NUT07_10R1`
+(`audits/2026-10-11_estandar_gestamp`). La versión de oficina que se describe
+abajo (depuración, correcciones de la revisión de Gestamp, integraciones,
+etapa 1 de F52) queda en el historial en `84442ac` como referencia, y las
+herramientas de esa etapa (`check_cleanup.py`, `check_equivalence.py`,
+`build_archive.py`, `make_package.py`, `code_changes.json`) aplican a ella,
+no al árbol actual. Ethos cambia código solo cuando Edgar lo pide, sobre el
+último respaldo del programador, entregado en `entregas/<fecha>_<puntos>/`
+(`docs/PROCESO.es.md`).
+
+
 El programa ya corrió en producción y **no** ha sido aceptado por Gestamp.
 Este repositorio contiene el respaldo del controlador tal como llegó
 (commit `22a98cc`, respaldo `v431_03_10_r1.zip` del 2026-10-02), más una

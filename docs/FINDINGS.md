@@ -35,6 +35,21 @@ leads to a collision or can injure a person. *High*: wrong part
 disposition, equipment wear or damage over time, or the cell stops or
 hangs. *Medium*: robustness or diagnosis. *Low*: hygiene.
 
+**Base change (2026-10-11).** The programmer's own program (backup of
+2026-10-05 14:46) is now the audited state; the office version ("fixed in the
+office") is not on the robot and stays in the history at commit `84442ac` as
+reference. The `;CHECK:` / `;NOTE:` comments that point here are in the office
+version only; in his program the findings are found by module and routine
+name. The state of each item against his program is in
+`docs/open_items.json`.
+
+**Reference standard (2026-10-11).** The programmer worked from a Gestamp
+backup of another cell (`NUT07_10R1`, serial 658415, 2026-08-18). A finding is
+not held to more than that backup does: where his program matches it, or the
+Gestamp backup does not do it either, the item is closed or accepted without
+change (for Gestamp's own G items, Gestamp accepts the closure). The
+comparison is in `audits/2026-10-11_estandar_gestamp/REVISION.es.md`.
+
 ## Summary
 
 | ID | Sev. | Finding | Fix type |
