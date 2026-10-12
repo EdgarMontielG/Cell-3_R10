@@ -1,0 +1,49 @@
+{
+ "titulo": "Auditoría del respaldo del 2026-10-11 22:32",
+ "respaldo": "BMW_03_WINDOWS-2CPT70E_BMW_03_10_R1_658424.zip (am.ini 2026-10-11 22:32, robot BMW_03_10_R1, serie 658424); importado byte por byte, es la nueva base",
+ "fecha_auditoria": "2026-10-12 05:40",
+ "base": "Comparado contra su respaldo del 10/10 21:20: 10 KRL con cambios de código (-38/+70), 0 FAIL. Cambios: la cámara espera el resultado en lugar de 2.0 s fijos, pre-alimentación de 2 s y WAIT SEC 0.2 al abrir la pistola (como R20), NutWeld_BKG activo como Gestamp, robot en repair al PLC, camino nuevo del pick red rabbit.",
+ "cierre": "Ninguno cerrado. Reabiertos C01, C19 y C14: corrección de la auditoría del 10/10, AutomationCore_BKG está apagado desde que cargó la versión de oficina (request to enter y brake test pendiente sin escribir). F54 nuevo: confirmar que la cámara no lee el resultado de la pieza anterior.",
+ "bueno": [
+  "Cámara: espera el resultado (OK o NG) con timeout de 5 s y scrap sin resultado; ahorra hasta 1.9 s.",
+  "NutWeld_BKG activo como Gestamp, con las escrituras de pistolas 2/3 condicionadas para no pisar CL_GunPressureCmd y sin tocar PRELOAD en el reset.",
+  "Pick red rabbit sin pedir tuerca y con salida más rápida."
+ ],
+ "riesgos": [
+  {
+   "texto": "Request to enter sin escribir desde el 10/10: el PLC ve entrada permitida aunque el pedestal esté en proceso.",
+   "items": [
+    "C19",
+    "C01"
+   ]
+  },
+  {
+   "texto": "Cámara: si el PLC deja el resultado anterior, una pieza NG después de una OK sale como buena.",
+   "items": [
+    "F54"
+   ]
+  },
+  {
+   "texto": "Tuercas faltantes: la alimentación volvió a 2 s por tiempo, sin leer $IN[481].",
+   "items": [
+    "F13"
+   ]
+  },
+  {
+   "texto": "Brake test pendiente sin reportar al PLC.",
+   "items": [
+    "C14"
+   ]
+  }
+ ],
+ "plan": [
+  "Reactivar AutomationCore_BKG como en R20 y quitar de sps.sub las copias de sus señales (C01, C19, C14).",
+  "Confirmar con el PLC cuándo se borran di100/di101 y probar una pieza NG después de una OK (F54).",
+  "Cargar la entrega de esperas del PLC (sigue válida), correr 10 piezas seguidas y mandar el respaldo (F52, meta 38 s)."
+ ],
+ "pedir": [
+  "Por qué quitó los 3 s extra de alimentación y si ya no faltan tuercas.",
+  "Confirmar que $OUT[470] (dopw1_Hidraulyc_Valve, ahora en ON con NutWeld_BKG) no tiene nada conectado.",
+  "Corregir el encabezado del pick red rabbit (dice pick de producción)."
+ ]
+}

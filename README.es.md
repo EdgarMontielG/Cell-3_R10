@@ -20,8 +20,8 @@ numeración del R20 para poder comparar los dos robots.
 **Desde el 2026-10-11 la base auditada es el programa del propio
 programador** (decisión de Edgar, igual que en R20): ya no se le pide cargar
 la versión de oficina. El árbol del programa de este repositorio es su
-último respaldo byte por byte: desde el 2026-10-11, el del 2026-10-10 21:20
-(commit `cd17b34`; el cambio de base fue sobre su respaldo del 2026-10-05
+último respaldo byte por byte: desde el 2026-10-12, el del 2026-10-11 22:32
+(commit `8cb5c7a`; el cambio de base fue sobre su respaldo del 2026-10-05
 14:46, commit `468e29f`, `tools/audit_base.json`); cada respaldo nuevo se
 audita contra el anterior con `tools/audit_backup.py` y se importa. No se le exige más de lo
 que hace el respaldo de Gestamp `NUT07_10R1`

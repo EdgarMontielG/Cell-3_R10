@@ -16,7 +16,7 @@ nombre: el respaldo del robot `658424_R10_AAAA-MM-DD_HHMM.zip`, el Excel
 Decisión de Edgar (igual que en R20): ya no se le exige al programador cargar
 la versión de oficina. **Su último respaldo es la base auditada**: el árbol del
 programa del repositorio es su último respaldo byte por byte: hoy el del
-2026-10-10 21:20 (commit `cd17b34`); el cambio de base fue sobre su respaldo
+2026-10-11 22:32 (commit `8cb5c7a`); el cambio de base fue sobre su respaldo
 del 2026-10-05 14:46 (commit `468e29f`). La versión de oficina (depuración, correcciones de la
 revisión de Gestamp, integraciones y la etapa 1 de tiempo ciclo) queda en el
 historial en `84442ac`, solo como referencia. Los dos commits están en

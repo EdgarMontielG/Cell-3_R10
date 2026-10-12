@@ -20,7 +20,7 @@ compared.
 **Since 2026-10-11 the audited base is the programmer's own program**
 (Edgar's decision, same as R20): he is no longer asked to load the office
 version. The program tree of this repository is his last backup byte for
-byte: since 2026-10-11 the one of 2026-10-10 21:20 (commit `cd17b34`; the
+byte: since 2026-10-12 the one of 2026-10-11 22:32 (commit `8cb5c7a`; the
 base switch was on his 2026-10-05 14:46 backup, commit `468e29f`,
 `tools/audit_base.json`); each new backup is audited against the previous one
 with `tools/audit_backup.py` and imported. No item is held to more than Gestamp's reference backup

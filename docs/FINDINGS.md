@@ -36,7 +36,7 @@ disposition, equipment wear or damage over time, or the cell stops or
 hangs. *Medium*: robustness or diagnosis. *Low*: hygiene.
 
 **Base change (2026-10-11).** The programmer's own program (his last backup:
-2026-10-05 14:46 at the switch, 2026-10-10 21:20 since the audit of 2026-10-11)
+2026-10-05 14:46 at the switch, 2026-10-11 22:32 since the audit of 2026-10-12)
 is now the audited state; the office version ("fixed in the
 office") is not on the robot and stays in the history at commit `84442ac` as
 reference. The `;CHECK:` / `;NOTE:` comments that point here are in the office
