@@ -1,0 +1,824 @@
+{
+ "tool": "tools/audit_backup.py",
+ "generated": "2026-10-12T11:34:53",
+ "backup": {
+  "zip": "/root/.claude/uploads/50f56c92-2919-5ae3-94c9-0de4476bbe87/5eba76d2-BMW_03_WINDOWS-2CPT70E_BMW_03_10_R1_658424.zip",
+  "sha256": "0f71260b2b08429d002c1024d5a525138947a79937ad62d7752c91786ed17c75",
+  "log_entries_skipped": 8,
+  "am_ini": {
+   "name": "C:\\windows\\TEMP\\tmpB604.tmp\\",
+   "date": "2026-10-11_22-32-16",
+   "config": "All",
+   "rob_name": "BMW_03_10_R1",
+   "serial": "658424",
+   "version": "V8.3.29"
+  },
+  "serial_ok": true
+ },
+ "base": {
+  "ref": "HEAD",
+  "commit": "0425c9637343ca727089e76843d8d6b6abdc965e",
+  "subject": "Cycle time target of R10: 38 s part to part (Edgar, 2026-10-11)"
+ },
+ "first_commit": "22a98cc8efd85b7482a0051da13d7eb2c47b4998",
+ "counts": {
+  "entries": 323,
+  "unchanged": 281,
+  "changed": 39,
+  "added": 1,
+  "missing": 0,
+  "unexpected": 2,
+  "deleted_still_present": 0,
+  "pre_cleanup": 0,
+  "pre_cleanup_based": 0,
+  "code_changed_files": 10,
+  "code_lines_removed": 38,
+  "code_lines_added": 70,
+  "comment_only_files": 15,
+  "runtime_value_files": 6,
+  "FAIL": 0,
+  "WARN": 19,
+  "INFO": 0
+ },
+ "alerts": [
+  [
+   "WARN",
+   "2 entries outside the KUKA archive layout ignored (e.g. Archive.log)"
+  ],
+  [
+   "WARN",
+   "KRC/R1/TP/NutWeld/nutweldroutines.src: KUKA system / vendor package file changed - if intended, list the edit in the hand-over so a package update does not drop it (C28)"
+  ],
+  [
+   "INFO",
+   "KRC/R1/TP/GripperSpotTech/grp_data.dat: KUKA system / vendor package file changed - if intended, list the edit in the hand-over so a package update does not drop it (C28)"
+  ],
+  [
+   "INFO",
+   "KRC/R1/TP/NutWeld/nutweldroutines.dat: KUKA system / vendor package file changed - if intended, list the edit in the hand-over so a package update does not drop it (C28)"
+  ]
+ ],
+ "changed": [
+  "C/KRC/User/ConfigMon.ini",
+  "C/KRC/User/ProjectRoot/BMW-03-10R1_v8/BMW-03-10R1_v8.asz",
+  "C/KRC/User/ProjectRoot/BMW-03-10R1_v8/BMW-03-10R1_v8.log",
+  "C/KRC/User/ProjectRoot/BMW-03-10R1_v8/BMW-03-10R1_v8_old.log",
+  "C/KRC/User/Settings.xml",
+  "KRC/R1/Mada/$machine.dat",
+  "KRC/R1/Mada/$robcor.dat",
+  "KRC/R1/Program/Centerline/centerline_weld.src",
+  "KRC/R1/Program/Centerline/gun_open_check.dat",
+  "KRC/R1/Program/Centerline/gun_open_check.src",
+  "KRC/R1/Program/Centerline/preload.dat",
+  "KRC/R1/Program/Centerline/preload.src",
+  "KRC/R1/Program/StyleApps/Options/style1app2opt1.dat",
+  "KRC/R1/Program/StyleApps/Options/style1app2opt1.src",
+  "KRC/R1/Program/StyleApps/Options/style1app2opt2.src",
+  "KRC/R1/Program/StyleDrops/Options/style1drop1opt2autorr.dat",
+  "KRC/R1/Program/StylePicks/Options/style1pick1opt1.dat",
+  "KRC/R1/Program/StylePicks/Options/style1pick1opt1.src",
+  "KRC/R1/Program/StylePicks/Options/style1pick1opt1autorr.dat",
+  "KRC/R1/Program/StylePicks/Options/style1pick1opt1autorr.src",
+  "KRC/R1/Program/Styles/optiones/style1opt1.src",
+  "KRC/R1/Program/Styles/optiones/style1opt10autorr.src",
+  "KRC/R1/Program/home.dat",
+  "KRC/R1/Program/home.src",
+  "KRC/R1/System/$config.dat",
+  "KRC/R1/System/sps.sub",
+  "KRC/R1/System/tm_bib.dat",
+  "KRC/R1/System/tm_bib.src",
+  "KRC/R1/TP/AutomationCore/automationcoredata.dat",
+  "KRC/R1/TP/AutomationCore/automationcoreroutines.dat",
+  "KRC/R1/TP/GripperSpotTech/grp_data.dat",
+  "KRC/R1/TP/GripperSpotTech/grp_func.dat",
+  "KRC/R1/TP/NutWeld/nutwelddata.dat",
+  "KRC/R1/TP/NutWeld/nutweldroutines.dat",
+  "KRC/R1/TP/NutWeld/nutweldroutines.src",
+  "KRC/STEU/Mada/$custom.dat",
+  "Registry/LMSOFTWAREKUKA ROBOTER GMBHWorkVisual.amr",
+  "Registry/LMSOFTWAREKUKA Roboter GmbHPerformance.amr",
+  "am.ini"
+ ],
+ "added": [
+  "C/KRC/User/ConfigMonold.ini"
+ ],
+ "missing": [],
+ "unexpected": [
+  "Archive.log",
+  "ArchiveInfo.xml"
+ ],
+ "case_differences": [],
+ "duplicate_entries": [],
+ "runtime_value_files": [
+  "KRC/R1/Program/Centerline/gun_open_check.dat",
+  "KRC/R1/System/$config.dat",
+  "KRC/R1/System/tm_bib.dat",
+  "KRC/R1/TP/AutomationCore/automationcoredata.dat",
+  "KRC/R1/TP/GripperSpotTech/grp_func.dat",
+  "KRC/R1/TP/NutWeld/nutwelddata.dat"
+ ],
+ "deleted_still_present": [],
+ "pre_cleanup": [],
+ "pre_cleanup_based": [],
+ "files": {
+  "C/KRC/User/ConfigMon.ini": {
+   "area": "controller configuration",
+   "status": "changed",
+   "note": "binary, 13354 bytes"
+  },
+  "C/KRC/User/ProjectRoot/BMW-03-10R1_v8/BMW-03-10R1_v8.asz": {
+   "area": "controller configuration",
+   "status": "changed",
+   "note": "binary, 4334403 bytes"
+  },
+  "C/KRC/User/ProjectRoot/BMW-03-10R1_v8/BMW-03-10R1_v8.log": {
+   "area": "controller configuration",
+   "status": "changed",
+   "diff": "diffs/C/KRC/User/ProjectRoot/BMW-03-10R1_v8/BMW-03-10R1_v8.log.diff",
+   "note": "333 line(s) removed, 329 added - diffs/C/KRC/User/ProjectRoot/BMW-03-10R1_v8/BMW-03-10R1_v8.log.diff"
+  },
+  "C/KRC/User/ProjectRoot/BMW-03-10R1_v8/BMW-03-10R1_v8_old.log": {
+   "area": "controller configuration",
+   "status": "changed",
+   "diff": "diffs/C/KRC/User/ProjectRoot/BMW-03-10R1_v8/BMW-03-10R1_v8_old.log.diff",
+   "note": "329 line(s) removed, 333 added - diffs/C/KRC/User/ProjectRoot/BMW-03-10R1_v8/BMW-03-10R1_v8_old.log.diff"
+  },
+  "C/KRC/User/Settings.xml": {
+   "area": "controller configuration",
+   "status": "changed",
+   "diff": "diffs/C/KRC/User/Settings.xml.diff",
+   "note": "1 line(s) removed, 1 added - diffs/C/KRC/User/Settings.xml.diff"
+  },
+  "KRC/R1/Mada/$machine.dat": {
+   "area": "machine data",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 0,
+   "attributes": [
+    "-&ACCESS RV$",
+    "+&ACCESS  RV",
+    "+&PARAM VERSION = 1.0.0",
+    "+&PARAM DISKPATH = MADA"
+   ],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Mada/$machine.dat.diff"
+  },
+  "KRC/R1/Mada/$robcor.dat": {
+   "area": "machine data",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 0,
+   "attributes": [
+    "+&PARAM VERSION = 1.0.0",
+    "-&PARAM VERSION = 1.0.0"
+   ],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Mada/$robcor.dat.diff"
+  },
+  "KRC/R1/Program/Centerline/centerline_weld.src": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 1,
+   "code_added": 2,
+   "comment_only_changes": 3,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/Centerline/centerline_weld.src.diff"
+  },
+  "KRC/R1/Program/Centerline/gun_open_check.dat": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 0,
+   "attributes": [
+    "-&ACCESS RVO5",
+    "-&REL 25",
+    "+&ACCESS  RV",
+    "+&REL 29"
+   ],
+   "data_changes": [],
+   "runtime_values": [
+    "nWaterFlow: 231 -> 222"
+   ],
+   "diff": "diffs/KRC/R1/Program/Centerline/gun_open_check.dat.diff"
+  },
+  "KRC/R1/Program/Centerline/gun_open_check.src": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 0,
+   "attributes": [
+    "&REL 25 -> &REL 29"
+   ],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/Centerline/gun_open_check.src.diff"
+  },
+  "KRC/R1/Program/Centerline/preload.dat": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 1,
+   "code_added": 0,
+   "comment_only_changes": 2,
+   "attributes": [
+    "-&ACCESS RVO5",
+    "+&ACCESS  RV",
+    "+&COMMENT 03-10-R1 PNW1 NUT PRELOAD",
+    "+&PARAM DISKPATH = Program/Centerline"
+   ],
+   "data_changes": [
+    "removed 1 INT: nFeedSettleMs"
+   ],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/Centerline/preload.dat.diff"
+  },
+  "KRC/R1/Program/Centerline/preload.src": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 4,
+   "code_added": 2,
+   "comment_only_changes": 6,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/Centerline/preload.src.diff"
+  },
+  "KRC/R1/Program/StyleApps/Options/style1app2opt1.dat": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 0,
+   "attributes": [
+    "&ACCESS RVO1 -> &ACCESS RVO2"
+   ],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/StyleApps/Options/style1app2opt1.dat.diff"
+  },
+  "KRC/R1/Program/StyleApps/Options/style1app2opt1.src": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 0,
+   "attributes": [
+    "&ACCESS RVO1 -> &ACCESS RVO2"
+   ],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/StyleApps/Options/style1app2opt1.src.diff"
+  },
+  "KRC/R1/Program/StyleApps/Options/style1app2opt2.src": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 1,
+   "code_added": 6,
+   "comment_only_changes": 5,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/StyleApps/Options/style1app2opt2.src.diff"
+  },
+  "KRC/R1/Program/StyleDrops/Options/style1drop1opt2autorr.dat": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 0,
+   "attributes": [
+    "&COMMENT GE4_Conveyor -> &COMMENT 03-10-R1 RED RABBIT DROP"
+   ],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/StyleDrops/Options/style1drop1opt2autorr.dat.diff"
+  },
+  "KRC/R1/Program/StylePicks/Options/style1pick1opt1.dat": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 0,
+   "attributes": [
+    "&ACCESS RVO1 -> &ACCESS RVO2"
+   ],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/StylePicks/Options/style1pick1opt1.dat.diff"
+  },
+  "KRC/R1/Program/StylePicks/Options/style1pick1opt1.src": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 0,
+   "attributes": [
+    "&ACCESS RVO1 -> &ACCESS RVO2"
+   ],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/StylePicks/Options/style1pick1opt1.src.diff"
+  },
+  "KRC/R1/Program/StylePicks/Options/style1pick1opt1autorr.dat": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 4,
+   "code_added": 7,
+   "comment_only_changes": 0,
+   "attributes": [
+    "&ACCESS RVO1 -> &ACCESS RVO2",
+    "&REL 61 -> &REL 58",
+    "&COMMENT St1_PICK_GE4 -> &COMMENT 03-10-R1 PICK ST1"
+   ],
+   "data_changes": [
+    "XAtPick3 (E6POS) re-taught: moved 0.5 mm",
+    "added 2 E6POS: XP1, XP2",
+    "added 2 FDAT: FP1, FP2",
+    "added 2 PDAT: PPDAT1, PPDAT3",
+    "removed 1 E6POS: XP16",
+    "removed 1 FDAT: FP16",
+    "removed 1 PDAT: PPDAT18"
+   ],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/StylePicks/Options/style1pick1opt1autorr.dat.diff"
+  },
+  "KRC/R1/Program/StylePicks/Options/style1pick1opt1autorr.src": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 6,
+   "code_added": 10,
+   "comment_only_changes": 17,
+   "attributes": [
+    "&ACCESS RVO1 -> &ACCESS RVO2",
+    "&REL 61 -> &REL 58",
+    "&COMMENT 03-10-R1 RED RABBIT PICK -> &COMMENT 03-10-R1 PICK ST1"
+   ],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/StylePicks/Options/style1pick1opt1autorr.src.diff"
+  },
+  "KRC/R1/Program/Styles/optiones/style1opt1.src": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 0,
+   "attributes": [
+    "&ACCESS RVO1 -> &ACCESS RVP1"
+   ],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/Styles/optiones/style1opt1.src.diff"
+  },
+  "KRC/R1/Program/Styles/optiones/style1opt10autorr.src": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 0,
+   "attributes": [
+    "&ACCESS RVO1 -> &ACCESS RVP1"
+   ],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/Styles/optiones/style1opt10autorr.src.diff"
+  },
+  "KRC/R1/Program/home.dat": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 0,
+   "attributes": [
+    "&ACCESS RVO1 -> &ACCESS RVP1"
+   ],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/home.dat.diff"
+  },
+  "KRC/R1/Program/home.src": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 0,
+   "attributes": [
+    "&ACCESS RVO1 -> &ACCESS RVP1"
+   ],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/home.src.diff"
+  },
+  "KRC/R1/System/$config.dat": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 0,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [
+    "CL_GunStrokePositionLPT: 139760 -> 139750",
+    "CL_WeldPinPosition: 27367 -> 27383"
+   ],
+   "diff": "diffs/KRC/R1/System/$config.dat.diff"
+  },
+  "KRC/R1/System/sps.sub": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 16,
+   "code_added": 8,
+   "comment_only_changes": 30,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/System/sps.sub.diff"
+  },
+  "KRC/R1/System/tm_bib.dat": {
+   "area": "KUKA system / vendor package",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 0,
+   "attributes": [
+    "&REL 961 -> &REL 964"
+   ],
+   "data_changes": [],
+   "runtime_values": [
+    "iTQM_LAST_OVPRO: 100 -> 0",
+    "TQM_ACT: {T11 200,T12 200,T13 200,T14 200,T15 200... -> {T11 200,T12 200,T13 200,T14 200,T15 200..."
+   ],
+   "diff": "diffs/KRC/R1/System/tm_bib.dat.diff"
+  },
+  "KRC/R1/System/tm_bib.src": {
+   "area": "KUKA system / vendor package",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 0,
+   "attributes": [
+    "&ACCESS R5 -> &ACCESS R2",
+    "&REL 962 -> &REL 964"
+   ],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/System/tm_bib.src.diff"
+  },
+  "KRC/R1/TP/AutomationCore/automationcoredata.dat": {
+   "area": "KUKA system / vendor package",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 0,
+   "attributes": [
+    "-&ACCESS R5",
+    "+&ACCESS  R",
+    "+&PARAM DISKPATH = TP/AutomationCore"
+   ],
+   "data_changes": [],
+   "runtime_values": [
+    "nAutoCore_Handle: 10263 -> 10557",
+    "nCycleStart_Handle: 10553 -> 10726",
+    "nCycleTime: 39 -> 26",
+    "nCycTime_Handle: 10552 -> 10725",
+    "nLogOnlyMsg_Handle: 10136 -> 10688"
+   ],
+   "diff": "diffs/KRC/R1/TP/AutomationCore/automationcoredata.dat.diff"
+  },
+  "KRC/R1/TP/AutomationCore/automationcoreroutines.dat": {
+   "area": "KUKA system / vendor package",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 0,
+   "attributes": [
+    "-&ACCESS RO5",
+    "+&ACCESS  R",
+    "+&PARAM DISKPATH = TP/AutomationCore",
+    "+&REL 11"
+   ],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/TP/AutomationCore/automationcoreroutines.dat.diff"
+  },
+  "KRC/R1/TP/GripperSpotTech/grp_data.dat": {
+   "area": "KUKA system / vendor package",
+   "status": "changed",
+   "code_removed": 1,
+   "code_added": 1,
+   "comment_only_changes": 0,
+   "attributes": [],
+   "data_changes": [
+    "GRPg_SignVal (INT): 11310649 -> 8610918"
+   ],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/TP/GripperSpotTech/grp_data.dat.diff"
+  },
+  "KRC/R1/TP/GripperSpotTech/grp_func.dat": {
+   "area": "KUKA system / vendor package",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 0,
+   "attributes": [
+    "-&ACCESS R5",
+    "+&ACCESS  R",
+    "+&COMMENT GripperSpotTech package",
+    "+&PARAM DISKPATH = TP/GripperSpotTech",
+    "+&PARAM KUKATPGRP_VERSION = 4.0",
+    "+&REL 1"
+   ],
+   "data_changes": [],
+   "runtime_values": [
+    "GRPg_ProcessData: {ActGrp 1,ReqState 0,LastGrpNo 1,LastStN... -> {ActGrp 1,ReqState 0,LastGrpNo 3,LastStN..."
+   ],
+   "diff": "diffs/KRC/R1/TP/GripperSpotTech/grp_func.dat.diff"
+  },
+  "KRC/R1/TP/NutWeld/nutwelddata.dat": {
+   "area": "KUKA system / vendor package",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 0,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [
+    "bNutWeldWOJoining: TRUE -> FALSE",
+    "rNutSensorValue[3]: 11674.0 -> 15834.0"
+   ],
+   "diff": "diffs/KRC/R1/TP/NutWeld/nutwelddata.dat.diff"
+  },
+  "KRC/R1/TP/NutWeld/nutweldroutines.dat": {
+   "area": "KUKA system / vendor package",
+   "status": "changed",
+   "code_removed": 1,
+   "code_added": 1,
+   "comment_only_changes": 0,
+   "attributes": [
+    "-&ACCESS RVO3",
+    "+&ACCESS  RV",
+    "+&PARAM DISKPATH = KRC:\\R1\\TP\\NutWeld",
+    "-&PARAM DISKPATH = KRC:\\R1\\TP\\NutWeld"
+   ],
+   "data_changes": [
+    "nNutWeldGunNrSTK (INT): 3 -> 1"
+   ],
+   "runtime_values": [
+    "rLowerLVDT: 11674.0 -> 15834.0"
+   ],
+   "diff": "diffs/KRC/R1/TP/NutWeld/nutweldroutines.dat.diff"
+  },
+  "KRC/R1/TP/NutWeld/nutweldroutines.src": {
+   "area": "KUKA system / vendor package",
+   "status": "changed",
+   "code_removed": 3,
+   "code_added": 33,
+   "comment_only_changes": 119,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/TP/NutWeld/nutweldroutines.src.diff"
+  },
+  "KRC/STEU/Mada/$custom.dat": {
+   "area": "machine data",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 0,
+   "attributes": [
+    "+&PARAM VERSION = 1.0.0",
+    "-&PARAM VERSION = 1.0.0"
+   ],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/STEU/Mada/$custom.dat.diff"
+  },
+  "Registry/LMSOFTWAREKUKA ROBOTER GMBHWorkVisual.amr": {
+   "area": "controller configuration",
+   "status": "changed",
+   "diff": "diffs/Registry/LMSOFTWAREKUKA ROBOTER GMBHWorkVisual.amr.diff",
+   "note": "2 line(s) removed, 2 added - diffs/Registry/LMSOFTWAREKUKA ROBOTER GMBHWorkVisual.amr.diff"
+  },
+  "Registry/LMSOFTWAREKUKA Roboter GmbHPerformance.amr": {
+   "area": "controller configuration",
+   "status": "changed",
+   "diff": "diffs/Registry/LMSOFTWAREKUKA Roboter GmbHPerformance.amr.diff",
+   "note": "25 line(s) removed, 25 added - diffs/Registry/LMSOFTWAREKUKA Roboter GmbHPerformance.amr.diff"
+  },
+  "am.ini": {
+   "area": "archive metadata",
+   "status": "changed",
+   "diff": "diffs/am.ini.diff",
+   "note": "3 line(s) removed, 3 added - diffs/am.ini.diff"
+  },
+  "C/KRC/User/ConfigMonold.ini": {
+   "area": "controller configuration",
+   "status": "added",
+   "note": "binary, 3362 bytes"
+  }
+ },
+ "signal_changes": [],
+ "findings": [
+  {
+   "level": "WARN",
+   "check": 8,
+   "name": "I/O without signal comment",
+   "file": "KRC/R1/Program/StyleApps/Options/style1app2opt2.src",
+   "line": 66,
+   "message": "di100CameraJudgmentOK, di101CameraJudgmentNG accessed with no comment naming it in the 4 lines above (C24): WAIT FOR (di100CameraJudgmentOK EXOR di101CameraJudgmentNG) OR ($TIMER"
+  },
+  {
+   "level": "WARN",
+   "check": 6,
+   "name": "commented-out code",
+   "file": "KRC/R1/System/sps.sub",
+   "line": 166,
+   "message": "commented-out code (assignment): ;dopw1_LowLevel = CL_WeldFault OR dipw1_Fault"
+  },
+  {
+   "level": "WARN",
+   "check": 6,
+   "name": "commented-out code",
+   "file": "KRC/R1/System/sps.sub",
+   "line": 167,
+   "message": "commented-out code (assignment): ;dopw1_LevelOk = NOT (CL_WeldFault OR dipw1_Fault)"
+  },
+  {
+   "level": "WARN",
+   "check": 6,
+   "name": "commented-out code",
+   "file": "KRC/R1/System/sps.sub",
+   "line": 205,
+   "message": "commented-out code (IF): ;IF ((dipw1_StepperWarning==FALSE) AND (dipw1_EndOfStepper==FALSE)) THEN"
+  },
+  {
+   "level": "WARN",
+   "check": 6,
+   "name": "commented-out code",
+   "file": "KRC/R1/System/sps.sub",
+   "line": 207,
+   "message": "commented-out code (assignment): ;dopw1_StepperWarningPL=TRUE"
+  },
+  {
+   "level": "WARN",
+   "check": 6,
+   "name": "commented-out code",
+   "file": "KRC/R1/System/sps.sub",
+   "line": 208,
+   "message": "commented-out code (assignment): ;dopw1_EndofStepperPL=FALSE"
+  },
+  {
+   "level": "WARN",
+   "check": 6,
+   "name": "commented-out code",
+   "file": "KRC/R1/System/sps.sub",
+   "line": 209,
+   "message": "commented-out code (ELSE): ;ELSE"
+  },
+  {
+   "level": "WARN",
+   "check": 6,
+   "name": "commented-out code",
+   "file": "KRC/R1/System/sps.sub",
+   "line": 210,
+   "message": "commented-out code (IF): ;IF ((dipw1_StepperWarning==TRUE) AND (dipw1_EndOfStepper==FALSE)) THEN"
+  },
+  {
+   "level": "WARN",
+   "check": 6,
+   "name": "commented-out code",
+   "file": "KRC/R1/System/sps.sub",
+   "line": 212,
+   "message": "commented-out code (assignment): ;dopw1_StepperWarningPL=TRUE"
+  },
+  {
+   "level": "WARN",
+   "check": 6,
+   "name": "commented-out code",
+   "file": "KRC/R1/System/sps.sub",
+   "line": 213,
+   "message": "commented-out code (assignment): ;dopw1_EndofStepperPL=TRUE"
+  },
+  {
+   "level": "WARN",
+   "check": 6,
+   "name": "commented-out code",
+   "file": "KRC/R1/System/sps.sub",
+   "line": 214,
+   "message": "commented-out code (ELSE): ;ELSE"
+  },
+  {
+   "level": "WARN",
+   "check": 6,
+   "name": "commented-out code",
+   "file": "KRC/R1/System/sps.sub",
+   "line": 215,
+   "message": "commented-out code (IF): ;IF (dipw1_EndOfStepper==TRUE) THEN"
+  },
+  {
+   "level": "WARN",
+   "check": 6,
+   "name": "commented-out code",
+   "file": "KRC/R1/System/sps.sub",
+   "line": 217,
+   "message": "commented-out code (assignment): ;dopw1_StepperWarningPL=FALSE"
+  },
+  {
+   "level": "WARN",
+   "check": 6,
+   "name": "commented-out code",
+   "file": "KRC/R1/System/sps.sub",
+   "line": 218,
+   "message": "commented-out code (assignment): ;dopw1_EndofStepperPL=TRUE"
+  },
+  {
+   "level": "WARN",
+   "check": 6,
+   "name": "commented-out code",
+   "file": "KRC/R1/System/sps.sub",
+   "line": 219,
+   "message": "commented-out code (ENDIF): ;ENDIF"
+  },
+  {
+   "level": "WARN",
+   "check": 6,
+   "name": "commented-out code",
+   "file": "KRC/R1/System/sps.sub",
+   "line": 220,
+   "message": "commented-out code (ENDIF): ;ENDIF"
+  },
+  {
+   "level": "WARN",
+   "check": 6,
+   "name": "commented-out code",
+   "file": "KRC/R1/System/sps.sub",
+   "line": 221,
+   "message": "commented-out code (ENDIF): ;ENDIF"
+  },
+  {
+   "level": "WARN",
+   "check": 8,
+   "name": "I/O without signal comment",
+   "file": "KRC/R1/System/sps.sub",
+   "line": 254,
+   "message": "ERR accessed with no comment naming it in the 4 lines above (C24): IF ($ERR.NUMBER<>1419) THEN"
+  },
+  {
+   "level": "WARN",
+   "check": 8,
+   "name": "I/O without signal comment",
+   "file": "KRC/R1/System/sps.sub",
+   "line": 255,
+   "message": "do009RobotAtRepair accessed with no comment naming it in the 4 lines above (C24): do009RobotAtRepair=AC_CheckSphWZ(xRepair,$Repair_POS_TOL)"
+  }
+ ],
+ "imported": [
+  "C/KRC/User/ConfigMon.ini",
+  "C/KRC/User/ProjectRoot/BMW-03-10R1_v8/BMW-03-10R1_v8.asz",
+  "C/KRC/User/ProjectRoot/BMW-03-10R1_v8/BMW-03-10R1_v8.log",
+  "C/KRC/User/ProjectRoot/BMW-03-10R1_v8/BMW-03-10R1_v8_old.log",
+  "C/KRC/User/Settings.xml",
+  "KRC/R1/Mada/$machine.dat",
+  "KRC/R1/Mada/$robcor.dat",
+  "KRC/R1/Program/Centerline/centerline_weld.src",
+  "KRC/R1/Program/Centerline/gun_open_check.dat",
+  "KRC/R1/Program/Centerline/gun_open_check.src",
+  "KRC/R1/Program/Centerline/preload.dat",
+  "KRC/R1/Program/Centerline/preload.src",
+  "KRC/R1/Program/StyleApps/Options/style1app2opt1.dat",
+  "KRC/R1/Program/StyleApps/Options/style1app2opt1.src",
+  "KRC/R1/Program/StyleApps/Options/style1app2opt2.src",
+  "KRC/R1/Program/StyleDrops/Options/style1drop1opt2autorr.dat",
+  "KRC/R1/Program/StylePicks/Options/style1pick1opt1.dat",
+  "KRC/R1/Program/StylePicks/Options/style1pick1opt1.src",
+  "KRC/R1/Program/StylePicks/Options/style1pick1opt1autorr.dat",
+  "KRC/R1/Program/StylePicks/Options/style1pick1opt1autorr.src",
+  "KRC/R1/Program/Styles/optiones/style1opt1.src",
+  "KRC/R1/Program/Styles/optiones/style1opt10autorr.src",
+  "KRC/R1/Program/home.dat",
+  "KRC/R1/Program/home.src",
+  "KRC/R1/System/$config.dat",
+  "KRC/R1/System/sps.sub",
+  "KRC/R1/System/tm_bib.dat",
+  "KRC/R1/System/tm_bib.src",
+  "KRC/R1/TP/AutomationCore/automationcoredata.dat",
+  "KRC/R1/TP/AutomationCore/automationcoreroutines.dat",
+  "KRC/R1/TP/GripperSpotTech/grp_data.dat",
+  "KRC/R1/TP/GripperSpotTech/grp_func.dat",
+  "KRC/R1/TP/NutWeld/nutwelddata.dat",
+  "KRC/R1/TP/NutWeld/nutweldroutines.dat",
+  "KRC/R1/TP/NutWeld/nutweldroutines.src",
+  "KRC/STEU/Mada/$custom.dat",
+  "Registry/LMSOFTWAREKUKA ROBOTER GMBHWorkVisual.amr",
+  "Registry/LMSOFTWAREKUKA Roboter GmbHPerformance.amr",
+  "am.ini",
+  "C/KRC/User/ConfigMonold.ini"
+ ]
+}

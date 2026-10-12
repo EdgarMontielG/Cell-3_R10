@@ -94,9 +94,8 @@ IF NUTCYCLE_ACTIVE AND NOT di004UseDryCycle THEN
                $TIMER_STOP[10]=FALSE
             ENDIF
 
-            ;AFTER 2000 MS OF FEED + nFeedSettleMs (PRELOAD.DAT, 2026-10-10, USER): STEP 0 DONE - THE QFP STAYS RETURNED
-            ;  nFeedSettleMs LONGER SO THE NUT ARRIVES BEFORE IT ADVANCES (THE FEEDER BLOWS UP TO 5 S). 0 = AS 20R1
-            IF  $TIMER[10]>=(2000+nFeedSettleMs) THEN
+            ;AFTER 2000 MS OF FEED: STEP 0 DONE
+            IF  $TIMER[10]>=2000 THEN
                $TIMER_STOP[10]=TRUE
 
                STEP0DONE=TRUE
@@ -265,18 +264,13 @@ IF NUTCYCLE_ACTIVE AND NOT di004UseDryCycle THEN
          ;WHEN QFP RETURNED AND NOT ADVANCED - SIGNALS $IN[482] dipw1_SpearHome ON, $IN[470] di470QFPAdvanced OFF
          IF (dipw1_SpearHome==TRUE) AND (di470QFPAdvanced==FALSE) THEN
             ;FEED NUT - SIGNAL $OUT[476] dopw1_StartFeed ON FOR 2000 MS ($TIMER[10] STARTED ONCE)
-            ;THEN THE QFP STAYS RETURNED nFeedSettleMs MORE (PRELOAD.DAT, 2026-10-10, USER): THE FEEDER BLOWS UP TO 5 S,
-            ;  THE NUT MUST BE IN THE QFP BEFORE THE NEXT PRELOAD ADVANCES IT. A NEW REQUEST WAITS (CYCLE STILL ACTIVE).
-            ;  nFeedSettleMs=0 = AS 20R1
+            dopw1_StartFeed=TRUE
             IF $TIMER_STOP[10] THEN
-               dopw1_StartFeed=TRUE
                $TIMER[10]=0
                $TIMER_STOP[10]=FALSE
             ENDIF
             IF $TIMER[10]>=2000 THEN
                dopw1_StartFeed=FALSE
-            ENDIF
-            IF $TIMER[10]>=(2000+nFeedSettleMs) THEN
                QFP_NUT_LOADED=TRUE
                NUT_PRELOAD_STEP = 40
             ENDIF

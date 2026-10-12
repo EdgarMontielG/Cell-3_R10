@@ -1,0 +1,8 @@
+--- HEAD:KRC/R1/Program/StyleApps/Options/style1app2opt1.src
++++ backup:KRC/R1/Program/StyleApps/Options/style1app2opt1.src
+@@ -1,4 +1,4 @@
+-&ACCESS RVO1
++&ACCESS RVO2
+ &REL 29
+ &COMMENT 03-10-R1 NUT CHECK SENSOR
+ &PARAM EDITMASK = *

@@ -1,0 +1,67 @@
+--- HEAD:Registry/LMSOFTWAREKUKA Roboter GmbHPerformance.amr
++++ backup:Registry/LMSOFTWAREKUKA Roboter GmbHPerformance.amr
+@@ -3,7 +3,7 @@
+ "FrequencyProcessor"=dword:a08ff711
+ 
+ [\LocalMachine\SOFTWARE\KUKA Roboter GmbH\Performance\PowerOff]
+-"PMS_PMBPowerFail"=qword:0000c319547a5b78
++"PMS_PMBPowerFail"=qword:000184b510fc82c4
+ 
+ [\LocalMachine\SOFTWARE\KUKA Roboter GmbH\Performance\PowerOffLast]
+ "PMS_PMBPowerFail"=qword:000698f94b8330e4
+@@ -357,29 +357,29 @@
+ "SmartHMI_IntercommunicationComponent:Spoc.InitializeHost_End"=qword:000000a146659a80
+ "SmartHMI_SinglePointOfControl:Spoc.InitializeHost_Start"=qword:00000047639b0b4c
+ "SmartHMI_SinglePointOfControl:Spoc.InitializeHost_End"=qword:0000004764c65e98
+-"SmartHMI_ProjectManager:ViewModel.SaveAndCloseProject. Thread ID: 1_Start"=qword:00011acfc8963ae8
+-"SmartHMI_ProjectManager:ProjectManagerService.MergeExternalChanges_Start"=qword:00011acfd3ff74b4
+-"SmartHMI_ProjectManager:ProjectManagerService.MergeExternalChanges.RefreshAll_Start"=qword:00011acfd4168104
+-"SmartHMI_ProjectManager:ProjectManagerService.MergeExternalChanges.RefreshAll_End"=qword:00011ad0560ae00c
+-"SmartHMI_ProjectManager:ProjectManagerService.MergeExternalChanges.MergeCurrentFilesToProject_Start"=qword:00011ad056206ab8
+-"SmartHMI_ProjectManager:ProjectManagerService.MergeExternalChanges.MergeCurrentFilesToProject_End"=qword:00011ad348822458
+-"SmartHMI_ProjectManager:ProjectManagerService.MergeExternalChanges.BackToModel_Start"=qword:00011ad348935948
+-"SmartHMI_ProjectManager:ProjectManagerService.MergeExternalChanges.BackToModel_End"=qword:00011ad3f0d6ec84
+-"SmartHMI_ProjectManager:ProjectManagerService.MergeExternalChanges.UpdateOptionVersionInformation_Start"=qword:00011ad3f0ea0050
+-"SmartHMI_ProjectManager:ProjectManagerService.MergeExternalChanges.UpdateOptionVersionInformation_End"=qword:00011ad3f26e5088
+-"SmartHMI_ProjectManager:ProjectManagerService.MergeExternalChanges_End"=qword:00011ad3f295c328
+-"SmartHMI_ProjectManager:ProjectManagerService.SaveSolution_Start"=qword:00011ad3f2a7af3c
+-"SmartHMI_ProjectManager:ProjectManagerService.SaveSolution_End"=qword:00011ad55e6e8bc4
+-"SmartHMI_ProjectManager:ViewModel.SaveAndCloseProject. Thread ID: 1_End"=qword:00011ad55e84d030
+-"SmartHMI_ProjectManager:ProjectManagerService.CloseObjectStoreSolution_Start"=qword:0000f711e314cf9c
+-"SmartHMI_ProjectManager:ProjectManagerService.CloseObjectStoreSolution_End"=qword:0000f7120732e61c
+-"SmartHMI_ProjectManager:ProjectManagerService.RefreshProjectState_Start"=qword:0000f72da2992960
+-"SmartHMI_ProjectManager:ProjectManagerService.GetLocalDevice_Start"=qword:0000f72da2adbb7c
+-"SmartHMI_ProjectManager:ProjectManagerService.GetLocalDevice_End"=qword:0000f72dad4a623c
+-"SmartHMI_ProjectManager:ProjectManagerService.SetActiveProject_Start"=qword:0000f72dad787ba4
+-"SmartHMI_ProjectManager:ProjectManagerService.OpenActiveProject_Start"=qword:0000f72dad934740
+-"SmartHMI_ProjectManager:ProjectManagerService.OpenActiveProject_End"=qword:0000f72eda90f1e0
+-"SmartHMI_ProjectManager:ProjectManagerService.SetActiveProject_End"=qword:0000f72edab49d80
+-"SmartHMI_ProjectManager:ProjectManagerService.RefreshProjectState_End"=qword:0000f72edac5f114
+-
+-
++"SmartHMI_ProjectManager:ViewModel.SaveAndCloseProject. Thread ID: 1_Start"=qword:0001f905653b6384
++"SmartHMI_ProjectManager:ProjectManagerService.MergeExternalChanges_Start"=qword:0001f9056d8f8448
++"SmartHMI_ProjectManager:ProjectManagerService.MergeExternalChanges.RefreshAll_Start"=qword:0001f9056d9db384
++"SmartHMI_ProjectManager:ProjectManagerService.MergeExternalChanges.RefreshAll_End"=qword:0001f905fa107da4
++"SmartHMI_ProjectManager:ProjectManagerService.MergeExternalChanges.MergeCurrentFilesToProject_Start"=qword:0001f905fa1df0b0
++"SmartHMI_ProjectManager:ProjectManagerService.MergeExternalChanges.MergeCurrentFilesToProject_End"=qword:0001f90870a5542c
++"SmartHMI_ProjectManager:ProjectManagerService.MergeExternalChanges.BackToModel_Start"=qword:0001f90870ba5e00
++"SmartHMI_ProjectManager:ProjectManagerService.MergeExternalChanges.BackToModel_End"=qword:0001f9091691fc0c
++"SmartHMI_ProjectManager:ProjectManagerService.MergeExternalChanges.UpdateOptionVersionInformation_Start"=qword:0001f909169eb380
++"SmartHMI_ProjectManager:ProjectManagerService.MergeExternalChanges.UpdateOptionVersionInformation_End"=qword:0001f90917886850
++"SmartHMI_ProjectManager:ProjectManagerService.MergeExternalChanges_End"=qword:0001f90917972604
++"SmartHMI_ProjectManager:ProjectManagerService.SaveSolution_Start"=qword:0001f90917a0308c
++"SmartHMI_ProjectManager:ProjectManagerService.SaveSolution_End"=qword:0001f90a9652bce0
++"SmartHMI_ProjectManager:ViewModel.SaveAndCloseProject. Thread ID: 1_End"=qword:0001f90a9684fdd4
++"SmartHMI_ProjectManager:ProjectManagerService.CloseObjectStoreSolution_Start"=qword:0001c6aa1dc5f4a0
++"SmartHMI_ProjectManager:ProjectManagerService.CloseObjectStoreSolution_End"=qword:0001c6aa40982fdc
++"SmartHMI_ProjectManager:ProjectManagerService.RefreshProjectState_Start"=qword:0001c6f7d10528e4
++"SmartHMI_ProjectManager:ProjectManagerService.GetLocalDevice_Start"=qword:0001c6f7d1157828
++"SmartHMI_ProjectManager:ProjectManagerService.GetLocalDevice_End"=qword:0001c6f7dae6e6d4
++"SmartHMI_ProjectManager:ProjectManagerService.SetActiveProject_Start"=qword:0001c6f7db1938e8
++"SmartHMI_ProjectManager:ProjectManagerService.OpenActiveProject_Start"=qword:0001c6f7db30110c
++"SmartHMI_ProjectManager:ProjectManagerService.OpenActiveProject_End"=qword:0001c6f8e71ea3b8
++"SmartHMI_ProjectManager:ProjectManagerService.SetActiveProject_End"=qword:0001c6f8e72b2d60
++"SmartHMI_ProjectManager:ProjectManagerService.RefreshProjectState_End"=qword:0001c6f8e73550f0
++
++

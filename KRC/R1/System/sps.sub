@@ -100,7 +100,9 @@ DEF  SPS ( )
 ;NOTE: THE CALL NutWeld_BKG() WAS COMMENTED OUT IN THE ARCHIVE, THE FOLD BELOW IS EMPTY: NO HOPPER
 ;NOTE: LEVEL LIGHTS $OUT[477]/$OUT[478],
 ;NOTE: NO NUTWELD STATUS KEYS AND NO NUTWELD PROCESS RESET ON PROGRAM CANCEL (F12, F29)
+;2026-10-11: NutWeld_BKG() ACTIVE AGAIN (CLIENT STANDARD) - THE 3 NOTES ABOVE ARE HISTORY
 ;FOLD NutWeld PLC
+ NutWeld_BKG ( )   ; Active 2026-10-11 (client standard). Gun 2/3 writes gated by nMaxGunNr in nutweldroutines.src (they overlap CL_GunPressureCmd); hopper lights combined with the weld fault
 ;ENDFOLD (NutWeld PLC)
 ;NOTE: AutomationCore_BKG() IS OFF, AS IN THE ARCHIVE AS RECEIVED: THE FOLD BELOW IS EMPTY AND ITS
 ;NOTE: PLC STATUS BITS STAY STATIC (F12). THE PROGRAMMER SWITCHED IT ON ON 2026-10-05; IT IS OFF
@@ -159,8 +161,10 @@ DEF  SPS ( )
    ;(NO NUT / DOUBLE NUT), NO WELD COMPLETE IN CL_WELD_COMPLETE_TIMEOUT MS, BOSCH FAULT DURING THE WELD;
    ;CLEARED BY THE NEXT GOOD WELD. NOTE: $OUT[477]/$OUT[478] WERE THE HOPPER LEVEL LIGHTS OF
    ;NutWeld_Bkg, WHICH IS DISABLED (F29) - NOTHING ELSE WRITES THEM
-   dopw1_LowLevel = CL_WeldFault OR dipw1_Fault
-   dopw1_LevelOk = NOT (CL_WeldFault OR dipw1_Fault)
+   ;2026-10-11: THE LIGHTS ARE NOW WRITTEN BY NutWeld_Bkg (FOLD Hopper1 Low Level, CLIENT STANDARD): RED = HOPPER LOW
+   ;  OR CL_WeldFault OR dipw1_Fault, GREEN = ALL OK. ONLY ONE WRITER (TWO = FLICKER): THE TWO LINES BELOW ARE OFF
+   ;dopw1_LowLevel = CL_WeldFault OR dipw1_Fault
+   ;dopw1_LevelOk = NOT (CL_WeldFault OR dipw1_Fault)
 
    ;KL50L2 BEACON - SIGNALS $OUT[3008] CL_BeaconBit3008 (BYTE 589 BIT 0),
    ;$OUT[3024] CL_BeaconBit3024 (BYTE 591 BIT 0), $OUT[3001] CL_BeaconBit3001 (NOT MAPPED ON THE BUS)
@@ -197,23 +201,24 @@ DEF  SPS ( )
    ;  dopw1_StepperReset). IN NUT07 THIS LINE IS IN AutomationCore_Bkg, WHICH IS OFF ON THIS ROBOT
    do111Gun1ElectrodeChange=dipw1_EndOfStepper
    ;STEPPER STATUS TO PLC (AS NutWeld_Bkg OF NUT07) - $OUT[479] dopw1_StepperWarningPL, $OUT[480] dopw1_EndofStepperPL
-   IF ((dipw1_StepperWarning==FALSE) AND (dipw1_EndOfStepper==FALSE)) THEN
-      ;NO WARNING, ELECTRODE OK
-      dopw1_StepperWarningPL=TRUE
-      dopw1_EndofStepperPL=FALSE
-   ELSE
-      IF ((dipw1_StepperWarning==TRUE) AND (dipw1_EndOfStepper==FALSE)) THEN
-         ;WARNING ONLY (ELECTRODE CLOSE TO END OF LIFE)
-         dopw1_StepperWarningPL=TRUE
-         dopw1_EndofStepperPL=TRUE
-      ELSE
-         IF (dipw1_EndOfStepper==TRUE) THEN
-            ;END OF ELECTRODE LIFE
-            dopw1_StepperWarningPL=FALSE
-            dopw1_EndofStepperPL=TRUE
-         ENDIF
-      ENDIF
-   ENDIF
+   ;2026-10-11: STEPPER STATUS NOW WRITTEN BY NutWeld_Bkg (SAME LOGIC, CLIENT STANDARD) - THIS COPY IS OFF
+;   IF ((dipw1_StepperWarning==FALSE) AND (dipw1_EndOfStepper==FALSE)) THEN
+;      ;NO WARNING, ELECTRODE OK
+;      dopw1_StepperWarningPL=TRUE
+;      dopw1_EndofStepperPL=FALSE
+;   ELSE
+;      IF ((dipw1_StepperWarning==TRUE) AND (dipw1_EndOfStepper==FALSE)) THEN
+;         ;WARNING ONLY (ELECTRODE CLOSE TO END OF LIFE)
+;         dopw1_StepperWarningPL=TRUE
+;         dopw1_EndofStepperPL=TRUE
+;      ELSE
+;         IF (dipw1_EndOfStepper==TRUE) THEN
+;            ;END OF ELECTRODE LIFE
+;            dopw1_StepperWarningPL=FALSE
+;            dopw1_EndofStepperPL=TRUE
+;         ENDIF
+;      ENDIF
+;   ENDIF
 
    ;BOSCH WELD TIMER ENABLE (2026-10-08, USER REQUEST: ALWAYS ENABLED, AS R20 WITH AutomationCore_Bkg) -
    ;SIGNALS $OUT[481] dopw1_WeldContactEnable AND $OUT[482] dopw1_WeldOnExternal ON OUTSIDE DRY CYCLE
@@ -239,6 +244,17 @@ DEF  SPS ( )
    do134Nut1Fault= (dipw1_Fault OR NOT dipw1_Ready)
    do094AirOK= dipw1_AirOK
    do013WaterIsOn = dipw1_WaterOk
+
+   ;ROBOT AT REPAIR POSITION TO THE PLC (2026-10-11, USER: WORKS ON 20R1 IN AUTO) - SIGNAL $OUT[9] do009RobotAtRepair =
+   ;  TCP WITHIN $Repair_POS_TOL (10 MM) OF XREPAIR (AUTOMATIONGLOBALPOS.DAT). SAME CODE AS AutomationCore_Bkg
+   ;  'POSITIONAL MONITORING' ON 20R1, WHICH IS OFF ON THIS ROBOT (BEFORE ONLY THE INIT WROTE IT: ALWAYS OFF)
+   IF (VARSTATE("$POS_ACT")==#INITIALIZED) THEN
+      ON_ERROR_PROCEED
+      PosCheck = $POS_ACT
+      IF ($ERR.NUMBER<>1419) THEN
+         do009RobotAtRepair=AC_CheckSphWZ(xRepair,$Repair_POS_TOL)
+      ENDIF
+   ENDIF
 
    ;NUT PRELOAD SEQUENCE (Program/Centerline/PRELOAD.src): SWITCHES THE PEDESTAL VALVES
    ;$OUT[471..505] AND SETS NUT_READY; STARTED BY NUT_START (MOTION TRIGGERS IN PICK/WELD APPS)

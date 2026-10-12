@@ -1,0 +1,20 @@
+--- HEAD:KRC/R1/TP/NutWeld/nutwelddata.dat
++++ backup:KRC/R1/TP/NutWeld/nutwelddata.dat
+@@ -245,7 +245,7 @@
+ ;ENDFOLD (NutWeld Custom Variables)
+ ;FOLD NutWeld BOOL Variables
+ DECL GLOBAL BOOL bNutWeld_RobStop=FALSE
+-DECL GLOBAL BOOL bNutWeldWOJoining=TRUE
++DECL GLOBAL BOOL bNutWeldWOJoining=FALSE
+ DECL GLOBAL BOOL bNutWeld_LB_Bypass=FALSE
+ DECL GLOBAL BOOL bNutWeldProcessReset=FALSE
+ DECL GLOBAL BOOL bNutWeld_PreWeld_Cmplt=FALSE
+@@ -414,7 +414,7 @@
+ DECL GLOBAL REAL rNutSensorValue[3]
+ rNutSensorValue[1]=0.0
+ rNutSensorValue[2]=0.0
+-rNutSensorValue[3]=11674.0
++rNutSensorValue[3]=15834.0
+ DECL GLOBAL REAL rStrokeSensorValue[3]
+ rStrokeSensorValue[1]=0.0
+ rStrokeSensorValue[2]=0.0

@@ -1,0 +1,29 @@
+--- HEAD:KRC/R1/TP/NutWeld/nutweldroutines.dat
++++ backup:KRC/R1/TP/NutWeld/nutweldroutines.dat
+@@ -1,6 +1,6 @@
+-&ACCESS RVO3
++&ACCESS  RV
++&PARAM DISKPATH = KRC:\R1\TP\NutWeld
+ &REL 3482
+-&PARAM DISKPATH = KRC:\R1\TP\NutWeld
+ DEFDAT  nutweldroutines PUBLIC
+ ;*********************************
+ ;* Package:     NutWeldRoutines  *
+@@ -36,7 +36,7 @@
+ DECL GLOBAL BOOL bNutWeldResetSTK=FALSE ; Button 4
+ ;ENDFOLD (NutWeld UserKeyBar1)
+ ;FOLD NutWeld UserKeyBar2
+-DECL GLOBAL INT nNutWeldGunNrSTK=3 ; Button 1
++DECL GLOBAL INT nNutWeldGunNrSTK=1 ; Button 1 - 2026-10-11 BMW-03: only gun 1 (gun 2/3 outputs = CL_GunPressureCmd)
+ DECL GLOBAL BOOL bNutWeldOpnGunSTK=FALSE ; Button 2
+ DECL GLOBAL BOOL bNutWeldClsGunSTK=FALSE ; Button 3
+ DECL GLOBAL BOOL bNutWeldAdvRetPinSTK=FALSE ; Button 4
+@@ -286,7 +286,7 @@
+ ;FOLD 251202 New monitoring variables
+ GLOBAL INT iLastActiveGun=3
+ GLOBAL INT iSpotnr=3
+-GLOBAL REAL rLowerLVDT=11674.0
++GLOBAL REAL rLowerLVDT=15834.0
+ GLOBAL REAL rUpperLVDT=0.0
+ GLOBAL BOOL bGunReady2Start=FALSE
+ GLOBAL BOOL bDumpNutExceeded=FALSE

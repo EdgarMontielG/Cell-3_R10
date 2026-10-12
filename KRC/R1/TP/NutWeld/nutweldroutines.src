@@ -31,8 +31,15 @@ GLOBAL DEF NutWeld_Bkg( )
       ;ENDFOLD (Declaration)
       ;FOLD Implementation
          dopw1_Hidraulyc_Valve = ($PERI_RDY==TRUE)
-         dopw2_Hidraulyc_Valve = (($PERI_RDY==TRUE) AND (nMaxGunNr>=2))
-         dopw3_Hidraulyc_Valve = (($PERI_RDY==TRUE) AND (nMaxGunNr>=3))
+         ;2026-10-11 BMW-03: gun 2/3 outputs written only if the gun exists (nMaxGunNr). On this cell $OUT[518]-[521]
+         ;  (gun 2 hydraulic valve, gun home/work, intensify home) are bits 12-15 of CL_GunPressureCmd $OUT[506]-[521]
+         ;  = the gun 1 pressure command; writing them every submit cycle changed the weld pressure
+         IF nMaxGunNr>=2 THEN
+            dopw2_Hidraulyc_Valve = (($PERI_RDY==TRUE) AND (nMaxGunNr>=2))
+         ENDIF
+         IF nMaxGunNr>=3 THEN
+            dopw3_Hidraulyc_Valve = (($PERI_RDY==TRUE) AND (nMaxGunNr>=3))
+         ENDIF
          IF (($EXT==TRUE) AND (bNutWeld_InhibitWeld==TRUE)) THEN
             bNutWeld_InhibitWeld=FALSE ; Weld Inhibit not allowed in Auto
             nNutWeld_Handle_SPS=Set_Krlmsg (#NOTIFY, NutWeld_Msg[60], NutWeld_MsgPar[], NutWeld_MsgOpt_NoStop)
@@ -957,41 +964,47 @@ GLOBAL DEF NutWeld_Bkg( )
          ;ENDFOLD (Status Key Control)
          ;FOLD Status Hopper Low Level 
             ;FOLD Hopper1 Low Level
-               ; No warning turn on Green light
-               IF (dipw1_HopperLowLevel==TRUE) THEN
+               ; 2026-10-11 BMW-03 (user + client standard): RED also on a weld fault - CL_WeldFault ($config.dat, set by
+               ;  CENTERLINE_WELD: no nut / double nut, no weld complete, Bosch fault; cleared by the next good weld) or
+               ;  $IN[485] dipw1_Fault. Was only the hopper level; the weld fault lights were written in sps.sub too (two
+               ;  writers on $OUT[477]/[478] = flicker), now only here
+               IF (dipw1_HopperLowLevel==TRUE) AND NOT (CL_WeldFault OR dipw1_Fault) THEN
+                  ; Hopper OK and no weld fault: green light
                   dopw1_LevelOk=TRUE
                   dopw1_LowLevel=FALSE
                ELSE
-                  ; warning Off on Red light
-                  IF (dipw1_HopperLowLevel==FALSE) THEN
-                     dopw1_LevelOk=FALSE
-                     dopw1_LowLevel=TRUE
-                  ENDIF
+                  ; Hopper low level or weld fault: red light
+                  dopw1_LevelOk=FALSE
+                  dopw1_LowLevel=TRUE
                ENDIF
             ;ENDFOLD (Hopper1 Low Level)
             ;FOLD Hopper2 Low Level
-               ; No warning turn on Green light
-               IF (dipw2_HopperLowLevel==TRUE) THEN
-                  dopw2_LevelOk=TRUE
-                  dopw2_LowLevel=FALSE
-               ELSE
-                  ; warning Off on Red light
-                  IF (dipw2_HopperLowLevel==FALSE) THEN
-                     dopw2_LevelOk=FALSE
-                     dopw2_LowLevel=TRUE
+               IF nMaxGunNr>=2 THEN   ; 2026-10-11 BMW-03: only if gun 2 exists
+                  ; No warning turn on Green light
+                  IF (dipw2_HopperLowLevel==TRUE) THEN
+                     dopw2_LevelOk=TRUE
+                     dopw2_LowLevel=FALSE
+                  ELSE
+                     ; warning Off on Red light
+                     IF (dipw2_HopperLowLevel==FALSE) THEN
+                        dopw2_LevelOk=FALSE
+                        dopw2_LowLevel=TRUE
+                     ENDIF
                   ENDIF
                ENDIF
             ;ENDFOLD (Hopper2 Low Level)
             ;FOLD Hopper3 Low Level
-               ; No warning turn on Green light
-               IF (dipw3_HopperLowLevel==TRUE) THEN
-                  dopw3_LevelOk=TRUE
-                  dopw3_LowLevel=FALSE
-               ELSE
-                  ; warning Off on Red light
-                  IF (dipw3_HopperLowLevel==FALSE) THEN
-                     dopw3_LevelOk=FALSE
-                     dopw3_LowLevel=TRUE
+               IF nMaxGunNr>=3 THEN   ; 2026-10-11 BMW-03: only if gun 3 exists
+                  ; No warning turn on Green light
+                  IF (dipw3_HopperLowLevel==TRUE) THEN
+                     dopw3_LevelOk=TRUE
+                     dopw3_LowLevel=FALSE
+                  ELSE
+                     ; warning Off on Red light
+                     IF (dipw3_HopperLowLevel==FALSE) THEN
+                        dopw3_LevelOk=FALSE
+                        dopw3_LowLevel=TRUE
+                     ENDIF
                   ENDIF
                ENDIF
             ;ENDFOLD (Hopper3 Low Level)
@@ -1017,39 +1030,43 @@ GLOBAL DEF NutWeld_Bkg( )
                ENDIF
             ;ENDFOLD Stepper warning Gun1
             ;FOLD Stepper warning Gun2
-               ; No warning or end of electrode life turn on Green light
-               IF ((dipw2_StepperWarning==FALSE) AND (dipw2_EndOfStepper==FALSE)) THEN
-                  dopw2_StepperWarningPL=TRUE
-                  dopw2_EndofStepperPL=FALSE
-                  ; Warning Only no end of electrode life turn on Amber light
-               ELSE
-                  IF ((dipw2_StepperWarning==TRUE) AND (dipw2_EndOfStepper==FALSE)) THEN
+               IF nMaxGunNr>=2 THEN   ; 2026-10-11 BMW-03: only if gun 2 exists
+                  ; No warning or end of electrode life turn on Green light
+                  IF ((dipw2_StepperWarning==FALSE) AND (dipw2_EndOfStepper==FALSE)) THEN
                      dopw2_StepperWarningPL=TRUE
-                     dopw2_EndofStepperPL=TRUE
-                     ; warning Off  Electrode at end of life turn on Red light
+                     dopw2_EndofStepperPL=FALSE
+                     ; Warning Only no end of electrode life turn on Amber light
                   ELSE
-                     IF (dipw2_EndOfStepper==TRUE) THEN
-                        dopw2_StepperWarningPL=FALSE
+                     IF ((dipw2_StepperWarning==TRUE) AND (dipw2_EndOfStepper==FALSE)) THEN
+                        dopw2_StepperWarningPL=TRUE
                         dopw2_EndofStepperPL=TRUE
+                        ; warning Off  Electrode at end of life turn on Red light
+                     ELSE
+                        IF (dipw2_EndOfStepper==TRUE) THEN
+                           dopw2_StepperWarningPL=FALSE
+                           dopw2_EndofStepperPL=TRUE
+                        ENDIF
                      ENDIF
                   ENDIF
                ENDIF
             ;ENDFOLD Stepper warning Gun2
             ;FOLD Stepper warning Gun3
-               ; No warning or end of electrode life turn on Green light
-               IF ((dipw3_StepperWarning==FALSE) AND (dipw3_EndOfStepper==FALSE)) THEN
-                  dopw3_StepperWarningPL=TRUE
-                  dopw3_EndofStepperPL=FALSE
-                  ; Warning Only no end of electrode life turn on Amber light
-               ELSE
-                  IF ((dipw3_StepperWarning==TRUE) AND (dipw3_EndOfStepper==FALSE)) THEN
+               IF nMaxGunNr>=3 THEN   ; 2026-10-11 BMW-03: only if gun 3 exists
+                  ; No warning or end of electrode life turn on Green light
+                  IF ((dipw3_StepperWarning==FALSE) AND (dipw3_EndOfStepper==FALSE)) THEN
                      dopw3_StepperWarningPL=TRUE
-                     dopw3_EndofStepperPL=TRUE
-                     ; warning Off  Electrode at end of life turn on Red light
+                     dopw3_EndofStepperPL=FALSE
+                     ; Warning Only no end of electrode life turn on Amber light
                   ELSE
-                     IF (dipw3_EndOfStepper==TRUE) THEN
-                        dopw3_StepperWarningPL=FALSE
+                     IF ((dipw3_StepperWarning==TRUE) AND (dipw3_EndOfStepper==FALSE)) THEN
+                        dopw3_StepperWarningPL=TRUE
                         dopw3_EndofStepperPL=TRUE
+                        ; warning Off  Electrode at end of life turn on Red light
+                     ELSE
+                        IF (dipw3_EndOfStepper==TRUE) THEN
+                           dopw3_StepperWarningPL=FALSE
+                           dopw3_EndofStepperPL=TRUE
+                        ENDIF
                      ENDIF
                   ENDIF
                ENDIF
@@ -1240,17 +1257,37 @@ DEF NutWeld_ProcessReset( )
       ;FOLD Implementation
          bNutWeld_PreWeld_Cmplt=FALSE
          dopw_SetPrgNr(1, 0)
-         dopw_SetPrgNr(2, 0)
-         dopw_SetPrgNr(3, 0)
+         IF nMaxGunNr>=2 THEN   ; 2026-10-11 BMW-03: only if the gun exists ($OUT[518]-[521] = CL_GunPressureCmd)
+            dopw_SetPrgNr(2, 0)
+         ENDIF
+         IF nMaxGunNr>=3 THEN   ; 2026-10-11 BMW-03: only if the gun exists ($OUT[518]-[521] = CL_GunPressureCmd)
+            dopw_SetPrgNr(3, 0)
+         ENDIF
          dopw_WeldInit(1,FALSE)
-         dopw_WeldInit(2,FALSE)
-         dopw_WeldInit(3,FALSE)
-         dopw_NutIntensify(1,FALSE)
-         dopw_NutIntensify(2,FALSE)
-         dopw_NutIntensify(3,FALSE)
-         dopw_BlowOff(1,FALSE)
-         dopw_BlowOff(2,FALSE)
-         dopw_BlowOff(3,FALSE)
+         IF nMaxGunNr>=2 THEN   ; 2026-10-11 BMW-03: only if the gun exists ($OUT[518]-[521] = CL_GunPressureCmd)
+            dopw_WeldInit(2,FALSE)
+         ENDIF
+         IF nMaxGunNr>=3 THEN   ; 2026-10-11 BMW-03: only if the gun exists ($OUT[518]-[521] = CL_GunPressureCmd)
+            dopw_WeldInit(3,FALSE)
+         ENDIF
+         IF NUT_PRELOAD_STEP==0 THEN   ; 2026-10-11 BMW-03: not while PRELOAD (sps.sub) lowers / raises the pin with these outputs
+            dopw_NutIntensify(1,FALSE)
+         ENDIF
+         IF nMaxGunNr>=2 THEN   ; 2026-10-11 BMW-03: only if the gun exists ($OUT[518]-[521] = CL_GunPressureCmd)
+            dopw_NutIntensify(2,FALSE)
+         ENDIF
+         IF nMaxGunNr>=3 THEN   ; 2026-10-11 BMW-03: only if the gun exists ($OUT[518]-[521] = CL_GunPressureCmd)
+            dopw_NutIntensify(3,FALSE)
+         ENDIF
+         IF NUT_PRELOAD_STEP==0 THEN   ; 2026-10-11 BMW-03: not while PRELOAD (sps.sub) lowers / raises the pin with these outputs
+            dopw_BlowOff(1,FALSE)
+         ENDIF
+         IF nMaxGunNr>=2 THEN   ; 2026-10-11 BMW-03: only if the gun exists ($OUT[518]-[521] = CL_GunPressureCmd)
+            dopw_BlowOff(2,FALSE)
+         ENDIF
+         IF nMaxGunNr>=3 THEN   ; 2026-10-11 BMW-03: only if the gun exists ($OUT[518]-[521] = CL_GunPressureCmd)
+            dopw_BlowOff(3,FALSE)
+         ENDIF
       ;ENDFOLD (Implementation)
    ;ENDFOLD (Details)
 END ; (NutWeld_ProcessReset)

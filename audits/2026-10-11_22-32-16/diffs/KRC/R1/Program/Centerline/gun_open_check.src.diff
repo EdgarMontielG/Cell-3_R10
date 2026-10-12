@@ -1,0 +1,9 @@
+--- HEAD:KRC/R1/Program/Centerline/gun_open_check.src
++++ backup:KRC/R1/Program/Centerline/gun_open_check.src
+@@ -1,5 +1,5 @@
+ &ACCESS RVO5
+-&REL 25
++&REL 29
+ &COMMENT 03-10-R1 PNW1 GUN OPEN CHECK
+ &PARAM EDITMASK = *
+ &PARAM TEMPLATE = C:\KRC\Roboter\Template\vorgabe

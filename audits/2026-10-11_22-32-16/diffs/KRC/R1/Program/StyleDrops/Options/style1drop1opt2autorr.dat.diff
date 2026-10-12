@@ -1,0 +1,10 @@
+--- HEAD:KRC/R1/Program/StyleDrops/Options/style1drop1opt2autorr.dat
++++ backup:KRC/R1/Program/StyleDrops/Options/style1drop1opt2autorr.dat
+@@ -1,6 +1,6 @@
+ &ACCESS RVO1
+ &REL 269
+-&COMMENT GE4_Conveyor
++&COMMENT 03-10-R1 RED RABBIT DROP
+ &PARAM EDITMASK = *
+ &PARAM DISKPATH = KRC:\R1\Program\StyleDrops\Options
+ DEFDAT  style1drop1opt2AutoRR

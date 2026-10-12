@@ -1,0 +1,25 @@
+--- HEAD:KRC/R1/Program/StyleApps/Options/style1app2opt2.src
++++ backup:KRC/R1/Program/StyleApps/Options/style1app2opt2.src
+@@ -52,12 +52,20 @@
+ ;WAIT INSPECTION DONE - SIGNAL $IN[80] di080ToolRepositioned1 ON (NO TIMEOUT, F15)
+    WAIT FOR di080ToolRepositioned1
+ 
+-;AFTER 0.2 S, BY OPTION nOption (F02, F19):
++;THEN, BY OPTION nOption (F02, F19):
+ ;PRODUCTION OPTIONS 1, 2, 7, 8: GOOD (bscrapGE4 = FALSE) ONLY WITH $IN[100] di100CameraJudgmentOK ON
+ ;AND $IN[101] di101CameraJudgmentNG OFF; NG OR NO VALID RESULT -> bscrapGE4 = TRUE (SCRAP)
+ ;RED RABBIT OPTION 12: CAMERA OK -> $OUT[141] do141RedRabbitFailed ON; CAMERA NG ->
+ ;$OUT[142] do142RedRabbitPassed ON
+-            WAIT SEC 2.0
++;WAIT FOR A VALID CAMERA RESULT (2026-10-11, USER; WAS A FIXED WAIT SEC 2.0): EXACTLY ONE OF $IN[100]
++;  di100CameraJudgmentOK / $IN[101] di101CameraJudgmentNG ON, AT MOST 5 S ($TIMER[17]). THEN 0.1 S FOR BOTH BITS TO
++;  SETTLE AND THE RESULT IS READ BELOW. NO VALID RESULT IN 5 S (NONE OR BOTH ON) -> PRODUCTION: SCRAP (bscrapGE4)
++$TIMER_STOP[17]=TRUE
++$TIMER[17]=0
++$TIMER_STOP[17]=FALSE
++WAIT FOR (di100CameraJudgmentOK EXOR di101CameraJudgmentNG) OR ($TIMER[17]>=5000)
++WAIT SEC 0.1
++$TIMER_STOP[17]=TRUE
+      SWITCH nOption
+           CASE 1,2,7,8
+          ;GOOD - SIGNALS $IN[100] di100CameraJudgmentOK ON, $IN[101] di101CameraJudgmentNG OFF
