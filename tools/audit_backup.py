@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Audit a robot backup sent by the integrator against the last audited state.
 
-    python3 tools/audit_backup.py NEW_BACKUP.zip [--base REF] [--items ITEMS.xlsx]
+    python3 tools/audit_backup.py NEW_BACKUP.zip [--base REF] [--items ITEMS.xlsx ...]
                                   [--out DIR] [--import]
 
 Working mode: the integrator's robot programmer changes the program to close
@@ -77,7 +77,8 @@ What it does
      11  a new motion form whose point or data is not declared, a
          declaration removed from a .dat that is still used: the module
          would not compile
-  * --items ITEMS.xlsx: the programmer's open-items workbook (sheet 'Puntos
+  * --items ITEMS.xlsx ...: the programmer's open-items workbooks - since
+    2026-10-12 two, the Gestamp points and the improvements (sheet 'Puntos
     abiertos'; columns found by their header: 'ID', 'Estado', 'Qué cambió
     el programador', 'Módulos'). Every item marked 'Corregido - por
     auditar' is listed with the programmer's note and which of its modules
@@ -1684,6 +1685,26 @@ def audit_items(xlsx, status_of, paths, defs, base_texts, new_texts):
             'statuses': dict(statuses), 'claimed': claimed, 'covered': sorted(covered)}
 
 
+def merge_items(results):
+    """One result for several workbooks (Gestamp and improvements): their claimed items in order."""
+    ok = [r for r in results if 'error' not in r]
+    errors = [r['error'] for r in results if 'error' in r]
+    if not ok:
+        return {'error': '; '.join(errors)}
+    if len(ok) == 1 and not errors:
+        return ok[0]
+    statuses = Counter()
+    for r in ok:
+        statuses.update(r['statuses'])
+    out = {'workbook': ', '.join(r['workbook'] for r in ok), 'sheet': ok[0]['sheet'],
+           'rows': sum(r['rows'] for r in ok), 'statuses': dict(statuses),
+           'claimed': [it for r in ok for it in r['claimed']],
+           'covered': sorted({p for r in ok for p in r['covered']})}
+    if errors:
+        out['errors'] = errors
+    return out
+
+
 # ------------------------------------------------------------------ report
 
 def md_list(items, empty='none'):
@@ -1879,6 +1900,7 @@ def render_items(items, s):
     out = ['## Items claimed fixed', '']
     if 'error' in items:
         return out + [f'**{items["error"]}**', '']
+    out += [f'**{e}**' for e in items.get('errors', [])]
     out += [f'Workbook `{items["workbook"]}`, sheet "{items["sheet"]}": {items["rows"]} items '
             f'(' + ', '.join(f'{k}: {v}' for k, v in sorted(items['statuses'].items())) + ').', '']
     if not items['claimed']:
@@ -2275,7 +2297,8 @@ def parse_args(argv):
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('backup', help='the KUKA archive zip sent by the programmer')
     ap.add_argument('--base', default='HEAD', help='git ref of the last audited state (default HEAD)')
-    ap.add_argument('--items', help="the programmer's open-items workbook (.xlsx)")
+    ap.add_argument('--items', nargs='+', help="the programmer's open-items workbooks (.xlsx): Gestamp and "
+                                               "improvements")
     ap.add_argument('--out', help='output directory (default audits/<am.ini date>/)')
     ap.add_argument('--import', dest='do_import', action='store_true',
                     help='copy the changed and added entries into the working tree')
@@ -2299,7 +2322,7 @@ def main(argv=None, import_root=None):
     args = parse_args(argv)
     zip_path = os.path.abspath(args.backup)
     out_dir = os.path.abspath(args.out) if args.out else None
-    items_path = os.path.abspath(args.items) if args.items else None
+    items_paths = [os.path.abspath(p) for p in args.items or []]
 
     try:
         entries, log_count, read_notes = read_backup(zip_path)
@@ -2350,15 +2373,16 @@ def main(argv=None, import_root=None):
         'files': {p: {k: v for k, v in d.items() if k != 'code_diff'} for p, d in info.items()},
         'signal_changes': ctx['signal_rows'], 'findings': audit.findings,
     }
-    if items_path:
+    if items_paths:
         defs = {}
         for texts in (ctx['base_texts'], ctx['texts']):
             for p, t in texts.items():
                 for d in def_names(t):
                     defs.setdefault(d.lower(), p)
-        summary['items'] = audit_items(items_path,
-                                       lambda p: file_state(p, cls, cleanup[2], code_files, runtime_files),
-                                       sorted(set(files) | set(base)), defs, ctx['base_texts'], ctx['texts'])
+        summary['items'] = merge_items([audit_items(path,
+                                                    lambda p: file_state(p, cls, cleanup[2], code_files, runtime_files),
+                                                    sorted(set(files) | set(base)), defs, ctx['base_texts'],
+                                                    ctx['texts']) for path in items_paths])
         claimed = summary['items'].get('claimed', [])
         counts['items_claimed'] = len(claimed)
         counts['items_red_flags'] = sum(1 for it in claimed if it['red_flag'])

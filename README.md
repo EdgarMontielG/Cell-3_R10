@@ -192,9 +192,9 @@ docs/OPEN_ITEMS.es.md         readable view of the open items (generated, Spanis
 docs/PROCESO.es.md            the daily close-and-audit process (Spanish)
 tools/audit_backup.py         audits a daily backup against the last audited state
 tools/test_audit_backup.py    tests of the audit tool
-tools/make_items_xlsx.py      builds the open-items Excel for the programmer
+tools/make_items_xlsx.py      builds the two open-items workbooks (Gestamp points, improvements)
 tools/make_items_md.py        builds docs/OPEN_ITEMS.es.md
-tools/make_report.py          builds the PDF report (Spanish)
+tools/make_report.py          builds the two PDF reports (Spanish): Gestamp points, improvements
 dist/                         generated Excel and PDF (dated names; tools/naming.py)
 audits/                       one folder per audited backup (AUDIT.md, summary.json)
 ```

@@ -6,6 +6,8 @@ Actualizado: 2026-10-12. Pendientes: **66** de 104. El detalle técnico de cada 
 
 **Puntos de Gestamp (G01–G22)**: revisión de Gestamp del 2026-10-02 (BMW-03-10R1), con su texto original. Desde el 2026-10-11 la base es el programa del programador: cada punto se revisa contra su programa y la versión de oficina queda como referencia (nota de cada punto). Los Fnn/Cnn son de la revisión de Ethos (numeración del R20); los marcados "Calvin #n" también están en la lista de Calvin (2026-10-03), verificada punto por punto. Esta lista es la única que se usa.
 
+Desde el 2026-10-12 se entregan dos Excel y dos PDF (`tools/scope.py`): los puntos de Gestamp, que Gestamp audita para el buy off, y las mejoras de proceso (puntos de Ethos), que no lo condicionan. La columna Gestamp de las mejoras dice para qué punto de Gestamp abierto cuenta cada una.
+
 ## Resumen — puntos de Gestamp
 
 | ID | Gestamp | Punto | Sev. | Responsable | Estado | Ver |
@@ -33,92 +35,92 @@ Actualizado: 2026-10-12. Pendientes: **66** de 104. El detalle técnico de cada 
 | G21 | Style1app2Opt1 will not work for RedRabbit | El nut check no funciona para red rabbit | Alto | Gestamp controles / Programador robot | **Abierto** | F19, G08 |
 | G22 | Use of AutomationCore is wrong in multiple places | Uso incorrecto de AutomationCore | Alto | Gestamp controles / Programador robot | **Abierto** | F12, C01, F46, F21, F20, C11, C12, C18, C19, C14, F35 |
 
-## Resumen — puntos de Ethos
+## Resumen — mejoras de proceso (puntos de Ethos)
 
-| ID | Punto | Sev. | Responsable | Estado |
-|---|---|---|---|---|
-| F01 | ~~Entrada al pedestal sin confirmar gun abierto, clamp abierto y QFP regresado~~ | Crítico | Programador robot | Cerrado - auditado |
-| F02 | ~~Options 2, 7 y 8 no evalúan el sensor de tuercas: solo decide la cámara~~ | Alto | Programador robot + Gestamp controles | Se cierra con otro punto |
-| F03 | PARTPRESENT1..3 y bscrapGE4 no se resetean al inicio del ciclo (Calvin #8) | Alto | Programador robot | **Abierto** |
-| F04 | Dry cycle se cuelga en la primera weld app: PRELOAD borra NUT_READY y nunca lo pone | Alto | Programador robot | **Abierto** |
-| F05 | Dry cycle releído en cada paso: un cambio a mitad de ciclo deja pasar pieza incompleta | Alto | Programador robot | **Abierto** |
-| F06 | Ciclos vacíos o silenciosos: pick ambiguo, style u option desconocidos | Alto | Programador robot | **Abierto** |
-| F07 | Chequeo de gun cerrado: HALT sin mensaje como manejo de falla | Alto | Programador robot | **Abierto** |
-| F08 | ~~Resultado de soldadura Bosch no evaluado: weld complete se toma como soldadura buena~~ (Calvin #2) | Alto | Programador robot + Gestamp controles | Aceptado sin cambio |
-| F09 | Resultado del flujo de agua descartado; $OUT[475] forzado en ON | Alto | Programador robot + Puesta en marcha | **Abierto** |
-| F10 | Sin estado seguro del pedestal al cancelar o resetear el programa | Alto | Programador robot | **Abierto** |
-| F11 | PRELOAD en el submit mueve el pedestal en cualquier modo, sin dueño de las salidas | Crítico | Seguridad + Programador robot | **Requiere decisión** |
-| F12 | Background de AutomationCore y NutWeld deshabilitado: los bits de estado al PLC no cambian | Alto | Gestamp controles + Programador robot | **En proceso** |
-| F13 | PRELOAD sin timeouts por paso, sin falla y banderas de tuerca lista sin confirmar alimentación (Calvin #6) | Medio | Programador robot | **Abierto** |
-| F14 | NUT_READY no se consume al soldar; la siguiente tuerca depende solo de TRIGGERs (Calvin #11) | Medio | Programador robot | **Abierto** |
-| F15 | Unos 35 WAIT FOR sobre entradas de proceso sin timeout ni mensaje (Calvin #1) | Medio | Programador robot | **Abierto** |
-| F16 | Posición del pin superior nunca verificada | Medio | Programador robot / Puesta en marcha | **Abierto** |
-| F17 | Declaraciones traslapadas; nombres dobles en los bits del pedestal | Medio | Programador robot | **Abierto** |
-| F18 | KRC_IO.xml mapea $OUT[820..979] y $IN[820..930] sobre los mismos bytes del adapter PLC | Medio | Gestamp controles / Programador robot | **Requiere decisión** |
-| F19 | Red rabbit: el ciclo no puede dar resultado y suelta la pieza por un mapeo duplicado (Calvin #26) | Alto | Programador robot / Gestamp controles | **Abierto** |
-| F20 | ~~Rechazo por nut check: Application 1 sin liberar~~ | Medio | Programador robot / Gestamp controles | Cerrado - auditado |
-| F21 | Parámetros ocultos de inline forms AutomationCore no coinciden con la llamada | Medio | Programador robot | **Abierto** |
-| F22 | Movimientos del pedestal mezclan modo base y external TCP | Medio | Ethos (Edgar) / Programador robot | **Requiere decisión** |
-| F23 | Posición del LPT armada con 3 bytes en otro orden que en R20 | Bajo | Puesta en marcha / Programador robot | **Abierto** |
-| F24 | ~~Camino de retry de soldadura muerto: NUT_WELD_RETRY nunca es TRUE~~ (Calvin #27) | Bajo | Programador robot (prueba en celda) | Se cierra con otro punto |
-| F25 | Feed de respaldo en CENTERLINE_WELD: pulso de feed de duración cero (Calvin #19) | Bajo | Programador robot | **Abierto** |
-| F26 | Timers $TIMER[10..15] de PRELOAD y CENTERLINE_WELD sin constantes con nombre | Bajo | Programador robot | **Abierto** |
-| F27 | Confirmar en celda funciones de comentarios corregidos: blow-off, pines, programa Bosch | Bajo | Puesta en marcha / Gestamp controles | **Abierto** |
-| F28 | ~~Sensor de tuerca leído al llegar al punto; el dwell iba después de la lectura~~ | Bajo | Programador robot (prueba en celda) | Se cierra con otro punto |
-| F29 | Faro KL50L2: lógica muerta y un bit sin mapear | Bajo | Programador robot / Puesta en marcha | **Abierto** |
-| F30 | Style1Opt1 sin GOTO: un camino IF/ELSE por ciclo | Bajo | Programador robot (prueba en celda) | **En proceso** |
-| F31 | Forms GripperTech: parámetros ocultos de otro gripper; drop red rabbit con el gripper 3 (Calvin #25) | Medio | Programador robot / Puesta en marcha | **Abierto** |
-| F32 | ~~TRIGGERs y resets escritos a mano dentro de folds de inline form~~ (Calvin #28) | Medio | Programador robot (prueba en celda) | Se cierra con otro punto |
-| F33 | GripperConfig.xml del HMI desincronizado con grp_data.dat | Medio | Programador robot | **Abierto** |
-| F34 | CENTERLINE_HOME: polaridad de $OUT[473] y falta el reset del Bosch | Bajo | Programador robot / Puesta en marcha | **Requiere decisión** |
-| F35 | El mastering reference deja $OUT[930] en ON para siempre | Medio | Programador robot | **Abierto** |
-| F36 | ~~$IN[227] declarado con dos nombres (NUT_PRESENT1, di227SensorCamera)~~ | Bajo | Programador robot (prueba en celda) | Cerrado - auditado |
-| F37 | ~~Presión de intensificado no confirmada antes de weld start: no aplica en R10~~ (Calvin #1) | - | Programador robot | No aplica |
-| F38 | Estado de la tuerca no se reinicializa al arrancar, en reset ni después de un reinicio (Calvin #11) | Alto | Programador robot | **Abierto** |
-| F39 | Supervisión de par en cero; chequeo de datos de carga solo avisa; carga tecleada (Calvin #16) | Medio | Programador robot / Puesta en marcha | **Abierto** |
-| F40 | Drops y reject abren el gripper sin confirmar pieza; el drop red rabbit se mueve antes de gripper vacío (Calvin #25) | Medio | Programador robot | **Abierto** |
-| F41 | Tiempos de PRELOAD, límite de flujo de agua y esperas fijas sin constantes (Calvin Std 5) | Bajo | Programador robot | **Abierto** |
-| F42 | Envolventes de trabajo por software apagadas (Calvin #30) | Bajo | Programador robot / Seguridad / Gestamp | **Requiere decisión** |
-| F43 | Cambio de electrodo: reset de stepper por pulso de 0.1 s y handshake que no cierra (Calvin #29) | Medio | Programador robot / Gestamp controles | **Requiere decisión** |
-| F44 | Palabra de presión del gun escrita en dos órdenes de bytes (405/1820 contra 39425) | Alto | Puesta en marcha / Programador robot | **Abierto** |
-| F45 | ~~Rutinas de clamps: grippers 2-4 deshabilitados, solo existe el gripper 1~~ (Calvin #23) | Bajo | Programador robot | Cerrado - depuración |
-| F46 | EndOfCycle del proveedor editado: Work Complete nunca se manda al PLC | Medio | Gestamp controles / Ethos (Edgar) | **Abierto** |
-| F47 | Camino del brake test enseñado con tool 3 / base 1 de otro robot | Medio | Programador robot / Puesta en marcha | **Abierto** |
-| F48 | Drop al conveyor: interlock de drop-off después de PTP P5; AtDrop3 re-enseñado (se conserva) | Alto | Programador robot / Gestamp controles | **Abierto** |
-| F49 | ~~AutomationCore_BKG activado y editado sin decisión registrada~~ | Alto | Gestamp controles + Programador robot | Aceptado sin cambio |
-| F50 | Permiso de aplicación 1 (nut check / cámara) revisado después de llegar a P22 | Alto | Programador robot | **Abierto** |
-| F51 | ~~Apps de soldadura duplicadas por estación de pick (A/B): cada cambio va en las dos~~ | Bajo | Programador robot | Sin acción - documentado |
-| F52 | Tiempo ciclo de R10: meta 38 s pieza a pieza (medir el ciclo completo y bajarlo) | Alto | Programador robot | **En proceso** |
-| F53 | ~~Tiempo ciclo del programador: pre-alimenta la tuerca, la pide con la pieza aún en la pistola, CONT/PTP y sin esperas de 0.2 s~~ | Alto | Programador robot | Aceptado sin cambio |
-| F54 | Cámara: el resultado se lee en cuanto hay OK o NG; confirmar que no es el de la pieza anterior | Alto | Programador robot / PLC | **Abierto** |
-| C01 | AutomationCore_Bkg deshabilitado: el estatus al PLC no se actualiza | - | Gestamp controles / Ethos (Edgar) | **Reabierto** |
-| C02 | Designación BMW-03-10-R1 en los encabezados; confirmar formato con Gestamp | - | Ethos (Edgar) / Gestamp controles | **Requiere decisión** |
-| C03 | ~~Encabezado estándar Gestamp en cada módulo del integrador~~ | - | Programador robot | Cerrado - depuración |
-| C04 | Movimientos de pedestal interpolados sobre el dado fijo (external TCP) | - | Ethos (Edgar) / Programador robot | **Requiere decisión** |
-| C05 | TCP remoto del pedestal (BASE_DATA[3]) sin medir | - | Puesta en marcha / Programador robot | **Abierto** |
-| C06 | Herramientas y bases con nombre: nombres de otro proyecto | - | Programador robot | **Abierto** |
-| C07 | Un user frame por utillaje: picks, nut check, reject y drops en WORLD | - | Gestamp controles / Ethos (Edgar) | **Requiere decisión** |
-| C08 | Datos de carga: LOAD_DATA[1] tecleado, sin determinar | - | Programador robot / Puesta en marcha | **En proceso** |
-| C09 | Detección de colisión apagada en todo el programa; la reacción es un HALT | - | Programador robot / Puesta en marcha | **Abierto** |
-| C10 | Falta el programa de mastering ZERO_G1 | - | Programador robot | **Abierto** |
-| C11 | Zonas sin documentar: ninguna zona pedida, falta la forma NA-FM-71-138.1 | - | Ethos (Edgar) / Gestamp controles | **Requiere decisión** |
-| C12 | ~~Pounce común: el ciclo no pasa por pounce y do007RobotAtPounce no se calcula~~ | - | Gestamp controles / Ethos (Edgar) | Aceptado sin cambio |
-| C13 | ~~Manejo de zonas coherente~~ | - | Programador robot | No aplica |
-| C14 | Brake test: el 'due' no se reporta y el camino usa tool/base de otro robot | - | Programador robot | **Reabierto** |
-| C15 | ~~Dry cycle seleccionable y sin colgar el robot~~ | - | Programador robot | Se cierra con otro punto |
-| C16 | ~~Pieza presente / pieza en gripper~~ | - | Programador robot | Se cierra con otro punto |
-| C17 | ~~Verificación de tuercas y red rabbit~~ | - | Programador robot | Se cierra con otro punto |
-| C18 | ~~Handshakes AutomationCore de pick, application y drop~~ | - | Programador robot | Se cierra con otro punto |
-| C19 | Request to enter: doCriticalWZ nunca se escribe; el PLC ve entrada permitida | - | Programador robot / Seguridad | **Reabierto** |
-| C20 | Conteo de soldaduras al final del ciclo: #CHECK apagado y WeldNoRequired distinto de 3 | - | Programador robot | **Abierto** |
-| C21 | Fallas por mensajes AutomationCore: ningún HALT sin mensaje ni WAIT FOR FALSE | - | Programador robot | **Abierto** |
-| C22 | Grippers por inline forms GripperTech | - | Programador robot / Puesta en marcha | **Abierto** |
-| C23 | ~~Nombres AutomationCore para la E/S, sin direcciones literales~~ | - | Programador robot | Se cierra con otro punto |
-| C24 | ~~Los comentarios nombran la señal con su dirección~~ | - | Programador robot | Cerrado - depuración |
-| C25 | ~~Inline forms consistentes con el código~~ | - | Programador robot | Se cierra con otro punto |
-| C26 | ~~Solo inglés en comentarios, títulos de fold y &COMMENT~~ | - | Programador robot | Cerrado - depuración |
-| C27 | ~~Proceso controlado por robot no compartido; regla de dos procesos~~ | - | Ethos (Edgar) | No aplica |
-| C28 | Ediciones del integrador en archivos del proveedor: listarlas en la entrega | - | Ethos (Edgar) / Programador robot | **Abierto** |
+| ID | Punto | Sev. | Responsable | Estado | Gestamp |
+|---|---|---|---|---|---|
+| F01 | ~~Entrada al pedestal sin confirmar gun abierto, clamp abierto y QFP regresado~~ | Crítico | Programador robot | Cerrado - auditado |  |
+| F02 | ~~Options 2, 7 y 8 no evalúan el sensor de tuercas: solo decide la cámara~~ | Alto | Programador robot + Gestamp controles | Se cierra con otro punto | G07 |
+| F03 | PARTPRESENT1..3 y bscrapGE4 no se resetean al inicio del ciclo (Calvin #8) | Alto | Programador robot | **Abierto** |  |
+| F04 | Dry cycle se cuelga en la primera weld app: PRELOAD borra NUT_READY y nunca lo pone | Alto | Programador robot | **Abierto** |  |
+| F05 | Dry cycle releído en cada paso: un cambio a mitad de ciclo deja pasar pieza incompleta | Alto | Programador robot | **Abierto** |  |
+| F06 | Ciclos vacíos o silenciosos: pick ambiguo, style u option desconocidos | Alto | Programador robot | **Abierto** |  |
+| F07 | Chequeo de gun cerrado: HALT sin mensaje como manejo de falla | Alto | Programador robot | **Abierto** |  |
+| F08 | ~~Resultado de soldadura Bosch no evaluado: weld complete se toma como soldadura buena~~ (Calvin #2) | Alto | Programador robot + Gestamp controles | Aceptado sin cambio |  |
+| F09 | Resultado del flujo de agua descartado; $OUT[475] forzado en ON | Alto | Programador robot + Puesta en marcha | **Abierto** |  |
+| F10 | Sin estado seguro del pedestal al cancelar o resetear el programa | Alto | Programador robot | **Abierto** |  |
+| F11 | PRELOAD en el submit mueve el pedestal en cualquier modo, sin dueño de las salidas | Crítico | Seguridad + Programador robot | **Requiere decisión** |  |
+| F12 | Background de AutomationCore y NutWeld deshabilitado: los bits de estado al PLC no cambian | Alto | Gestamp controles + Programador robot | **En proceso** | G06, G22 |
+| F13 | PRELOAD sin timeouts por paso, sin falla y banderas de tuerca lista sin confirmar alimentación (Calvin #6) | Medio | Programador robot | **Abierto** |  |
+| F14 | NUT_READY no se consume al soldar; la siguiente tuerca depende solo de TRIGGERs (Calvin #11) | Medio | Programador robot | **Abierto** | G19 |
+| F15 | Unos 35 WAIT FOR sobre entradas de proceso sin timeout ni mensaje (Calvin #1) | Medio | Programador robot | **Abierto** |  |
+| F16 | Posición del pin superior nunca verificada | Medio | Programador robot / Puesta en marcha | **Abierto** |  |
+| F17 | Declaraciones traslapadas; nombres dobles en los bits del pedestal | Medio | Programador robot | **Abierto** |  |
+| F18 | KRC_IO.xml mapea $OUT[820..979] y $IN[820..930] sobre los mismos bytes del adapter PLC | Medio | Gestamp controles / Programador robot | **Requiere decisión** |  |
+| F19 | Red rabbit: el ciclo no puede dar resultado y suelta la pieza por un mapeo duplicado (Calvin #26) | Alto | Programador robot / Gestamp controles | **Abierto** | G21 |
+| F20 | ~~Rechazo por nut check: Application 1 sin liberar~~ | Medio | Programador robot / Gestamp controles | Cerrado - auditado | G22 |
+| F21 | Parámetros ocultos de inline forms AutomationCore no coinciden con la llamada | Medio | Programador robot | **Abierto** | G22 |
+| F22 | Movimientos del pedestal mezclan modo base y external TCP | Medio | Ethos (Edgar) / Programador robot | **Requiere decisión** |  |
+| F23 | Posición del LPT armada con 3 bytes en otro orden que en R20 | Bajo | Puesta en marcha / Programador robot | **Abierto** |  |
+| F24 | ~~Camino de retry de soldadura muerto: NUT_WELD_RETRY nunca es TRUE~~ (Calvin #27) | Bajo | Programador robot (prueba en celda) | Se cierra con otro punto |  |
+| F25 | Feed de respaldo en CENTERLINE_WELD: pulso de feed de duración cero (Calvin #19) | Bajo | Programador robot | **Abierto** |  |
+| F26 | Timers $TIMER[10..15] de PRELOAD y CENTERLINE_WELD sin constantes con nombre | Bajo | Programador robot | **Abierto** |  |
+| F27 | Confirmar en celda funciones de comentarios corregidos: blow-off, pines, programa Bosch | Bajo | Puesta en marcha / Gestamp controles | **Abierto** |  |
+| F28 | ~~Sensor de tuerca leído al llegar al punto; el dwell iba después de la lectura~~ | Bajo | Programador robot (prueba en celda) | Se cierra con otro punto |  |
+| F29 | Faro KL50L2: lógica muerta y un bit sin mapear | Bajo | Programador robot / Puesta en marcha | **Abierto** |  |
+| F30 | Style1Opt1 sin GOTO: un camino IF/ELSE por ciclo | Bajo | Programador robot (prueba en celda) | **En proceso** |  |
+| F31 | Forms GripperTech: parámetros ocultos de otro gripper; drop red rabbit con el gripper 3 (Calvin #25) | Medio | Programador robot / Puesta en marcha | **Abierto** |  |
+| F32 | ~~TRIGGERs y resets escritos a mano dentro de folds de inline form~~ (Calvin #28) | Medio | Programador robot (prueba en celda) | Se cierra con otro punto |  |
+| F33 | GripperConfig.xml del HMI desincronizado con grp_data.dat | Medio | Programador robot | **Abierto** |  |
+| F34 | CENTERLINE_HOME: polaridad de $OUT[473] y falta el reset del Bosch | Bajo | Programador robot / Puesta en marcha | **Requiere decisión** |  |
+| F35 | El mastering reference deja $OUT[930] en ON para siempre | Medio | Programador robot | **Abierto** | G22 |
+| F36 | ~~$IN[227] declarado con dos nombres (NUT_PRESENT1, di227SensorCamera)~~ | Bajo | Programador robot (prueba en celda) | Cerrado - auditado |  |
+| F37 | ~~Presión de intensificado no confirmada antes de weld start: no aplica en R10~~ (Calvin #1) | - | Programador robot | No aplica |  |
+| F38 | Estado de la tuerca no se reinicializa al arrancar, en reset ni después de un reinicio (Calvin #11) | Alto | Programador robot | **Abierto** | G19 |
+| F39 | Supervisión de par en cero; chequeo de datos de carga solo avisa; carga tecleada (Calvin #16) | Medio | Programador robot / Puesta en marcha | **Abierto** | G03 |
+| F40 | Drops y reject abren el gripper sin confirmar pieza; el drop red rabbit se mueve antes de gripper vacío (Calvin #25) | Medio | Programador robot | **Abierto** |  |
+| F41 | Tiempos de PRELOAD, límite de flujo de agua y esperas fijas sin constantes (Calvin Std 5) | Bajo | Programador robot | **Abierto** |  |
+| F42 | Envolventes de trabajo por software apagadas (Calvin #30) | Bajo | Programador robot / Seguridad / Gestamp | **Requiere decisión** | G02 |
+| F43 | Cambio de electrodo: reset de stepper por pulso de 0.1 s y handshake que no cierra (Calvin #29) | Medio | Programador robot / Gestamp controles | **Requiere decisión** | G06 |
+| F44 | Palabra de presión del gun escrita en dos órdenes de bytes (405/1820 contra 39425) | Alto | Puesta en marcha / Programador robot | **Abierto** |  |
+| F45 | ~~Rutinas de clamps: grippers 2-4 deshabilitados, solo existe el gripper 1~~ (Calvin #23) | Bajo | Programador robot | Cerrado - depuración |  |
+| F46 | EndOfCycle del proveedor editado: Work Complete nunca se manda al PLC | Medio | Gestamp controles / Ethos (Edgar) | **Abierto** | G22 |
+| F47 | Camino del brake test enseñado con tool 3 / base 1 de otro robot | Medio | Programador robot / Puesta en marcha | **Abierto** |  |
+| F48 | Drop al conveyor: interlock de drop-off después de PTP P5; AtDrop3 re-enseñado (se conserva) | Alto | Programador robot / Gestamp controles | **Abierto** |  |
+| F49 | ~~AutomationCore_BKG activado y editado sin decisión registrada~~ | Alto | Gestamp controles + Programador robot | Aceptado sin cambio |  |
+| F50 | Permiso de aplicación 1 (nut check / cámara) revisado después de llegar a P22 | Alto | Programador robot | **Abierto** |  |
+| F51 | ~~Apps de soldadura duplicadas por estación de pick (A/B): cada cambio va en las dos~~ | Bajo | Programador robot | Sin acción - documentado |  |
+| F52 | Tiempo ciclo de R10: meta 38 s pieza a pieza (medir el ciclo completo y bajarlo) | Alto | Programador robot | **En proceso** |  |
+| F53 | ~~Tiempo ciclo del programador: pre-alimenta la tuerca, la pide con la pieza aún en la pistola, CONT/PTP y sin esperas de 0.2 s~~ | Alto | Programador robot | Aceptado sin cambio |  |
+| F54 | Cámara: el resultado se lee en cuanto hay OK o NG; confirmar que no es el de la pieza anterior | Alto | Programador robot / PLC | **Abierto** |  |
+| C01 | AutomationCore_Bkg deshabilitado: el estatus al PLC no se actualiza | - | Gestamp controles / Ethos (Edgar) | **Reabierto** | G22 |
+| C02 | Designación BMW-03-10-R1 en los encabezados; confirmar formato con Gestamp | - | Ethos (Edgar) / Gestamp controles | **Requiere decisión** | G01 |
+| C03 | ~~Encabezado estándar Gestamp en cada módulo del integrador~~ | - | Programador robot | Cerrado - depuración |  |
+| C04 | Movimientos de pedestal interpolados sobre el dado fijo (external TCP) | - | Ethos (Edgar) / Programador robot | **Requiere decisión** |  |
+| C05 | TCP remoto del pedestal (BASE_DATA[3]) sin medir | - | Puesta en marcha / Programador robot | **Abierto** |  |
+| C06 | Herramientas y bases con nombre: nombres de otro proyecto | - | Programador robot | **Abierto** |  |
+| C07 | Un user frame por utillaje: picks, nut check, reject y drops en WORLD | - | Gestamp controles / Ethos (Edgar) | **Requiere decisión** |  |
+| C08 | Datos de carga: LOAD_DATA[1] tecleado, sin determinar | - | Programador robot / Puesta en marcha | **En proceso** | G03 |
+| C09 | Detección de colisión apagada en todo el programa; la reacción es un HALT | - | Programador robot / Puesta en marcha | **Abierto** | G03 |
+| C10 | Falta el programa de mastering ZERO_G1 | - | Programador robot | **Abierto** |  |
+| C11 | Zonas sin documentar: ninguna zona pedida, falta la forma NA-FM-71-138.1 | - | Ethos (Edgar) / Gestamp controles | **Requiere decisión** | G22 |
+| C12 | ~~Pounce común: el ciclo no pasa por pounce y do007RobotAtPounce no se calcula~~ | - | Gestamp controles / Ethos (Edgar) | Aceptado sin cambio | G22 |
+| C13 | ~~Manejo de zonas coherente~~ | - | Programador robot | No aplica |  |
+| C14 | Brake test: el 'due' no se reporta y el camino usa tool/base de otro robot | - | Programador robot | **Reabierto** | G22 |
+| C15 | ~~Dry cycle seleccionable y sin colgar el robot~~ | - | Programador robot | Se cierra con otro punto |  |
+| C16 | ~~Pieza presente / pieza en gripper~~ | - | Programador robot | Se cierra con otro punto |  |
+| C17 | ~~Verificación de tuercas y red rabbit~~ | - | Programador robot | Se cierra con otro punto |  |
+| C18 | ~~Handshakes AutomationCore de pick, application y drop~~ | - | Programador robot | Se cierra con otro punto | G22 |
+| C19 | Request to enter: doCriticalWZ nunca se escribe; el PLC ve entrada permitida | - | Programador robot / Seguridad | **Reabierto** | G22 |
+| C20 | Conteo de soldaduras al final del ciclo: #CHECK apagado y WeldNoRequired distinto de 3 | - | Programador robot | **Abierto** |  |
+| C21 | Fallas por mensajes AutomationCore: ningún HALT sin mensaje ni WAIT FOR FALSE | - | Programador robot | **Abierto** |  |
+| C22 | Grippers por inline forms GripperTech | - | Programador robot / Puesta en marcha | **Abierto** |  |
+| C23 | ~~Nombres AutomationCore para la E/S, sin direcciones literales~~ | - | Programador robot | Se cierra con otro punto |  |
+| C24 | ~~Los comentarios nombran la señal con su dirección~~ | - | Programador robot | Cerrado - depuración |  |
+| C25 | ~~Inline forms consistentes con el código~~ | - | Programador robot | Se cierra con otro punto |  |
+| C26 | ~~Solo inglés en comentarios, títulos de fold y &COMMENT~~ | - | Programador robot | Cerrado - depuración |  |
+| C27 | ~~Proceso controlado por robot no compartido; regla de dos procesos~~ | - | Ethos (Edgar) | No aplica |  |
+| C28 | Ediciones del integrador en archivos del proveedor: listarlas en la entrega | - | Ethos (Edgar) / Programador robot | **Abierto** | G05 |
 
 ---
 
@@ -1247,7 +1249,7 @@ Actualizado: 2026-10-12. Pendientes: **66** de 104. El detalle técnico de cada 
 **Criterio de cierre** (se verifica en el respaldo):
 
 * En CENTERLINE_WELD después de $IN[483] dipw1_WeldComplete, o inmediatamente después de CENTERLINE_WELD() en style1app1opt1..3, existe NUT_READY = FALSE (y la bandera que usen las tuercas 2 y 3) antes de salir del pedestal.
-* La petición de la tuerca 1 (picks) y de las tuercas 2 y 3 (final de style1app1opt1 y opt2) existe como instrucción en el flujo, fuera de TRIGGER, precedida de un paro de advance run; en las apps va después del movimiento que saca pieza y EOAT del alcance del QFP y de los pines.
+* La petición de las tuercas 2 y 3 es una instrucción en el flujo, fuera de TRIGGER: Request_next_nut() justo después de CENTERLINE_WELD, con la pieza aún en el pedestal (aceptado en F53, como R20). La de la tuerca 1 puede seguir por TRIGGER antes del fold del movimiento del pick (G20).
 * En PRELOAD una petición que llega con preload activo o con tuerca cargada sin consumir no arranca otra alimentación.
 * Antes de alimentar se confirma pin vacío: por sensor si existe (nombre y dirección), o por estado si se confirma en sitio que no hay sensor; el comentario del paso dice cuál.
 * El pick red rabbit no pide preload, o la lista anota por qué sí.
@@ -1265,6 +1267,7 @@ Actualizado: 2026-10-12. Pendientes: **66** de 104. El detalle técnico de cada 
 * 2026-10-04 — Alta (Ethos): Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02).
 * 2026-10-11 — Avance del programador: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). Request_next_nut ya es una llamada después de CENTERLINE_WELD, no un TRIGGER. NUT_READY sigue sin borrarse al soldar: se borra cuando arranca el siguiente preload. Con la pre-alimentación (paso 30, 5 s con nFeedSettleMs=3000) la petición puede quedar en espera; si el paso 30 llegara a durar más que soldar y salir, el robot vería el NUT_READY de la tuerca anterior y entraría sin tuerca (hoy hay ~1.5 s de margen).
 * 2026-10-12 — Avance del programador: Respaldo del 11/10 22:32. La pre-alimentación dura 2 s (antes 5 s): sube el margen contra el NUT_READY anterior. El pick red rabbit ya no pide tuerca (sin NUT_START). NUT_READY sigue sin borrarse al soldar.
+* 2026-10-12 — Criterio ajustado: El criterio de la petición en el flujo se ajusta a lo ya aceptado en G20 (TRIGGER de la tuerca 1 antes del fold) y F53 (petición justo después de soldar): se cumple desde el 10/10. El pick red rabbit ya no pide preload (11/10). Quedan NUT_READY = FALSE al soldar, que una petición repetida no alimente otra tuerca, el pin vacío antes de alimentar y la prueba en celda.
 
 ---
 

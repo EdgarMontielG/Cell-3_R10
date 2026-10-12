@@ -3,13 +3,24 @@
 Robot R10 (BMW-03-10-R1). El programador cierra los puntos abiertos modificando
 el programa; cada respaldo diario se audita contra el criterio de cierre de
 cada punto. La lista maestra es [`docs/open_items.json`](open_items.json)
-(vista legible en [OPEN_ITEMS.es.md](OPEN_ITEMS.es.md)); el programador
-trabaja sobre la copia en Excel `dist/R10_Puntos_Abiertos_AAAA-MM-DD_HHMM.xlsx`.
+(vista legible en [OPEN_ITEMS.es.md](OPEN_ITEMS.es.md)).
 
-Los archivos que se entregan llevan fecha y hora (centro de México) en el
-nombre: el respaldo del robot `658424_R10_AAAA-MM-DD_HHMM.zip`, el Excel
-`R10_Puntos_Abiertos_AAAA-MM-DD_HHMM.xlsx` y el reporte
-`R10_reporte_AAAA-MM-DD_HHMM.pdf`.
+## Dos listas (desde el 2026-10-12)
+
+Decisión de Edgar: se entregan dos Excel y dos PDF (`tools/scope.py`).
+
+- **Puntos de Gestamp** (G01–G22): los que Gestamp audita para el buy off. Van
+  primero. `R10_Gestamp_Puntos_AAAA-MM-DD_HHMM.xlsx` y
+  `R10_Gestamp_reporte_AAAA-MM-DD_HHMM.pdf`. Si un criterio dice "se cumplen los
+  criterios de F43", los criterios de F43 vienen en el mismo punto.
+- **Mejoras de proceso** (puntos de Ethos, Fnn/Cnn): no condicionan el buy off;
+  se trabajan después. `R10_Mejoras_Puntos_AAAA-MM-DD_HHMM.xlsx` y
+  `R10_Mejoras_reporte_AAAA-MM-DD_HHMM.pdf`. La columna "Cuenta para Gestamp"
+  dice para qué punto de Gestamp abierto cuenta cada una.
+
+Cada punto está en una sola lista. Los archivos llevan fecha y hora (centro de
+México) en el nombre, igual que el respaldo del robot
+`658424_R10_AAAA-MM-DD_HHMM.zip`.
 
 ## Base: el programa del programador (desde el 2026-10-11)
 
@@ -76,20 +87,20 @@ de entrar. Los estimados van en rangos y con evidencia (archivo:línea).
    (F21).
 2. Al cerrar un punto quita o actualiza el `;CHECK:` / `;WARNING:` del código
    que cita ese punto.
-3. En el Excel, solo columnas amarillas de los puntos trabajados: Estado
+3. En el Excel de la lista del punto, solo columnas amarillas de los puntos trabajados: Estado
    (`En proceso` o `Corregido - por auditar`), qué cambió, módulos
    modificados, evidencia (prueba en celda con fecha y resultado) y fecha.
    No pone `Cerrado`. Los puntos de Gestamp son G01–G22 (columna Origen
    "Gestamp #n"); se trabajan igual que los demás.
-4. Al final del día: respaldo completo del robot y el Excel, a Edgar.
+4. Al final del día: respaldo completo del robot y los Excel que trabajó, a Edgar.
 
 **Edgar**
 
-5. Sube el respaldo y el Excel a esta sesión y pide la auditoría.
+5. Sube el respaldo y los Excel a esta sesión y pide la auditoría.
 
 **Auditoría**
 
-6. `python3 tools/audit_backup.py RESPALDO.zip --items EXCEL.xlsx` compara el
+6. `python3 tools/audit_backup.py RESPALDO.zip --items GESTAMP.xlsx MEJORAS.xlsx` compara el
    respaldo contra el último estado auditado (`HEAD`) y escribe
    `audits/<fecha>/AUDIT.md`: archivos cambiados, diff del código sin
    comentarios, verificaciones mecánicas (folds, fines de línea, señales en
@@ -106,9 +117,9 @@ de entrar. Los estimados van en rangos y con evidencia (archivo:línea).
    programador se integran a mano en la versión depurada y se prueba con un
    diff solo de código contra su versión que hacen lo mismo. Después se
    actualiza `docs/open_items.json` (estado e historial de cada punto), se
-   regeneran el Excel y el PDF (`tools/make_items_xlsx.py`,
+   regeneran los dos Excel y los dos PDF (`tools/make_items_xlsx.py`,
    `tools/make_report.py`) y se hace commit con la fecha. El programador
-   recibe el Excel nuevo para el día siguiente.
+   recibe los Excel nuevos para el día siguiente.
 
 ### Cómo se revisa, sin multiplicar agentes
 
@@ -149,8 +160,8 @@ se reporta en la auditoría como hallazgo nuevo.
 
 * Siempre respaldo completo (Archive → All), no solo `KRC:\R1`.
 * Nombre del respaldo: `658424_AAAA-MM-DD_HHMM.zip`, con la hora en que se
-  sacó. El Excel que regresa el programador, con su fecha y hora:
-  `R10_Puntos_Abiertos_AAAA-MM-DD_HHMM.xlsx`.
+  sacó. Los Excel que regresa el programador, con su fecha y hora:
+  `R10_Gestamp_Puntos_AAAA-MM-DD_HHMM.xlsx` y `R10_Mejoras_Puntos_AAAA-MM-DD_HHMM.xlsx`.
 * Si el respaldo trae el programa previo a la depuración (por ejemplo porque
   alguien cargó un respaldo viejo), la auditoría lo detecta y lo marca antes
   que nada.

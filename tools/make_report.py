@@ -1,18 +1,24 @@
 #!/usr/bin/env python3
-"""Build the PDF report of the R10 cleanup and of the open items.
+"""Build the PDF reports of the R10 audit and of the open items.
 
-    python3 tools/make_report.py [--out FILE.pdf]
+    python3 tools/make_report.py [--scope gestamp|mejoras|both] [--out FILE.pdf]
 
-By default it writes dist/R10_reporte_<YYYY-MM-DD_HHMM>.pdf (date and time of
-central Mexico, tools/naming.py) and removes the older copies in dist/.
+Two reports since 2026-10-12 (tools/scope.py): the Gestamp points G01-G22 for
+the buy-off (R10_Gestamp_reporte_<YYYY-MM-DD_HHMM>.pdf) and the Ethos items as
+process improvements (R10_Mejoras_reporte_<...>.pdf). By default it writes
+both to dist/ (date and time of central Mexico, tools/naming.py) and removes
+the older copies there (and the single report of before).
 
 Content, in Spanish for the owner, with code quoted as it is (English):
-  1. summary, 2. what the cleanup did, 3. the Gestamp review and the office
-  code changes (tools/code_changes.json), 4. the daily close-and-audit
-  process, 5. open items summary and 6. detail (from docs/open_items.json),
-  annex A: every ;CHECK: and ;WARNING: comment in the programs,
-  annex B: full listing of every changed program, cleanup lines shaded
-  yellow, lines of the office code changes shaded blue.
+  Gestamp: 1. summary and what is left for the buy off, 1.1 what the last
+  audit changed in those points, 2. the 22 points, 3. detail (a criterion
+  "se cumplen los criterios de F43" carries F43's), 4. the daily process.
+  Mejoras: 1. summary, 1.1 last audit (audits/*/resumen.json), 2. the office
+  version as reference, 3. the daily process and the audits, 4. items summary
+  (column Gestamp: the open point each counts for) and 5. detail, annex A:
+  every ;CHECK: and ;WARNING: comment in the programs.
+The sections of the office-version stage (what the cleanup did, annex B
+with the shaded listing) are kept below but no longer built.
 
 Re-run it after each audit: the open-item status comes from
 docs/open_items.json, the rest from the repository itself.
@@ -37,6 +43,9 @@ from reportlab.platypus import (KeepTogether, PageBreak, Paragraph, SimpleDocTem
                                 Spacer, Table, TableStyle)
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(REPO, 'tools'))
+import scope as scopes  # noqa: E402
+
 BASE = '22a98cc'
 OFFICE = 'Corregido en oficina - probar en celda'
 DELETED_ES = {
@@ -114,6 +123,8 @@ def styles():
                                             'leading': 10}),
         'bullet': ParagraphStyle('bullet', **{**base, 'leftIndent': 12, 'bulletIndent': 2,
                                               'spaceAfter': 2}),
+        'sub': ParagraphStyle('sub', **{**base, 'fontSize': 8.5, 'leading': 11, 'leftIndent': 26,
+                                        'bulletIndent': 16, 'spaceAfter': 1, 'textColor': MUTED}),
         'code': ParagraphStyle('code', **{**base, 'fontName': 'Mono', 'fontSize': 7.5,
                                           'leading': 9.5}),
         'mono': ParagraphStyle('mono', **{**base, 'fontName': 'Mono', 'fontSize': 6.3,
@@ -256,7 +267,7 @@ def marked_comments():
 
 # ---------------------------------------------------------------- sections
 
-def cover(st, items, now):
+def cover(st, items, now, scope='all'):
     head = git('rev-parse', '--short', 'HEAD').decode().strip()
     archive = code_changes().get('archive')
     switch = audit_base()
@@ -264,11 +275,12 @@ def cover(st, items, now):
                                                                        'En proceso', 'Reabierto',
                                                                        'Corregido')))
     if switch:
-        title = 'Auditoría del programa del programador y puntos abiertos'
+        title = scopes.SCOPES[scope]['title'] if scope in scopes.SCOPES else \
+            'Auditoría del programa del programador y puntos abiertos'
         when, commit = last_backup()
         base = (f'Base auditada desde el 2026-10-11: el programa del programador, su último respaldo, del {when} '
                 f'(commit {commit}). La versión de oficina (commit '
-                f'{switch["office_last_commit"][:7]}) no se cargó y queda como referencia. ')
+                f'{switch["office_last_commit"][:7]}) queda como referencia. ')
     else:
         title = 'Depuración, correcciones de la revisión Gestamp y puntos abiertos'
         base = (f'Respaldo de partida: 658424 (v431_03_10_r1) del 2026-10-02 (commit {BASE}). '
@@ -335,6 +347,51 @@ def summary(st, items):
     return out
 
 
+def summary_gestamp(st, items, by_id):
+    """Section 1 of the Gestamp report: where the 22 points stand and what is left for the buy off."""
+    done = [i for i in items if is_closed(i)]
+    work = [i for i in items if i.get('estado') == 'En proceso']
+    left = [i for i in items if not is_closed(i)]
+    out = [Paragraph('1. Resumen', st['h1']),
+           Paragraph(f'Gestamp revisó el programa el 2026-10-02 y entregó {len(items)} puntos para esta estación '
+                     f'(BMW-03-10R1), G01–G{len(items):02d}. Son los que Gestamp audita para el buy off. Sobre el '
+                     f'programa del programador (su último respaldo, del {last_backup()[0]}): {len(done)} cerrados, '
+                     f'{len(work)} en proceso y {len(left) - len(work)} pendientes.', st['body']),
+           Paragraph('Criterio: no se le pide al programa más de lo que hace el respaldo de Gestamp NUT07_10R1; el '
+                     'cierre final lo acepta Gestamp. Cuando un punto se cierra con los criterios de un punto de '
+                     'Ethos, esos criterios vienen en el detalle. Los demás puntos de Ethos están en el reporte de '
+                     'mejoras de proceso y no condicionan el buy off.', st['body'])]
+    if left:
+        out.append(Paragraph('Lo que falta para el buy off', st['h2']))
+        rows = [['Punto', 'Estado', 'Qué hacer', 'Relacionados (Ethos) abiertos']]
+        for i in left:
+            rows.append([i['id'] + '\n' + i['titulo'], i.get('estado', ''), i['que_hacer'],
+                         scopes.with_state([r for r in scopes.related(i, by_id) if not is_closed(by_id[r])],
+                                           by_id)])
+        out.append(table(rows, [38 * mm, 22 * mm, 88 * mm, 34 * mm], st, extra=critical_rows(left)))
+    return out
+
+
+def summary_mejoras(st, items, links):
+    crit_open = [i for i in items if is_critical(i) and not is_closed(i)]
+    pending = [i for i in items if not is_closed(i)]
+    counted = [i for i in pending if links.get(i['id'])]
+    out = [Paragraph('1. Resumen', st['h1']),
+           Paragraph(f'Puntos de la revisión de Ethos (Fnn/Cnn): {len(items)} en total, {len(pending)} pendientes. '
+                     'Son mejoras de proceso: no condicionan el buy off y se trabajan después de los puntos de '
+                     'Gestamp, que van en su propio reporte.', st['body']),
+           Paragraph(f'{len(counted)} de los pendientes cuentan además para un punto de Gestamp abierto (columna '
+                     'Gestamp en la sección 4): cerrarlos ayuda al buy off.', st['body']),
+           Paragraph(f'Base: el programa del programador, su último respaldo, del {last_backup()[0]}. Cada respaldo se '
+                     'audita contra el anterior (tools/audit_backup.py); la versión de oficina queda como referencia '
+                     '(sección 2).', st['body'])]
+    if crit_open:
+        out.append(Paragraph('<font color="#b42318">Críticos abiertos</font>', st['h2']))
+        out += [Paragraph(f'<font color="#b42318"><b>{esc(i["id"])} — {esc(i["titulo"])}</b></font>',
+                          st['bullet'], bulletText='•') for i in crit_open]
+    return out
+
+
 def summary_programmer_base(st, items, crit, high):
     out = [Paragraph('1. Resumen', st['h1']),
            Paragraph('Desde el 2026-10-11, por decisión de Edgar (igual que en R20), la base es el programa que corre '
@@ -377,6 +434,32 @@ def latest_audit():
     _, path, data = max(found)
     data['carpeta'] = os.path.relpath(os.path.dirname(path), REPO)
     return data
+
+
+def last_audit_gestamp(st, items, data):
+    """1.1 of the Gestamp report: what the last audit changed in the Gestamp points."""
+    a = latest_audit()
+    audits_ = data.get('auditorias', [])
+    if not audits_:
+        return []
+    last = audits_[-1]
+    rows = [['Punto', 'Estado', 'Resultado de la auditoría']]
+    shown = []
+    for i in items:
+        notes = [h for h in i.get('historial', []) if h.get('fecha') == last.get('fecha')]
+        if notes:
+            rows.append([i['id'] + '\n' + i['titulo'], i.get('estado', ''),
+                         '\n'.join(f"{h.get('resultado', '')}: {h.get('nota', '')}" for h in notes)])
+            shown.append(i)
+    out = [Paragraph('1.1 Última auditoría', st['h2']),
+           Paragraph(f"Respaldo: {esc(last.get('respaldo', ''))}. Auditado el {esc(last.get('fecha', ''))}"
+                     + (f". Detalle completo: <font name='Mono'>{esc(a['carpeta'])}/REVISION.es.md</font>."
+                        if a else '.'), st['small']), Spacer(1, 3)]
+    if shown:
+        out.append(table(rows, [38 * mm, 26 * mm, 118 * mm], st, extra=critical_rows(shown)))
+    else:
+        out.append(Paragraph('Sin cambios en los puntos de Gestamp en esta auditoría.', st['body']))
+    return out
 
 
 def last_audit(st):
@@ -580,8 +663,8 @@ def office_reference(st):
         'Del 2026-10-02 al 2026-10-07 Ethos preparó una versión de oficina: depuración de comentarios y código '
         'basura sin cambiar el comportamiento (03/10), correcciones de la revisión de Gestamp (04/10), integración '
         'de los respaldos del programador (05/10) y la etapa 1 de tiempo ciclo, F52 (07/10).',
-        'Se entregó como paquetes de WorkVisual y no se cargó en el robot: el programador siguió trabajando sobre '
-        'su propio programa y resolvió por su lado varias de esas correcciones.',
+        'Se entregó como paquetes de WorkVisual. Hasta el 05/10 el programador siguió sobre su propio programa; '
+        'antes del respaldo del 10/10 cargó la versión de oficina del 05/10 y trabajó encima.',
         f'El 2026-10-11 Edgar decidió tomar su programa como base (commit '
         f'{switch["programmer_base_commit"][:7]}). La versión de oficina queda en el commit '
         f'{switch["office_last_commit"][:7]}; build_archive.py, check_cleanup.py y check_equivalence.py son '
@@ -595,25 +678,21 @@ def gestamp_status(st, items):
     gest = [i for i in items if i['id'].startswith('G')]
     if not gest:
         return []
-    out = [PageBreak(), Paragraph('3. Revisión de Gestamp sobre el programa del programador', st['h1']),
+    out = [PageBreak(), Paragraph('2. Los 22 puntos de Gestamp', st['h1']),
            Paragraph('Documento de Gestamp "Robot Program Review – Findings" del 2026-10-02, sección '
-                     'BMW-03-10R1 (22 puntos), revisado contra el programa del programador. Columna Ver: '
-                     'hallazgo de Ethos con el que se cierra.', st['body'])]
-    rows = [['ID', 'Texto de Gestamp', 'Estado', 'Ver']]
+                     'BMW-03-10R1 (22 puntos), revisado contra el programa del programador. Fondo verde: cerrado. '
+                     'Columna Cómo quedó: el último resultado de la auditoría.', st['body'])]
+    rows = [['ID', 'Texto de Gestamp', 'Estado', 'Cómo quedó']]
     for i in gest:
-        rows.append([i['id'], i.get('texto_gestamp', ''), i.get('estado', ''), ', '.join(i.get('depende_de', []))])
-    out.append(table(rows, [11 * mm, 96 * mm, 45 * mm, 30 * mm], st, extra=critical_rows(gest)))
-    out.append(Paragraph('3.1 Qué le falta a su programa', st['h2']))
-    rows = [['Punto', 'Qué hacer']]
-    for i in gest:
-        if not i.get('estado', '').startswith(('Cerrado', 'No aplica', 'Aceptado', 'Se cierra', 'Sin acción')):
-            rows.append([i['id'] + '\n' + i['titulo'], i['que_hacer']])
-    out.append(table(rows, [42 * mm, 140 * mm], st))
+        last = (i.get('historial') or [{}])[-1]
+        rows.append([i['id'], i.get('texto_gestamp', ''), i.get('estado', ''),
+                     f"{last.get('fecha', '')}: {last.get('nota', '')}"])
+    out.append(table(rows, [11 * mm, 62 * mm, 27 * mm, 82 * mm], st, extra=critical_rows(gest)))
     return out
 
 
-def process(st):
-    out = [PageBreak(), Paragraph('4. Cómo vamos a trabajar', st['h1'])]
+def process(st, num='4'):
+    out = [PageBreak(), Paragraph(f'{num}. Cómo vamos a trabajar', st['h1'])]
     switch = audit_base()
     if switch:
         out.append(Paragraph('Base', st['h2']))
@@ -624,7 +703,10 @@ def process(st):
             'Guardar el proyecto WorkVisual desde el controlador antes de cualquier deploy.',
             'Ethos cambia código solo cuando Edgar lo pide, siempre sobre el último respaldo del programador, y '
             'entrega solo los archivos que cambian en entregas/<fecha>_<puntos>/ (cambios.diff, LEEME.txt y PDF de '
-            'instrucciones); $config.dat nunca va completo.'], st)
+            'instrucciones); $config.dat nunca va completo.',
+            'Dos listas desde el 2026-10-12: los puntos de Gestamp (G01–G22), que Gestamp audita para el buy off y '
+            'van primero, y las mejoras de proceso (puntos de Ethos), que no lo condicionan. Cada una con su Excel y '
+            'su reporte; cada punto está en una sola.'], st)
     else:
         out.append(Paragraph('Día 0', st['h2']))
     out += [] if switch else bullets([
@@ -640,10 +722,10 @@ def process(st):
         'El programador modifica el programa para cerrar puntos. Respeta docs/CONVENTIONS.md: comentarios '
         'en inglés con la señal nombrada, sin código comentado, sin reabrir inline forms con líneas '
         'escritas a mano.',
-        'En el Excel de puntos abiertos, por cada punto trabajado: Estado = "Corregido - por auditar", qué '
+        'En el Excel de su lista (Gestamp o mejoras), por cada punto trabajado: Estado = "Corregido - por auditar", qué '
         'cambió, en qué módulos, y la evidencia que pide el criterio de cierre (prueba en celda con fecha '
         'y resultado). No marca nada como Cerrado: eso lo hace la auditoría.',
-        'Al final del día saca un respaldo completo y lo envía junto con el Excel.',
+        'Al final del día saca un respaldo completo y lo envía junto con los Excel que trabajó.',
         'Edgar sube ambos aquí. La auditoría compara el respaldo contra el último auditado, revisa cada '
         'cambio de código, verifica cada punto marcado contra su criterio de cierre, corre las '
         'verificaciones mecánicas y regresa el Excel actualizado con el resultado y un reporte de '
@@ -669,21 +751,37 @@ def process(st):
     return out
 
 
-def audits(st, data):
+def audits(st, data, num='4.1'):
     rows = [['Fecha', 'Respaldo', 'Resultado']]
     for a in data.get('auditorias', []):
         rows.append([a.get('fecha', ''), a.get('respaldo', ''),
                      f"{a.get('cambios', '')}\n{a.get('notas', '')}"])
     if len(rows) == 1:
         return []
-    return [Paragraph('4.1 Auditorías', st['h2']),
+    return [Paragraph(f'{num} Auditorías', st['h2']),
             Paragraph('Cada respaldo auditado y cada versión entregada, del más viejo al más nuevo. El detalle '
                       'técnico (en inglés) está en audits/&lt;fecha&gt;/AUDIT.md.', st['body']),
             table(rows, [20 * mm, 46 * mm, 116 * mm], st)]
 
 
-def items_summary(st, items):
-    out = [PageBreak(), Paragraph('5. Puntos abiertos — resumen', st['h1']),
+def items_summary(st, items, num='5', links=None):
+    if links is not None:
+        out = [PageBreak(), Paragraph(f'{num}. Puntos — resumen', st['h1']),
+               Paragraph('Fondo verde: puntos cerrados. Fondo rojo: puntos críticos abiertos. Columna Gestamp: punto '
+                         'de Gestamp abierto para el que también cuenta (fondo azul en el ID). Los que vienen de la '
+                         'lista de Calvin dicen "Calvin #n".', st['small'])]
+        rows = [['ID', 'Sev.', 'Punto', 'Responsable', 'Estado', 'Gestamp']]
+        extra = critical_rows(items)
+        for n, i in enumerate(items, 1):
+            g = links.get(i['id'], [])
+            rows.append([i['id'], i['severidad'], i['titulo'] + origin_note(i), i['responsable'],
+                         i.get('estado', ''), ', '.join(g)])
+            extra.append(('TEXTCOLOR', (1, n), (1, n), SEV.get(i['severidad'], INK)))
+            if g and not is_closed(i):
+                extra.append(('BACKGROUND', (0, n), (0, n), CODE_BG))
+        out.append(table(rows, [11 * mm, 14 * mm, 80 * mm, 30 * mm, 31 * mm, 16 * mm], st, extra=extra))
+        return out
+    out = [PageBreak(), Paragraph(f'{num}. Puntos abiertos — resumen', st['h1']),
            Paragraph('Fondo verde: puntos cerrados. Fondo rojo: puntos críticos abiertos. G01–G22: puntos de la revisión de Gestamp (fondo azul en el '
                      'ID). Fnn/Cnn: revisión de Ethos; los que vienen de la lista de Calvin dicen "Calvin #n".',
                      st['small'])]
@@ -698,8 +796,10 @@ def items_summary(st, items):
     return out
 
 
-def items_detail(st, items):
-    out = [PageBreak(), Paragraph('6. Puntos abiertos — detalle', st['h1'])]
+def items_detail(st, items, num='6', by_id=None, links=None, title='Puntos abiertos — detalle'):
+    """by_id (Gestamp report): criteria 'se cumplen los criterios de F43' carry F43's, and the related
+    Ethos items are listed with their state. links (improvement report): the Gestamp points an item counts for."""
+    out = [PageBreak(), Paragraph(f'{num}. {title}', st['h1'])]
     for i in items:
         if is_critical(i):
             head = Table([[Paragraph(f"<font color='#b42318'>CRÍTICO — {i['id']} — {esc(i['titulo'])}</font>",
@@ -728,13 +828,20 @@ def items_detail(st, items):
         out.append(Paragraph('<b>Qué hacer.</b> ' + esc(i['que_hacer']), st['body']))
         if i.get('criterio_cierre'):
             out.append(Paragraph('<b>Criterio de cierre</b> (se verifica en el respaldo):', st['body']))
-            out += bullets(i['criterio_cierre'], st)
+            for sub, c in (scopes.expanded_criteria(i, by_id) if by_id else
+                           [(False, c) for c in i['criterio_cierre']]):
+                out.append(Paragraph(esc(c), st['sub'] if sub else st['bullet'], bulletText='–' if sub else '•'))
         if i.get('evidencia_programador'):
             out.append(Paragraph('<b>Evidencia del programador.</b> ' + esc(i['evidencia_programador']),
                                  st['body']))
-        if i.get('depende_de'):
+        if by_id and scopes.related(i, by_id):
+            out.append(Paragraph('<b>Relacionados (Ethos):</b> ' + esc(scopes.with_state(scopes.related(i, by_id),
+                                                                                        by_id)), st['body']))
+        elif i.get('depende_de'):
             out.append(Paragraph('<b>Depende de / se cierra con:</b> ' + esc(', '.join(i['depende_de'])),
                                  st['body']))
+        if links and links.get(i['id']):
+            out.append(Paragraph('<b>Cuenta para Gestamp:</b> ' + esc(', '.join(links[i['id']])), st['body']))
         if i.get('nota'):
             out.append(Paragraph('<b>Nota.</b> ' + esc(i['nota']), st['body']))
         hist = i.get('historial') or []
@@ -796,56 +903,78 @@ def annex_listing(st):
     return out
 
 
+CURRENT = {'scope': None}
+
+
 def page_decor(canvas, doc):
     canvas.saveState()
     canvas.setFont('Sans', 7)
     canvas.setFillColor(MUTED)
-    what = ('Auditoría del programa del programador y puntos abiertos' if audit_base()
+    what = (scopes.SCOPES[CURRENT['scope']]['title'] if CURRENT['scope'] in scopes.SCOPES
+            else 'Auditoría del programa del programador y puntos abiertos' if audit_base()
             else 'Depuración, correcciones Gestamp y puntos abiertos')
     canvas.drawString(18 * mm, 10 * mm, f'R10 (BMW-03-10-R1) · {what} · Ethos Automation México')
     canvas.drawRightString(letter[0] - 18 * mm, 10 * mm, f'Página {doc.page}')
     canvas.restoreState()
 
 
+def build(scope, out, data, now):
+    """One report: scope 'gestamp' or 'mejoras' (tools/scope.py)."""
+    st = styles()
+    all_items = data.get('items', [])
+    items = scopes.select(all_items, scope)
+    by_id = {i['id']: i for i in all_items}
+    links = scopes.gestamp_links(all_items)
+    CURRENT['scope'] = scope
+    os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True)
+    doc = SimpleDocTemplate(out, pagesize=letter, leftMargin=16 * mm, rightMargin=16 * mm,
+                            topMargin=15 * mm, bottomMargin=16 * mm,
+                            title='R10 (BMW-03-10-R1) - ' + scopes.SCOPES[scope]['title'],
+                            author='Ethos Automation México')
+    story = cover(st, items, now, scope)
+    if scope == 'gestamp':
+        story += summary_gestamp(st, items, by_id) + last_audit_gestamp(st, items, data)
+        story += gestamp_status(st, items)
+        story += items_detail(st, items, '3', by_id=by_id, title='Detalle de los puntos de Gestamp')
+        story += process(st, '4')
+    else:
+        story += summary_mejoras(st, items, links) + last_audit(st) + office_reference(st)
+        story += process(st, '3') + audits(st, data, '3.1')
+        story += items_summary(st, items, '4', links) + items_detail(st, items, '5', links=links,
+                                                                     title='Puntos — detalle')
+        story += annex_marked(st)
+    doc.build(story, onFirstPage=page_decor, onLaterPages=page_decor)
+    print(out)
+
+
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--out', help='output file (default: dated file in dist/)')
+    ap.add_argument('--scope', choices=['gestamp', 'mejoras', 'both'], default='both',
+                    help='gestamp, mejoras or both (default: the two reports)')
+    ap.add_argument('--out', help='output file (default: dated file in dist/); needs a single --scope')
     ap.add_argument('--items', default=os.path.join(REPO, 'docs', 'open_items.json'))
     args = ap.parse_args()
-    sys.path.insert(0, os.path.join(REPO, 'tools'))
+    if args.out and args.scope == 'both':
+        ap.error('--out needs --scope gestamp or mejoras')
     import naming
     when = naming.now()
-    default = args.out is None
-    if default:
-        args.out = naming.dated_path(os.path.join(REPO, 'dist'), 'R10_reporte', '.pdf', when)
     fonts()
-    st = styles()
     data = json.load(open(args.items)) if os.path.exists(args.items) else {}
-    items = data.get('items', [])
     now = naming.human(when)
-    os.makedirs(os.path.dirname(os.path.abspath(args.out)), exist_ok=True)
-    doc = SimpleDocTemplate(args.out, pagesize=letter, leftMargin=16 * mm, rightMargin=16 * mm,
-                            topMargin=15 * mm, bottomMargin=16 * mm,
-                            title='R10 (BMW-03-10-R1) - ' + ('Auditoría del programa del programador y '
-                                                             'puntos abiertos' if audit_base() else
-                                                             'Depuración, correcciones Gestamp y puntos '
-                                                             'abiertos'),
-                            author='Ethos Automation México')
-    switch = audit_base()
-    story = cover(st, items, now) + summary(st, items) + last_audit(st)
-    if switch:
-        story += office_reference(st) + gestamp_status(st, items) + process(st) + audits(st, data)
-    else:
-        story += what_was_done(st, allowlist()) + gestamp_review(st, items) + process(st)
-    if items:
-        story += items_summary(st, items) + items_detail(st, items)
-    # The shaded listing (annex B) compares against the office version: only while that was the base.
-    story += annex_marked(st) + ([] if switch else annex_listing(st))
-    doc.build(story, onFirstPage=page_decor, onLaterPages=page_decor)
-    if default:
-        for old in naming.remove_older(args.out, 'R10_reporte', '.pdf'):
+    if args.out:
+        build(args.scope, args.out, data, now)
+        return
+    dist = os.path.join(REPO, 'dist')
+    for scope in (['gestamp', 'mejoras'] if args.scope == 'both' else [args.scope]):
+        prefix = scopes.SCOPES[scope]['pdf']
+        out = naming.dated_path(dist, prefix, '.pdf', when)
+        build(scope, out, data, now)
+        for old in naming.remove_older(out, prefix, '.pdf'):
             print('removed', old)
-    print(args.out)
+    if args.scope == 'both':
+        # the single report of before 2026-10-12
+        for old in naming.remove_older(os.path.join(dist, 'x.pdf'), scopes.OLD['pdf'], '.pdf'):
+            print('removed', old)
 
 
 if __name__ == '__main__':

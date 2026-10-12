@@ -2048,7 +2048,7 @@
    "que_hacer": "Borrar NUT_READY en el flujo de soldadura en cuanto la tuerca se consumió; confirmar el pin vacío antes de alimentar; pedir la siguiente tuerca con una instrucción en el flujo (no solo en un TRIGGER), en main run; una petición repetida no debe provocar una segunda alimentación.",
    "criterio_cierre": [
     "En CENTERLINE_WELD después de $IN[483] dipw1_WeldComplete, o inmediatamente después de CENTERLINE_WELD() en style1app1opt1..3, existe NUT_READY = FALSE (y la bandera que usen las tuercas 2 y 3) antes de salir del pedestal.",
-    "La petición de la tuerca 1 (picks) y de las tuercas 2 y 3 (final de style1app1opt1 y opt2) existe como instrucción en el flujo, fuera de TRIGGER, precedida de un paro de advance run; en las apps va después del movimiento que saca pieza y EOAT del alcance del QFP y de los pines.",
+    "La petición de las tuercas 2 y 3 es una instrucción en el flujo, fuera de TRIGGER: Request_next_nut() justo después de CENTERLINE_WELD, con la pieza aún en el pedestal (aceptado en F53, como R20). La de la tuerca 1 puede seguir por TRIGGER antes del fold del movimiento del pick (G20).",
     "En PRELOAD una petición que llega con preload activo o con tuerca cargada sin consumir no arranca otra alimentación.",
     "Antes de alimentar se confirma pin vacío: por sensor si existe (nombre y dirección), o por estado si se confirma en sitio que no hay sensor; el comentario del paso dice cuál.",
     "El pick red rabbit no pide preload, o la lista anota por qué sí.",
@@ -2084,6 +2084,11 @@
      "fecha": "2026-10-12",
      "resultado": "Avance del programador",
      "nota": "Respaldo del 11/10 22:32. La pre-alimentación dura 2 s (antes 5 s): sube el margen contra el NUT_READY anterior. El pick red rabbit ya no pide tuerca (sin NUT_START). NUT_READY sigue sin borrarse al soldar."
+    },
+    {
+     "fecha": "2026-10-12",
+     "resultado": "Criterio ajustado",
+     "nota": "El criterio de la petición en el flujo se ajusta a lo ya aceptado en G20 (TRIGGER de la tuerca 1 antes del fold) y F53 (petición justo después de soldar): se cumple desde el 10/10. El pick red rabbit ya no pide preload (11/10). Quedan NUT_READY = FALSE al soldar, que una petición repetida no alimente otra tuerca, el pin vacío antes de alimentar y la prueba en celda."
     }
    ]
   },
