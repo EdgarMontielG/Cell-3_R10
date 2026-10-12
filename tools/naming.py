@@ -4,8 +4,9 @@ Robot archives, the open-items Excel and the PDF report carry the date and
 time they were generated, local time of central Mexico, as YYYY-MM-DD_HHMM:
 
     658424_R10_2026-10-04_1600.zip
-    R10_Gestamp_Puntos_2026-10-12_1600.xlsx, R10_Mejoras_Puntos_2026-10-12_1600.xlsx
-    R10_Gestamp_reporte_2026-10-12_1600.pdf, R10_Mejoras_reporte_2026-10-12_1600.pdf
+    R10_Gestamp_Puntos_2026-10-12_1600.xlsx   (R10_Puntos_Abiertos_... before 2026-10-12)
+    R10_Gestamp_reporte_2026-10-12_1600.pdf   (R10_reporte_... before 2026-10-12)
+    R10_Mejora_Puntos_... / R10_Mejora_reporte_...
 
 A generator writing to its default place (dist/) removes the older stamped
 copies of the same file there, so dist/ always holds the latest one; git
@@ -39,13 +40,12 @@ def dated_path(directory, prefix, ext, t=None):
 
 def remove_older(path, prefix, ext):
     """Delete the other copies of `prefix` in the directory of `path`: stamped
-    ones (prefix_YYYY-MM-DD_HHMM.ext) and the old undated prefix.ext. `path`
-    need not exist (then every copy goes: a name no longer used)."""
+    ones (prefix_YYYY-MM-DD_HHMM.ext) and the old undated prefix.ext."""
     directory = os.path.dirname(os.path.abspath(path))
     pat = re.compile(re.escape(prefix) + r'(_\d{4}-\d{2}-\d{2}_\d{4})?' + re.escape(ext) + '$')
     removed = []
     for other in glob.glob(os.path.join(directory, prefix + '*' + ext)):
-        if pat.match(os.path.basename(other)) and not (os.path.exists(path) and os.path.samefile(other, path)):
+        if pat.match(os.path.basename(other)) and not os.path.samefile(other, path):
             os.remove(other)
             removed.append(other)
     return removed

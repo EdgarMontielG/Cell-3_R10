@@ -272,6 +272,24 @@ class BackupTest(unittest.TestCase):
         self.assertEqual((s['counts']['items_claimed'], s['counts']['items_red_flags']), (3, 2))
         self.assertIn('RED FLAG: none of its modules changed', self.report)
 
+    def test_h2_two_workbooks_gestamp_and_process_improvement(self):
+        """Since 2026-10-12 the programmer sends two workbooks; --items is given once for each."""
+        zip_path = self.backup({WELD: self.edit(WELD, 'WAIT SEC 0.2', 'WAIT SEC 0.3')})
+        gestamp = os.path.join(self.tmp, 'gestamp.xlsx')
+        mejora = os.path.join(self.tmp, 'mejora.xlsx')
+        write_xlsx(gestamp, [['ID', 'Estado', 'Módulos'], ['G16', 'Corregido - por auditar', 'centerline_weld'],
+                             ['G01', 'Abierto', '']])
+        write_xlsx(mejora, [['ID', 'Estado', 'Módulos'], ['F04', 'Corregido - por auditar', 'PRELOAD.src']])
+        s = self.audit(zip_path, '--items', gestamp, '--items', mejora)
+        items = s['items']
+        self.assertEqual(items['rows'], 3)
+        self.assertEqual([it['id'] for it in items['claimed']], ['G16', 'F04'])
+        self.assertIsNone(items['claimed'][0]['red_flag'])
+        self.assertEqual(items['claimed'][1]['red_flag'], 'none of its modules changed in this backup')
+        self.assertEqual((s['counts']['items_claimed'], s['counts']['items_red_flags']), (2, 1))
+        self.assertIn('gestamp.xlsx', self.report)
+        self.assertIn('mejora.xlsx', self.report)
+
     def test_o_items_workbook_of_make_items_xlsx(self):
         """The layout tools/make_items_xlsx.py writes: header in row 1, the item's
         'Módulos' and the programmer's 'Módulos modificados', multi-line criteria."""
@@ -302,30 +320,6 @@ class BackupTest(unittest.TestCase):
         self.assertIn('  - prueba en celda con clamp cerrado', self.report)
         self.assertIn('Only comments changed in its modules', self.report)
         self.assertEqual(s['items']['statuses'], {'Corregido - por auditar': 1, 'En proceso': 1})
-
-    def test_o2_two_workbooks(self):
-        """Since 2026-10-12 the programmer sends two workbooks, the Gestamp points and the
-        improvements: the claims of both are listed, and a missing one does not hide the other."""
-        opt = 'KRC/R1/Program/StyleApps/Options/style1app1opt1A.src'
-        zip_path = self.backup({opt: self.edit(opt, '; Gestamp Standards', '; Gestamp Standards - rev 2')})
-        heads = ['ID', 'Punto', 'Módulos', 'Estado', 'Qué cambió el programador']
-        gestamp = os.path.join(self.tmp, 'R10_Gestamp_Puntos.xlsx')
-        write_xlsx(gestamp, [heads, ['G20', 'Request_next_nut', 'style1app1opt1A.src', 'Corregido - por auditar',
-                                     'fuera del fold']])
-        mejoras = os.path.join(self.tmp, 'R10_Mejoras_Puntos.xlsx')
-        write_xlsx(mejoras, [heads, ['F26', 'Timers', 'centerline_weld', 'Corregido - por auditar', ''],
-                             ['F27', 'Otro', '', 'Abierto', '']])
-        s = self.audit(zip_path, '--items', gestamp, mejoras)
-        items = s['items']
-        self.assertEqual([it['id'] for it in items['claimed']], ['G20', 'F26'])
-        self.assertEqual(items['rows'], 3)
-        self.assertEqual(items['statuses'], {'Corregido - por auditar': 2, 'Abierto': 1})
-        self.assertIn('R10_Gestamp_Puntos.xlsx', items['workbook'])
-        self.assertIn('R10_Mejoras_Puntos.xlsx', items['workbook'])
-        self.assertIsNone(items['claimed'][0]['red_flag'])
-        s = self.audit(zip_path, '--items', gestamp, os.path.join(self.tmp, 'missing.xlsx'))
-        self.assertEqual([it['id'] for it in s['items']['claimed']], ['G20'])
-        self.assertIn('missing.xlsx: cannot read the workbook', self.report)
 
     # -- further checks -----------------------------------------------
 

@@ -214,9 +214,9 @@ docs/OPEN_ITEMS.es.md         vista legible de los puntos abiertos (generada)
 docs/PROCESO.es.md            el proceso diario de cierre y auditoría
 tools/audit_backup.py         audita un respaldo diario contra el último estado auditado
 tools/test_audit_backup.py    pruebas de la herramienta de auditoría
-tools/make_items_xlsx.py      genera los dos Excel (puntos de Gestamp y mejoras) para el programador
+tools/make_items_xlsx.py      genera los dos Excel (puntos de Gestamp y mejora de proceso) para el programador
 tools/make_items_md.py        genera docs/OPEN_ITEMS.es.md
-tools/make_report.py          genera los dos PDF: puntos de Gestamp (buy off) y mejoras de proceso
+tools/make_report.py          genera los dos PDF: puntos de Gestamp (buy-off) y mejora de proceso
 dist/                         Excel y PDF generados (nombre con fecha y hora; tools/naming.py)
 audits/                       una carpeta por respaldo auditado (AUDIT.md, summary.json)
 ```
@@ -228,7 +228,7 @@ de versiones; `build_archive.py` lo copia del zip original.
 
 A partir de aquí el programador modifica el programa para cerrar los puntos
 abiertos (primero los de Gestamp), actualiza su Excel
-(`dist/R10_Gestamp_Puntos_*.xlsx` o `dist/R10_Mejoras_Puntos_*.xlsx`) y al final de cada día manda
+(`dist/R10_Gestamp_Puntos_*.xlsx` o `dist/R10_Mejora_Puntos_*.xlsx`) y al final de cada día manda
 un respaldo completo del robot. Cada respaldo se audita con
 `tools/audit_backup.py` contra el último estado auditado: qué cambió en el
 código, si cada punto marcado como corregido cumple su criterio de cierre y si

@@ -9,10 +9,6 @@ audit; never edit OPEN_ITEMS.es.md by hand.
 """
 import json
 import os
-import sys
-
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-import scope as scopes  # noqa: E402
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CLOSED = ('Cerrado', 'No aplica', 'Aceptado sin cambio', 'Sin acción', 'Se cierra con otro punto')
@@ -27,7 +23,6 @@ def main():
     items = data['items']
     pending = [i for i in items if not closed(i)]
     gestamp = [i for i in items if i['id'].startswith('G')]
-    links = scopes.gestamp_links(items)
     out = ['# Puntos abiertos — robot R10 (BMW-03-10-R1)', '',
            '*Archivo generado por `tools/make_items_md.py` a partir de `docs/open_items.json` — '
            'no se edita a mano.*', '',
@@ -39,9 +34,9 @@ def main():
            'revisa contra su programa y la versión de oficina queda como referencia (nota de cada punto). '
            'Los Fnn/Cnn son de la revisión de Ethos (numeración del R20); los marcados "Calvin #n" también están '
            'en la lista de Calvin (2026-10-03), verificada punto por punto. Esta lista es la única que se usa.', '',
-           'Desde el 2026-10-12 se entregan dos Excel y dos PDF (`tools/scope.py`): los puntos de Gestamp, que Gestamp '
-           'audita para el buy off, y las mejoras de proceso (puntos de Ethos), que no lo condicionan. La columna Gestamp '
-           'de las mejoras dice para qué punto de Gestamp abierto cuenta cada una.', '',
+           'Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G22 y los puntos de Ethos '
+           'que su criterio de cierre requiere, marcados "para Gnn"; es lo que Gestamp audita para el buy-off) y '
+           '**mejora de proceso** (los demás; no son condición del buy-off).', '',
            '## Resumen — puntos de Gestamp', '',
            '| ID | Gestamp | Punto | Sev. | Responsable | Estado | Ver |',
            '|---|---|---|---|---|---|---|']
@@ -53,11 +48,12 @@ def main():
                     f"{i['responsable']} | {state} | {', '.join(i.get('depende_de', []))} |")
         if i.get('origen_ref'):
             title += f" ({i['origen_ref']})"
-        return (f"| {i['id']} | {title} | {i['severidad']} | {i['responsable']} | {state} | "
-                f"{', '.join(links.get(i['id'], []))} |")
-    out += [row(i, True) for i in gestamp] + ['', '## Resumen — mejoras de proceso (puntos de Ethos)', '',
-                                               '| ID | Punto | Sev. | Responsable | Estado | Gestamp |',
-                                               '|---|---|---|---|---|---|']
+        if i.get('requerido_por'):
+            title += f" — **para {', '.join(i['requerido_por'])}**"
+        return f"| {i['id']} | {title} | {i['severidad']} | {i['responsable']} | {state} |"
+    out += [row(i, True) for i in gestamp] + ['', '## Resumen — puntos de Ethos', '',
+                                               '| ID | Punto | Sev. | Responsable | Estado |',
+                                               '|---|---|---|---|---|']
     out += [row(i, False) for i in items if not i['id'].startswith('G')]
     out.append('')
     for i in items:

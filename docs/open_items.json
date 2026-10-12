@@ -130,7 +130,8 @@
      "resultado": "Estándar Gestamp",
      "nota": "Su robot de referencia se llama NUT07_10R1 (celda 07, estación 10, robot 1); el respaldo Bosch de R20 se llama G65-03-20-R1-PNW1-WC. Hoy el nuestro es BMW_03_10_R1. Por analogía sería NUT03_10R1: confirmar con Gestamp con esos dos ejemplos."
     }
-   ]
+   ],
+   "conjunto": "gestamp"
   },
   {
    "id": "G02",
@@ -173,7 +174,8 @@
      "resultado": "Estándar Gestamp",
      "nota": "La herramienta de seguridad no se ve en texto en ningún respaldo: sigue la captura del smartHMI."
     }
-   ]
+   ],
+   "conjunto": "gestamp"
   },
   {
    "id": "G03",
@@ -223,7 +225,8 @@
      "resultado": "Avance del programador",
      "nota": "Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). LOAD_DATA[1] = 67.28 kg con centro de masa (-2.62, 17.93, 219.18) e inercias: ya no es el tecleado de 210 kg. Falta la evidencia de Load Data Determination (captura o protocolo). LOAD_A3_DATA pasó de 30 a 50 kg."
     }
-   ]
+   ],
+   "conjunto": "gestamp"
   },
   {
    "id": "G04",
@@ -276,7 +279,8 @@
      "resultado": "Cambio de base",
      "nota": "Base = programa del programador (respaldo del 2026-10-05 14:46). redrabbit.src y RedRabbit.dat siguen en el controlador: son módulos sobrantes y se siguen solo en G05."
     }
-   ]
+   ],
+   "conjunto": "gestamp"
   },
   {
    "id": "G05",
@@ -335,7 +339,8 @@
      "resultado": "Avance del programador",
      "nota": "Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). Borró 8 módulos sobrantes (14 archivos). Quedan capchange, electrodechange, redrabbit (no compila) y POUNCE."
     }
-   ]
+   ],
+   "conjunto": "gestamp"
   },
   {
    "id": "G06",
@@ -383,7 +388,8 @@
      "resultado": "Estándar Gestamp",
      "nota": "Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). sps.sub escribe do111Gun1ElectrodeChange = dipw1_EndOfStepper y el estado del stepper al PLC, y cell.src llama GunElectrodeChange con do111, como el respaldo de Gestamp. Depende de que Gestamp resetee el stepper en el Bosch."
     }
-   ]
+   ],
+   "conjunto": "gestamp"
   },
   {
    "id": "G07",
@@ -429,7 +435,8 @@
      "resultado": "Estándar Gestamp",
      "nota": "Gestamp usa un option por estación de pick (1 = estación 1, 2 = estación 2, 10 = red rabbit), cada uno con su programa Style1OptN. El nuestro manda 1, 2, 7 y 8 a Style1Opt1 (la estación la decide di065/di066) y 12 al red rabbit. Se cambia o lo acepta Gestamp (igual que R20)."
     }
-   ]
+   ],
+   "conjunto": "gestamp"
   },
   {
    "id": "G08",
@@ -480,7 +487,8 @@
      "resultado": "Nota",
      "nota": "Respaldo del 11/10 22:32. Pick red rabbit: ya no pide tuerca; sale por P2 y P1 a 100 % con CONT (antes P16 a 60 %); XAtPick3 +0.5 mm. El encabezado del módulo dice que es el pick de producción llamado por Style1Opt1: corregir el comentario."
     }
-   ]
+   ],
+   "conjunto": "gestamp"
   },
   {
    "id": "G09",
@@ -531,7 +539,8 @@
      "resultado": "Estándar Gestamp",
      "nota": "Gestamp pone y quita $OUT[18] con inline forms OUT en pick, drop y reject; el nuestro igual (picks, drop al conveyor, drop red rabbit y RejectGE4). Aceptado sin cambio (igual que R20); el cierre final lo acepta Gestamp."
     }
-   ]
+   ],
+   "conjunto": "gestamp"
   },
   {
    "id": "G10",
@@ -581,7 +590,8 @@
      "resultado": "Estándar Gestamp",
      "nota": "Gestamp usa GRPg_SetStateAndCheck / GRPg_Check en pick, drop y reject. El nuestro ya los usa en los 3 picks, el drop al conveyor, el drop red rabbit y RejectGE4, sin salidas de gripper escritas a mano. Queda F31 (el drop red rabbit suelta con el gripper 3) y F33."
     }
-   ]
+   ],
+   "conjunto": "gestamp"
   },
   {
    "id": "G11",
@@ -652,7 +662,8 @@
      "resultado": "Cerrado - auditado",
      "nota": "Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). Sin GOTO ni etiquetas en ningún módulo activo (solo quedaban en trigger1-3, que ya borró)."
     }
-   ]
+   ],
+   "conjunto": "gestamp"
   },
   {
    "id": "G12",
@@ -721,7 +732,8 @@
      "resultado": "Cerrado - auditado",
      "nota": "Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). Sin $IN/$OUT con número fuera de inline forms en los módulos activos: el pedestal usa los nombres de la versión de oficina (do498..do505, di466, di467, di470)."
     }
-   ]
+   ],
+   "conjunto": "gestamp"
   },
   {
    "id": "G13",
@@ -790,7 +802,8 @@
      "resultado": "Cerrado - auditado",
      "nota": "Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). Nut check como Gestamp: WAIT SEC 0.2 y después PARTPRESENTn = di227NutPresent1 (style1app2opt1.src:65-68, igual en las 3 tuercas)."
     }
-   ]
+   ],
+   "conjunto": "gestamp"
   },
   {
    "id": "G14",
@@ -852,7 +865,8 @@
      "resultado": "Cerrado - auditado",
      "nota": "Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). En los picks la espera de gripper vacío va antes del primer GRPg_SetStateAndCheck (style1pick1opt1.src:37 y :46)."
     }
-   ]
+   ],
+   "conjunto": "gestamp"
   },
   {
    "id": "G15",
@@ -927,7 +941,8 @@
      "resultado": "Cerrado - auditado",
      "nota": "Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). Nombres corregidos (CameraJudgment, PartRejected, di227NutPresent1, NUT_START). Quedan la carpeta Styles/optiones y el texto del encabezado de dos forms OUT 106: errores de dedo, no impiden el cierre (como NUT_STAR en R20)."
     }
-   ]
+   ],
+   "conjunto": "gestamp"
   },
   {
    "id": "G16",
@@ -993,7 +1008,8 @@
      "resultado": "Cerrado - auditado",
      "nota": "Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). CENTERLINE_WELD y CENTERLINE_HOME usan las constantes de $config.dat (ventana, tiempos, presiones, programa Bosch)."
     }
-   ]
+   ],
+   "conjunto": "gestamp"
   },
   {
    "id": "G17",
@@ -1058,7 +1074,8 @@
      "resultado": "Cerrado - auditado",
      "nota": "Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). El retry ya funciona: si la pistola cierra abajo de la ventana (sin tuerca) no suelda, el robot se queda, pide otra tuerca y suelda otra vez (NUT_WELD_RETRY, tope nNutRetryMax=1, mensaje NUT_RETRY_MSG); como el REPEAT UNTIL de Gestamp con tope. Llevaba 8 reintentos (nNutRetryTotal) en el respaldo."
     }
-   ]
+   ],
+   "conjunto": "gestamp"
   },
   {
    "id": "G18",
@@ -1105,7 +1122,8 @@
      "resultado": "Avance del programador",
      "nota": "Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). Ahora además lee la falla del Bosch (WELD_COMPLETE_WAIT), igual que R20."
     }
-   ]
+   ],
+   "conjunto": "gestamp"
   },
   {
    "id": "G19",
@@ -1151,7 +1169,8 @@
      "resultado": "Alta (Gestamp)",
      "nota": "Punto 19 de la revisión de Gestamp del 2026-10-02 (BMW-03-10R1)."
     }
-   ]
+   ],
+   "conjunto": "gestamp"
   },
   {
    "id": "G20",
@@ -1219,7 +1238,8 @@
      "resultado": "Cerrado - auditado",
      "nota": "Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). El TRIGGER de NUT_START en los picks va antes del fold del movimiento; Request_next_nut es una llamada después de soldar; los borrados del red rabbit quedaron fuera del fold DropOff[2] Reset. En los forms OUT 18/106 queda la misma salida escrita con su nombre (do018Part1InGripper, do106PartRejected): reabrir el form regenera la misma salida (igual que R20). La auditoría lo marca FAIL por no ver $OUT[n]; revisado: no es error."
     }
-   ]
+   ],
+   "conjunto": "gestamp"
   },
   {
    "id": "G21",
@@ -1271,7 +1291,8 @@
      "resultado": "Sin cambio",
      "nota": "Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). El red rabbit sigue dando FAILED solo con las 3 tuercas (AND, style1app2opt1.src:164) y el drop red rabbit borra do141/do142 (ya fuera del fold)."
     }
-   ]
+   ],
+   "conjunto": "gestamp"
   },
   {
    "id": "G22",
@@ -1334,7 +1355,8 @@
      "resultado": "Nota",
      "nota": "Respaldo del 11/10 22:32. Desde el 10/10 AutomationCore_BKG está apagado: C01, C19 y C14 reabiertos (lo cerrado el 11/10 suponía el background activo, como en su respaldo del 05/10)."
     }
-   ]
+   ],
+   "conjunto": "gestamp"
   },
   {
    "id": "F01",
@@ -1399,7 +1421,8 @@
      "resultado": "Cerrado - auditado",
      "nota": "Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). PEDESTAL_CLEAR_CHECK confirma pistola abierta, clamp abierto y pin superior retraído antes de entrar y de salir (detiene el avance, mensaje y espera); NUT_READY solo llega con el QFP visto regresado (PRELOAD paso 20); las interrupciones 20-24 vigilan pistola, submit, clamp y pin durante la entrada. Igual que R20, que lo cerró."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "F02",
@@ -1456,7 +1479,8 @@
      "resultado": "Cambio de base",
      "nota": "Base = programa del programador (respaldo del 2026-10-05 14:46). El nut check ya evalúa las options 1, 2, 7 y 8 y escribe bScrapGE4 TRUE o FALSE (style1app2opt1.src:140-145). Queda la definición de options: G07."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "F03",
@@ -1508,7 +1532,8 @@
      "resultado": "Avance del programador",
      "nota": "Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). PARTPRESENTn se asigna TRUE o FALSE en cada lectura y el nut check pone bscrapGE4=FALSE al empezar y lo decide en CASE 1,2,7,8. Falta el reset al inicio del ciclo (antes del pick) y la prueba."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "F04",
@@ -1550,7 +1575,8 @@
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "F05",
@@ -1597,7 +1623,8 @@
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "F06",
@@ -1638,7 +1665,8 @@
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "F07",
@@ -1685,7 +1713,8 @@
      "resultado": "Avance del programador",
      "nota": "Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). GUN_CLOSE_FAULT da mensaje (sin tuerca / doble tuerca) y prende la luz roja; antes reintenta una vez con tuerca nueva (G17). Después del reintento sigue un HALT (centerline_weld.src:235). La ventana bajó de 300 a 150 ms (CL_GUN_IN_WINDOW_TIME): Gestamp pide la pistola estable 200 ms (SensorSettle)."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "F08",
@@ -1735,7 +1764,8 @@
      "resultado": "Avance del programador",
      "nota": "Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). WELD_COMPLETE_WAIT espera WeldComplete con timeout (CL_WELD_COMPLETE_TIMEOUT 3000 ms) y lee la falla del Bosch ($IN[485]) con mensaje y luz roja: ya hace más que el paquete NutWeld de Gestamp."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "F09",
@@ -1791,7 +1821,8 @@
      "resultado": "Evidencia parcial",
      "nota": "Respaldo 14:46: nWaterFlow = 233 (23.3 l/min) con agua normal en este robot, arriba del mínimo de 15 l/min. Falta la prueba con agua cerrada y la espera antes del weld start."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "F10",
@@ -1838,7 +1869,8 @@
      "resultado": "Avance parcial",
      "nota": "Respaldo del 11/10 22:32. Con NutWeld_BKG activo, NutWeld_ProcessReset (programa cancelado o reseteado) apaga weld init y el programa del Bosch, y también intensify y blow-off si PRELOAD no está corriendo. Falta el resto del estado seguro (feed, presión base, pistola y clamp)."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "F11",
@@ -1884,7 +1916,8 @@
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "F12",
@@ -1961,7 +1994,8 @@
      "resultado": "Avance del programador",
      "nota": "Respaldo del 11/10 22:32. NutWeld_BKG activo, como Gestamp: luces de tolva y estado del stepper al PLC salen de ahí (quitó su copia de sps.sub); las escrituras de pistolas 2/3 quedaron condicionadas a nMaxGunNr=1 porque se traslapan con CL_GunPressureCmd, y el reset de NutWeld no apaga intensify ni blow-off mientras corre PRELOAD. NutWeld_Bkg escribe $OUT[470] dopw1_Hidraulyc_Valve = $PERI_RDY (AutomationCore lo declara Spare): confirmar que no tiene nada conectado. AutomationCore_BKG sigue apagado desde el 10/10 (C01)."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "F13",
@@ -2022,7 +2056,8 @@
      "resultado": "Avance del programador",
      "nota": "Respaldo del 11/10 22:32. Quitó nFeedSettleMs: la alimentación vuelve a 2000 ms por tiempo, como R20 (el 10/10 la había subido a 5 s porque faltaban tuercas). Sigue sin leer $IN[481] dipw1_FeedComplt: si vuelven a faltar tuercas, esa es la corrección."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "F14",
@@ -2090,6 +2125,10 @@
      "resultado": "Criterio ajustado",
      "nota": "El criterio de la petición en el flujo se ajusta a lo ya aceptado en G20 (TRIGGER de la tuerca 1 antes del fold) y F53 (petición justo después de soldar): se cumple desde el 10/10. El pick red rabbit ya no pide preload (11/10). Quedan NUT_READY = FALSE al soldar, que una petición repetida no alimente otra tuerca, el pin vacío antes de alimentar y la prueba en celda."
     }
+   ],
+   "conjunto": "gestamp",
+   "requerido_por": [
+    "G19"
    ]
   },
   {
@@ -2151,7 +2190,8 @@
      "resultado": "Avance del programador",
      "nota": "Respaldo del 11/10 22:32. La cámara espera el resultado con timeout de 5 s; sin resultado la pieza va a scrap (sin mensaje). La espera de $IN[80] di080ToolRepositioned1 sigue sin timeout."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "F16",
@@ -2192,7 +2232,8 @@
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "F17",
@@ -2238,7 +2279,8 @@
      "resultado": "Avance del programador",
      "nota": "Respaldo del 11/10 22:32. Las escrituras de NutWeld_Bkg y NutWeld_ProcessReset a las pistolas 2/3 (traslapadas con CL_GunPressureCmd) quedaron condicionadas a nMaxGunNr (=1)."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "F18",
@@ -2281,7 +2323,8 @@
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "F19",
@@ -2347,7 +2390,8 @@
      "resultado": "Sin cambio",
      "nota": "Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). El red rabbit sigue dando FAILED solo con las 3 tuercas (AND, style1app2opt1.src:164) y el drop red rabbit borra do141/do142 (ya fuera del fold)."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "F20",
@@ -2401,7 +2445,8 @@
      "resultado": "Cerrado - auditado",
      "nota": "Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). RejectGE4 libera Application 1 con TRIGGER (do070ApplicationClear1, rejectge4.src:44), también tras un rechazo por nut check; el reject no pide drop-off, igual que Gestamp."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "F21",
@@ -2452,6 +2497,10 @@
      "resultado": "Sin cambio",
      "nota": "Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). Siguen 4 forms con AC_CmdParam oculto distinto a la llamada: style1drop1opt1.src:49 AC_DropOffCheck(1) y :108 AC_DropOff(1) con oculto 2; style1pick1opt2.src:34 AC_pickUPCheck(2) y :138 AC_pickUP(2) con oculto 1."
     }
+   ],
+   "conjunto": "gestamp",
+   "requerido_por": [
+    "G07"
    ]
   },
   {
@@ -2499,7 +2548,8 @@
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "F23",
@@ -2536,7 +2586,8 @@
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "F24",
@@ -2591,7 +2642,8 @@
      "resultado": "Cambio de base",
      "nota": "Base = programa del programador (respaldo del 2026-10-05 14:46). El camino de retry sigue muerto; se resuelve en G17."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "F25",
@@ -2636,7 +2688,8 @@
      "resultado": "Decisión",
      "nota": "Se mantiene el criterio de F25 frente a la propuesta de Calvin #19, igual que en R20 (decisión de Edgar, 2026-10-04)."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "F26",
@@ -2679,7 +2732,8 @@
      "resultado": "Nota (F52)",
      "nota": "PRELOAD ya no usa $TIMER[12]; la medición de tiempo ciclo usa $TIMER[20]. Dueños anotados en $config.dat."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "F27",
@@ -2715,7 +2769,8 @@
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "F28",
@@ -2765,7 +2820,8 @@
      "resultado": "Cambio de base",
      "nota": "Base = programa del programador (respaldo del 2026-10-05 14:46). El WAIT SEC 0.2 sigue después de leer $IN[227]; se resuelve en G13."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "F29",
@@ -2807,7 +2863,8 @@
      "resultado": "Nota",
      "nota": "Respaldo del 11/10 22:32. $OUT[477]/$OUT[478] los escribe NutWeld_Bkg: verde con tolva OK y sin falla de soldadura, rojo con tolva baja, CL_WeldFault o falla del Bosch (edición del archivo de KUKA, C28)."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "F30",
@@ -2855,7 +2912,8 @@
      "resultado": "Cambio de base",
      "nota": "Base = programa del programador (respaldo del 2026-10-05 14:46). Style1Opt1 (Styles/optiones/style1opt1.src) no tiene GOTO y cumple en código las tres propiedades: después de RejectGE4() no corre nada más, la estación 1 no corre la 2 y todos los caminos borran PARTPRESENT1..3. Falta la prueba en celda."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "F31",
@@ -2900,6 +2958,10 @@
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
     }
+   ],
+   "conjunto": "gestamp",
+   "requerido_por": [
+    "G07"
    ]
   },
   {
@@ -2958,7 +3020,8 @@
      "resultado": "Cambio de base",
      "nota": "Base = programa del programador (respaldo del 2026-10-05 14:46). Mismas líneas escritas a mano dentro de folds que G20."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "F33",
@@ -2995,7 +3058,8 @@
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "F34",
@@ -3032,7 +3096,8 @@
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "F35",
@@ -3084,7 +3149,8 @@
      "resultado": "Nota",
      "nota": "Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). XREFSWITCH (switch de referencia) re-enseñado ~1 mm."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "F36",
@@ -3145,7 +3211,8 @@
      "resultado": "Cerrado - auditado",
      "nota": "Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). $IN[227] tiene una sola declaración: di227NutPresent1."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "F37",
@@ -3181,7 +3248,8 @@
      "resultado": "Alta (Calvin)",
      "nota": "Revisión Ethos del respaldo 658424: el punto 1 de Calvin (20R1) no aplica en R10."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "F38",
@@ -3225,6 +3293,10 @@
      "resultado": "Alta (Calvin)",
      "nota": "Revisión Ethos del respaldo 658424; el punto sale de la lista de Calvin (Calvin #11)."
     }
+   ],
+   "conjunto": "gestamp",
+   "requerido_por": [
+    "G19"
    ]
   },
   {
@@ -3266,7 +3338,8 @@
      "resultado": "Alta (Calvin)",
      "nota": "Revisión Ethos del respaldo 658424; el punto sale de la lista de Calvin (Calvin #16)."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "F40",
@@ -3309,7 +3382,8 @@
      "resultado": "Alta (Calvin)",
      "nota": "Revisión Ethos del respaldo 658424; el punto sale de la lista de Calvin (Calvin #25)."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "F41",
@@ -3352,7 +3426,8 @@
      "resultado": "Alta (Calvin)",
      "nota": "Revisión Ethos del respaldo 658424; el punto sale de la lista de Calvin (Calvin Std 5)."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "F42",
@@ -3391,7 +3466,8 @@
      "resultado": "Alta (Calvin)",
      "nota": "Revisión Ethos del respaldo 658424; el punto sale de la lista de Calvin (Calvin #30)."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "F43",
@@ -3458,6 +3534,10 @@
      "resultado": "Estándar Gestamp",
      "nota": "Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). Mismo estado que G06."
     }
+   ],
+   "conjunto": "gestamp",
+   "requerido_por": [
+    "G06"
    ]
   },
   {
@@ -3498,7 +3578,8 @@
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "F45",
@@ -3534,7 +3615,8 @@
      "resultado": "Alta (Calvin)",
      "nota": "Revisión Ethos del respaldo 658424; el punto sale de la lista de Calvin (Calvin #23)."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "F46",
@@ -3582,7 +3664,8 @@
      "resultado": "Sin cambio",
      "nota": "Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). El EndOfCycle sigue con Work Complete comentado (automationcoreroutines.src:381-389)."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "F47",
@@ -3621,7 +3704,8 @@
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "F48",
@@ -3685,7 +3769,8 @@
    "evidencia": "",
    "fecha_programador": "",
    "fecha_alta": "2026-10-05",
-   "origen": "Auditoría Ethos del respaldo bmw_03_10_r1 (2026-10-05)"
+   "origen": "Auditoría Ethos del respaldo bmw_03_10_r1 (2026-10-05)",
+   "conjunto": "mejora"
   },
   {
    "id": "F49",
@@ -3750,7 +3835,8 @@
    "evidencia": "",
    "fecha_programador": "",
    "fecha_alta": "2026-10-05",
-   "origen": "Auditoría Ethos del respaldo bmw_03_10_r1 (2026-10-05)"
+   "origen": "Auditoría Ethos del respaldo bmw_03_10_r1 (2026-10-05)",
+   "conjunto": "mejora"
   },
   {
    "id": "F50",
@@ -3798,7 +3884,8 @@
      "resultado": "Sin cambio",
      "nota": "Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). AC_ApplicationCheck(1) sigue después de PTP P22, ahora con CONT (style1app2opt1.src:46 y :56); el CONT se pierde por el chequeo."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "F51",
@@ -3831,7 +3918,8 @@
      "resultado": "Alta (auditoría)",
      "nota": "Integrado en la versión depurada."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "F52",
@@ -3925,7 +4013,8 @@
      "resultado": "Avance del programador",
      "nota": "Respaldo del 11/10 22:32. La cámara espera el resultado (OK o NG) con 5 s máximo y 0.1 s después, en lugar de 2.0 s fijos: ahorra hasta 1.9 s. Regresó el WAIT SEC 0.2 al abrir la pistola (como R20): +0.6 s por pieza. Pre-alimentación de 2 s. No cargó la entrega de esperas del PLC: sigue válida sobre este respaldo (sus 7 archivos solo cambiaron en atributos de cabecera)."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "F53",
@@ -3973,7 +4062,8 @@
      "resultado": "Nota",
      "nota": "Respaldo del 11/10 22:32. La pre-alimentación volvió a 2 s y regresó el WAIT SEC 0.2 entre GunWork y GunHome al abrir la pistola, los dos como R20."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "F54",
@@ -4006,7 +4096,8 @@
      "resultado": "Alta (auditoría)",
      "nota": "Encontrado en el respaldo del 11/10 22:32."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "C01",
@@ -4049,7 +4140,8 @@
      "resultado": "Reabierto",
      "nota": "Respaldo del 11/10 22:32. Corrección de la auditoría del 10/10: desde ese respaldo (versión de oficina cargada) AutomationCore_BKG está apagado otra vez (fold vacío en sps.sub y sus salidas en OFF al arrancar). El programador copia en sps.sub parte de sus señales (weld enable y weld mode, aire, agua, tolva, nut ready/fault, cambio de electrodo y, desde el 11/10, robot en repair). Faltan request to enter (C19), brake test pendiente (C14), mastering pendiente, batería, velocidad distinta de 100 %, eje 1, Tool ID, pounce / tip dress / switch de referencia y el arranque automático del programa CELL. En su respaldo del 05/10 y en R20 está activo."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "C02",
@@ -4112,6 +4204,10 @@
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
     }
+   ],
+   "conjunto": "gestamp",
+   "requerido_por": [
+    "G01"
    ]
   },
   {
@@ -4175,7 +4271,8 @@
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "C04",
@@ -4216,7 +4313,8 @@
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "C05",
@@ -4257,7 +4355,8 @@
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "C06",
@@ -4295,7 +4394,8 @@
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "C07",
@@ -4337,7 +4437,8 @@
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "C08",
@@ -4395,7 +4496,8 @@
      "resultado": "Avance del programador",
      "nota": "Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). LOAD_DATA[1] = 67.28 kg con centro de masa (-2.62, 17.93, 219.18) e inercias: ya no es el tecleado de 210 kg. Falta la evidencia de Load Data Determination (captura o protocolo). LOAD_A3_DATA pasó de 30 a 50 kg."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "C09",
@@ -4454,7 +4556,8 @@
      "resultado": "Nota",
      "nota": "Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). tm_bib.dat: TQM_ACT T21..T26 bajaron de 100000 a 1000 (supervisión de par). Confirmar con el programador qué activó y si quedó probado."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "C10",
@@ -4489,7 +4592,8 @@
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "C11",
@@ -4527,7 +4631,8 @@
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "C12",
@@ -4575,7 +4680,8 @@
      "resultado": "Estándar Gestamp",
      "nota": "Gestamp no usa pounce en el ciclo. Aceptado sin cambio (igual que R20)."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "C13",
@@ -4612,7 +4718,8 @@
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "C14",
@@ -4664,7 +4771,8 @@
      "resultado": "Reabierto",
      "nota": "Respaldo del 11/10 22:32. Corrección de la auditoría del 10/10: desde ese respaldo do021BrakeTestReqd no se escribe (FALSE al arrancar; AutomationCore_BKG apagado, C01). Sigue además el camino del brake test (F47)."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "C15",
@@ -4707,7 +4815,8 @@
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "C16",
@@ -4748,7 +4857,8 @@
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "C17",
@@ -4791,7 +4901,8 @@
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "C18",
@@ -4833,7 +4944,8 @@
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "C19",
@@ -4886,7 +4998,8 @@
      "resultado": "Reabierto",
      "nota": "Respaldo del 11/10 22:32. Corrección de la auditoría del 10/10: desde ese respaldo doCriticalWZ no se escribe; el submit lo pone en FALSE al arrancar y AutomationCore_BKG está apagado (C01). Es el problema del respaldo original."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "C20",
@@ -4930,7 +5043,8 @@
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "C21",
@@ -4981,7 +5095,8 @@
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "C22",
@@ -5024,7 +5139,8 @@
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "C23",
@@ -5065,7 +5181,8 @@
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "C24",
@@ -5128,7 +5245,8 @@
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "C25",
@@ -5172,7 +5290,8 @@
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "C26",
@@ -5235,7 +5354,8 @@
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "C27",
@@ -5265,7 +5385,8 @@
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   },
   {
    "id": "C28",
@@ -5335,7 +5456,8 @@
      "resultado": "Nota",
      "nota": "Respaldo del 11/10 22:32. Ediciones nuevas en NutWeld: nutweldroutines.src (escrituras de pistolas 2/3 condicionadas a nMaxGunNr en NutWeld_Bkg y NutWeld_ProcessReset; luces de la tolva 1 combinadas con CL_WeldFault y dipw1_Fault; intensify y blow-off de la pistola 1 sin apagar en el reset mientras corre PRELOAD) y nutweldroutines.dat (nNutWeldGunNrSTK 3 → 1). Listarlas en la entrega."
     }
-   ]
+   ],
+   "conjunto": "mejora"
   }
  ]
 }

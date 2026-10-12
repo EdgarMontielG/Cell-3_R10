@@ -77,13 +77,13 @@ What it does
      11  a new motion form whose point or data is not declared, a
          declaration removed from a .dat that is still used: the module
          would not compile
-  * --items ITEMS.xlsx ...: the programmer's open-items workbooks - since
-    2026-10-12 two, the Gestamp points and the improvements (sheet 'Puntos
+  * --items ITEMS.xlsx: the programmer's open-items workbook (sheet 'Puntos
     abiertos'; columns found by their header: 'ID', 'Estado', 'Qué cambió
     el programador', 'Módulos'). Every item marked 'Corregido - por
     auditar' is listed with the programmer's note and which of its modules
     changed in this backup. A fix claimed with no change in its modules is
-    a red flag. openpyxl is used when installed; otherwise the workbook is
+    a red flag. Since 2026-10-12 there are two workbooks (Gestamp items and
+    process improvement): give --items once per workbook. openpyxl is used when installed; otherwise the workbook is
     read with zipfile and xml.
 
 Output: DIR (default audits/<am.ini date>/) with AUDIT.md (the report for
@@ -1686,22 +1686,25 @@ def audit_items(xlsx, status_of, paths, defs, base_texts, new_texts):
 
 
 def merge_items(results):
-    """One result for several workbooks (Gestamp and improvements): their claimed items in order."""
-    ok = [r for r in results if 'error' not in r]
+    """One result for the Gestamp workbook and the process-improvement one
+    (2026-10-12): rows, statuses and claimed items added up. A single workbook
+    is returned as it is."""
+    if len(results) == 1:
+        return results[0]
+    good = [r for r in results if 'error' not in r]
     errors = [r['error'] for r in results if 'error' in r]
-    if not ok:
+    if not good:
         return {'error': '; '.join(errors)}
-    if len(ok) == 1 and not errors:
-        return ok[0]
     statuses = Counter()
-    for r in ok:
+    for r in good:
         statuses.update(r['statuses'])
-    out = {'workbook': ', '.join(r['workbook'] for r in ok), 'sheet': ok[0]['sheet'],
-           'rows': sum(r['rows'] for r in ok), 'statuses': dict(statuses),
-           'claimed': [it for r in ok for it in r['claimed']],
-           'covered': sorted({p for r in ok for p in r['covered']})}
+    out = {'workbook': ', '.join(r['workbook'] for r in good),
+           'sheet': ', '.join(sorted({r['sheet'] for r in good})),
+           'rows': sum(r['rows'] for r in good), 'statuses': dict(statuses),
+           'claimed': [c for r in good for c in r['claimed']],
+           'covered': sorted({p for r in good for p in r['covered']})}
     if errors:
-        out['errors'] = errors
+        out['warnings'] = errors
     return out
 
 
@@ -1900,9 +1903,9 @@ def render_items(items, s):
     out = ['## Items claimed fixed', '']
     if 'error' in items:
         return out + [f'**{items["error"]}**', '']
-    out += [f'**{e}**' for e in items.get('errors', [])]
     out += [f'Workbook `{items["workbook"]}`, sheet "{items["sheet"]}": {items["rows"]} items '
             f'(' + ', '.join(f'{k}: {v}' for k, v in sorted(items['statuses'].items())) + ').', '']
+    out += [f'**{w}**' for w in items.get('warnings', [])] + ([''] if items.get('warnings') else [])
     if not items['claimed']:
         out += ['_No item is marked "Corregido - por auditar"._', '']
     for it in items['claimed']:
@@ -2297,8 +2300,8 @@ def parse_args(argv):
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('backup', help='the KUKA archive zip sent by the programmer')
     ap.add_argument('--base', default='HEAD', help='git ref of the last audited state (default HEAD)')
-    ap.add_argument('--items', nargs='+', help="the programmer's open-items workbooks (.xlsx): Gestamp and "
-                                               "improvements")
+    ap.add_argument('--items', action='append',
+                    help="the programmer's open-items workbook (.xlsx); repeat it for each workbook")
     ap.add_argument('--out', help='output directory (default audits/<am.ini date>/)')
     ap.add_argument('--import', dest='do_import', action='store_true',
                     help='copy the changed and added entries into the working tree')
@@ -2379,10 +2382,10 @@ def main(argv=None, import_root=None):
             for p, t in texts.items():
                 for d in def_names(t):
                     defs.setdefault(d.lower(), p)
-        summary['items'] = merge_items([audit_items(path,
-                                                    lambda p: file_state(p, cls, cleanup[2], code_files, runtime_files),
-                                                    sorted(set(files) | set(base)), defs, ctx['base_texts'],
-                                                    ctx['texts']) for path in items_paths])
+        summary['items'] = merge_items([
+            audit_items(path, lambda p: file_state(p, cls, cleanup[2], code_files, runtime_files),
+                        sorted(set(files) | set(base)), defs, ctx['base_texts'], ctx['texts'])
+            for path in items_paths])
         claimed = summary['items'].get('claimed', [])
         counts['items_claimed'] = len(claimed)
         counts['items_red_flags'] = sum(1 for it in claimed if it['red_flag'])

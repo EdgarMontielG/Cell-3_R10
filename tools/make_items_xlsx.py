@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 """Build the programmer's open-items workbooks from docs/open_items.json.
 
-    python3 tools/make_items_xlsx.py [--scope gestamp|mejoras|both] [--out FILE.xlsx]
+    python3 tools/make_items_xlsx.py [--set gestamp|mejora] [--out FILE.xlsx]
 
-Two workbooks since 2026-10-12 (tools/scope.py): the Gestamp points G01-G22,
-which the customer audits for the buy-off, and the Ethos items as process
-improvements. By default it writes both to dist/
-(R10_Gestamp_Puntos_<YYYY-MM-DD_HHMM>.xlsx and R10_Mejoras_Puntos_<...>.xlsx,
-date and time of central Mexico, tools/naming.py) and removes the older
-copies in dist/. --out needs a single --scope.
+Since 2026-10-12 there are two workbooks (tools/item_sets.py): the Gestamp
+items for the buy-off, and the process-improvement items. Without --set both
+are written, to dist/R10_Gestamp_Puntos_<YYYY-MM-DD_HHMM>.xlsx and
+dist/R10_Mejora_Puntos_<YYYY-MM-DD_HHMM>.xlsx (date and time of central
+Mexico, tools/naming.py); the older copies in dist/ are removed.
 
 docs/open_items.json is the master list (kept in the repository and updated
 after every audit). The workbook is the working copy the robot programmer
@@ -27,9 +26,6 @@ import argparse
 import json
 import os
 import sys
-
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-import scope as scopes  # noqa: E402
 
 from openpyxl import Workbook
 from openpyxl.comments import Comment
@@ -65,17 +61,6 @@ COLUMNS = [
     ('Nota auditoría', 50, 'audit'),
 ]
 
-
-def columns(scope):
-    """The Gestamp list names the related Ethos items with their state; the improvement list
-    says which open Gestamp point each item counts for."""
-    if scope == 'gestamp':
-        return [('Relacionados (Ethos)', 24, 'item') if h == 'Depende de' else (h, w, o) for h, w, o in COLUMNS]
-    if scope == 'mejoras':
-        k = [h for h, _, _ in COLUMNS].index('Depende de') + 1
-        return COLUMNS[:k] + [('Cuenta para Gestamp', 12, 'item')] + COLUMNS[k:]
-    return COLUMNS
-
 FONT = 'Arial'
 THIN = Side(style='thin', color='CBD2D9')
 BORDER = Border(left=THIN, right=THIN, top=THIN, bottom=THIN)
@@ -94,7 +79,12 @@ def is_gestamp(item):
 def origin_text(item):
     if is_gestamp(item):
         return f"Gestamp #{int(item['id'][1:])}"
-    return item.get('origen_ref') or 'Ethos'
+    base = item.get('origen_ref') or 'Ethos'
+    if item.get('requerido_por'):
+        # a supporting item reads "Ethos, para Gnn"; one from Calvin's list keeps his number after it
+        ref = f" ({item['origen_ref']})" if item.get('origen_ref') else ''
+        return f"Ethos, para {', '.join(item['requerido_por'])}{ref}"
+    return base
 
 
 def title_text(item):
@@ -103,45 +93,31 @@ def title_text(item):
     return item['titulo']
 
 
-def criteria_text(item, by_id=None):
-    """Bullets; with by_id (Gestamp list) a 'se cumplen los criterios de F43' carries F43's criteria."""
-    crit = scopes.expanded_criteria(item, by_id) if by_id else [(False, c) for c in item.get('criterio_cierre', [])]
-    return '\n'.join(('    – ' if sub else '• ') + c for sub, c in crit)
+def criteria_text(item):
+    return '\n'.join('• ' + c for c in item.get('criterio_cierre', []))
 
 
-def items_sheet(ws, items, scope='both', all_items=None):
+def items_sheet(ws, items):
     ws.title = 'Puntos abiertos'
-    cols = columns(scope)
-    by_id = {i['id']: i for i in (all_items or items)}
-    links = scopes.gestamp_links(all_items or items)
-    for col, (head, width, owner) in enumerate(cols, 1):
+    for col, (head, width, owner) in enumerate(COLUMNS, 1):
         c = ws.cell(row=1, column=col, value=head)
         c.font = Font(name=FONT, bold=True, color='FFFFFF', size=9)
         c.fill = HEAD
         c.alignment = Alignment(wrap_text=True, vertical='center')
         c.border = BORDER
         ws.column_dimensions[get_column_letter(col)].width = width
-    status_col = [h for h, _, _ in cols].index('Estado') + 1
+    status_col = [h for h, _, _ in COLUMNS].index('Estado') + 1
     ws.cell(row=1, column=status_col).comment = Comment(
         'El programador solo pone En proceso o Corregido - por auditar. '
         'Cerrado lo pone la auditoría.', 'Ethos')
     for r, it in enumerate(items, 2):
         audit = (it.get('historial') or [{}])[-1]
-        gest = scope == 'gestamp'
-        cell = {'ID': it['id'], 'Origen': origin_text(it), 'Sev.': it['severidad'], 'Punto': title_text(it),
-                'Tipo': it['tipo'], 'Responsable': it['responsable'], 'Módulos': ', '.join(it.get('modulos', [])),
-                'Criterio de cierre': criteria_text(it, by_id if gest else None),
-                'Depende de': ', '.join(it.get('depende_de', [])),
-                'Relacionados (Ethos)': scopes.with_state(scopes.related(it, by_id), by_id),
-                'Cuenta para Gestamp': ', '.join(links.get(it['id'], [])),
-                'Estado': it.get('estado', 'Abierto'), 'Qué cambió el programador': it.get('nota_programador', ''),
-                'Módulos modificados': it.get('modulos_modificados', ''),
-                'Evidencia / prueba en celda': it.get('evidencia', ''),
-                'Fecha programador': it.get('fecha_programador', ''),
-                'Resultado auditoría': audit.get('resultado', ''), 'Fecha auditoría': audit.get('fecha', ''),
-                'Nota auditoría': audit.get('nota', '')}
-        values = [cell[h] for h, _, _ in cols]
-        for col, ((head, _, owner), v) in enumerate(zip(cols, values), 1):
+        values = [it['id'], origin_text(it), it['severidad'], title_text(it), it['tipo'], it['responsable'],
+                  ', '.join(it.get('modulos', [])), criteria_text(it), ', '.join(it.get('depende_de', [])),
+                  it.get('estado', 'Abierto'), it.get('nota_programador', ''),
+                  it.get('modulos_modificados', ''), it.get('evidencia', ''), it.get('fecha_programador', ''),
+                  audit.get('resultado', ''), audit.get('fecha', ''), audit.get('nota', '')]
+        for col, ((head, _, owner), v) in enumerate(zip(COLUMNS, values), 1):
             c = ws.cell(row=r, column=col, value=v)
             c.font = Font(name=FONT, size=9, bold=(head == 'ID'),
                           color=SEV_COLOR.get(v, '1F2933') if head == 'Sev.' else '1F2933')
@@ -153,8 +129,7 @@ def items_sheet(ws, items, scope='both', all_items=None):
                 c.fill = PROG
             elif owner == 'audit':
                 c.fill = AUDIT
-            elif (is_gestamp(it) or links.get(it['id'])) and head in ('ID', 'Origen', 'Punto',
-                                                                      'Cuenta para Gestamp'):
+            elif is_gestamp(it) and head in ('ID', 'Origen', 'Punto'):
                 c.fill = GESTAMP
     last = len(items) + 1
     dv = DataValidation(type='list', formula1='"' + ','.join(STATES) + '"', allow_blank=False,
@@ -165,18 +140,16 @@ def items_sheet(ws, items, scope='both', all_items=None):
     dv.add(f'{status}2:{status}{last}')
     # The row also turns green when the auditor sets a closed state in the workbook.
     cond = ' , '.join(f'${status}2="{st}"' for st in CLOSED).replace(' , ', ',')
-    ws.conditional_formatting.add(f'A2:{get_column_letter(len(cols))}{last}',
+    ws.conditional_formatting.add(f'A2:{get_column_letter(len(COLUMNS))}{last}',
                                   FormulaRule(formula=[f'OR({cond})'], fill=DONE, stopIfTrue=True))
     ws.freeze_panes = 'D2'
-    ws.auto_filter.ref = f'A1:{get_column_letter(len(cols))}{last}'
+    ws.auto_filter.ref = f'A1:{get_column_letter(len(COLUMNS))}{last}'
     ws.sheet_view.zoomScale = 90
 
 
-def summary_sheet(ws, n, status_col, generated, scope='both'):
+def summary_sheet(ws, n, status_col, generated, label):
     ws.title = 'Resumen'
-    cols = columns(scope)
-    ws['A1'] = {'gestamp': 'Resumen de los puntos de Gestamp (buy off)',
-                'mejoras': 'Resumen de las mejoras de proceso (puntos de Ethos)'}.get(scope, 'Resumen de puntos abiertos')
+    ws['A1'] = f'Resumen - {label}'
     ws['A1'].font = Font(name=FONT, bold=True, size=12, color='1D4E89')
     ws['A2'] = f'Generado {generated}'
     ws['A2'].font = Font(name=FONT, size=8, italic=True, color='616E7C')
@@ -200,14 +173,14 @@ def summary_sheet(ws, n, status_col, generated, scope='both'):
     ws.cell(row=top, column=3, value='Pendientes').font = Font(name=FONT, bold=True, size=9)
     for col in range(1, 4):
         ws.cell(row=top, column=col).fill = AUDIT
-    sev_col = get_column_letter([h for h, _, _ in cols].index('Sev.') + 1)
+    sev_col = get_column_letter([h for h, _, _ in COLUMNS].index('Sev.') + 1)
     sev = f"'Puntos abiertos'!${sev_col}$2:${sev_col}${n + 1}"
     for r, s in enumerate(SEVERITIES[:-1], top + 1):
         ws.cell(row=r, column=1, value=s).font = Font(name=FONT, size=9)
         ws.cell(row=r, column=2, value=f'=COUNTIF({sev},A{r})').font = Font(name=FONT, size=9)
         parts = '+'.join(f'COUNTIFS({sev},A{r},{rng},"{p}")' for p in PENDING)
         ws.cell(row=r, column=3, value='=' + parts).font = Font(name=FONT, size=9)
-    org_col = get_column_letter([h for h, _, _ in cols].index('Origen') + 1)
+    org_col = get_column_letter([h for h, _, _ in COLUMNS].index('Origen') + 1)
     org = f"'Puntos abiertos'!${org_col}$2:${org_col}${n + 1}"
     gtop = top + len(SEVERITIES) + 1
     ws.cell(row=gtop, column=1, value='Origen').font = Font(name=FONT, bold=True, size=9)
@@ -215,9 +188,8 @@ def summary_sheet(ws, n, status_col, generated, scope='both'):
     ws.cell(row=gtop, column=3, value='Pendientes').font = Font(name=FONT, bold=True, size=9)
     for col in range(1, 4):
         ws.cell(row=gtop, column=col).fill = AUDIT
-    origins = [('Gestamp', 'Gestamp*'), ('Ethos', 'Ethos'), ('Calvin (Ethos)', 'Calvin*')]
-    origins = {'gestamp': origins[:1], 'mejoras': origins[1:]}.get(scope, origins)
-    for r, (label, pat) in enumerate(origins, gtop + 1):
+    for r, (label, pat) in enumerate([('Gestamp', 'Gestamp*'), ('Ethos', 'Ethos*'), ('Calvin (Ethos)', 'Calvin*')],
+                                     gtop + 1):
         ws.cell(row=r, column=1, value=label).font = Font(name=FONT, size=9)
         ws.cell(row=r, column=2, value=f'=COUNTIF({org},"{pat}")').font = Font(name=FONT, size=9)
         parts = '+'.join(f'COUNTIFS({org},"{pat}",{rng},"{p}")' for p in PENDING)
@@ -230,27 +202,30 @@ def summary_sheet(ws, n, status_col, generated, scope='both'):
     ws.column_dimensions['C'].width = 12
 
 
-SCOPE_NOTE = {
+SET_TEXT = {
     'gestamp': [
-        ('Esta lista: los puntos de Gestamp (buy off)', True),
-        ('Son los 22 puntos de la revisión de Gestamp del 2026-10-02 (G01–G22): los que Gestamp audita para el buy '
-         'off. Van primero. Cuando un criterio dice "se cumplen los criterios de F43", los criterios de F43 vienen '
-         'debajo, con guion: F43 está en la lista de mejoras y se cierra junto con este punto. La columna '
-         '"Relacionados (Ethos)" da los puntos de Ethos ligados, con su estado.', False),
-        ('', False)],
-    'mejoras': [
-        ('Esta lista: mejoras de proceso (puntos de Ethos)', True),
-        ('Son los puntos de la revisión de Ethos (Fnn/Cnn). No condicionan el buy off: se trabajan después de los '
-         'de Gestamp, cuando haya tiempo. Si la columna "Cuenta para Gestamp" trae un punto G, cerrarlo también '
-         'ayuda a cerrar ese punto de Gestamp (está en la otra lista).', False),
-        ('', False)],
+        ('Esta lista: puntos de Gestamp para el buy-off', True),
+        ('Los 22 puntos de la revisión de Gestamp del 2026-10-02 (G01 a G22, Origen "Gestamp #n", fondo azul, '
+         'texto original en la columna Punto) y los puntos de Ethos que hacen falta para cerrarlos (Origen '
+         '"Ethos, para Gnn"). Es lo que Gestamp audita para el buy-off: esta lista va primero.', False),
+        ('Los demás puntos de Ethos están en la otra lista (R10_Mejora_Puntos): mejora de proceso, no son '
+         'condición del buy-off.', False),
+        ('', False),
+    ],
+    'mejora': [
+        ('Esta lista: mejora de proceso', True),
+        ('Puntos de la revisión de Ethos que no son condición del buy-off: se trabajan cuando haya tiempo, '
+         'después de los puntos de Gestamp (lista R10_Gestamp_Puntos). Conservan la numeración del R20 (F37 no '
+         'aplica en el R10; F44 en adelante son solo del R10). Los que Calvin también señaló dicen "Calvin #n" en '
+         'Origen.', False),
+        ('', False),
+    ],
 }
 
 
-def instructions_sheet(ws, scope='both'):
+def instructions_sheet(ws, name):
     ws.title = 'Instrucciones'
-    name = scopes.SCOPES[scope]['xlsx'] if scope in scopes.SCOPES else 'R10_Puntos_Abiertos'
-    rows = SCOPE_NOTE.get(scope, []) + [
+    rows = SET_TEXT[name] + [
         ('Cómo usar esta lista', True),
         ('1. Trabaja los puntos en el programa del robot. Respeta docs/CONVENTIONS.md del repositorio: '
          'comentarios en inglés con la señal nombrada ($OUT[n] nombre), sin código comentado, sin reabrir '
@@ -264,9 +239,9 @@ def instructions_sheet(ws, scope='both'):
         ('4. La evidencia es lo que pide el criterio de cierre: prueba en celda con fecha y resultado, '
          'valor leído en el smartPAD, documento de Gestamp. Sin evidencia el punto se reabre.', False),
         ('5. Al final del día saca un respaldo completo del robot (Archive → All), nómbralo '
-         '658424_AAAA-MM-DD_HHMM.zip con la hora en que lo sacaste, y envíalo junto con este archivo '
-         f'guardado como {name}_AAAA-MM-DD_HHMM.xlsx (y el otro Excel si trabajaste puntos de esa lista). '
-         'No borres filas ni cambies las columnas blancas o grises.', False),
+         '658424_AAAA-MM-DD_HHMM.zip con la hora en que lo sacaste, y envíalo junto con las dos listas '
+         '(R10_Gestamp_Puntos y R10_Mejora_Puntos), cada una guardada con la fecha y hora del día. No '
+         'borres filas ni cambies las columnas blancas o grises.', False),
         ('', False),
         ('Ejemplo de una fila llenada (formato esperado)', True),
         ('Estado: Corregido - por auditar', False),
@@ -278,12 +253,7 @@ def instructions_sheet(ws, scope='both'):
          'antes de P22 con mensaje; con todo abierto el ciclo siguió normal. 3 ciclos en automático OK.', False),
         ('Fecha programador: 2026-10-06', False),
         ('', False),
-        ('Puntos de Gestamp', True),
-        ('Los puntos G01 a G22 vienen de la revisión de Gestamp del 2026-10-02 (BMW-03-10R1): columna Origen '
-         '"Gestamp #n", fondo azul y el texto original de Gestamp en la columna Punto. Los Fnn/Cnn son de la revisión '
-         'de Ethos y conservan la numeración del R20 (F37 no aplica en el R10; F44 a F52 son solo del R10). La lista '
-         'de Calvin se verificó punto por punto: los puntos que él también señaló dicen "Calvin #n" en Origen. Esta '
-         'lista es la única que se usa.', False),
+        ('Base', True),
         ('Desde el 2026-10-11 la base es tu programa: no se carga ninguna versión de oficina. Cada respaldo se '
          'audita contra el anterior. En los puntos que la oficina había corregido, la Nota auditoría dice qué le '
          'falta a tu programa; el PDF y docs/OPEN_ITEMS.es.md traen qué hacer y, como referencia, cómo lo resolvió '
@@ -339,15 +309,14 @@ def history_sheet(ws, audits):
         ws.column_dimensions[get_column_letter(col)].width = w
 
 
-def build(data, scope, out, when):
-    import naming
-    all_items = data['items']
-    items = scopes.select(all_items, scope) if scope in scopes.SCOPES else all_items
+def write_set(data, name, out, when, naming, item_sets):
+    items = item_sets.select(data['items'], name)
+    label = item_sets.SETS[name]['label']
     wb = Workbook()
-    items_sheet(wb.active, items, scope, all_items)
-    summary_sheet(wb.create_sheet(), len(items), [h for h, _, _ in columns(scope)].index('Estado') + 1,
-                  naming.human(when), scope)
-    instructions_sheet(wb.create_sheet(), scope)
+    items_sheet(wb.active, items)
+    summary_sheet(wb.create_sheet(), len(items), [h for h, _, _ in COLUMNS].index('Estado') + 1,
+                  naming.human(when), label)
+    instructions_sheet(wb.create_sheet(), name)
     history_sheet(wb.create_sheet(), data.get('auditorias', []))
     # The summary sheet is formulas only: have Excel compute them when the file opens.
     from openpyxl.workbook.properties import CalcProperties
@@ -360,29 +329,24 @@ def build(data, scope, out, when):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--items', default=os.path.join(REPO, 'docs', 'open_items.json'))
-    ap.add_argument('--scope', choices=['gestamp', 'mejoras', 'both', 'all'], default='both',
-                    help="gestamp, mejoras, both (default: the two workbooks) or all (one workbook, every item)")
-    ap.add_argument('--out', help='output file (default: dated file in dist/); needs a single --scope')
+    ap.add_argument('--set', choices=['gestamp', 'mejora'], help='one workbook only (default: both)')
+    ap.add_argument('--out', help='output file, with --set (default: dated file in dist/)')
     args = ap.parse_args()
-    if args.out and args.scope == 'both':
-        ap.error('--out needs --scope gestamp, mejoras or all')
+    if args.out and not args.set:
+        ap.error('--out needs --set')
+    sys.path.insert(0, os.path.join(REPO, 'tools'))
+    import item_sets
     import naming
     when = naming.now()
     data = json.load(open(args.items))
-    if args.out:
-        build(data, args.scope, args.out, when)
-        return
-    dist = os.path.join(REPO, 'dist')
-    for scope in (['gestamp', 'mejoras'] if args.scope == 'both' else [args.scope]):
-        prefix = scopes.SCOPES[scope]['xlsx'] if scope in scopes.SCOPES else scopes.OLD['xlsx']
-        out = naming.dated_path(dist, prefix, '.xlsx', when)
-        build(data, scope, out, when)
-        for old in naming.remove_older(out, prefix, '.xlsx'):
-            print('removed', old)
-    if args.scope == 'both':
-        # the single workbook of before 2026-10-12
-        for old in naming.remove_older(os.path.join(dist, 'x.xlsx'), scopes.OLD['xlsx'], '.xlsx'):
-            print('removed', old)
+    for name in [args.set] if args.set else list(item_sets.SETS):
+        prefix = item_sets.SETS[name]['xlsx']
+        out = args.out or naming.dated_path(os.path.join(REPO, 'dist'), prefix, '.xlsx', when)
+        write_set(data, name, out, when, naming, item_sets)
+        if not args.out:
+            for old in (naming.remove_older(out, prefix, '.xlsx')
+                        + naming.remove_older(out, item_sets.OLD_PREFIXES['xlsx'], '.xlsx')):
+                print('removed', old)
 
 
 if __name__ == '__main__':
