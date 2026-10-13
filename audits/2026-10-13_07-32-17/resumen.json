@@ -1,0 +1,44 @@
+{
+ "titulo": "Auditoría del respaldo del 2026-10-13 07:32",
+ "respaldo": "BMW_03_WINDOWS-2CPT70E_BMW_03_10_R1_658424.zip (am.ini 2026-10-13 07:32, hora del controlador; robot BMW_03_10_R1, serie 658424); importado byte por byte, es la nueva base",
+ "fecha_auditoria": "2026-10-13 06:05",
+ "base": "Comparado contra su respaldo del 11/10 22:32: 3 KRL con cambios de código (GUN_OPEN_LOST, tm_bib.dat, XPOUNCE) y 40 con cambios solo de comentarios; 0 FAIL.",
+ "cierre": "Cerrados: G01 y C02 (decisión de Edgar; el nombre queda BMW_03_10_R1) y G02 (capturas del 12/10: herramienta de seguridad EOAT 1 GE4-001 con TCP 0/0/380.8, igual a TOOL_DATA[1]). Falta el checklist de aceptación de SafeOperation firmado, para el ítem 40 del workbook.",
+ "bueno": [
+  "Comentarios cortos y en inglés en todo el programa; sin código comentado (avance de G05).",
+  "GUN_OPEN_LOST dice qué condición falta (submit, pistola, clamp o pin) con su posición.",
+  "Herramienta de seguridad con nombre y TCP igual al de la herramienta 1 (G02)."
+ ],
+ "riesgos": [
+  {
+   "texto": "Request to enter sin escribir: el PLC ve entrada permitida con el pedestal en proceso.",
+   "items": [
+    "C19",
+    "C01"
+   ]
+  },
+  {
+   "texto": "GUN_OPEN_LOST ya no frena con caídas cortas de señal; un evento real breve no detiene el robot.",
+   "items": [
+    "F01"
+   ]
+  },
+  {
+   "texto": "Sin soldaduras registradas desde el 10/10: los cambios de tiempo ciclo no tienen medición.",
+   "items": [
+    "F52"
+   ]
+  }
+ ],
+ "plan": [
+  "Cerrar los 7 puntos de Gestamp abiertos: G03 (protocolo de carga), G05, G06, G07, G19, G21 y G22.",
+  "Reactivar AutomationCore_BKG como en R20 (C01, C19, C14).",
+  "Correr 10 piezas seguidas en automático y mandar el respaldo (F52)."
+ ],
+ "pedir": [
+  "Checklist de aceptación de SafeOperation firmado tras el cambio del 10/10 (ítem 40 del workbook).",
+  "Protocolo de Load Data Determination de la herramienta 1 (G03).",
+  "Por qué GUN_OPEN_LOST ignora caídas cortas (¿paros en falso?).",
+  "No cargar la entrega de esperas del PLC del 11/10: está obsoleta."
+ ]
+}

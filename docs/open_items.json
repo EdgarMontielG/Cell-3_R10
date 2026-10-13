@@ -1,7 +1,7 @@
 {
  "_comment": "Lista maestra de puntos abiertos del R10: G01-G22 son los puntos de la revisión de Gestamp (2026-10-02, BMW-03-10R1), Fnn/Cnn los de la revisión de Ethos (docs/FINDINGS.md). La lista de Calvin (2026-10-03) se verificó punto por punto: su referencia va en origen_ref. La actualiza la auditoría.",
  "proyecto": "Gestamp celda 3 - robot R10 (BMW-03-10-R1)",
- "actualizado": "2026-10-12",
+ "actualizado": "2026-10-13",
  "auditorias": [
   {
    "fecha": "2026-10-04",
@@ -74,6 +74,14 @@
    "reabiertos": 3,
    "cambios": "Contra su respaldo del 10/10 21:20: 39 archivos cambiados, 1 agregado, 10 KRL con cambios de código (-38/+70): cámara, PRELOAD, apertura de pistola, sps.sub (NutWeld_BKG activo, robot en repair), pick red rabbit y NutWeld de KUKA. audit_backup: 0 FAIL, 19 WARN (17 líneas de código comentado en sps.sub, señales sin comentario).",
    "notas": "Reabiertos C01, C19 y C14: corrección de la auditoría del 10/10, AutomationCore_BKG está apagado desde que cargó la versión de oficina. F54 nuevo: confirmar que la cámara no da el resultado de la pieza anterior. Cámara sin la espera fija de 2.0 s; pre-alimentación de 2 s y WAIT SEC 0.2 al abrir la pistola, como R20. Tiempo de ciclo de AutomationCore: 50 s (05/10), 39 s (10/10), 26 s (11/10, ciclo sin soldar). Registro en audits/2026-10-11_22-32-16."
+  },
+  {
+   "fecha": "2026-10-13",
+   "respaldo": "BMW_03_WINDOWS-2CPT70E_BMW_03_10_R1_658424.zip (am.ini 2026-10-13 07:32, robot BMW_03_10_R1, serie 658424, KSS 8.3.29); importado byte por byte en 6e70821",
+   "cerrados": 3,
+   "reabiertos": 0,
+   "cambios": "Contra su respaldo del 11/10 22:32: 54 archivos cambiados, 3 KRL con cambios de código (-6/+28: GUN_OPEN_LOST, tm_bib.dat, XPOUNCE) y 40 con cambios solo de comentarios (simplificó los comentarios de la versión de oficina y quitó el código comentado). audit_backup: 0 FAIL, 1 WARN.",
+   "notas": "Cerrados: G01 y C02 (decisión de Edgar; el nombre queda BMW_03_10_R1) y G02 (capturas del 12/10: herramienta de seguridad EOAT 1 GE4-001 con TCP 0/0/380.8 igual a TOOL_DATA[1]; falta el checklist de aceptación firmado, ítem 40 del workbook). GUN_OPEN_LOST ya no frena con caídas cortas de señal (F01). Sin soldaduras registradas desde el 10/10. Entrega de esperas del PLC obsoleta. Registro en audits/2026-10-13_07-32-17."
   }
  ],
  "items": [
@@ -102,7 +110,7 @@
    "depende_de": [
     "C02"
    ],
-   "estado": "Abierto",
+   "estado": "Aceptado sin cambio",
    "nota": "",
    "fecha_alta": "2026-10-04",
    "nota_programador": "",
@@ -129,6 +137,11 @@
      "fecha": "2026-10-11",
      "resultado": "Estándar Gestamp",
      "nota": "Su robot de referencia se llama NUT07_10R1 (celda 07, estación 10, robot 1); el respaldo Bosch de R20 se llama G65-03-20-R1-PNW1-WC. Hoy el nuestro es BMW_03_10_R1. Por analogía sería NUT03_10R1: confirmar con Gestamp con esos dos ejemplos."
+    },
+    {
+     "fecha": "2026-10-13",
+     "resultado": "Decisión",
+     "nota": "Edgar lo cierra el 2026-10-13. El robot sigue llamándose BMW_03_10_R1 (am.ini del respaldo del 13/10 y captura del smartHMI del 12/10)."
     }
    ],
    "conjunto": "gestamp"
@@ -156,7 +169,7 @@
    "depende_de": [
     "F42"
    ],
-   "estado": "Abierto",
+   "estado": "Cerrado - auditado",
    "nota": "Conviene hacerlo en la misma sesión de seguridad que F42 (espacios de SafeOperation). Si G03 o C06 cambian TOOL_DATA[1], repetir la comparación.",
    "fecha_alta": "2026-10-04",
    "nota_programador": "",
@@ -173,6 +186,11 @@
      "fecha": "2026-10-11",
      "resultado": "Estándar Gestamp",
      "nota": "La herramienta de seguridad no se ve en texto en ningún respaldo: sigue la captura del smartHMI."
+    },
+    {
+     "fecha": "2026-10-13",
+     "resultado": "Cerrado - auditado",
+     "nota": "Captura del smartHMI del 2026-10-12 09:03 (Configuración de seguridad → Herramientas): herramienta de seguridad 1 \"EOAT 1 GE4-001\" activada con TCP X 0, Y 0, Z 380.8 mm; captura de Calibración → Datos de carga de TOOL 1: X 0, Y 0, Z 380.790, A -90, B -90, C -90, igual a TOOL_DATA[1] ($config.dat:234). SafetyConfigData.xml: cambio de parámetros de la herramienta \"EOAT 1 GE4-001\" y configuración guardada el 2026-10-10 11:12, versión 54, WorksheetCrc 2258919054 (sin cambios en los respaldos del 11 y 13/10). El checklist de aceptación de SafeOperation firmado no se presentó: queda para el ítem 40 del workbook de buy-off."
     }
    ],
    "conjunto": "gestamp"
@@ -338,6 +356,11 @@
      "fecha": "2026-10-11",
      "resultado": "Avance del programador",
      "nota": "Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). Borró 8 módulos sobrantes (14 archivos). Quedan capchange, electrodechange, redrabbit (no compila) y POUNCE."
+    },
+    {
+     "fecha": "2026-10-13",
+     "resultado": "Avance del programador",
+     "nota": "Respaldo del 13/10 07:32. Quitó el código comentado de sps.sub y los TRIGGER comentados de las apps; ya no queda código comentado en los módulos activos. Siguen los módulos sobrantes capchange, electrodechange, redrabbit (no compila), POUNCE y safetest, y GlueTech instalado."
     }
    ],
    "conjunto": "gestamp"
@@ -1420,6 +1443,11 @@
      "fecha": "2026-10-11",
      "resultado": "Cerrado - auditado",
      "nota": "Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). PEDESTAL_CLEAR_CHECK confirma pistola abierta, clamp abierto y pin superior retraído antes de entrar y de salir (detiene el avance, mensaje y espera); NUT_READY solo llega con el QFP visto regresado (PRELOAD paso 20); las interrupciones 20-24 vigilan pistola, submit, clamp y pin durante la entrada. Igual que R20, que lo cerró."
+    },
+    {
+     "fecha": "2026-10-13",
+     "resultado": "Nota",
+     "nota": "Respaldo del 13/10 07:32. GUN_OPEN_LOST (interrupciones 20-24) ahora regresa sin frenar si al atenderla ya está todo bien (submit corriendo, pistola en rango abierto, clamp abierto, pin retraído): una caída corta de la señal ya no detiene el robot; si la condición sigue, frena como antes. El mensaje dice cuál condición falta (submit, pistola con su posición, clamp o pin con su posición) (gun_open_check.src:116-188). Preguntar si hubo paros en falso."
     }
    ],
    "conjunto": "mejora"
@@ -4012,6 +4040,11 @@
      "fecha": "2026-10-12",
      "resultado": "Avance del programador",
      "nota": "Respaldo del 11/10 22:32. La cámara espera el resultado (OK o NG) con 5 s máximo y 0.1 s después, en lugar de 2.0 s fijos: ahorra hasta 1.9 s. Regresó el WAIT SEC 0.2 al abrir la pistola (como R20): +0.6 s por pieza. Pre-alimentación de 2 s. No cargó la entrega de esperas del PLC: sigue válida sobre este respaldo (sus 7 archivos solo cambiaron en atributos de cabecera)."
+    },
+    {
+     "fecha": "2026-10-13",
+     "resultado": "Medición",
+     "nota": "Respaldo del 13/10 07:32. AutomationCore: último ciclo 67 s (nCycleTime). Los timers CT_* del programador no cambiaron desde el 10/10: en los respaldos del 11 y 13/10 no hay ninguna soldadura registrada. La entrega de esperas del PLC (entregas/2026-10-11_F52_esperas_PLC) queda obsoleta: sus 7 archivos cambiaron en este respaldo (comentarios y GUN_OPEN_LOST); cargarla desharía esos cambios."
     }
    ],
    "conjunto": "mejora"
@@ -4191,7 +4224,7 @@
    ],
    "evidencia_programador": "Correo o documento de Gestamp; si cambió, cuántos módulos se actualizaron.",
    "depende_de": [],
-   "estado": "Requiere decisión",
+   "estado": "Se cierra con otro punto",
    "nota": "Un nombre de módulo KRL no admite '-' (máximo 24 caracteres): la designación vive en el encabezado y en &COMMENT. El nombre del robot en el controlador es G01.",
    "fecha_alta": "2026-10-04",
    "nota_programador": "",
@@ -4203,6 +4236,11 @@
      "fecha": "2026-10-04",
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
+    },
+    {
+     "fecha": "2026-10-13",
+     "resultado": "Se cierra con otro punto",
+     "nota": "Se cierra con G01 (Edgar, 2026-10-13): la designación BMW-03-10-R1 de los encabezados queda como está."
     }
    ],
    "conjunto": "gestamp",
@@ -4555,6 +4593,11 @@
      "fecha": "2026-10-11",
      "resultado": "Nota",
      "nota": "Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). tm_bib.dat: TQM_ACT T21..T26 bajaron de 100000 a 1000 (supervisión de par). Confirmar con el programador qué activó y si quedó probado."
+    },
+    {
+     "fecha": "2026-10-13",
+     "resultado": "Nota",
+     "nota": "Respaldo del 13/10 07:32. tm_bib.dat: iSTOP_TYPE de 53 a 20 (tipo de paro de TorqueMonitoring). La detección de colisión sigue apagada: TQ_STATE FALSE en todos los movimientos y BTQM_ACTIVE=FALSE ($config.dat:83)."
     }
    ],
    "conjunto": "mejora"
@@ -4679,6 +4722,11 @@
      "fecha": "2026-10-11",
      "resultado": "Estándar Gestamp",
      "nota": "Gestamp no usa pounce en el ciclo. Aceptado sin cambio (igual que R20)."
+    },
+    {
+     "fecha": "2026-10-13",
+     "resultado": "Nota",
+     "nota": "Respaldo del 13/10 07:32. XPOUNCE re-enseñado (100.7 mm más arriba, automationglobalpos.dat:13). El ciclo sigue sin pasar por pounce."
     }
    ],
    "conjunto": "mejora"
@@ -5244,6 +5292,11 @@
      "fecha": "2026-10-04",
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
+    },
+    {
+     "fecha": "2026-10-13",
+     "resultado": "Nota",
+     "nota": "Respaldo del 13/10 07:32. El programador simplificó los comentarios de 40 módulos: quitó las notas NOTE/CHECK/WARNING de la versión de oficina (con referencia a puntos) y la mayoría de los comentarios largos que nombraban señal y dirección; dejó comentarios cortos en inglés. El código usa nombres de señal (G12). Sin cambio de código."
     }
    ],
    "conjunto": "mejora"
@@ -5455,6 +5508,11 @@
      "fecha": "2026-10-12",
      "resultado": "Nota",
      "nota": "Respaldo del 11/10 22:32. Ediciones nuevas en NutWeld: nutweldroutines.src (escrituras de pistolas 2/3 condicionadas a nMaxGunNr en NutWeld_Bkg y NutWeld_ProcessReset; luces de la tolva 1 combinadas con CL_WeldFault y dipw1_Fault; intensify y blow-off de la pistola 1 sin apagar en el reset mientras corre PRELOAD) y nutweldroutines.dat (nNutWeldGunNrSTK 3 → 1). Listarlas en la entrega."
+    },
+    {
+     "fecha": "2026-10-13",
+     "resultado": "Nota",
+     "nota": "Respaldo del 13/10 07:32. Ediciones nuevas en archivos de KUKA: tm_bib.dat (iSTOP_TYPE 53 → 20), automationglobalpos.dat (XPOUNCE), ir_stopm.src (solo comentarios de las llamadas de GlueTech apagadas), BrakeTest (solo atributo &ACCESS)."
     }
    ],
    "conjunto": "mejora"

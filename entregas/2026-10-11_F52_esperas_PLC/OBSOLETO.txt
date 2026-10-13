@@ -1,0 +1,7 @@
+OBSOLETO - NO CARGAR (2026-10-13)
+
+Esta entrega se hizo sobre el respaldo del programador del 2026-10-10 21:20.
+En su respaldo del 2026-10-13 07:32 cambiaron los 7 archivos que trae
+(comentarios simplificados y GUN_OPEN_LOST en gun_open_check.src).
+Copiarlos desharia esos cambios. Si se quiere la medicion de esperas del
+PLC, Ethos la rehace sobre el ultimo respaldo.
