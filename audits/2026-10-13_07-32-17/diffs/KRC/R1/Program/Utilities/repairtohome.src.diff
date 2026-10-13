@@ -1,0 +1,11 @@
+--- HEAD:KRC/R1/Program/Utilities/repairtohome.src
++++ backup:KRC/R1/Program/Utilities/repairtohome.src
+@@ -18,8 +18,6 @@
+ ; Line - BMW G65 (cell 03)
+ ; Robot 03-10-R1 (BMW-03-10-R1)
+ ; Application - SERVICE PATH REPAIR TO HOME
+-;********************************
+-; CALLED BY CELL AFTER $IN[8] di008ReturnFromRepair: PTP REPAIR (GLOBAL XREPAIR), PTP HOME
+ ;********************************
+ 
+ ;PTP REPAIR (GLOBAL XREPAIR), THEN PTP HOME (XHOME)

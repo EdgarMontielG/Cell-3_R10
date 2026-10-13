@@ -1,0 +1,11 @@
+--- HEAD:KRC/R1/TP/NutWeld/nutweldroutines.dat
++++ backup:KRC/R1/TP/NutWeld/nutweldroutines.dat
+@@ -286,7 +286,7 @@
+ ;FOLD 251202 New monitoring variables
+ GLOBAL INT iLastActiveGun=3
+ GLOBAL INT iSpotnr=3
+-GLOBAL REAL rLowerLVDT=15834.0
++GLOBAL REAL rLowerLVDT=2586.00
+ GLOBAL REAL rUpperLVDT=0.0
+ GLOBAL BOOL bGunReady2Start=FALSE
+ GLOBAL BOOL bDumpNutExceeded=FALSE

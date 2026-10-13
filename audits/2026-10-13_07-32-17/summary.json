@@ -1,0 +1,819 @@
+{
+ "tool": "tools/audit_backup.py",
+ "generated": "2026-10-13T12:04:17",
+ "backup": {
+  "zip": "/root/.claude/uploads/50f56c92-2919-5ae3-94c9-0de4476bbe87/fc022d57-BMW_03_WINDOWS-2CPT70E_BMW_03_10_R1_658424.zip",
+  "sha256": "6819763dc1b260dd17ad3e8e078d5851103ee3b39e86d197cd01acf19a4533d8",
+  "log_entries_skipped": 8,
+  "am_ini": {
+   "name": "C:\\windows\\TEMP\\tmp5821.tmp\\",
+   "date": "2026-10-13_07-32-17",
+   "config": "All",
+   "rob_name": "BMW_03_10_R1",
+   "serial": "658424",
+   "version": "V8.3.29"
+  },
+  "serial_ok": true
+ },
+ "base": {
+  "ref": "HEAD",
+  "commit": "cd7409d305816d3b59a3ce84ded719b159e9f8b2",
+  "subject": "R10 program audit for the Gestamp buy-off workbook NA-FM-71-070"
+ },
+ "first_commit": "22a98cc8efd85b7482a0051da13d7eb2c47b4998",
+ "counts": {
+  "entries": 323,
+  "unchanged": 267,
+  "changed": 54,
+  "added": 0,
+  "missing": 0,
+  "unexpected": 2,
+  "deleted_still_present": 0,
+  "pre_cleanup": 0,
+  "pre_cleanup_based": 0,
+  "code_changed_files": 3,
+  "code_lines_removed": 6,
+  "code_lines_added": 28,
+  "comment_only_files": 43,
+  "runtime_value_files": 4,
+  "FAIL": 0,
+  "WARN": 1,
+  "INFO": 0
+ },
+ "alerts": [
+  [
+   "WARN",
+   "2 entries outside the KUKA archive layout ignored (e.g. Archive.log)"
+  ],
+  [
+   "WARN",
+   "KRC/R1/System/ir_stopm.src: KUKA system / vendor package file changed - if intended, list the edit in the hand-over so a package update does not drop it (C28)"
+  ],
+  [
+   "INFO",
+   "KRC/R1/System/tm_bib.dat: KUKA system / vendor package file changed - if intended, list the edit in the hand-over so a package update does not drop it (C28)"
+  ],
+  [
+   "INFO",
+   "KRC/R1/TP/AutomationCore/automationglobalpos.dat: KUKA system / vendor package file changed - if intended, list the edit in the hand-over so a package update does not drop it (C28)"
+  ]
+ ],
+ "changed": [
+  "C/KRC/Roboter/Config/User/Common/PersistPC/KrcRrtLog.xml",
+  "C/KRC/User/ProjectRoot/BMW-03-10R1_v8/BMW-03-10R1_v8.asz",
+  "KRC/R1/Program/Centerline/centerline_home.src",
+  "KRC/R1/Program/Centerline/centerline_weld.src",
+  "KRC/R1/Program/Centerline/gun_open_check.dat",
+  "KRC/R1/Program/Centerline/gun_open_check.src",
+  "KRC/R1/Program/Centerline/preload.dat",
+  "KRC/R1/Program/Centerline/preload.src",
+  "KRC/R1/Program/Centerline/request_next_nut.src",
+  "KRC/R1/Program/StyleApps/Options/style1app1opt1a.src",
+  "KRC/R1/Program/StyleApps/Options/style1app1opt1b.src",
+  "KRC/R1/Program/StyleApps/Options/style1app1opt2a.src",
+  "KRC/R1/Program/StyleApps/Options/style1app1opt2b.src",
+  "KRC/R1/Program/StyleApps/Options/style1app1opt3a.src",
+  "KRC/R1/Program/StyleApps/Options/style1app1opt3b.src",
+  "KRC/R1/Program/StyleApps/Options/style1app2opt1.src",
+  "KRC/R1/Program/StyleApps/Options/style1app2opt2.src",
+  "KRC/R1/Program/StyleDrops/Options/style1drop1opt1.src",
+  "KRC/R1/Program/StyleDrops/Options/style1drop1opt2autorr.src",
+  "KRC/R1/Program/StylePicks/Options/style1pick1opt1.src",
+  "KRC/R1/Program/StylePicks/Options/style1pick1opt1autorr.src",
+  "KRC/R1/Program/StylePicks/Options/style1pick1opt2.src",
+  "KRC/R1/Program/Styles/optiones/style1opt1.src",
+  "KRC/R1/Program/Styles/optiones/style1opt10autorr.src",
+  "KRC/R1/Program/Styles/style_1.src",
+  "KRC/R1/Program/Utilities/closeandcheckallclamps.src",
+  "KRC/R1/Program/Utilities/gunelectrodechange.src",
+  "KRC/R1/Program/Utilities/hometopounce.src",
+  "KRC/R1/Program/Utilities/hometorepair.src",
+  "KRC/R1/Program/Utilities/openandcheckallclamps.src",
+  "KRC/R1/Program/Utilities/pouncetohome.src",
+  "KRC/R1/Program/Utilities/rejectge4.src",
+  "KRC/R1/Program/Utilities/repairtohome.src",
+  "KRC/R1/Program/home.src",
+  "KRC/R1/Program/masref_user.src",
+  "KRC/R1/Program/tm_useraction.src",
+  "KRC/R1/System/$config.dat",
+  "KRC/R1/System/ir_stopm.src",
+  "KRC/R1/System/sps.sub",
+  "KRC/R1/System/tm_bib.dat",
+  "KRC/R1/TP/AutomationCore/automationcoredata.dat",
+  "KRC/R1/TP/AutomationCore/automationglobalpos.dat",
+  "KRC/R1/TP/BrakeTest/braketestback.dat",
+  "KRC/R1/TP/BrakeTest/braketestback.src",
+  "KRC/R1/TP/BrakeTest/braketestreq.dat",
+  "KRC/R1/TP/BrakeTest/braketestreq.src",
+  "KRC/R1/TP/BrakeTest/braketeststart.dat",
+  "KRC/R1/TP/BrakeTest/braketeststart.src",
+  "KRC/R1/TP/GripperSpotTech/grp_func.dat",
+  "KRC/R1/TP/NutWeld/nutwelddata.dat",
+  "KRC/R1/TP/NutWeld/nutweldroutines.dat",
+  "KRC/R1/cell.src",
+  "Registry/LMSOFTWAREKUKA Roboter GmbHPerformance.amr",
+  "am.ini"
+ ],
+ "added": [],
+ "missing": [],
+ "unexpected": [
+  "Archive.log",
+  "ArchiveInfo.xml"
+ ],
+ "case_differences": [],
+ "duplicate_entries": [],
+ "runtime_value_files": [
+  "KRC/R1/TP/AutomationCore/automationcoredata.dat",
+  "KRC/R1/TP/GripperSpotTech/grp_func.dat",
+  "KRC/R1/TP/NutWeld/nutwelddata.dat",
+  "KRC/R1/TP/NutWeld/nutweldroutines.dat"
+ ],
+ "deleted_still_present": [],
+ "pre_cleanup": [],
+ "pre_cleanup_based": [],
+ "files": {
+  "C/KRC/Roboter/Config/User/Common/PersistPC/KrcRrtLog.xml": {
+   "area": "controller configuration",
+   "status": "changed",
+   "diff": "diffs/C/KRC/Roboter/Config/User/Common/PersistPC/KrcRrtLog.xml.diff",
+   "note": "1 line(s) removed, 1 added - diffs/C/KRC/Roboter/Config/User/Common/PersistPC/KrcRrtLog.xml.diff"
+  },
+  "C/KRC/User/ProjectRoot/BMW-03-10R1_v8/BMW-03-10R1_v8.asz": {
+   "area": "controller configuration",
+   "status": "changed",
+   "note": "binary, 4301487 bytes"
+  },
+  "KRC/R1/Program/Centerline/centerline_home.src": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 39,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/Centerline/centerline_home.src.diff"
+  },
+  "KRC/R1/Program/Centerline/centerline_weld.src": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 221,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/Centerline/centerline_weld.src.diff"
+  },
+  "KRC/R1/Program/Centerline/gun_open_check.dat": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 42,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [
+    "CL_ClampOpen: FALSE -> TRUE",
+    "nWaterFlow: 222 -> 208"
+   ],
+   "diff": "diffs/KRC/R1/Program/Centerline/gun_open_check.dat.diff"
+  },
+  "KRC/R1/Program/Centerline/gun_open_check.src": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 4,
+   "code_added": 26,
+   "comment_only_changes": 108,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/Centerline/gun_open_check.src.diff"
+  },
+  "KRC/R1/Program/Centerline/preload.dat": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 11,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/Centerline/preload.dat.diff"
+  },
+  "KRC/R1/Program/Centerline/preload.src": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 124,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/Centerline/preload.src.diff"
+  },
+  "KRC/R1/Program/Centerline/request_next_nut.src": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 8,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/Centerline/request_next_nut.src.diff"
+  },
+  "KRC/R1/Program/StyleApps/Options/style1app1opt1a.src": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 60,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/StyleApps/Options/style1app1opt1a.src.diff"
+  },
+  "KRC/R1/Program/StyleApps/Options/style1app1opt1b.src": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 60,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/StyleApps/Options/style1app1opt1b.src.diff"
+  },
+  "KRC/R1/Program/StyleApps/Options/style1app1opt2a.src": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 60,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/StyleApps/Options/style1app1opt2a.src.diff"
+  },
+  "KRC/R1/Program/StyleApps/Options/style1app1opt2b.src": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 60,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/StyleApps/Options/style1app1opt2b.src.diff"
+  },
+  "KRC/R1/Program/StyleApps/Options/style1app1opt3a.src": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 48,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/StyleApps/Options/style1app1opt3a.src.diff"
+  },
+  "KRC/R1/Program/StyleApps/Options/style1app1opt3b.src": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 48,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/StyleApps/Options/style1app1opt3b.src.diff"
+  },
+  "KRC/R1/Program/StyleApps/Options/style1app2opt1.src": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 46,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/StyleApps/Options/style1app2opt1.src.diff"
+  },
+  "KRC/R1/Program/StyleApps/Options/style1app2opt2.src": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 33,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/StyleApps/Options/style1app2opt2.src.diff"
+  },
+  "KRC/R1/Program/StyleDrops/Options/style1drop1opt1.src": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 24,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/StyleDrops/Options/style1drop1opt1.src.diff"
+  },
+  "KRC/R1/Program/StyleDrops/Options/style1drop1opt2autorr.src": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 37,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/StyleDrops/Options/style1drop1opt2autorr.src.diff"
+  },
+  "KRC/R1/Program/StylePicks/Options/style1pick1opt1.src": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 38,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/StylePicks/Options/style1pick1opt1.src.diff"
+  },
+  "KRC/R1/Program/StylePicks/Options/style1pick1opt1autorr.src": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 38,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/StylePicks/Options/style1pick1opt1autorr.src.diff"
+  },
+  "KRC/R1/Program/StylePicks/Options/style1pick1opt2.src": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 41,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/StylePicks/Options/style1pick1opt2.src.diff"
+  },
+  "KRC/R1/Program/Styles/optiones/style1opt1.src": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 26,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/Styles/optiones/style1opt1.src.diff"
+  },
+  "KRC/R1/Program/Styles/optiones/style1opt10autorr.src": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 13,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/Styles/optiones/style1opt10autorr.src.diff"
+  },
+  "KRC/R1/Program/Styles/style_1.src": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 9,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/Styles/style_1.src.diff"
+  },
+  "KRC/R1/Program/Utilities/closeandcheckallclamps.src": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 4,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/Utilities/closeandcheckallclamps.src.diff"
+  },
+  "KRC/R1/Program/Utilities/gunelectrodechange.src": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 88,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/Utilities/gunelectrodechange.src.diff"
+  },
+  "KRC/R1/Program/Utilities/hometopounce.src": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 6,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/Utilities/hometopounce.src.diff"
+  },
+  "KRC/R1/Program/Utilities/hometorepair.src": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 5,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/Utilities/hometorepair.src.diff"
+  },
+  "KRC/R1/Program/Utilities/openandcheckallclamps.src": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 4,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/Utilities/openandcheckallclamps.src.diff"
+  },
+  "KRC/R1/Program/Utilities/pouncetohome.src": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 6,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/Utilities/pouncetohome.src.diff"
+  },
+  "KRC/R1/Program/Utilities/rejectge4.src": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 27,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/Utilities/rejectge4.src.diff"
+  },
+  "KRC/R1/Program/Utilities/repairtohome.src": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 2,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/Utilities/repairtohome.src.diff"
+  },
+  "KRC/R1/Program/home.src": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 5,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/home.src.diff"
+  },
+  "KRC/R1/Program/masref_user.src": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 14,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/masref_user.src.diff"
+  },
+  "KRC/R1/Program/tm_useraction.src": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 3,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/Program/tm_useraction.src.diff"
+  },
+  "KRC/R1/System/$config.dat": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 76,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [
+    "CL_GunStrokePositionLPT: 139750 -> 139770",
+    "CL_WeldPinPosition: 27383 -> 27432",
+    "STOPM_FLAG: TRUE -> FALSE"
+   ],
+   "diff": "diffs/KRC/R1/System/$config.dat.diff"
+  },
+  "KRC/R1/System/ir_stopm.src": {
+   "area": "KUKA system / vendor package",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 5,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/System/ir_stopm.src.diff"
+  },
+  "KRC/R1/System/sps.sub": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 180,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/System/sps.sub.diff"
+  },
+  "KRC/R1/System/tm_bib.dat": {
+   "area": "KUKA system / vendor package",
+   "status": "changed",
+   "code_removed": 1,
+   "code_added": 1,
+   "comment_only_changes": 0,
+   "attributes": [],
+   "data_changes": [
+    "iSTOP_TYPE (INT): 53 -> 20"
+   ],
+   "runtime_values": [
+    "iTQM_LAST_OVPRO: 0 -> 100",
+    "iTQM_ZEIGER: 2 -> 1",
+    "TQM_ACT: {T11 200,T12 200,T13 200,T14 200,T15 200... -> {T11 200,T12 200,T13 200,T14 200,T15 200..."
+   ],
+   "diff": "diffs/KRC/R1/System/tm_bib.dat.diff"
+  },
+  "KRC/R1/TP/AutomationCore/automationcoredata.dat": {
+   "area": "KUKA system / vendor package",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 0,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [
+    "nAutoCore_Handle: 10557 -> 10729",
+    "nCycleStart_Handle: 10726 -> 10938",
+    "nCycleTime: 26 -> 67",
+    "nCycTime_Handle: 10725 -> 10937"
+   ],
+   "diff": "diffs/KRC/R1/TP/AutomationCore/automationcoredata.dat.diff"
+  },
+  "KRC/R1/TP/AutomationCore/automationglobalpos.dat": {
+   "area": "KUKA system / vendor package",
+   "status": "changed",
+   "code_removed": 1,
+   "code_added": 1,
+   "comment_only_changes": 0,
+   "attributes": [],
+   "data_changes": [
+    "XPOUNCE (E6POS) re-taught: moved 100.7 mm, rotated up to 0.1 deg"
+   ],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/TP/AutomationCore/automationglobalpos.dat.diff"
+  },
+  "KRC/R1/TP/BrakeTest/braketestback.dat": {
+   "area": "KUKA system / vendor package",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 0,
+   "attributes": [
+    "&ACCESS RVO7 -> &ACCESS RVO5"
+   ],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/TP/BrakeTest/braketestback.dat.diff"
+  },
+  "KRC/R1/TP/BrakeTest/braketestback.src": {
+   "area": "KUKA system / vendor package",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 0,
+   "attributes": [
+    "&ACCESS RVO7 -> &ACCESS RVO5"
+   ],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/TP/BrakeTest/braketestback.src.diff"
+  },
+  "KRC/R1/TP/BrakeTest/braketestreq.dat": {
+   "area": "KUKA system / vendor package",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 0,
+   "attributes": [
+    "&ACCESS RVO7 -> &ACCESS RVO5"
+   ],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/TP/BrakeTest/braketestreq.dat.diff"
+  },
+  "KRC/R1/TP/BrakeTest/braketestreq.src": {
+   "area": "KUKA system / vendor package",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 0,
+   "attributes": [
+    "&ACCESS RVO7 -> &ACCESS RVO5"
+   ],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/TP/BrakeTest/braketestreq.src.diff"
+  },
+  "KRC/R1/TP/BrakeTest/braketeststart.dat": {
+   "area": "KUKA system / vendor package",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 0,
+   "attributes": [
+    "&ACCESS RVO7 -> &ACCESS RVO5"
+   ],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/TP/BrakeTest/braketeststart.dat.diff"
+  },
+  "KRC/R1/TP/BrakeTest/braketeststart.src": {
+   "area": "KUKA system / vendor package",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 0,
+   "attributes": [
+    "&ACCESS RVO7 -> &ACCESS RVO5"
+   ],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/TP/BrakeTest/braketeststart.src.diff"
+  },
+  "KRC/R1/TP/GripperSpotTech/grp_func.dat": {
+   "area": "KUKA system / vendor package",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 0,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [
+    "GRP_iPreStNo: 1 -> 2",
+    "GRP_PreState[1]: {iGrpIn 257,iStInVal 1,bStInVal TRUE,bGh... -> {iGrpIn 257,iStInVal -1,bStInVal FALSE,b...",
+    "GRP_PreState[2]: {iGrpIn 258,iStInVal -1,bStInVal FALSE,b... -> {iGrpIn 258,iStInVal 1,bStInVal TRUE,bGh...",
+    "GRPg_ProcessData: {ActGrp 1,ReqState 0,LastGrpNo 3,LastStN... -> {ActGrp 1,ReqState 0,LastGrpNo 0,LastStN..."
+   ],
+   "diff": "diffs/KRC/R1/TP/GripperSpotTech/grp_func.dat.diff"
+  },
+  "KRC/R1/TP/NutWeld/nutwelddata.dat": {
+   "area": "KUKA system / vendor package",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 0,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [
+    "bNutWeldProcessReset: FALSE -> TRUE",
+    "bNutWeldWOJoining: FALSE -> TRUE",
+    "rNutSensorValue[3]: 15834.0 -> 2586.00"
+   ],
+   "diff": "diffs/KRC/R1/TP/NutWeld/nutwelddata.dat.diff"
+  },
+  "KRC/R1/TP/NutWeld/nutweldroutines.dat": {
+   "area": "KUKA system / vendor package",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 0,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [
+    "rLowerLVDT: 15834.0 -> 2586.00"
+   ],
+   "diff": "diffs/KRC/R1/TP/NutWeld/nutweldroutines.dat.diff"
+  },
+  "KRC/R1/cell.src": {
+   "area": "integrator program",
+   "status": "changed",
+   "code_removed": 0,
+   "code_added": 0,
+   "comment_only_changes": 56,
+   "attributes": [],
+   "data_changes": [],
+   "runtime_values": [],
+   "diff": "diffs/KRC/R1/cell.src.diff"
+  },
+  "Registry/LMSOFTWAREKUKA Roboter GmbHPerformance.amr": {
+   "area": "controller configuration",
+   "status": "changed",
+   "diff": "diffs/Registry/LMSOFTWAREKUKA Roboter GmbHPerformance.amr.diff",
+   "note": "25 line(s) removed, 25 added - diffs/Registry/LMSOFTWAREKUKA Roboter GmbHPerformance.amr.diff"
+  },
+  "am.ini": {
+   "area": "archive metadata",
+   "status": "changed",
+   "diff": "diffs/am.ini.diff",
+   "note": "3 line(s) removed, 3 added - diffs/am.ini.diff"
+  }
+ },
+ "signal_changes": [],
+ "findings": [
+  {
+   "level": "WARN",
+   "check": 8,
+   "name": "I/O without signal comment",
+   "file": "KRC/R1/Program/Centerline/gun_open_check.src",
+   "line": 176,
+   "message": "$IN[466] accessed with no comment naming it in the 4 lines above (C24): Msg.Msg_txt[]=\"Robot in welder waiting: part clamp not open ($IN[466])"
+  }
+ ],
+ "imported": [
+  "C/KRC/Roboter/Config/User/Common/PersistPC/KrcRrtLog.xml",
+  "C/KRC/User/ProjectRoot/BMW-03-10R1_v8/BMW-03-10R1_v8.asz",
+  "KRC/R1/Program/Centerline/centerline_home.src",
+  "KRC/R1/Program/Centerline/centerline_weld.src",
+  "KRC/R1/Program/Centerline/gun_open_check.dat",
+  "KRC/R1/Program/Centerline/gun_open_check.src",
+  "KRC/R1/Program/Centerline/preload.dat",
+  "KRC/R1/Program/Centerline/preload.src",
+  "KRC/R1/Program/Centerline/request_next_nut.src",
+  "KRC/R1/Program/StyleApps/Options/style1app1opt1a.src",
+  "KRC/R1/Program/StyleApps/Options/style1app1opt1b.src",
+  "KRC/R1/Program/StyleApps/Options/style1app1opt2a.src",
+  "KRC/R1/Program/StyleApps/Options/style1app1opt2b.src",
+  "KRC/R1/Program/StyleApps/Options/style1app1opt3a.src",
+  "KRC/R1/Program/StyleApps/Options/style1app1opt3b.src",
+  "KRC/R1/Program/StyleApps/Options/style1app2opt1.src",
+  "KRC/R1/Program/StyleApps/Options/style1app2opt2.src",
+  "KRC/R1/Program/StyleDrops/Options/style1drop1opt1.src",
+  "KRC/R1/Program/StyleDrops/Options/style1drop1opt2autorr.src",
+  "KRC/R1/Program/StylePicks/Options/style1pick1opt1.src",
+  "KRC/R1/Program/StylePicks/Options/style1pick1opt1autorr.src",
+  "KRC/R1/Program/StylePicks/Options/style1pick1opt2.src",
+  "KRC/R1/Program/Styles/optiones/style1opt1.src",
+  "KRC/R1/Program/Styles/optiones/style1opt10autorr.src",
+  "KRC/R1/Program/Styles/style_1.src",
+  "KRC/R1/Program/Utilities/closeandcheckallclamps.src",
+  "KRC/R1/Program/Utilities/gunelectrodechange.src",
+  "KRC/R1/Program/Utilities/hometopounce.src",
+  "KRC/R1/Program/Utilities/hometorepair.src",
+  "KRC/R1/Program/Utilities/openandcheckallclamps.src",
+  "KRC/R1/Program/Utilities/pouncetohome.src",
+  "KRC/R1/Program/Utilities/rejectge4.src",
+  "KRC/R1/Program/Utilities/repairtohome.src",
+  "KRC/R1/Program/home.src",
+  "KRC/R1/Program/masref_user.src",
+  "KRC/R1/Program/tm_useraction.src",
+  "KRC/R1/System/$config.dat",
+  "KRC/R1/System/ir_stopm.src",
+  "KRC/R1/System/sps.sub",
+  "KRC/R1/System/tm_bib.dat",
+  "KRC/R1/TP/AutomationCore/automationcoredata.dat",
+  "KRC/R1/TP/AutomationCore/automationglobalpos.dat",
+  "KRC/R1/TP/BrakeTest/braketestback.dat",
+  "KRC/R1/TP/BrakeTest/braketestback.src",
+  "KRC/R1/TP/BrakeTest/braketestreq.dat",
+  "KRC/R1/TP/BrakeTest/braketestreq.src",
+  "KRC/R1/TP/BrakeTest/braketeststart.dat",
+  "KRC/R1/TP/BrakeTest/braketeststart.src",
+  "KRC/R1/TP/GripperSpotTech/grp_func.dat",
+  "KRC/R1/TP/NutWeld/nutwelddata.dat",
+  "KRC/R1/TP/NutWeld/nutweldroutines.dat",
+  "KRC/R1/cell.src",
+  "Registry/LMSOFTWAREKUKA Roboter GmbHPerformance.amr",
+  "am.ini"
+ ]
+}

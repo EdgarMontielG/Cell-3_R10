@@ -1,0 +1,128 @@
+--- HEAD:KRC/R1/cell.src
++++ backup:KRC/R1/cell.src
+@@ -9,33 +9,27 @@
+ ; Application - AUTOMATIC EXTERNAL MAIN PROGRAM (AUTOMATIONCORE CELL)
+ ;********************************
+ ;FOLD Initialize System
+-  ;NOTE: DMY IS A REMNANT OF THE KUKA CELL TEMPLATE (cellVorgabe): WRITTEN HERE, NEVER READ
+   DECL CHAR DMY[3]
+   DMY[]="---"
+-  ;AUTOMATIONCORE START-UP (HomeCheck, PROCESS RESET), THEN PTP TO HOME (HOME.src, P1 = XHOME)
++  ;START-UP, THEN HOME
+   InitializeSystem()
+   HOME()
+   ;ENDFOLD (Initialize System)
+   LOOP
+     ;FOLD Maintain System
+-    ;RESET CYCLE DATA AND THE PLC HANDSHAKE OUTPUTS TO THEIR REST STATE (MaintainSystem), E.G.
+-    ;SIGNALS $OUT[5] do005RobotInCycle OFF, $OUT[15] do015WorkComplete OFF,
+-    ;$OUT[4] do004ProcessFault OFF, $OUT[141] do141RedRabbitFailed OFF,
+-    ;$OUT[142] do142RedRabbitPassed OFF; THEN WAITS HERE WHILE STOP AT END OF CYCLE IS
+-    ;SELECTED (SIGNAL $IN[147] di147SEOC ON, OR SELECTED BY THE USER)
++    ;RESET CYCLE OUTPUTS, WAIT HERE WHILE STOP AT END OF CYCLE IS ON
+     MaintainSystem()
+     ;ENDFOLD (Maintain System)
+     ;FOLD Check Style
+-    ;READ THE STYLE NUMBER - SIGNALS $IN[33..37] gdiStyle, ECHOED ON $OUT[33..37] gdoStyleAckn
++    ;STYLE NUMBER FROM THE PLC
+     nStyle=gdiStyle
+     gdoStyleAckn=nStyle
+-    ;READ THE OPTION NUMBER - SIGNALS $IN[38..45] gdiOption, ECHOED ON $OUT[38..45] gdoOptionAckn
++    ;OPTION NUMBER FROM THE PLC
+     nOption=gdiOption
+     gdoOptionAckn=nOption
+-    ;DECODE nOption INTO bOption1..8 (GetOptions) AND WRITE THEM TO
+-    ;SIGNALS $OUT[38..45] do038OptionAckn1..do045OptionAckn8
++    ;OPTION BITS
+     GetOptions( )
+-    ;SHOW THE LAST CYCLE TIME AS A STATE MESSAGE
++    ;LAST CYCLE TIME
+     GetCycTime( )
+     ;FOLD State Message - Waiting for Cycle Start or Style Selection.
+     IF (Exists_KrlMsg(nCycleStart_Handle)==FALSE) THEN
+@@ -43,51 +37,45 @@
+     ENDIF
+     ;ENDFOLD (State Message - Waiting for Cycle Start or Style Selection.)
+     ;ENDFOLD (Check Style)
+-    ;CYCLE START - SIGNAL $IN[5] di005InitiateCycle ON, WITH nStyle > 0 AND nOption > 0
++    ;CYCLE START
+     IF ((di005InitiateCycle==TRUE) AND (nStyle>0) AND (nOption>0)) THEN
+ 	    ;FOLD Start Cycle
+-	    ;CLEAR AUTOMATIONCORE MESSAGES, THEN HomeCheck: THE ROBOT MUST BE AT HOME
+-	    ;(IF NOT: PounceToHome WHEN AT POUNCE IN EXT, OTHERWISE AN OPERATOR DIALOG)
++	    ;CHECK ROBOT AT HOME
+ 	    AC_Erase( )
+ 	    HomeCheck( )
+-	    ;ROBOT IN CYCLE - SIGNAL $OUT[5] do005RobotInCycle ON
++	    ;ROBOT IN CYCLE
+ 	    do005RobotInCycle = TRUE
+-	    ;START THE CYCLE TIMER
++	    ;START CYCLE TIMER
+ 	    StartCycTime( )
+ 	    ;ENDFOLD (Start Cycle)
+-	    ;SELECT THE STYLE PROGRAM BY STYLE NUMBER nStyle (gdiStyle); ONLY STYLE 1 EXISTS
++	    ;STYLE PROGRAM
+ 	    SWITCH  nStyle
+ 		    CASE 1
+-             ;STYLE 1 PROGRAM
++             ;STYLE 1
+              Style_1( )
+ 		    DEFAULT
+-		    ;NOTE: ANY OTHER STYLE RUNS NOTHING AND THE CYCLE ENDS AS IF COMPLETE (F06)
+ 	    ENDSWITCH
+ 	    ;FOLD Finish Cycle
+        IF ((nStyle>0) AND (nOption>0)) THEN
+-		    ;END OF CYCLE (EndOfCycle)
+-		    ;WARNING: THE VENDOR ROUTINE EndOfCycle WAS EDITED ON THIS ROBOT: IT NO LONGER SETS
+-		    ;  $OUT[15] do015WorkComplete NOR WAITS FOR $IN[15] di015WorkCompleteAckn - THE PLC
+-		    ;  NEVER RECEIVES WORK COMPLETE FROM THIS ROBOT (F46)
++		    ;END OF CYCLE
+ 		    EndOfCycle( )
+-		    ;STOP THE CYCLE TIMER
++		    ;STOP CYCLE TIMER
+ 		    StopCycTime( )
+         ENDIF
+ 	  	;ENDFOLD (Finish Cycle)
+   	ELSE
+-		  ;NO VALID CYCLE START - SERVICE REQUESTS FROM THE PLC (REPAIR, MASTERING REFERENCE,
+-		  ;BRAKE TEST, ELECTRODE CHANGE)
+-		  ;GO TO REPAIR - SIGNAL $IN[9] di009GoToRepair ON
++		  ;NO CYCLE START: SERVICE REQUESTS FROM THE PLC
++		  ;GO TO REPAIR
+ 		  IF (di009GoToRepair==TRUE) THEN
+ 		  	HomeCheck( )
+ 		  	HomeToRepair( )
+-;WAIT FOR RETURN FROM REPAIR - SIGNAL $IN[8] di008ReturnFromRepair ON (NO TIMEOUT, F15)
++;WAIT RETURN FROM REPAIR
+ ;FOLD WAIT FOR ( IN 8 'di008ReturnFromRepair' );%{PE}%R 8.3.43,%MKUKATPBASIS,%CEXT_WAIT_FOR,%VEXT_WAIT_FOR,%P 2:, 4:, 5:$IN, 6:8, 7:di008ReturnFromRepair, 9:
+ WAIT FOR  ( di008ReturnFromRepair )
+ ;ENDFOLD
+ 		  		RepairToHome( )
+ 		  ENDIF
+-		  ;MASTERING REFERENCE TEST - SIGNAL $IN[22] di022MstrRefRequest ON
++		  ;MASTERING REFERENCE TEST
+ 		  IF (di022MstrRefRequest==TRUE) THEN
+            HomeCheck( )
+            masref_main( )
+@@ -95,7 +83,7 @@
+ WAIT SEC 5
+ ;ENDFOLD
+ 		  ENDIF
+-          ;BRAKE TEST - SIGNAL $IN[21] di021BrakeTestRequest ON
++          ;BRAKE TEST
+           IF (di021BrakeTestRequest==TRUE) THEN
+              HomeCheck( )
+            BrakeTestReq( )
+@@ -103,11 +91,7 @@
+ WAIT SEC 5
+ ;ENDFOLD
+         ENDIF
+-		  ;ELECTRODE CHANGE - SIGNAL $OUT[111] do111Gun1ElectrodeChange, $OUT[112] do112Gun2ElectrodeChange
+-		  ;OR $OUT[113] do113Gun3ElectrodeChange ON
+-		  ;NOTE: ROBOT OUTPUTS WRITTEN ONLY BY THE AutomationCore BACKGROUND TASK: $OUT[111] FOLLOWS
+-		  ;  dipw1_EndofStepper SINCE THE TASK WAS SWITCHED ON (F49); $OUT[112]/$OUT[113] ARE NO LONGER
+-		  ;CHECK: GunElectrodeChange NOW RUNS AT THE STEPPER END - TEST IT BEFORE PRODUCTION (F43, F49)
++		  ;ELECTRODE CHANGE
+ 		  IF (do111Gun1ElectrodeChange==TRUE) OR (do112Gun2ElectrodeChange==TRUE) OR (do113Gun3ElectrodeChange==TRUE) THEN
+          GunElectrodeChange()
+ 		  ENDIF

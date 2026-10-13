@@ -245,9 +245,9 @@ DECL GLOBAL NutWeldDAT NutWeldManual={GunNr 1,SpotNr 16,Offset 25}
 ;ENDFOLD (NutWeld Custom Variables)
 ;FOLD NutWeld BOOL Variables
 DECL GLOBAL BOOL bNutWeld_RobStop=FALSE
-DECL GLOBAL BOOL bNutWeldWOJoining=FALSE
+DECL GLOBAL BOOL bNutWeldWOJoining=TRUE
 DECL GLOBAL BOOL bNutWeld_LB_Bypass=FALSE
-DECL GLOBAL BOOL bNutWeldProcessReset=FALSE
+DECL GLOBAL BOOL bNutWeldProcessReset=TRUE
 DECL GLOBAL BOOL bNutWeld_PreWeld_Cmplt=FALSE
 DECL GLOBAL BOOL bNutWeld_InhibitWeld=FALSE
 ;FOLD USKB4-1 Test Gun Force
@@ -414,7 +414,7 @@ DECL GLOBAL REAL rNutSensorValueTemp=0.0
 DECL GLOBAL REAL rNutSensorValue[3]
 rNutSensorValue[1]=0.0
 rNutSensorValue[2]=0.0
-rNutSensorValue[3]=15834.0
+rNutSensorValue[3]=2586.00
 DECL GLOBAL REAL rStrokeSensorValue[3]
 rStrokeSensorValue[1]=0.0
 rStrokeSensorValue[2]=0.0

@@ -1,0 +1,15 @@
+--- HEAD:KRC/R1/Program/Utilities/pouncetohome.src
++++ backup:KRC/R1/Program/Utilities/pouncetohome.src
+@@ -18,11 +18,7 @@
+ ; Gestamp Standards
+ ; Line - BMW G65 (cell 03)
+ ; Robot 03-10-R1 (BMW-03-10-R1)
+-; Application - AUTOMATIONCORE PATH POUNCE TO HOME
+-;********************************
+-; CALLED BY AutomationCore HomeCheck WHEN THE ROBOT IS NOT HOME, IN EXTERNAL MODE AND
+-; $OUT[7] do007RobotAtPounce IS ON - THAT BIT IS WRITTEN ONLY BY THE DISABLED BACKGROUND
+-; TASK (F12), SO IN PRACTICE HomeCheck ASKS THE OPERATOR INSTEAD
++; Application - PATH POUNCE TO HOME (AUTOMATIONCORE)
+ ;********************************
+ 
+ ;PTP POUNCE (GLOBAL XPOUNCE), THEN PTP HOME (XHOME)

@@ -1,0 +1,16 @@
+--- HEAD:am.ini
++++ backup:am.ini
+@@ -1,10 +1,10 @@
+ [Archive]
+-Name=C:\windows\TEMP\tmpB604.tmp\
++Name=C:\windows\TEMP\tmp5821.tmp\
+ Config=All
+ DiskNo=0
+ LastDisk=1
+-ID=9cfa248c-e370-4a34-af9c-b14f8d91b64c
+-Date=2026-10-11_22-32-16
++ID=96bbcd7a-8eca-4555-9774-ba14771f0006
++Date=2026-10-13_07-32-17
+ [Roboter]
+ RobName=BMW_03_10_R1
+ IRSerialNr=658424
