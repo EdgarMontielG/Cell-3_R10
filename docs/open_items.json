@@ -1,7 +1,7 @@
 {
  "_comment": "Lista maestra de puntos abiertos del R10: G01-G22 son los puntos de la revisión de Gestamp (2026-10-02, BMW-03-10R1), Fnn/Cnn los de la revisión de Ethos (docs/FINDINGS.md). La lista de Calvin (2026-10-03) se verificó punto por punto: su referencia va en origen_ref. La actualiza la auditoría.",
  "proyecto": "Gestamp celda 3 - robot R10 (BMW-03-10-R1)",
- "actualizado": "2026-10-13",
+ "actualizado": "2026-11-07",
  "auditorias": [
   {
    "fecha": "2026-10-04",
@@ -82,6 +82,14 @@
    "reabiertos": 0,
    "cambios": "Contra su respaldo del 11/10 22:32: 54 archivos cambiados, 3 KRL con cambios de código (-6/+28: GUN_OPEN_LOST, tm_bib.dat, XPOUNCE) y 40 con cambios solo de comentarios (simplificó los comentarios de la versión de oficina y quitó el código comentado). audit_backup: 0 FAIL, 1 WARN.",
    "notas": "Cerrados: G01 y C02 (decisión de Edgar; el nombre queda BMW_03_10_R1) y G02 (capturas del 12/10: herramienta de seguridad EOAT 1 GE4-001 con TCP 0/0/380.8 igual a TOOL_DATA[1]; falta el checklist de aceptación firmado, ítem 40 del workbook). GUN_OPEN_LOST ya no frena con caídas cortas de señal (F01). Sin soldaduras registradas desde el 10/10. Entrega de esperas del PLC obsoleta. Registro en audits/2026-10-13_07-32-17."
+  },
+  {
+   "fecha": "2026-11-07",
+   "respaldo": "BMW_03_WINDOWS-2CPT70E_BMW_03_10_R1_658424.zip (am.ini 2026-10-14 15:05, hora del controlador; robot BMW_03_10_R1, serie 658424, KSS 8.3.29); importado byte por byte en c401a76",
+   "cerrados": 4,
+   "reabiertos": 0,
+   "cambios": "Contra su respaldo del 13/10 07:32: 75 archivos cambiados, 8 borrados (capchange, electrodechange, redrabbit, safetest), 26 KRL con cambios de código (-84/+112). audit_backup: 0 FAIL, 9 WARN (señales sin comentario). El zip trae además un PDF de orden de compra fuera del respaldo.",
+   "notas": "Cerrados: C01 y C19 (AutomationCore_BKG activo otra vez, como R20), C14 y F19 con otro punto. En proceso: G19/F14/F38 (inicialización del estado de la tuerca, NUT_READY consumido al soldar), G21 (red rabbit con OR, falta prueba), F35, F46 (Work Complete en cell.src), F31. Herramienta 2 con pieza (68.28 kg). Configuración de seguridad cambiada el 13/10 (versión 55, CRC 8DA361E6). Tiempos: 17.8 s de soldadura por pieza; último ciclo 42 s (meta 38). Registro en audits/2026-10-14_15-05-27."
   }
  ],
  "items": [
@@ -191,6 +199,11 @@
      "fecha": "2026-10-13",
      "resultado": "Cerrado - auditado",
      "nota": "Captura del smartHMI del 2026-10-12 09:03 (Configuración de seguridad → Herramientas): herramienta de seguridad 1 \"EOAT 1 GE4-001\" activada con TCP X 0, Y 0, Z 380.8 mm; captura de Calibración → Datos de carga de TOOL 1: X 0, Y 0, Z 380.790, A -90, B -90, C -90, igual a TOOL_DATA[1] ($config.dat:234). SafetyConfigData.xml: cambio de parámetros de la herramienta \"EOAT 1 GE4-001\" y configuración guardada el 2026-10-10 11:12, versión 54, WorksheetCrc 2258919054 (sin cambios en los respaldos del 11 y 13/10). El checklist de aceptación de SafeOperation firmado no se presentó: queda para el ítem 40 del workbook de buy-off."
+    },
+    {
+     "fecha": "2026-11-07",
+     "resultado": "Nota",
+     "nota": "Respaldo del 14/10 15:05. La herramienta 2 tiene el mismo TCP que la 1 (0/0/380.79): la herramienta de seguridad sigue siendo igual. La configuración de seguridad cambió otra vez el 2026-10-13 18:58 (Cell area parameter changed): versión 55, WorksheetCrc 3865158541, ParameterCrc 8DA361E6 (SCTLCRC.XML). Falta el checklist de aceptación de esta versión (ítem 40 del workbook)."
     }
    ],
    "conjunto": "gestamp"
@@ -242,6 +255,11 @@
      "fecha": "2026-10-11",
      "resultado": "Avance del programador",
      "nota": "Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). LOAD_DATA[1] = 67.28 kg con centro de masa (-2.62, 17.93, 219.18) e inercias: ya no es el tecleado de 210 kg. Falta la evidencia de Load Data Determination (captura o protocolo). LOAD_A3_DATA pasó de 30 a 50 kg."
+    },
+    {
+     "fecha": "2026-11-07",
+     "resultado": "Avance del programador",
+     "nota": "Respaldo del 14/10 15:05. Ver C08: herramienta 2 con pieza (68.28 kg). Falta el protocolo de Load Data Determination de la herramienta 1."
     }
    ],
    "conjunto": "gestamp"
@@ -361,6 +379,11 @@
      "fecha": "2026-10-13",
      "resultado": "Avance del programador",
      "nota": "Respaldo del 13/10 07:32. Quitó el código comentado de sps.sub y los TRIGGER comentados de las apps; ya no queda código comentado en los módulos activos. Siguen los módulos sobrantes capchange, electrodechange, redrabbit (no compila), POUNCE y safetest, y GlueTech instalado."
+    },
+    {
+     "fecha": "2026-11-07",
+     "resultado": "Avance del programador",
+     "nota": "Respaldo del 14/10 15:05. Borró capchange, electrodechange, redrabbit y safetest en el controlador. Quedan pounce (plantilla de otra línea) y GlueTech instalado con movetopurge (glue.src lo llama)."
     }
    ],
    "conjunto": "gestamp"
@@ -1179,7 +1202,7 @@
     "F38",
     "F14"
    ],
-   "estado": "Abierto",
+   "estado": "En proceso",
    "nota": "",
    "fecha_alta": "2026-10-04",
    "nota_programador": "",
@@ -1191,6 +1214,11 @@
      "fecha": "2026-10-04",
      "resultado": "Alta (Gestamp)",
      "nota": "Punto 19 de la revisión de Gestamp del 2026-10-02 (BMW-03-10R1)."
+    },
+    {
+     "fecha": "2026-11-07",
+     "resultado": "Avance del programador",
+     "nota": "Respaldo del 14/10 15:05. Ver F38 y F14: inicialización al arrancar, NUT_READY consumido al soldar y petición de respaldo si se saltó (selección de bloque). Falta la prueba en celda y el pin vacío antes de alimentar."
     }
    ],
    "conjunto": "gestamp"
@@ -1291,7 +1319,7 @@
     "F19",
     "G08"
    ],
-   "estado": "Abierto",
+   "estado": "En proceso",
    "nota": "",
    "fecha_alta": "2026-10-04",
    "nota_programador": "",
@@ -1313,6 +1341,11 @@
      "fecha": "2026-10-11",
      "resultado": "Sin cambio",
      "nota": "Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). El red rabbit sigue dando FAILED solo con las 3 tuercas (AND, style1app2opt1.src:164) y el drop red rabbit borra do141/do142 (ya fuera del fold)."
+    },
+    {
+     "fecha": "2026-11-07",
+     "resultado": "Avance del programador",
+     "nota": "Respaldo del 14/10 15:05. Red rabbit con la lógica de Gestamp: do141RedRabbitFailed = cualquier tuerca presente (OR) y do142RedRabbitPassed = ninguna (style1app2opt1.src:144-145); el drop red rabbit ya no borra los resultados; la cámara solo puede marcar FAILED (style1app2opt2.src:63-68), no da un PASSED contrario. Cumple en código los tres primeros criterios; falta la prueba con la pieza red rabbit y con una pieza buena."
     }
    ],
    "conjunto": "gestamp"
@@ -2021,6 +2054,11 @@
      "fecha": "2026-10-12",
      "resultado": "Avance del programador",
      "nota": "Respaldo del 11/10 22:32. NutWeld_BKG activo, como Gestamp: luces de tolva y estado del stepper al PLC salen de ahí (quitó su copia de sps.sub); las escrituras de pistolas 2/3 quedaron condicionadas a nMaxGunNr=1 porque se traslapan con CL_GunPressureCmd, y el reset de NutWeld no apaga intensify ni blow-off mientras corre PRELOAD. NutWeld_Bkg escribe $OUT[470] dopw1_Hidraulyc_Valve = $PERI_RDY (AutomationCore lo declara Spare): confirmar que no tiene nada conectado. AutomationCore_BKG sigue apagado desde el 10/10 (C01)."
+    },
+    {
+     "fecha": "2026-11-07",
+     "resultado": "Avance del programador",
+     "nota": "Respaldo del 14/10 15:05. AutomationCore_BKG y NutWeld_BKG activos, como Gestamp. Falta verificar con el PLC cada bit; do052EOATVlvMnfldEnetOK queda fijo en TRUE por una edición en la rutina del proveedor (automationcoreroutines.src:178)."
     }
    ],
    "conjunto": "mejora"
@@ -2125,7 +2163,7 @@
     "F32",
     "F38"
    ],
-   "estado": "Abierto",
+   "estado": "En proceso",
    "nota": "Trampa de advance run: una asignación o llamada escrita después de un movimiento corre varios movimientos antes de que el robot llegue; sin paro de advance run PRELOAD movería QFP y pines con la pieza todavía en el pedestal. IO_MAP marca $IN[468] y $IN[469] como switches sin identificar: confirmar en sitio si alguno es el sensor de pin. Los TRIGGER ya no están dentro de inline forms (G20/F32).",
    "fecha_alta": "2026-10-04",
    "nota_programador": "",
@@ -2152,6 +2190,11 @@
      "fecha": "2026-10-12",
      "resultado": "Criterio ajustado",
      "nota": "El criterio de la petición en el flujo se ajusta a lo ya aceptado en G20 (TRIGGER de la tuerca 1 antes del fold) y F53 (petición justo después de soldar): se cumple desde el 10/10. El pick red rabbit ya no pide preload (11/10). Quedan NUT_READY = FALSE al soldar, que una petición repetida no alimente otra tuerca, el pin vacío antes de alimentar y la prueba en celda."
+    },
+    {
+     "fecha": "2026-11-07",
+     "resultado": "Avance del programador",
+     "nota": "Respaldo del 14/10 15:05. NUT_READY=FALSE al terminar la soldadura (centerline_weld.src:234); PRELOAD descarta una petición si ya hay tuerca lista y no hay preload activo (preload.src:20-22); antes de esperar la tuerca, si no hay tuerca ni petición, se pide (gun_open_check.src:422-424). Falta confirmar pin vacío antes de alimentar y la prueba en celda."
     }
    ],
    "conjunto": "gestamp",
@@ -2385,7 +2428,7 @@
     "F40",
     "F03"
    ],
-   "estado": "Abierto",
+   "estado": "Se cierra con otro punto",
    "nota": "Gestamp (puntos 8 y 21) describe lo mismo; G08 y G21 se cierran con este punto. Mientras no se cambie, no reconfigurar el gripper 3 en GripperTech ni re-sincronizar GripperConfig.xml quitándole esa E/S (F33): el drop red rabbit dejaría de soltar. Hecho en oficina (G20): los resets del red rabbit ya están fuera del fold DropOff[2] Reset.",
    "fecha_alta": "2026-10-04",
    "nota_programador": "",
@@ -2417,6 +2460,11 @@
      "fecha": "2026-10-11",
      "resultado": "Sin cambio",
      "nota": "Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). El red rabbit sigue dando FAILED solo con las 3 tuercas (AND, style1app2opt1.src:164) y el drop red rabbit borra do141/do142 (ya fuera del fold)."
+    },
+    {
+     "fecha": "2026-11-07",
+     "resultado": "Se cierra con otro punto",
+     "nota": "Respaldo del 14/10 15:05. Mismo criterio que G21, que ya cumple en código; el drop red rabbit ya no escribe do249/do250 a mano y suelta con el gripper 1. Se cierra con G21."
     }
    ],
    "conjunto": "mejora"
@@ -2973,7 +3021,7 @@
     "F33",
     "F19"
    ],
-   "estado": "Abierto",
+   "estado": "En proceso",
    "nota": "Parte de oficina hecha (tools/code_changes.json, G10, G13, G14). No guardar la configuración de GripperTech en el HMI mientras F33 esté abierto.",
    "fecha_alta": "2026-10-04",
    "nota_programador": "",
@@ -2985,6 +3033,11 @@
      "fecha": "2026-10-04",
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
+    },
+    {
+     "fecha": "2026-11-07",
+     "resultado": "Avance del programador",
+     "nota": "Respaldo del 14/10 15:05. El drop red rabbit usa el form del gripper 1 (Params setgripper=1, igual a la llamada) y ya no escribe $OUT[249]/$OUT[250] ni usa el gripper 3 (style1drop1opt2autorr.src). Falta revisar el resto de forms y la prueba."
     }
    ],
    "conjunto": "gestamp",
@@ -3149,7 +3202,7 @@
    "depende_de": [
     "F18"
    ],
-   "estado": "Abierto",
+   "estado": "En proceso",
    "nota": "Requisito antes de reactivar AutomationCore_Bkg (F12). masref_user no es módulo del ciclo de producción.",
    "fecha_alta": "2026-10-04",
    "nota_programador": "",
@@ -3176,6 +3229,11 @@
      "fecha": "2026-10-11",
      "resultado": "Nota",
      "nota": "Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). XREFSWITCH (switch de referencia) re-enseñado ~1 mm."
+    },
+    {
+     "fecha": "2026-11-07",
+     "resultado": "Avance del programador",
+     "nota": "Respaldo del 14/10 15:05. MASREFBACKG1 termina con do930MasterRefInProcess=FALSE después de regresar a HOME y abrir el gripper (masref_user.src:133). Falta la prueba en T1."
     }
    ],
    "conjunto": "mejora"
@@ -3308,7 +3366,7 @@
     "F11",
     "F13"
    ],
-   "estado": "Abierto",
+   "estado": "En proceso",
    "nota": "Gestamp (punto 19) pide lo mismo; G19 se cierra con este punto y F14. F14 cubre el consumo de NUT_READY; F10 el estado seguro de las salidas.",
    "fecha_alta": "2026-10-04",
    "nota_programador": "",
@@ -3320,6 +3378,11 @@
      "fecha": "2026-10-04",
      "resultado": "Alta (Calvin)",
      "nota": "Revisión Ethos del respaldo 658424; el punto sale de la lista de Calvin (Calvin #11)."
+    },
+    {
+     "fecha": "2026-11-07",
+     "resultado": "Avance del programador",
+     "nota": "Respaldo del 14/10 15:05. NUT_STATE_INIT (preload.src:260-285) borra banderas, pasos y timers del preload y apaga feed y soplado; se llama en el USER INIT de sps.sub y en cell.src antes de HOME. Deja NUT_READY en FALSE en lugar de leerlo del pin: con una tuerca ya en el pin, la siguiente petición puede alimentar otra (doble tuerca; la ventana de pistola la detectaría). Falta la prueba en celda (cortar a mitad de preload, reset con y sin tuerca)."
     }
    ],
    "conjunto": "gestamp",
@@ -3493,6 +3556,11 @@
      "fecha": "2026-10-04",
      "resultado": "Alta (Calvin)",
      "nota": "Revisión Ethos del respaldo 658424; el punto sale de la lista de Calvin (Calvin #30)."
+    },
+    {
+     "fecha": "2026-11-07",
+     "resultado": "Nota",
+     "nota": "Respaldo del 14/10 15:05. Cell area de SafeOperation cambiada y guardada el 2026-10-13 18:58 (versión 55)."
     }
    ],
    "conjunto": "mejora"
@@ -3669,7 +3737,7 @@
    "depende_de": [
     "C28"
    ],
-   "estado": "Abierto",
+   "estado": "En proceso",
    "nota": "El veredicto red rabbit (F19) y el conteo de soldaduras (C20) dependen de este handshake.",
    "fecha_alta": "2026-10-04",
    "nota_programador": "",
@@ -3691,6 +3759,11 @@
      "fecha": "2026-10-11",
      "resultado": "Sin cambio",
      "nota": "Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). El EndOfCycle sigue con Work Complete comentado (automationcoreroutines.src:381-389)."
+    },
+    {
+     "fecha": "2026-11-07",
+     "resultado": "Avance del programador",
+     "nota": "Respaldo del 14/10 15:05. cell.src manda Work Complete después de EndOfCycle y espera di015WorkCompleteAckn con mensaje de AutomationCore (cell.src:65-72), como el EndOfCycle estándar; la rutina del proveedor sigue editada (C28). Falta la prueba con el PLC; ahora nCycleTime incluye la espera del acuse."
     }
    ],
    "conjunto": "mejora"
@@ -3856,6 +3929,11 @@
      "fecha": "2026-10-12",
      "resultado": "Nota",
      "nota": "Respaldo del 11/10 22:32. Desde el 10/10 AutomationCore_BKG está apagado (versión de oficina cargada). Si se reactiva (C01), igual que R20; sus ediciones siguen en el archivo del proveedor (C28)."
+    },
+    {
+     "fecha": "2026-11-07",
+     "resultado": "Nota",
+     "nota": "Respaldo del 14/10 15:05. AutomationCore_BKG activo otra vez desde el respaldo del 14/10."
     }
    ],
    "nota_programador": "",
@@ -4045,6 +4123,11 @@
      "fecha": "2026-10-13",
      "resultado": "Medición",
      "nota": "Respaldo del 13/10 07:32. AutomationCore: último ciclo 67 s (nCycleTime). Los timers CT_* del programador no cambiaron desde el 10/10: en los respaldos del 11 y 13/10 no hay ninguna soldadura registrada. La entrega de esperas del PLC (entregas/2026-10-11_F52_esperas_PLC) queda obsoleta: sus 7 archivos cambiaron en este respaldo (comentarios y GUN_OPEN_LOST); cargarla desharía esos cambios."
+    },
+    {
+     "fecha": "2026-11-07",
+     "resultado": "Medición",
+     "nota": "Respaldo del 14/10 15:05. Timers CT_* (última pieza): dentro de la pistola 4.10 / 4.01 / 4.00 s; tuerca a tuerca 6.94 / 6.89 s; espera de tuerca 0 / 0.44 / 0.52 s (0.96 s por pieza); tuerca 1 → fin de tuerca 3 17.8 s (17.2 s el 10/10). AutomationCore: último ciclo 42 s (39 s el 10/10), que ahora incluye la espera del acuse de Work Complete del PLC. nCtCycle 102.4 s incluye una espera. Meta 38 s."
     }
    ],
    "conjunto": "mejora"
@@ -4094,6 +4177,11 @@
      "fecha": "2026-10-12",
      "resultado": "Nota",
      "nota": "Respaldo del 11/10 22:32. La pre-alimentación volvió a 2 s y regresó el WAIT SEC 0.2 entre GunWork y GunHome al abrir la pistola, los dos como R20."
+    },
+    {
+     "fecha": "2026-11-07",
+     "resultado": "Nota",
+     "nota": "Respaldo del 14/10 15:05. Con la pre-alimentación de 2 s la espera de tuerca subió a 0.96 s por pieza (0.56 s el 10/10 con 5 s)."
     }
    ],
    "conjunto": "mejora"
@@ -4150,7 +4238,7 @@
    ],
    "evidencia_programador": "La evidencia se registra en F12.",
    "depende_de": [],
-   "estado": "Reabierto",
+   "estado": "Cerrado - auditado",
    "nota": "Al cerrar F12 se actualiza también el ;NOTE: de sps.sub que cita (F12, C01).",
    "fecha_alta": "2026-10-04",
    "nota_programador": "",
@@ -4172,6 +4260,11 @@
      "fecha": "2026-10-12",
      "resultado": "Reabierto",
      "nota": "Respaldo del 11/10 22:32. Corrección de la auditoría del 10/10: desde ese respaldo (versión de oficina cargada) AutomationCore_BKG está apagado otra vez (fold vacío en sps.sub y sus salidas en OFF al arrancar). El programador copia en sps.sub parte de sus señales (weld enable y weld mode, aire, agua, tolva, nut ready/fault, cambio de electrodo y, desde el 11/10, robot en repair). Faltan request to enter (C19), brake test pendiente (C14), mastering pendiente, batería, velocidad distinta de 100 %, eje 1, Tool ID, pounce / tip dress / switch de referencia y el arranque automático del programa CELL. En su respaldo del 05/10 y en R20 está activo."
+    },
+    {
+     "fecha": "2026-11-07",
+     "resultado": "Cerrado - auditado",
+     "nota": "Respaldo del 14/10 15:05. AutomationCore_BKG() activo otra vez en sps.sub (línea 102), como en Gestamp y en R20; escribe request to enter, brake test pendiente, mastering pendiente, batería, velocidad, eje 1, Tool ID, posiciones y estado Ethernet de periféricos. sps.sub sigue escribiendo también sus copias de weld enable, weld mode, aire, agua, tolva, nut ready/fault, cambio de electrodo y repair, con la misma expresión (dos escritores con el mismo valor)."
     }
    ],
    "conjunto": "mejora"
@@ -4533,6 +4626,11 @@
      "fecha": "2026-10-11",
      "resultado": "Avance del programador",
      "nota": "Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). LOAD_DATA[1] = 67.28 kg con centro de masa (-2.62, 17.93, 219.18) e inercias: ya no es el tecleado de 210 kg. Falta la evidencia de Load Data Determination (captura o protocolo). LOAD_A3_DATA pasó de 30 a 50 kg."
+    },
+    {
+     "fecha": "2026-11-07",
+     "resultado": "Avance del programador",
+     "nota": "Respaldo del 14/10 15:05. TOOL_DATA[2] \"TOOL 1 WITH PART\" igual a la herramienta 1 y LOAD_DATA[2] = 68.28 kg (la carga de la herramienta 1 + 1 kg, mismo centro de masa); los movimientos con pieza usan la herramienta 2. Ningún movimiento de producción usa carga por defecto. Sigue faltando el protocolo de Load Data Determination; la masa de la pieza (1 kg) no está confirmada."
     }
    ],
    "conjunto": "mejora"
@@ -4598,6 +4696,11 @@
      "fecha": "2026-10-13",
      "resultado": "Nota",
      "nota": "Respaldo del 13/10 07:32. tm_bib.dat: iSTOP_TYPE de 53 a 20 (tipo de paro de TorqueMonitoring). La detección de colisión sigue apagada: TQ_STATE FALSE en todos los movimientos y BTQM_ACTIVE=FALSE ($config.dat:83)."
+    },
+    {
+     "fecha": "2026-11-07",
+     "resultado": "Nota",
+     "nota": "Respaldo del 14/10 15:05. tm_bib.dat: iSTOP_TYPE regresó a 53. Detección de colisión sigue apagada."
     }
    ],
    "conjunto": "mejora"
@@ -4796,7 +4899,7 @@
    "depende_de": [
     "F47"
    ],
-   "estado": "Reabierto",
+   "estado": "Se cierra con otro punto",
    "nota": "",
    "fecha_alta": "2026-10-04",
    "nota_programador": "",
@@ -4818,6 +4921,11 @@
      "fecha": "2026-10-12",
      "resultado": "Reabierto",
      "nota": "Respaldo del 11/10 22:32. Corrección de la auditoría del 10/10: desde ese respaldo do021BrakeTestReqd no se escribe (FALSE al arrancar; AutomationCore_BKG apagado, C01). Sigue además el camino del brake test (F47)."
+    },
+    {
+     "fecha": "2026-11-07",
+     "resultado": "Se cierra con otro punto",
+     "nota": "Respaldo del 14/10 15:05. do021BrakeTestReqd lo escribe otra vez AutomationCore_BKG. Queda el camino del brake test (F47)."
     }
    ],
    "conjunto": "mejora"
@@ -5023,7 +5131,7 @@
     "F11",
     "F35"
    ],
-   "estado": "Reabierto",
+   "estado": "Cerrado - auditado",
    "nota": "AC_Request_to_enter contiene un WAIT FOR dentro del submit: evaluarlo antes de reactivar AutomationCore_Bkg. Cambiar automationcoreroutines.src es edición de archivo del proveedor: C28.",
    "fecha_alta": "2026-10-04",
    "nota_programador": "",
@@ -5045,6 +5153,11 @@
      "fecha": "2026-10-12",
      "resultado": "Reabierto",
      "nota": "Respaldo del 11/10 22:32. Corrección de la auditoría del 10/10: desde ese respaldo doCriticalWZ no se escribe; el submit lo pone en FALSE al arrancar y AutomationCore_BKG está apagado (C01). Es el problema del respaldo original."
+    },
+    {
+     "fecha": "2026-11-07",
+     "resultado": "Cerrado - auditado",
+     "nota": "Respaldo del 14/10 15:05. doCriticalWZ lo escribe AC_Request_to_enter desde el background (automationcoreroutines.src:1411-1434), mismo código que R20: niega la entrada con la pistola en trabajo o gripper / brake test / mastering en proceso. El preload no está en la condición: sigue en F11. do930 ya se apaga al terminar el mastering reference (F35)."
     }
    ],
    "conjunto": "mejora"
@@ -5090,6 +5203,11 @@
      "fecha": "2026-10-04",
      "resultado": "Alta (Ethos)",
      "nota": "Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02)."
+    },
+    {
+     "fecha": "2026-11-07",
+     "resultado": "Nota",
+     "nota": "Respaldo del 14/10 15:05. AC_Process_Count(#CHECK) sigue comentado; Work Complete ya se manda desde cell.src (F46)."
     }
    ],
    "conjunto": "mejora"
@@ -5513,6 +5631,11 @@
      "fecha": "2026-10-13",
      "resultado": "Nota",
      "nota": "Respaldo del 13/10 07:32. Ediciones nuevas en archivos de KUKA: tm_bib.dat (iSTOP_TYPE 53 → 20), automationglobalpos.dat (XPOUNCE), ir_stopm.src (solo comentarios de las llamadas de GlueTech apagadas), BrakeTest (solo atributo &ACCESS)."
+    },
+    {
+     "fecha": "2026-11-07",
+     "resultado": "Nota",
+     "nota": "Respaldo del 14/10 15:05. Ediciones nuevas: ninguna de código en archivos de KUKA (solo atributos en BrakeTest, masref_main, tm_bib.src). Sigue la edición de EndOfCycle (Work Complete ahora en cell.src) y do052EOATVlvMnfldEnetOK=TRUE fijo en AutomationCore_BKG (automationcoreroutines.src:178)."
     }
    ],
    "conjunto": "mejora"

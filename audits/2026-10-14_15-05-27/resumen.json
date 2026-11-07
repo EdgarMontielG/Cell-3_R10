@@ -1,0 +1,50 @@
+{
+ "titulo": "Auditoría del respaldo del 2026-10-14 15:05",
+ "respaldo": "BMW_03_WINDOWS-2CPT70E_BMW_03_10_R1_658424.zip (am.ini 2026-10-14 15:05, hora del controlador; robot BMW_03_10_R1, serie 658424); importado byte por byte, es la nueva base",
+ "fecha_auditoria": "2026-11-07 08:09",
+ "base": "Comparado contra su respaldo del 13/10 07:32: 26 KRL con cambios de código, 8 archivos borrados (capchange, electrodechange, redrabbit, safetest), 0 FAIL. AutomationCore_BKG activo, Work Complete al PLC, red rabbit con OR, inicialización del estado de la tuerca y herramienta 2 con pieza.",
+ "cierre": "Cerrados: C01 y C19 (background de AutomationCore activo, como R20); C14 y F19 se cierran con F47 y G21. En proceso, con el código hecho y falta la prueba en celda: G19, F14, F38, G21, F31, F35 y F46. Quedan 12 abiertos de 28 en el juego de Gestamp.",
+ "bueno": [
+  "AutomationCore_BKG activo: request to enter, brake test pendiente y estado al PLC como Gestamp.",
+  "Red rabbit con la lógica de Gestamp (OR) y resultado que el drop ya no borra.",
+  "Estado de la tuerca inicializado al arrancar y NUT_READY consumido al soldar.",
+  "Work Complete al PLC; herramienta con pieza para los movimientos con carga; 4 módulos sobrantes borrados."
+ ],
+ "riesgos": [
+  {
+   "texto": "Después de un reset con tuerca en el pin, la inicialización deja NUT_READY en FALSE y puede alimentar una segunda tuerca.",
+   "items": [
+    "F38",
+    "G19"
+   ]
+  },
+  {
+   "texto": "Configuración de seguridad cambiada el 13/10 (versión 55, CRC 8DA361E6) sin checklist de aceptación.",
+   "items": [
+    "G02",
+    "F42"
+   ]
+  },
+  {
+   "texto": "Último ciclo de 42 s contra la meta de 38 s; la soldadura subió 0.6 s por pieza.",
+   "items": [
+    "F52"
+   ]
+  },
+  {
+   "texto": "El zip del respaldo incluye una orden de compra de Ethos: no reenviarlo tal cual.",
+   "items": []
+  }
+ ],
+ "plan": [
+  "Pruebas en celda de G19/F14/F38 (reset con y sin tuerca, corte a mitad de preload) y del red rabbit (G21).",
+  "Checklist de aceptación de SafeOperation de la versión 55 y protocolo de carga (G03).",
+  "10 piezas seguidas en automático para medir contra 38 s (F52)."
+ ],
+ "pedir": [
+  "Checklist de aceptación firmado de la configuración de seguridad versión 55 (CRC 8DA361E6).",
+  "Protocolo de Load Data Determination de la herramienta 1 y la masa real de la pieza.",
+  "Fechas y resultados de las pruebas de reset/preload y del red rabbit.",
+  "Respaldos sin archivos ajenos al robot."
+ ]
+}

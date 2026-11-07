@@ -2,7 +2,7 @@
 
 *Archivo generado por `tools/make_items_md.py` a partir de `docs/open_items.json` — no se edita a mano.*
 
-Actualizado: 2026-10-13. Pendientes: **63** de 104. El detalle técnico de cada punto (en inglés, para Gestamp) está en [FINDINGS.md](FINDINGS.md); el proceso en [PROCESO.es.md](PROCESO.es.md).
+Actualizado: 2026-11-07. Pendientes: **59** de 104. El detalle técnico de cada punto (en inglés, para Gestamp) está en [FINDINGS.md](FINDINGS.md); el proceso en [PROCESO.es.md](PROCESO.es.md).
 
 **Puntos de Gestamp (G01–G22)**: revisión de Gestamp del 2026-10-02 (BMW-03-10R1), con su texto original. Desde el 2026-10-11 la base es el programa del programador: cada punto se revisa contra su programa y la versión de oficina queda como referencia (nota de cada punto). Los Fnn/Cnn son de la revisión de Ethos (numeración del R20); los marcados "Calvin #n" también están en la lista de Calvin (2026-10-03), verificada punto por punto. Esta lista es la única que se usa.
 
@@ -30,9 +30,9 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 | G16 | NO variables for e.g. stroke limits | ~~Constantes para límites de carrera, presiones y tiempos~~ | Medio | Programador robot (prueba en celda) | Cerrado - auditado | F16, F44, F41 |
 | G17 | Nut_weld_Retry logic useless | ~~Lógica Nut_weld_Retry inútil~~ | Bajo | Programador robot (prueba en celda) | Cerrado - auditado | F24 |
 | G18 | NO check for Weld OK, just weld finished | ~~Sin chequeo de soldadura buena~~ | Alto | Programador robot / Puesta en marcha | Aceptado sin cambio | F08 |
-| G19 | Next_Nut_Ready logic can fail at block selection, reset, reboot | Handshake de la tuerca frágil ante selección de bloque, reset y reinicio | Alto | Programador robot | **Abierto** | F38, F14 |
+| G19 | Next_Nut_Ready logic can fail at block selection, reset, reboot | Handshake de la tuerca frágil ante selección de bloque, reset y reinicio | Alto | Programador robot | **En proceso** | F38, F14 |
 | G20 | Change of xP0 deletes Request_next_nut inside inline forms | ~~Request_next_nut y NUT_START fuera de los inline forms~~ | Alto | Programador robot (prueba en celda) | Cerrado - auditado | F32, F14 |
-| G21 | Style1app2Opt1 will not work for RedRabbit | El nut check no funciona para red rabbit | Alto | Gestamp controles / Programador robot | **Abierto** | F19, G08 |
+| G21 | Style1app2Opt1 will not work for RedRabbit | El nut check no funciona para red rabbit | Alto | Gestamp controles / Programador robot | **En proceso** | F19, G08 |
 | G22 | Use of AutomationCore is wrong in multiple places | Uso incorrecto de AutomationCore | Alto | Gestamp controles / Programador robot | **Abierto** | F12, C01, F46, F21, F20, C11, C12, C18, C19, C14, F35 |
 
 ## Resumen — puntos de Ethos
@@ -52,12 +52,12 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 | F11 | PRELOAD en el submit mueve el pedestal en cualquier modo, sin dueño de las salidas | Crítico | Seguridad + Programador robot | **Requiere decisión** |
 | F12 | Background de AutomationCore y NutWeld deshabilitado: los bits de estado al PLC no cambian | Alto | Gestamp controles + Programador robot | **En proceso** |
 | F13 | PRELOAD sin timeouts por paso, sin falla y banderas de tuerca lista sin confirmar alimentación (Calvin #6) | Medio | Programador robot | **Abierto** |
-| F14 | NUT_READY no se consume al soldar; la siguiente tuerca depende solo de TRIGGERs (Calvin #11) — **para G19** | Medio | Programador robot | **Abierto** |
+| F14 | NUT_READY no se consume al soldar; la siguiente tuerca depende solo de TRIGGERs (Calvin #11) — **para G19** | Medio | Programador robot | **En proceso** |
 | F15 | Unos 35 WAIT FOR sobre entradas de proceso sin timeout ni mensaje (Calvin #1) | Medio | Programador robot | **Abierto** |
 | F16 | Posición del pin superior nunca verificada | Medio | Programador robot / Puesta en marcha | **Abierto** |
 | F17 | Declaraciones traslapadas; nombres dobles en los bits del pedestal | Medio | Programador robot | **Abierto** |
 | F18 | KRC_IO.xml mapea $OUT[820..979] y $IN[820..930] sobre los mismos bytes del adapter PLC | Medio | Gestamp controles / Programador robot | **Requiere decisión** |
-| F19 | Red rabbit: el ciclo no puede dar resultado y suelta la pieza por un mapeo duplicado (Calvin #26) | Alto | Programador robot / Gestamp controles | **Abierto** |
+| F19 | ~~Red rabbit: el ciclo no puede dar resultado y suelta la pieza por un mapeo duplicado~~ (Calvin #26) | Alto | Programador robot / Gestamp controles | Se cierra con otro punto |
 | F20 | ~~Rechazo por nut check: Application 1 sin liberar~~ | Medio | Programador robot / Gestamp controles | Cerrado - auditado |
 | F21 | Parámetros ocultos de inline forms AutomationCore no coinciden con la llamada — **para G07** | Medio | Programador robot | **Abierto** |
 | F22 | Movimientos del pedestal mezclan modo base y external TCP | Medio | Ethos (Edgar) / Programador robot | **Requiere decisión** |
@@ -69,14 +69,14 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 | F28 | ~~Sensor de tuerca leído al llegar al punto; el dwell iba después de la lectura~~ | Bajo | Programador robot (prueba en celda) | Se cierra con otro punto |
 | F29 | Faro KL50L2: lógica muerta y un bit sin mapear | Bajo | Programador robot / Puesta en marcha | **Abierto** |
 | F30 | Style1Opt1 sin GOTO: un camino IF/ELSE por ciclo | Bajo | Programador robot (prueba en celda) | **En proceso** |
-| F31 | Forms GripperTech: parámetros ocultos de otro gripper; drop red rabbit con el gripper 3 (Calvin #25) — **para G07** | Medio | Programador robot / Puesta en marcha | **Abierto** |
+| F31 | Forms GripperTech: parámetros ocultos de otro gripper; drop red rabbit con el gripper 3 (Calvin #25) — **para G07** | Medio | Programador robot / Puesta en marcha | **En proceso** |
 | F32 | ~~TRIGGERs y resets escritos a mano dentro de folds de inline form~~ (Calvin #28) | Medio | Programador robot (prueba en celda) | Se cierra con otro punto |
 | F33 | GripperConfig.xml del HMI desincronizado con grp_data.dat | Medio | Programador robot | **Abierto** |
 | F34 | CENTERLINE_HOME: polaridad de $OUT[473] y falta el reset del Bosch | Bajo | Programador robot / Puesta en marcha | **Requiere decisión** |
-| F35 | El mastering reference deja $OUT[930] en ON para siempre | Medio | Programador robot | **Abierto** |
+| F35 | El mastering reference deja $OUT[930] en ON para siempre | Medio | Programador robot | **En proceso** |
 | F36 | ~~$IN[227] declarado con dos nombres (NUT_PRESENT1, di227SensorCamera)~~ | Bajo | Programador robot (prueba en celda) | Cerrado - auditado |
 | F37 | ~~Presión de intensificado no confirmada antes de weld start: no aplica en R10~~ (Calvin #1) | - | Programador robot | No aplica |
-| F38 | Estado de la tuerca no se reinicializa al arrancar, en reset ni después de un reinicio (Calvin #11) — **para G19** | Alto | Programador robot | **Abierto** |
+| F38 | Estado de la tuerca no se reinicializa al arrancar, en reset ni después de un reinicio (Calvin #11) — **para G19** | Alto | Programador robot | **En proceso** |
 | F39 | Supervisión de par en cero; chequeo de datos de carga solo avisa; carga tecleada (Calvin #16) | Medio | Programador robot / Puesta en marcha | **Abierto** |
 | F40 | Drops y reject abren el gripper sin confirmar pieza; el drop red rabbit se mueve antes de gripper vacío (Calvin #25) | Medio | Programador robot | **Abierto** |
 | F41 | Tiempos de PRELOAD, límite de flujo de agua y esperas fijas sin constantes (Calvin Std 5) | Bajo | Programador robot | **Abierto** |
@@ -84,7 +84,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 | F43 | Cambio de electrodo: reset de stepper por pulso de 0.1 s y handshake que no cierra (Calvin #29) — **para G06** | Medio | Programador robot / Gestamp controles | **Requiere decisión** |
 | F44 | Palabra de presión del gun escrita en dos órdenes de bytes (405/1820 contra 39425) | Alto | Puesta en marcha / Programador robot | **Abierto** |
 | F45 | ~~Rutinas de clamps: grippers 2-4 deshabilitados, solo existe el gripper 1~~ (Calvin #23) | Bajo | Programador robot | Cerrado - depuración |
-| F46 | EndOfCycle del proveedor editado: Work Complete nunca se manda al PLC | Medio | Gestamp controles / Ethos (Edgar) | **Abierto** |
+| F46 | EndOfCycle del proveedor editado: Work Complete nunca se manda al PLC | Medio | Gestamp controles / Ethos (Edgar) | **En proceso** |
 | F47 | Camino del brake test enseñado con tool 3 / base 1 de otro robot | Medio | Programador robot / Puesta en marcha | **Abierto** |
 | F48 | Drop al conveyor: interlock de drop-off después de PTP P5; AtDrop3 re-enseñado (se conserva) | Alto | Programador robot / Gestamp controles | **Abierto** |
 | F49 | ~~AutomationCore_BKG activado y editado sin decisión registrada~~ | Alto | Gestamp controles + Programador robot | Aceptado sin cambio |
@@ -93,7 +93,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 | F52 | Tiempo ciclo de R10: meta 38 s pieza a pieza (medir el ciclo completo y bajarlo) | Alto | Programador robot | **En proceso** |
 | F53 | ~~Tiempo ciclo del programador: pre-alimenta la tuerca, la pide con la pieza aún en la pistola, CONT/PTP y sin esperas de 0.2 s~~ | Alto | Programador robot | Aceptado sin cambio |
 | F54 | Cámara: el resultado se lee en cuanto hay OK o NG; confirmar que no es el de la pieza anterior | Alto | Programador robot / PLC | **Abierto** |
-| C01 | AutomationCore_Bkg deshabilitado: el estatus al PLC no se actualiza | - | Gestamp controles / Ethos (Edgar) | **Reabierto** |
+| C01 | ~~AutomationCore_Bkg deshabilitado: el estatus al PLC no se actualiza~~ | - | Gestamp controles / Ethos (Edgar) | Cerrado - auditado |
 | C02 | ~~Designación BMW-03-10-R1 en los encabezados; confirmar formato con Gestamp~~ — **para G01** | - | Ethos (Edgar) / Gestamp controles | Se cierra con otro punto |
 | C03 | ~~Encabezado estándar Gestamp en cada módulo del integrador~~ | - | Programador robot | Cerrado - depuración |
 | C04 | Movimientos de pedestal interpolados sobre el dado fijo (external TCP) | - | Ethos (Edgar) / Programador robot | **Requiere decisión** |
@@ -106,12 +106,12 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 | C11 | Zonas sin documentar: ninguna zona pedida, falta la forma NA-FM-71-138.1 | - | Ethos (Edgar) / Gestamp controles | **Requiere decisión** |
 | C12 | ~~Pounce común: el ciclo no pasa por pounce y do007RobotAtPounce no se calcula~~ | - | Gestamp controles / Ethos (Edgar) | Aceptado sin cambio |
 | C13 | ~~Manejo de zonas coherente~~ | - | Programador robot | No aplica |
-| C14 | Brake test: el 'due' no se reporta y el camino usa tool/base de otro robot | - | Programador robot | **Reabierto** |
+| C14 | ~~Brake test: el 'due' no se reporta y el camino usa tool/base de otro robot~~ | - | Programador robot | Se cierra con otro punto |
 | C15 | ~~Dry cycle seleccionable y sin colgar el robot~~ | - | Programador robot | Se cierra con otro punto |
 | C16 | ~~Pieza presente / pieza en gripper~~ | - | Programador robot | Se cierra con otro punto |
 | C17 | ~~Verificación de tuercas y red rabbit~~ | - | Programador robot | Se cierra con otro punto |
 | C18 | ~~Handshakes AutomationCore de pick, application y drop~~ | - | Programador robot | Se cierra con otro punto |
-| C19 | Request to enter: doCriticalWZ nunca se escribe; el PLC ve entrada permitida | - | Programador robot / Seguridad | **Reabierto** |
+| C19 | ~~Request to enter: doCriticalWZ nunca se escribe; el PLC ve entrada permitida~~ | - | Programador robot / Seguridad | Cerrado - auditado |
 | C20 | Conteo de soldaduras al final del ciclo: #CHECK apagado y WeldNoRequired distinto de 3 | - | Programador robot | **Abierto** |
 | C21 | Fallas por mensajes AutomationCore: ningún HALT sin mensaje ni WAIT FOR FALSE | - | Programador robot | **Abierto** |
 | C22 | Grippers por inline forms GripperTech | - | Programador robot / Puesta en marcha | **Abierto** |
@@ -184,6 +184,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 * 2026-10-04 — Alta (Gestamp): Punto 2 de la revisión de Gestamp del 2026-10-02 (BMW-03-10R1).
 * 2026-10-11 — Estándar Gestamp: La herramienta de seguridad no se ve en texto en ningún respaldo: sigue la captura del smartHMI.
 * 2026-10-13 — Cerrado - auditado: Captura del smartHMI del 2026-10-12 09:03 (Configuración de seguridad → Herramientas): herramienta de seguridad 1 "EOAT 1 GE4-001" activada con TCP X 0, Y 0, Z 380.8 mm; captura de Calibración → Datos de carga de TOOL 1: X 0, Y 0, Z 380.790, A -90, B -90, C -90, igual a TOOL_DATA[1] ($config.dat:234). SafetyConfigData.xml: cambio de parámetros de la herramienta "EOAT 1 GE4-001" y configuración guardada el 2026-10-10 11:12, versión 54, WorksheetCrc 2258919054 (sin cambios en los respaldos del 11 y 13/10). El checklist de aceptación de SafeOperation firmado no se presentó: queda para el ítem 40 del workbook de buy-off.
+* 2026-11-07 — Nota: Respaldo del 14/10 15:05. La herramienta 2 tiene el mismo TCP que la 1 (0/0/380.79): la herramienta de seguridad sigue siendo igual. La configuración de seguridad cambió otra vez el 2026-10-13 18:58 (Cell area parameter changed): versión 55, WorksheetCrc 3865158541, ParameterCrc 8DA361E6 (SCTLCRC.XML). Falta el checklist de aceptación de esta versión (ítem 40 del workbook).
 
 ---
 
@@ -215,6 +216,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 * 2026-10-04 — Alta (Gestamp): Punto 3 de la revisión de Gestamp del 2026-10-02 (BMW-03-10R1).
 * 2026-10-11 — Estándar Gestamp: Gestamp tiene una carga determinada por herramienta (LOAD_DATA[1] 81 kg con centro de masa e inercias) y no usa carga aparte con pieza: se quita ese criterio (igual que R20). Hoy LOAD_DATA[1] sigue tecleado (210 kg, CM 270/0/240, inercias 105).
 * 2026-10-11 — Avance del programador: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). LOAD_DATA[1] = 67.28 kg con centro de masa (-2.62, 17.93, 219.18) e inercias: ya no es el tecleado de 210 kg. Falta la evidencia de Load Data Determination (captura o protocolo). LOAD_A3_DATA pasó de 30 a 50 kg.
+* 2026-11-07 — Avance del programador: Respaldo del 14/10 15:05. Ver C08: herramienta 2 con pieza (68.28 kg). Falta el protocolo de Load Data Determination de la herramienta 1.
 
 ---
 
@@ -282,6 +284,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 * 2026-10-11 — Decisión: Base = programa del programador (respaldo del 2026-10-05 14:46). Decisión de Edgar (2026-10-11, igual que R20): la auditoría ya no marca los módulos que borró la oficina; los sobrantes se siguen solo en este punto y no se evalúan hasta que la celda esté probada al 100 %.
 * 2026-10-11 — Avance del programador: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). Borró 8 módulos sobrantes (14 archivos). Quedan capchange, electrodechange, redrabbit (no compila) y POUNCE.
 * 2026-10-13 — Avance del programador: Respaldo del 13/10 07:32. Quitó el código comentado de sps.sub y los TRIGGER comentados de las apps; ya no queda código comentado en los módulos activos. Siguen los módulos sobrantes capchange, electrodechange, redrabbit (no compila), POUNCE y safetest, y GlueTech instalado.
+* 2026-11-07 — Avance del programador: Respaldo del 14/10 15:05. Borró capchange, electrodechange, redrabbit y safetest en el controlador. Quedan pounce (plantilla de otra línea) y GlueTech instalado con movetopurge (glue.src lo llama).
 
 ---
 
@@ -699,7 +702,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 
 **Origen:** Gestamp - Robot Program Review - Findings (2026-10-02), BMW-03-10R1, punto 19. Texto de Gestamp: *"Next_Nut_Ready logic can fail at block selection, reset, reboot"*
 
-**Severidad:** Alto · **Tipo:** Código + prueba en celda · **Responsable:** Programador robot · **Estado:** Abierto
+**Severidad:** Alto · **Tipo:** Código + prueba en celda · **Responsable:** Programador robot · **Estado:** En proceso
 
 **Módulos:** `KRC/R1/Program/Centerline/PRELOAD.src`, `KRC/R1/Program/Centerline/Request_next_nut.src`, `KRC/R1/System/$config.dat`, `KRC/R1/cell.src`, `KRC/R1/System/sps.sub`, `KRC/R1/Program/StyleApps/Options/style1app1opt1.src`, `KRC/R1/Program/StyleApps/Options/style1app1opt2.src`, `KRC/R1/Program/StyleApps/Options/style1app1opt3.src`, `KRC/R1/Program/StylePicks/Options/style1pick1opt1.src`, `KRC/R1/Program/StylePicks/Options/style1pick1opt2.src`
 
@@ -718,6 +721,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 **Historial:**
 
 * 2026-10-04 — Alta (Gestamp): Punto 19 de la revisión de Gestamp del 2026-10-02 (BMW-03-10R1).
+* 2026-11-07 — Avance del programador: Respaldo del 14/10 15:05. Ver F38 y F14: inicialización al arrancar, NUT_READY consumido al soldar y petición de respaldo si se saltó (selección de bloque). Falta la prueba en celda y el pin vacío antes de alimentar.
 
 ---
 
@@ -759,7 +763,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 
 **Origen:** Gestamp - Robot Program Review - Findings (2026-10-02), BMW-03-10R1, punto 21. Texto de Gestamp: *"Style1app2Opt1 will not work for RedRabbit"*
 
-**Severidad:** Alto · **Tipo:** Decisión + código · **Responsable:** Gestamp controles / Programador robot · **Estado:** Abierto
+**Severidad:** Alto · **Tipo:** Decisión + código · **Responsable:** Gestamp controles / Programador robot · **Estado:** En proceso
 
 **Módulos:** `KRC/R1/Program/StyleApps/Options/style1app2opt1.src`, `KRC/R1/Program/StyleApps/Options/style1app2opt2.src`, `KRC/R1/Program/Styles/Options/Style1Opt10AutoRR.src`
 
@@ -783,6 +787,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 * 2026-10-04 — Alta (Gestamp): Punto 21 de la revisión de Gestamp del 2026-10-02 (BMW-03-10R1).
 * 2026-10-11 — Estándar Gestamp: Gestamp (Style1App2Opt4): FAILED si hay cualquier tuerca (OR), PASSED si no hay ninguna; los resultados los borra solo MaintainSystem, nunca el drop. El nuestro da FAILED solo con las 3 tuercas (style1app2opt1.src:147-154) y el drop red rabbit borra do141/do142 dentro del fold DropOff[2] Reset (style1drop1opt2AutoRR.src:154-155): el PLC puede no ver el resultado.
 * 2026-10-11 — Sin cambio: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). El red rabbit sigue dando FAILED solo con las 3 tuercas (AND, style1app2opt1.src:164) y el drop red rabbit borra do141/do142 (ya fuera del fold).
+* 2026-11-07 — Avance del programador: Respaldo del 14/10 15:05. Red rabbit con la lógica de Gestamp: do141RedRabbitFailed = cualquier tuerca presente (OR) y do142RedRabbitPassed = ninguna (style1app2opt1.src:144-145); el drop red rabbit ya no borra los resultados; la cámara solo puede marcar FAILED (style1app2opt2.src:63-68), no da un PASSED contrario. Cumple en código los tres primeros criterios; falta la prueba con la pieza red rabbit y con una pieza buena.
 
 ---
 
@@ -1198,6 +1203,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 * 2026-10-11 — Estándar Gestamp: AutomationCore_BKG activo, como en Gestamp. NutWeld_BKG sigue apagado (en Gestamp está activo): faltan las señales del soldador que usa el PLC. En R20 el programador las replica en sps.sub "como NUT07". Se cierra cuando el PLC recibe las señales que usa.
 * 2026-10-11 — Avance del programador: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). sps.sub replica las señales del soldador "como NUT07" (do046 weld mode, do107 tolva, do118 nut ready, do134 nut fault, do094 aire, do013 agua, estado del stepper) y mantiene habilitado el Bosch fuera de dry cycle. Se cierra cuando el PLC confirme que recibe las señales que usa.
 * 2026-10-12 — Avance del programador: Respaldo del 11/10 22:32. NutWeld_BKG activo, como Gestamp: luces de tolva y estado del stepper al PLC salen de ahí (quitó su copia de sps.sub); las escrituras de pistolas 2/3 quedaron condicionadas a nMaxGunNr=1 porque se traslapan con CL_GunPressureCmd, y el reset de NutWeld no apaga intensify ni blow-off mientras corre PRELOAD. NutWeld_Bkg escribe $OUT[470] dopw1_Hidraulyc_Valve = $PERI_RDY (AutomationCore lo declara Spare): confirmar que no tiene nada conectado. AutomationCore_BKG sigue apagado desde el 10/10 (C01).
+* 2026-11-07 — Avance del programador: Respaldo del 14/10 15:05. AutomationCore_BKG y NutWeld_BKG activos, como Gestamp. Falta verificar con el PLC cada bit; do052EOATVlvMnfldEnetOK queda fijo en TRUE por una edición en la rutina del proveedor (automationcoreroutines.src:178).
 
 ---
 
@@ -1242,7 +1248,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 
 **Origen:** Revisión Ethos (2026-10-04).
 
-**Severidad:** Medio · **Tipo:** Código + prueba en celda · **Responsable:** Programador robot · **Estado:** Abierto
+**Severidad:** Medio · **Tipo:** Código + prueba en celda · **Responsable:** Programador robot · **Estado:** En proceso
 
 **Módulos:** `KRC/R1/Program/Centerline/centerline_weld.src`, `KRC/R1/Program/Centerline/PRELOAD.src`, `KRC/R1/Program/Centerline/Request_next_nut.src`, `KRC/R1/Program/StyleApps/Options/style1app1opt1.src`, `KRC/R1/Program/StyleApps/Options/style1app1opt2.src`, `KRC/R1/Program/StyleApps/Options/style1app1opt3.src`, `KRC/R1/Program/StylePicks/Options/style1pick1opt1.src`, `KRC/R1/Program/StylePicks/Options/style1pick1opt2.src`, `KRC/R1/Program/StylePicks/Options/style1pick1opt1AutoRR.src`, `KRC/R1/System/$config.dat`
 
@@ -1272,6 +1278,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 * 2026-10-11 — Avance del programador: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). Request_next_nut ya es una llamada después de CENTERLINE_WELD, no un TRIGGER. NUT_READY sigue sin borrarse al soldar: se borra cuando arranca el siguiente preload. Con la pre-alimentación (paso 30, 5 s con nFeedSettleMs=3000) la petición puede quedar en espera; si el paso 30 llegara a durar más que soldar y salir, el robot vería el NUT_READY de la tuerca anterior y entraría sin tuerca (hoy hay ~1.5 s de margen).
 * 2026-10-12 — Avance del programador: Respaldo del 11/10 22:32. La pre-alimentación dura 2 s (antes 5 s): sube el margen contra el NUT_READY anterior. El pick red rabbit ya no pide tuerca (sin NUT_START). NUT_READY sigue sin borrarse al soldar.
 * 2026-10-12 — Criterio ajustado: El criterio de la petición en el flujo se ajusta a lo ya aceptado en G20 (TRIGGER de la tuerca 1 antes del fold) y F53 (petición justo después de soldar): se cumple desde el 10/10. El pick red rabbit ya no pide preload (11/10). Quedan NUT_READY = FALSE al soldar, que una petición repetida no alimente otra tuerca, el pin vacío antes de alimentar y la prueba en celda.
+* 2026-11-07 — Avance del programador: Respaldo del 14/10 15:05. NUT_READY=FALSE al terminar la soldadura (centerline_weld.src:234); PRELOAD descarta una petición si ya hay tuerca lista y no hay preload activo (preload.src:20-22); antes de esperar la tuerca, si no hay tuerca ni petición, se pide (gun_open_check.src:422-424). Falta confirmar pin vacío antes de alimentar y la prueba en celda.
 
 ---
 
@@ -1407,7 +1414,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 
 **Origen:** Revisión Ethos (2026-10-04).
 
-**Severidad:** Alto · **Tipo:** Código + prueba en celda · **Responsable:** Programador robot / Gestamp controles · **Estado:** Abierto
+**Severidad:** Alto · **Tipo:** Código + prueba en celda · **Responsable:** Programador robot / Gestamp controles · **Estado:** Se cierra con otro punto
 
 **Módulos:** `KRC/R1/Program/Styles/Options/Style1Opt10AutoRR.src`, `KRC/R1/Program/StylePicks/Options/style1pick1opt1AutoRR.src`, `KRC/R1/Program/StyleDrops/Options/style1drop1opt2AutoRR.src`, `KRC/R1/Program/StyleApps/Options/style1app2opt1.src`, `KRC/R1/Program/StyleApps/Options/style1app2opt2.src`, `KRC/R1/TP/GripperSpotTech/grp_data.dat`
 
@@ -1435,6 +1442,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 * 2026-10-05 — Integrado - avance parcial: Option 12 ya pone $OUT[141]/$OUT[142] en sensor y cámara. Falta el veredicto único y que el drop no lo borre antes de que el PLC lo lea.
 * 2026-10-11 — Estándar Gestamp: Gestamp (Style1App2Opt4): FAILED si hay cualquier tuerca (OR), PASSED si no hay ninguna; los resultados los borra solo MaintainSystem, nunca el drop. El nuestro da FAILED solo con las 3 tuercas (style1app2opt1.src:147-154) y el drop red rabbit borra do141/do142 dentro del fold DropOff[2] Reset (style1drop1opt2AutoRR.src:154-155): el PLC puede no ver el resultado.
 * 2026-10-11 — Sin cambio: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). El red rabbit sigue dando FAILED solo con las 3 tuercas (AND, style1app2opt1.src:164) y el drop red rabbit borra do141/do142 (ya fuera del fold).
+* 2026-11-07 — Se cierra con otro punto: Respaldo del 14/10 15:05. Mismo criterio que G21, que ya cumple en código; el drop red rabbit ya no escribe do249/do250 a mano y suelta con el gripper 1. Se cierra con G21.
 
 ---
 
@@ -1767,7 +1775,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 
 **Origen:** Revisión Ethos (2026-10-04).
 
-**Severidad:** Medio · **Tipo:** Código + prueba en celda · **Responsable:** Programador robot / Puesta en marcha · **Estado:** Abierto
+**Severidad:** Medio · **Tipo:** Código + prueba en celda · **Responsable:** Programador robot / Puesta en marcha · **Estado:** En proceso
 
 **Módulos:** `KRC/R1/Program/StylePicks/Options/style1pick1opt1.src`, `KRC/R1/Program/StylePicks/Options/style1pick1opt2.src`, `KRC/R1/Program/StylePicks/Options/style1pick1opt1AutoRR.src`, `KRC/R1/Program/StyleDrops/Options/style1drop1opt1.src`, `KRC/R1/Program/StyleDrops/Options/style1drop1opt2AutoRR.src`, `KRC/R1/Program/Utilities/RejectGE4.src`, `KRC/R1/TP/GripperSpotTech/grp_data.dat`
 
@@ -1791,6 +1799,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 **Historial:**
 
 * 2026-10-04 — Alta (Ethos): Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02).
+* 2026-11-07 — Avance del programador: Respaldo del 14/10 15:05. El drop red rabbit usa el form del gripper 1 (Params setgripper=1, igual a la llamada) y ya no escribe $OUT[249]/$OUT[250] ni usa el gripper 3 (style1drop1opt2autorr.src). Falta revisar el resto de forms y la prueba.
 
 ---
 
@@ -1886,7 +1895,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 
 ## F35 — El mastering reference deja $OUT[930] en ON para siempre
 
-**Severidad:** Medio · **Tipo:** Código + prueba en celda · **Responsable:** Programador robot · **Estado:** Abierto
+**Severidad:** Medio · **Tipo:** Código + prueba en celda · **Responsable:** Programador robot · **Estado:** En proceso
 
 **Módulos:** `KRC/R1/Program/masref_user.src`, `KRC/R1/System/masref_main.src`
 
@@ -1912,6 +1921,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 * 2026-10-05 — Severidad subida a Alto: Con AutomationCore_BKG activo (F49), $OUT[930] pegado en ON impide conceder el Request to Enter: $OUT[145] doCriticalWZ queda en TRUE y AC_PointArrival ya no detiene el robot cuando el operador pide entrar. Corregir F35 antes de producción.
 * 2026-10-05 — Severidad regresa a Medio: Con el background apagado en la versión integrada, $OUT[930] pegado ya no impide el Request to Enter. Sigue pendiente apagar $OUT[930] al final de la referencia de masterización.
 * 2026-10-11 — Nota: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). XREFSWITCH (switch de referencia) re-enseñado ~1 mm.
+* 2026-11-07 — Avance del programador: Respaldo del 14/10 15:05. MASREFBACKG1 termina con do930MasterRefInProcess=FALSE después de regresar a HOME y abrir el gripper (masref_user.src:133). Falta la prueba en T1.
 
 ---
 
@@ -1976,7 +1986,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 
 **Origen:** Revisión Ethos (2026-10-04).
 
-**Severidad:** Alto · **Tipo:** Código + prueba en celda · **Responsable:** Programador robot · **Estado:** Abierto
+**Severidad:** Alto · **Tipo:** Código + prueba en celda · **Responsable:** Programador robot · **Estado:** En proceso
 
 **Módulos:** `KRC/R1/System/$config.dat`, `KRC/R1/Program/Centerline/PRELOAD.src`, `KRC/R1/cell.src`, `KRC/R1/System/sps.sub`
 
@@ -2000,6 +2010,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 **Historial:**
 
 * 2026-10-04 — Alta (Calvin): Revisión Ethos del respaldo 658424; el punto sale de la lista de Calvin (Calvin #11).
+* 2026-11-07 — Avance del programador: Respaldo del 14/10 15:05. NUT_STATE_INIT (preload.src:260-285) borra banderas, pasos y timers del preload y apaga feed y soplado; se llama en el USER INIT de sps.sub y en cell.src antes de HOME. Deja NUT_READY en FALSE en lugar de leerlo del pin: con una tuerca ya en el pin, la siguiente petición puede alimentar otra (doble tuerca; la ventana de pistola la detectaría). Falta la prueba en celda (cortar a mitad de preload, reset con y sin tuerca).
 
 ---
 
@@ -2121,6 +2132,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 **Historial:**
 
 * 2026-10-04 — Alta (Calvin): Revisión Ethos del respaldo 658424; el punto sale de la lista de Calvin (Calvin #30).
+* 2026-11-07 — Nota: Respaldo del 14/10 15:05. Cell area de SafeOperation cambiada y guardada el 2026-10-13 18:58 (versión 55).
 
 ---
 
@@ -2216,7 +2228,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 
 ## F46 — EndOfCycle del proveedor editado: Work Complete nunca se manda al PLC
 
-**Severidad:** Medio · **Tipo:** Decisión Gestamp · **Responsable:** Gestamp controles / Ethos (Edgar) · **Estado:** Abierto
+**Severidad:** Medio · **Tipo:** Decisión Gestamp · **Responsable:** Gestamp controles / Ethos (Edgar) · **Estado:** En proceso
 
 **Módulos:** `KRC/R1/TP/AutomationCore/automationcoreroutines.src`, `KRC/R1/cell.src`
 
@@ -2242,6 +2254,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 * 2026-10-04 — Alta (Ethos): Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02).
 * 2026-10-11 — Estándar Gestamp: El EndOfCycle estándar manda Work Complete y espera el acuse; en R20 el programador ya lo tiene activo (respaldo del 09/10). Restaurarlo igual y probar con el PLC.
 * 2026-10-11 — Sin cambio: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). El EndOfCycle sigue con Work Complete comentado (automationcoreroutines.src:381-389).
+* 2026-11-07 — Avance del programador: Respaldo del 14/10 15:05. cell.src manda Work Complete después de EndOfCycle y espera di015WorkCompleteAckn con mensaje de AutomationCore (cell.src:65-72), como el EndOfCycle estándar; la rutina del proveedor sigue editada (C28). Falta la prueba con el PLC; ahora nCycleTime incluye la espera del acuse.
 
 ---
 
@@ -2335,6 +2348,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 * 2026-10-05 — Integrado - background apagado: El background de AutomationCore se apaga otra vez hasta que Gestamp decida y se corrijan sus problemas; el submit pone $OUT[145] y $OUT[111] en OFF al arrancar. Las ediciones del proveedor quedan, inactivas (C28).
 * 2026-10-11 — Estándar Gestamp: AutomationCore_BKG activo, como en el sps.sub de Gestamp; las ediciones de la rutina son las mismas que en R20 salvo el EndOfCycle sin Work Complete, que sigue en F46.
 * 2026-10-12 — Nota: Respaldo del 11/10 22:32. Desde el 10/10 AutomationCore_BKG está apagado (versión de oficina cargada). Si se reactiva (C01), igual que R20; sus ediciones siguen en el archivo del proveedor (C28).
+* 2026-11-07 — Nota: Respaldo del 14/10 15:05. AutomationCore_BKG activo otra vez desde el respaldo del 14/10.
 
 ---
 
@@ -2419,6 +2433,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 * 2026-10-12 — Medición: Respaldo del 11/10 22:32. AutomationCore guarda el último ciclo (arranque → fin, sin la espera en HOME; nCycleTime, en segundos enteros): 50 s el 05/10, 39 s el 10/10, 26 s el 11/10. El de 26 s no soldó (sus timers CT_* no cambiaron): por los cambios del día, probablemente un ciclo red rabbit. El de 39 s es probablemente la pieza que midió el 10/10 (no confirmado).
 * 2026-10-12 — Avance del programador: Respaldo del 11/10 22:32. La cámara espera el resultado (OK o NG) con 5 s máximo y 0.1 s después, en lugar de 2.0 s fijos: ahorra hasta 1.9 s. Regresó el WAIT SEC 0.2 al abrir la pistola (como R20): +0.6 s por pieza. Pre-alimentación de 2 s. No cargó la entrega de esperas del PLC: sigue válida sobre este respaldo (sus 7 archivos solo cambiaron en atributos de cabecera).
 * 2026-10-13 — Medición: Respaldo del 13/10 07:32. AutomationCore: último ciclo 67 s (nCycleTime). Los timers CT_* del programador no cambiaron desde el 10/10: en los respaldos del 11 y 13/10 no hay ninguna soldadura registrada. La entrega de esperas del PLC (entregas/2026-10-11_F52_esperas_PLC) queda obsoleta: sus 7 archivos cambiaron en este respaldo (comentarios y GUN_OPEN_LOST); cargarla desharía esos cambios.
+* 2026-11-07 — Medición: Respaldo del 14/10 15:05. Timers CT_* (última pieza): dentro de la pistola 4.10 / 4.01 / 4.00 s; tuerca a tuerca 6.94 / 6.89 s; espera de tuerca 0 / 0.44 / 0.52 s (0.96 s por pieza); tuerca 1 → fin de tuerca 3 17.8 s (17.2 s el 10/10). AutomationCore: último ciclo 42 s (39 s el 10/10), que ahora incluye la espera del acuse de Work Complete del PLC. nCtCycle 102.4 s incluye una espera. Meta 38 s.
 
 ---
 
@@ -2445,6 +2460,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 * 2026-10-11 — Alta (auditoría): Encontrado en el respaldo del 10/10.
 * 2026-10-11 — Decisión: Aceptado por analogía con R20 F51 (decisión de Edgar del 2026-10-10).
 * 2026-10-12 — Nota: Respaldo del 11/10 22:32. La pre-alimentación volvió a 2 s y regresó el WAIT SEC 0.2 entre GunWork y GunHome al abrir la pistola, los dos como R20.
+* 2026-11-07 — Nota: Respaldo del 14/10 15:05. Con la pre-alimentación de 2 s la espera de tuerca subió a 0.96 s por pieza (0.56 s el 10/10 con 5 s).
 
 ---
 
@@ -2473,7 +2489,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 
 ## C01 — AutomationCore_Bkg deshabilitado: el estatus al PLC no se actualiza
 
-**Severidad:** - · **Tipo:** Decisión Gestamp · **Responsable:** Gestamp controles / Ethos (Edgar) · **Estado:** Reabierto
+**Severidad:** - · **Tipo:** Decisión Gestamp · **Responsable:** Gestamp controles / Ethos (Edgar) · **Estado:** Cerrado - auditado
 
 **Módulos:** `KRC/R1/System/sps.sub`, `KRC/R1/TP/AutomationCore/automationcoreroutines.src`
 
@@ -2494,6 +2510,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 * 2026-10-04 — Alta (Ethos): Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02).
 * 2026-10-11 — Estándar Gestamp: AutomationCore_BKG activo en sps.sub desde el 2026-10-05, como en Gestamp; la rutina es la misma que en R20 salvo el EndOfCycle (F46).
 * 2026-10-12 — Reabierto: Respaldo del 11/10 22:32. Corrección de la auditoría del 10/10: desde ese respaldo (versión de oficina cargada) AutomationCore_BKG está apagado otra vez (fold vacío en sps.sub y sus salidas en OFF al arrancar). El programador copia en sps.sub parte de sus señales (weld enable y weld mode, aire, agua, tolva, nut ready/fault, cambio de electrodo y, desde el 11/10, robot en repair). Faltan request to enter (C19), brake test pendiente (C14), mastering pendiente, batería, velocidad distinta de 100 %, eje 1, Tool ID, pounce / tip dress / switch de referencia y el arranque automático del programa CELL. En su respaldo del 05/10 y en R20 está activo.
+* 2026-11-07 — Cerrado - auditado: Respaldo del 14/10 15:05. AutomationCore_BKG() activo otra vez en sps.sub (línea 102), como en Gestamp y en R20; escribe request to enter, brake test pendiente, mastering pendiente, batería, velocidad, eje 1, Tool ID, posiciones y estado Ethernet de periféricos. sps.sub sigue escribiendo también sus copias de weld enable, weld mode, aire, agua, tolva, nut ready/fault, cambio de electrodo y repair, con la misma expresión (dos escritores con el mismo valor).
 
 ---
 
@@ -2684,6 +2701,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 * 2026-10-04 — Alta (Ethos): Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02).
 * 2026-10-11 — Estándar Gestamp: Gestamp tiene una carga determinada por herramienta (LOAD_DATA[1] 81 kg con centro de masa e inercias) y no usa carga aparte con pieza: se quita ese criterio (igual que R20). Hoy LOAD_DATA[1] sigue tecleado (210 kg, CM 270/0/240, inercias 105).
 * 2026-10-11 — Avance del programador: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). LOAD_DATA[1] = 67.28 kg con centro de masa (-2.62, 17.93, 219.18) e inercias: ya no es el tecleado de 210 kg. Falta la evidencia de Load Data Determination (captura o protocolo). LOAD_A3_DATA pasó de 30 a 50 kg.
+* 2026-11-07 — Avance del programador: Respaldo del 14/10 15:05. TOOL_DATA[2] "TOOL 1 WITH PART" igual a la herramienta 1 y LOAD_DATA[2] = 68.28 kg (la carga de la herramienta 1 + 1 kg, mismo centro de masa); los movimientos con pieza usan la herramienta 2. Ningún movimiento de producción usa carga por defecto. Sigue faltando el protocolo de Load Data Determination; la masa de la pieza (1 kg) no está confirmada.
 
 ---
 
@@ -2714,6 +2732,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 * 2026-10-04 — Alta (Ethos): Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02).
 * 2026-10-11 — Nota: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). tm_bib.dat: TQM_ACT T21..T26 bajaron de 100000 a 1000 (supervisión de par). Confirmar con el programador qué activó y si quedó probado.
 * 2026-10-13 — Nota: Respaldo del 13/10 07:32. tm_bib.dat: iSTOP_TYPE de 53 a 20 (tipo de paro de TorqueMonitoring). La detección de colisión sigue apagada: TQ_STATE FALSE en todos los movimientos y BTQM_ACTIVE=FALSE ($config.dat:83).
+* 2026-11-07 — Nota: Respaldo del 14/10 15:05. tm_bib.dat: iSTOP_TYPE regresó a 53. Detección de colisión sigue apagada.
 
 ---
 
@@ -2826,7 +2845,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 
 ## C14 — Brake test: el 'due' no se reporta y el camino usa tool/base de otro robot
 
-**Severidad:** - · **Tipo:** Código + prueba en celda · **Responsable:** Programador robot · **Estado:** Reabierto
+**Severidad:** - · **Tipo:** Código + prueba en celda · **Responsable:** Programador robot · **Estado:** Se cierra con otro punto
 
 **Módulos:** `KRC/R1/TP/BrakeTest/braketeststart.src`, `KRC/R1/TP/BrakeTest/braketestback.src`, `KRC/R1/cell.src`, `KRC/R1/System/sps.sub`, `KRC/R1/TP/AutomationCore/automationcoreroutines.src`
 
@@ -2851,6 +2870,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 * 2026-10-04 — Alta (Ethos): Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02).
 * 2026-10-11 — Estándar Gestamp: do021 (brake test pendiente) lo escribe AutomationCore_BKG, activo como en Gestamp; braketestback apaga do931 en su USER INI, igual que Gestamp. Queda el camino del brake test enseñado con tool/base de otro robot: F47.
 * 2026-10-12 — Reabierto: Respaldo del 11/10 22:32. Corrección de la auditoría del 10/10: desde ese respaldo do021BrakeTestReqd no se escribe (FALSE al arrancar; AutomationCore_BKG apagado, C01). Sigue además el camino del brake test (F47).
+* 2026-11-07 — Se cierra con otro punto: Respaldo del 14/10 15:05. do021BrakeTestReqd lo escribe otra vez AutomationCore_BKG. Queda el camino del brake test (F47).
 
 ---
 
@@ -2953,7 +2973,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 
 ## C19 — Request to enter: doCriticalWZ nunca se escribe; el PLC ve entrada permitida
 
-**Severidad:** - · **Tipo:** Código + prueba en celda · **Responsable:** Programador robot / Seguridad · **Estado:** Reabierto
+**Severidad:** - · **Tipo:** Código + prueba en celda · **Responsable:** Programador robot / Seguridad · **Estado:** Cerrado - auditado
 
 **Módulos:** `KRC/R1/System/sps.sub`, `KRC/R1/TP/AutomationCore/automationcoreroutines.src`, `KRC/R1/Program/Centerline/PRELOAD.src`, `KRC/R1/Program/Centerline/centerline_weld.src`
 
@@ -2980,6 +3000,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 * 2026-10-04 — Alta (Ethos): Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02).
 * 2026-10-11 — Estándar Gestamp: doCriticalWZ lo escribe AutomationCore_BKG, activo como en Gestamp (mismo código que R20, que lo cerró).
 * 2026-10-12 — Reabierto: Respaldo del 11/10 22:32. Corrección de la auditoría del 10/10: desde ese respaldo doCriticalWZ no se escribe; el submit lo pone en FALSE al arrancar y AutomationCore_BKG está apagado (C01). Es el problema del respaldo original.
+* 2026-11-07 — Cerrado - auditado: Respaldo del 14/10 15:05. doCriticalWZ lo escribe AC_Request_to_enter desde el background (automationcoreroutines.src:1411-1434), mismo código que R20: niega la entrada con la pistola en trabajo o gripper / brake test / mastering en proceso. El preload no está en la condición: sigue en F11. do930 ya se apaga al terminar el mastering reference (F35).
 
 ---
 
@@ -3009,6 +3030,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 **Historial:**
 
 * 2026-10-04 — Alta (Ethos): Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02).
+* 2026-11-07 — Nota: Respaldo del 14/10 15:05. AC_Process_Count(#CHECK) sigue comentado; Work Complete ya se manda desde cell.src (F46).
 
 ---
 
@@ -3211,3 +3233,4 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 * 2026-10-11 — Nota: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). Ediciones nuevas en archivos de KUKA: ir_stopm.src sin GLUE_TechStop() ni GLUE_Restart() (GlueTech instalado y sin uso; usa $TIMER[12..16]) y tm_bib.dat (TQM_ACT T21..T26 de 100000 a 1000). Si se actualiza o desinstala GlueTech o TorqueMonitoring, revisarlas.
 * 2026-10-12 — Nota: Respaldo del 11/10 22:32. Ediciones nuevas en NutWeld: nutweldroutines.src (escrituras de pistolas 2/3 condicionadas a nMaxGunNr en NutWeld_Bkg y NutWeld_ProcessReset; luces de la tolva 1 combinadas con CL_WeldFault y dipw1_Fault; intensify y blow-off de la pistola 1 sin apagar en el reset mientras corre PRELOAD) y nutweldroutines.dat (nNutWeldGunNrSTK 3 → 1). Listarlas en la entrega.
 * 2026-10-13 — Nota: Respaldo del 13/10 07:32. Ediciones nuevas en archivos de KUKA: tm_bib.dat (iSTOP_TYPE 53 → 20), automationglobalpos.dat (XPOUNCE), ir_stopm.src (solo comentarios de las llamadas de GlueTech apagadas), BrakeTest (solo atributo &ACCESS).
+* 2026-11-07 — Nota: Respaldo del 14/10 15:05. Ediciones nuevas: ninguna de código en archivos de KUKA (solo atributos en BrakeTest, masref_main, tm_bib.src). Sigue la edición de EndOfCycle (Work Complete ahora en cell.src) y do052EOATVlvMnfldEnetOK=TRUE fijo en AutomationCore_BKG (automationcoreroutines.src:178).
