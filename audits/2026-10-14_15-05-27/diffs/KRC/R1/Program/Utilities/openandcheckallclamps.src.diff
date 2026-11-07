@@ -1,0 +1,8 @@
+--- HEAD:KRC/R1/Program/Utilities/openandcheckallclamps.src
++++ backup:KRC/R1/Program/Utilities/openandcheckallclamps.src
+@@ -1,4 +1,4 @@
+-&ACCESS RVO4
++&ACCESS RVO1
+ &REL 4
+ &COMMENT 03-10-R1 OPEN GRIPPER 1
+ &PARAM EDITMASK = *

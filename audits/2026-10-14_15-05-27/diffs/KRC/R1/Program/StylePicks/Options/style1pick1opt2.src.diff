@@ -1,0 +1,37 @@
+--- HEAD:KRC/R1/Program/StylePicks/Options/style1pick1opt2.src
++++ backup:KRC/R1/Program/StylePicks/Options/style1pick1opt2.src
+@@ -24,7 +24,7 @@
+ ;PICKUP 2 REQUEST
+    ;FOLD PickUp[2] Request
+       ;FOLD ;%{h}
+-         ;Params IlfProvider=ac_zoneilf; AC_CmdZones=PickUp; AC_CmdParam=1; AC_ZoneRepo=False; AC_Blending=False
++         ;Params IlfProvider=ac_zoneilf; AC_CmdZones=PickUp; AC_CmdParam=2; AC_ZoneRepo=False; AC_Blending=False
+       ;ENDFOLD
+       AC_pickUPCheck (2)
+    ;ENDFOLD  
+@@ -93,14 +93,14 @@
+ 
+ ;LEAVE PICKUP 2 - P40 (ABOVE AtPick3), P8
+ 
+-;FOLD LIN P40 CONT Vel=2 m/s CPDAT2 Tool[1]:TOOL 1 Base[0];%{PE}%R 8.3.43,%MKUKATPBASIS,%CMOVE,%VLIN,%P 1:LIN, 2:P40, 3:C_DIS C_DIS, 5:2, 7:CPDAT2
++;FOLD LIN P40 CONT Vel=2 m/s CPDAT2 Tool[2]:TOOL 1 WITH PART Base[0];%{PE}%R 8.3.43,%MKUKATPBASIS,%CMOVE,%VLIN,%P 1:LIN, 2:P40, 3:C_DIS C_DIS, 5:2, 7:CPDAT2
+ $BWDSTART=FALSE
+ LDAT_ACT=LCPDAT2
+ FDAT_ACT=FP40
+ BAS(#CP_PARAMS,2)
+ LIN XP40 C_DIS C_DIS
+ ;ENDFOLD
+-;FOLD PTP P8 CONT Vel=100 % PDAT12 Tool[1]:TOOL 1 Base[0];%{PE}%R 8.3.43,%MKUKATPBASIS,%CMOVE,%VPTP,%P 1:PTP, 2:P8, 3:C_DIS, 5:100, 7:PDAT12
++;FOLD PTP P8 CONT Vel=100 % PDAT12 Tool[2]:TOOL 1 WITH PART Base[0];%{PE}%R 8.3.43,%MKUKATPBASIS,%CMOVE,%VPTP,%P 1:PTP, 2:P8, 3:C_DIS, 5:100, 7:PDAT12
+ $BWDSTART=FALSE
+ PDAT_ACT=PPDAT12
+ FDAT_ACT=FP8
+@@ -110,7 +110,7 @@
+ ;PICKUP 2 CLEAR
+    ;FOLD PickUp[2] Reset
+       ;FOLD ;%{h}
+-         ;Params IlfProvider=ac_zoneilf; AC_CmdZones=PickUp; AC_CmdParam=1; AC_ZoneRepo=True; AC_Blending=False
++         ;Params IlfProvider=ac_zoneilf; AC_CmdZones=PickUp; AC_CmdParam=2; AC_ZoneRepo=True; AC_Blending=False
+       ;ENDFOLD
+       AC_pickUP (2,True)
+    ;ENDFOLD

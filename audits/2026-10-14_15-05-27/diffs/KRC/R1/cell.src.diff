@@ -1,0 +1,27 @@
+--- HEAD:KRC/R1/cell.src
++++ backup:KRC/R1/cell.src
+@@ -13,6 +13,8 @@
+   DMY[]="---"
+   ;START-UP, THEN HOME
+   InitializeSystem()
++  ;NUT PRELOAD STATE FROM ZERO (PROGRAM START AFTER RESET, RESTART OR POWER CUT)
++  NUT_STATE_INIT()
+   HOME()
+   ;ENDFOLD (Initialize System)
+   LOOP
+@@ -59,6 +61,15 @@
+        IF ((nStyle>0) AND (nOption>0)) THEN
+ 		    ;END OF CYCLE
+ 		    EndOfCycle( )
++		    ;WORK COMPLETE TO THE PLC, WAIT FOR THE ACKNOWLEDGE (GESTAMP ENDOFCYCLE)
++		    do015WorkComplete=TRUE
++		    WHILE (di015WorkCompleteAckn==FALSE)
++		       IF (Exists_KrlMsg(nWorkComplete_Handle)==FALSE) THEN
++		          nWorkComplete_Handle=Set_Krlmsg (#STATE, AutomationCore_Msg[4], AutoCore_MsgPar[], AutoCore_MsgOpt_NoStop)
++		       ENDIF
++		    ENDWHILE
++		    do005RobotInCycle = FALSE
++		    bAutoCore_Clear=Clear_KRLMsg(nWorkComplete_Handle)
+ 		    ;STOP CYCLE TIMER
+ 		    StopCycTime( )
+         ENDIF

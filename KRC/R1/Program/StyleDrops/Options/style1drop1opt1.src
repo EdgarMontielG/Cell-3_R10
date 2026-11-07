@@ -1,5 +1,5 @@
 &ACCESS RVO1
-&REL 234
+&REL 235
 &COMMENT 03-10-R1 DROP CONVEYOR
 &PARAM EDITMASK = *
 &PARAM DISKPATH = KRC:\R1\Program\StyleDrops\Options
@@ -24,7 +24,7 @@ DEF Style1Drop1Opt1( )
 
 ;APPROACH DROPOFF 1 - APPLICATION 1 CLEAR AT P5
 TRIGGER WHEN DISTANCE=1 DELAY=0 DO do070ApplicationClear1=TRUE
-;FOLD PTP P5 CONT Vel=100 % PDAT10 Tool[1]:TOOL 1 Base[0];%{PE}%R 8.3.43,%MKUKATPBASIS,%CMOVE,%VPTP,%P 1:PTP, 2:P5, 3:C_DIS, 5:100, 7:PDAT10
+;FOLD PTP P5 CONT Vel=100 % PDAT10 Tool[2]:TOOL 1 WITH PART Base[0];%{PE}%R 8.3.43,%MKUKATPBASIS,%CMOVE,%VPTP,%P 1:PTP, 2:P5, 3:C_DIS, 5:100, 7:PDAT10
 $BWDSTART=FALSE
 PDAT_ACT=PPDAT10
 FDAT_ACT=FP5
@@ -35,12 +35,12 @@ PTP XP5 C_DIS
 ;DROPOFF 1 REQUEST
 ;FOLD DropOff[1] Request
 ;FOLD ;%{h}
-;Params IlfProvider=ac_zoneilf; AC_CmdZones=DropOff; AC_CmdParam=2; AC_ZoneRepo=False; AC_Blending=False
+;Params IlfProvider=ac_zoneilf; AC_CmdZones=DropOff; AC_CmdParam=1; AC_ZoneRepo=False; AC_Blending=False
 ;ENDFOLD
 AC_DropOffCheck (1)
 ;ENDFOLD
 
-;FOLD LIN AtDrop3 Vel=2 m/s CPDAT1 Tool[1]:TOOL 1 Base[0];%{PE}%R 8.3.43,%MKUKATPBASIS,%CMOVE,%VLIN,%P 1:LIN, 2:AtDrop3, 3:, 5:2, 7:CPDAT1
+;FOLD LIN AtDrop3 Vel=2 m/s CPDAT1 Tool[2]:TOOL 1 WITH PART Base[0];%{PE}%R 8.3.43,%MKUKATPBASIS,%CMOVE,%VLIN,%P 1:LIN, 2:AtDrop3, 3:, 5:2, 7:CPDAT1
 $BWDSTART=FALSE
 LDAT_ACT=LCPDAT1
 FDAT_ACT=FAtDrop3
@@ -91,7 +91,7 @@ PTP XP3 C_DIS
 ;DROPOFF 1 CLEAR
 ;FOLD DropOff[1] Reset
 ;FOLD ;%{h}
-;Params IlfProvider=ac_zoneilf; AC_CmdZones=DropOff; AC_CmdParam=2; AC_ZoneRepo=True; AC_Blending=False
+;Params IlfProvider=ac_zoneilf; AC_CmdZones=DropOff; AC_CmdParam=1; AC_ZoneRepo=True; AC_Blending=False
 ;ENDFOLD
 AC_DropOff (1,True)
 ;ENDFOLD

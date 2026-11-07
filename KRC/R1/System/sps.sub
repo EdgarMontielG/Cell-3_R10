@@ -38,6 +38,8 @@ DEF  SPS ( )
 						
   ;FOLD USER INIT
   ; Please insert user defined initialization commands
+  ;NUT PRELOAD STATE FROM ZERO (SUBMIT START AFTER A RESTART OR POWER CUT)
+  NUT_STATE_INIT()
   ;PLC STATUS OUTPUTS OFF AT START
   doCriticalWZ=FALSE
   do111Gun1ElectrodeChange=FALSE
@@ -97,6 +99,7 @@ DEF  SPS ( )
  NutWeld_BKG ( )   ; NutWeld background (client standard)
 ;ENDFOLD (NutWeld PLC)
 ;FOLD Automation Core PLC
+ AutomationCore_BKG ( )   ; AutomationCore background (client standard)
 ;ENDFOLD (Automation Core PLC)
 				 
 			;FOLD Centerline Pedestal

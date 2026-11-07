@@ -1,0 +1,10 @@
+--- HEAD:KRC/R1/TP/AutomationCore/automationcoreroutines.dat
++++ backup:KRC/R1/TP/AutomationCore/automationcoreroutines.dat
+@@ -1611,6 +1611,6 @@
+ GLOBAL SIGNAL do932GripperInProcess $OUT[932]
+ GLOBAL BOOL bElectrChanged=FALSE
+ ;REQUEST TO ENTER GRANTED - LATCHED BY AC_Request_to_enter (NO WAIT IN THE SUBMIT, F49)
+-BOOL bACEntryGranted=FALSE
++BOOL bACEntryGranted=TRUE
+ ;ENDFOLD
+ ENDDAT
