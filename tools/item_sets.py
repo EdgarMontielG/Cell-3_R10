@@ -10,7 +10,8 @@ Two Excel workbooks and two PDF reports are handed out:
            condition for the buy-off.
 
 Every item in docs/open_items.json carries "conjunto": "gestamp" | "mejora";
-an item without it is classified by its ID (Gnn -> gestamp).
+an item without it is classified by its ID (Gnn -> gestamp). "retirado" keeps
+an item out of both sets (cycle time, closed by Gestamp on 2026-11-07).
 """
 SETS = {
     'gestamp': {

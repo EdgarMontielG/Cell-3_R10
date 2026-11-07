@@ -2,7 +2,7 @@
 
 *Archivo generado por `tools/make_items_md.py` a partir de `docs/open_items.json` — no se edita a mano.*
 
-Actualizado: 2026-11-07. Pendientes: **59** de 104. El detalle técnico de cada punto (en inglés, para Gestamp) está en [FINDINGS.md](FINDINGS.md); el proceso en [PROCESO.es.md](PROCESO.es.md).
+Actualizado: 2026-11-07. Pendientes: **58** de 102. El detalle técnico de cada punto (en inglés, para Gestamp) está en [FINDINGS.md](FINDINGS.md); el proceso en [PROCESO.es.md](PROCESO.es.md).
 
 **Puntos de Gestamp (G01–G22)**: revisión de Gestamp del 2026-10-02 (BMW-03-10R1), con su texto original. Desde el 2026-10-11 la base es el programa del programador: cada punto se revisa contra su programa y la versión de oficina queda como referencia (nota de cada punto). Los Fnn/Cnn son de la revisión de Ethos (numeración del R20); los marcados "Calvin #n" también están en la lista de Calvin (2026-10-03), verificada punto por punto. Esta lista es la única que se usa.
 
@@ -90,8 +90,6 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 | F49 | ~~AutomationCore_BKG activado y editado sin decisión registrada~~ | Alto | Gestamp controles + Programador robot | Aceptado sin cambio |
 | F50 | Permiso de aplicación 1 (nut check / cámara) revisado después de llegar a P22 | Alto | Programador robot | **Abierto** |
 | F51 | ~~Apps de soldadura duplicadas por estación de pick (A/B): cada cambio va en las dos~~ | Bajo | Programador robot | Sin acción - documentado |
-| F52 | Tiempo ciclo de R10: meta 38 s pieza a pieza (medir el ciclo completo y bajarlo) | Alto | Programador robot | **En proceso** |
-| F53 | ~~Tiempo ciclo del programador: pre-alimenta la tuerca, la pide con la pieza aún en la pistola, CONT/PTP y sin esperas de 0.2 s~~ | Alto | Programador robot | Aceptado sin cambio |
 | F54 | Cámara: el resultado se lee en cuanto hay OK o NG; confirmar que no es el de la pieza anterior | Alto | Programador robot / PLC | **Abierto** |
 | C01 | ~~AutomationCore_Bkg deshabilitado: el estatus al PLC no se actualiza~~ | - | Gestamp controles / Ethos (Edgar) | Cerrado - auditado |
 | C02 | ~~Designación BMW-03-10-R1 en los encabezados; confirmar formato con Gestamp~~ — **para G01** | - | Ethos (Edgar) / Gestamp controles | Se cierra con otro punto |
@@ -1238,7 +1236,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 **Historial:**
 
 * 2026-10-04 — Alta (Ethos): Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02).
-* 2026-10-07 — Avance parcial (F52): El paso 20 ya termina con el QFP regresado confirmado ($IN[482] ON, $IN[470] OFF) en vez de 800 ms. Timeouts, falla y feed complete siguen pendientes.
+* 2026-10-07 — Avance parcial: El paso 20 ya termina con el QFP regresado confirmado ($IN[482] ON, $IN[470] OFF) en vez de 800 ms. Timeouts, falla y feed complete siguen pendientes.
 * 2026-10-11 — Avance del programador: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). El paso 20 termina con el QFP regresado ($IN[482]). Sin timeouts ni falla. La alimentación sigue por tiempo: 2000 ms + nFeedSettleMs (3000 ms desde el 10/10 porque "el alimentador sopla hasta 5 s" y faltaban tuercas) sin leer $IN[481] dipw1_FeedComplt: con el sensor la tuerca se confirma en cuanto llega.
 * 2026-10-12 — Avance del programador: Respaldo del 11/10 22:32. Quitó nFeedSettleMs: la alimentación vuelve a 2000 ms por tiempo, como R20 (el 10/10 la había subido a 5 s porque faltaban tuercas). Sigue sin leer $IN[481] dipw1_FeedComplt: si vuelven a faltar tuercas, esa es la corrección.
 
@@ -1259,7 +1257,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 **Criterio de cierre** (se verifica en el respaldo):
 
 * En CENTERLINE_WELD después de $IN[483] dipw1_WeldComplete, o inmediatamente después de CENTERLINE_WELD() en style1app1opt1..3, existe NUT_READY = FALSE (y la bandera que usen las tuercas 2 y 3) antes de salir del pedestal.
-* La petición de las tuercas 2 y 3 es una instrucción en el flujo, fuera de TRIGGER: Request_next_nut() justo después de CENTERLINE_WELD, con la pieza aún en el pedestal (aceptado en F53, como R20). La de la tuerca 1 puede seguir por TRIGGER antes del fold del movimiento del pick (G20).
+* La petición de las tuercas 2 y 3 es una instrucción en el flujo, fuera de TRIGGER: Request_next_nut() justo después de CENTERLINE_WELD, con la pieza aún en el pedestal (aceptado por Edgar, como R20). La de la tuerca 1 puede seguir por TRIGGER antes del fold del movimiento del pick (G20).
 * En PRELOAD una petición que llega con preload activo o con tuerca cargada sin consumir no arranca otra alimentación.
 * Antes de alimentar se confirma pin vacío: por sensor si existe (nombre y dirección), o por estado si se confirma en sitio que no hay sensor; el comentario del paso dice cuál.
 * El pick red rabbit no pide preload, o la lista anota por qué sí.
@@ -1277,7 +1275,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 * 2026-10-04 — Alta (Ethos): Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02).
 * 2026-10-11 — Avance del programador: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). Request_next_nut ya es una llamada después de CENTERLINE_WELD, no un TRIGGER. NUT_READY sigue sin borrarse al soldar: se borra cuando arranca el siguiente preload. Con la pre-alimentación (paso 30, 5 s con nFeedSettleMs=3000) la petición puede quedar en espera; si el paso 30 llegara a durar más que soldar y salir, el robot vería el NUT_READY de la tuerca anterior y entraría sin tuerca (hoy hay ~1.5 s de margen).
 * 2026-10-12 — Avance del programador: Respaldo del 11/10 22:32. La pre-alimentación dura 2 s (antes 5 s): sube el margen contra el NUT_READY anterior. El pick red rabbit ya no pide tuerca (sin NUT_START). NUT_READY sigue sin borrarse al soldar.
-* 2026-10-12 — Criterio ajustado: El criterio de la petición en el flujo se ajusta a lo ya aceptado en G20 (TRIGGER de la tuerca 1 antes del fold) y F53 (petición justo después de soldar): se cumple desde el 10/10. El pick red rabbit ya no pide preload (11/10). Quedan NUT_READY = FALSE al soldar, que una petición repetida no alimente otra tuerca, el pin vacío antes de alimentar y la prueba en celda.
+* 2026-10-12 — Criterio ajustado: El criterio de la petición en el flujo se ajusta a lo ya aceptado en G20 (TRIGGER de la tuerca 1 antes del fold) y a la petición justo después de soldar (aceptada como R20): se cumple desde el 10/10. El pick red rabbit ya no pide preload (11/10). Quedan NUT_READY = FALSE al soldar, que una petición repetida no alimente otra tuerca, el pin vacío antes de alimentar y la prueba en celda.
 * 2026-11-07 — Avance del programador: Respaldo del 14/10 15:05. NUT_READY=FALSE al terminar la soldadura (centerline_weld.src:234); PRELOAD descarta una petición si ya hay tuerca lista y no hay preload activo (preload.src:20-22); antes de esperar la tuerca, si no hay tuerca ni petición, se pide (gun_open_check.src:422-424). Falta confirmar pin vacío antes de alimentar y la prueba en celda.
 
 ---
@@ -1654,7 +1652,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 **Historial:**
 
 * 2026-10-04 — Alta (Ethos): Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02).
-* 2026-10-07 — Nota (F52): PRELOAD ya no usa $TIMER[12]; la medición de tiempo ciclo usa $TIMER[20]. Dueños anotados en $config.dat.
+* 2026-10-07 — Nota: PRELOAD ya no usa $TIMER[12]. Dueños de los timers anotados en $config.dat.
 
 ---
 
@@ -2090,7 +2088,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 **Criterio de cierre** (se verifica en el respaldo):
 
 * En PRELOAD.src, sps.sub, CENTERLINE_HOME.src y centerline_weld.src no quedan esos números en líneas ejecutables: usan constantes de $config.dat con los mismos valores.
-* Un ciclo completo en automático sin cambio de tiempo de ciclo. Anotar fecha.
+* Un ciclo completo en automático sin cambio de comportamiento. Anotar fecha.
 * Comentarios del código cambiado según docs/CONVENTIONS.md (inglés, señal con dirección y nombre); ningún encabezado de inline form ni línea dentro de un fold de form cambia sin estar declarado (F32, F21, F31).
 
 **Evidencia del programador.** Lista de constantes y fecha del ciclo.
@@ -2254,7 +2252,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 * 2026-10-04 — Alta (Ethos): Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02).
 * 2026-10-11 — Estándar Gestamp: El EndOfCycle estándar manda Work Complete y espera el acuse; en R20 el programador ya lo tiene activo (respaldo del 09/10). Restaurarlo igual y probar con el PLC.
 * 2026-10-11 — Sin cambio: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). El EndOfCycle sigue con Work Complete comentado (automationcoreroutines.src:381-389).
-* 2026-11-07 — Avance del programador: Respaldo del 14/10 15:05. cell.src manda Work Complete después de EndOfCycle y espera di015WorkCompleteAckn con mensaje de AutomationCore (cell.src:65-72), como el EndOfCycle estándar; la rutina del proveedor sigue editada (C28). Falta la prueba con el PLC; ahora nCycleTime incluye la espera del acuse.
+* 2026-11-07 — Avance del programador: Respaldo del 14/10 15:05. cell.src manda Work Complete después de EndOfCycle y espera di015WorkCompleteAckn con mensaje de AutomationCore (cell.src:65-72), como el EndOfCycle estándar; la rutina del proveedor sigue editada (C28). Falta la prueba con el PLC.
 
 ---
 
@@ -2360,7 +2358,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 
 **Qué está mal.** En el respaldo de las 14:46 el programador movió AC_ApplicationCheck(1) (espera $IN[70]) a después de PTP P22. P22 es el punto de aproximación de la estación de inspección (unos 170 mm del punto de cámara P6 y 480 mm abajo de los puntos del nut check): el robot entra sin permiso del PLC mientras $OUT[70]/$OUT[24] siguen diciendo que está libre.
 
-**Qué hacer.** Dejar AC_ApplicationCheck(1) antes del primer movimiento, como en la versión integrada. Si se movió por tiempo de ciclo, ver con el PLC si se puede pedir el permiso antes (al salir del pedestal).
+**Qué hacer.** Dejar AC_ApplicationCheck(1) antes del primer movimiento, como en la versión integrada. Si no se puede antes del movimiento, ver con el PLC si se puede pedir al salir del pedestal.
 
 **Criterio de cierre** (se verifica en el respaldo):
 
@@ -2398,72 +2396,6 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 
 ---
 
-## F52 — Tiempo ciclo de R10: meta 38 s pieza a pieza (medir el ciclo completo y bajarlo)
-
-**Severidad:** Alto · **Tipo:** Código + prueba en celda · **Responsable:** Programador robot · **Estado:** En proceso
-
-**Módulos:** `KRC/R1/Program/Centerline/PRELOAD.src`, `KRC/R1/Program/Centerline/centerline_weld.src`, `KRC/R1/Program/Centerline/Request_next_nut.src`, `KRC/R1/Program/Centerline/CL_CYCLE_TIME.src`, `KRC/R1/Program/StyleApps/Options/style1app1opt1A..3B`, `KRC/R1/System/$config.dat`
-
-**Qué está mal.** Gestamp pide 12 s por pieza de proceso de soldadura con el robot parado (sin contar movimientos). En el video del 2026-10-05 son ~20 s: por tuerca ~2.8 s de llegada a soldadura y ~1.2 s para salir, y antes de las tuercas 2 y 3 ~4 s esperando la tuerca. Esa espera es toda la precarga (alimentar 2000 ms, avance del QFP, soplo 800 ms, 800 ms tras el regreso), que arrancaba hasta que el robot salía del pedestal, aunque alimentar la tuerca al shuttle solo necesita el shuttle en casa.
-
-**Qué hacer.** Meta de R10: 38 s pieza a pieza (Edgar, 2026-10-11; R20: 57.3 s hoy, meta 53 s). Presupuesto: la soldadura de las 3 tuercas (tuerca 1 en posición → fin de tuerca 3) ya mide 17.2 s; quedan 20.8 s para todo lo demás (pick, traslado, nut check, cámara, drop, HOME y esperas del PLC), de los que 1.5 s son esperas fijas (nut check 0.8 s, gripper 0.6 s, cámara 0.1 s) más lo que tarde el resultado de la cámara. Sus timers CT_* ya miden pieza, tuercas, pistola y espera de tuerca (10/10: tuerca 1 → fin de tuerca 3 = 17.2 s, 0.56 s de espera de tuerca por pieza). Falta: cargar entregas/2026-10-11_F52_esperas_PLC (esperas del PLC en HOME y en los permisos de pickup, application 1 y drop-off) y mandar el respaldo después de 10 piezas seguidas en automático. Después, las palancas que quedan (audits/2026-10-11_tiempo_ciclo/PALANCAS.es.md): dry cycle leído después de la aproximación, permisos de application y drop-off después de llegar (F50, F48), tuerca confirmada con $IN[481] en lugar de 5 s fijos, paradas exactas del pick 1, esperas fijas de GripperTech; handshakes de AutomationCore solo con OK de Gestamp.
-
-**Criterio de cierre** (se verifica en el respaldo):
-
-* Respaldo con 10 piezas seguidas en automático: nCtCycle, nCtWaitSum, nCtInWelder, nCtHomeWait y nCtPlcWait leídos.
-* 38 s pieza a pieza en automático (nCtCycle de 10 piezas seguidas); la espera en HOME por otras estaciones (nCtHomeWait) se reporta aparte.
-* Cada cambio de tiempo ciclo probado en T1 y a 100 % sin tocar el tiempo de soldadura, los chequeos de calidad ni los interlocks de seguridad.
-
-**Evidencia del programador.** Resultado de las pruebas con fecha y el respaldo después de 10 ciclos en automático.
-
-**Nota.** El programador hizo su propia petición anticipada de tuerca (F53, aceptada como R20 F51): la espera antes de las tuercas 2 y 3 bajó de ~4 s (video del 05/10) a 0.24-0.32 s. Sus timers CT_* ($TIMER[20..23]) y los de la entrega de esperas del PLC ($TIMER[24]) se quitan al cerrar el tema de tiempo ciclo. Referencia: así lo resolvió la versión de oficina (commit 84442ac): las apps 1 y 2 pedían alimentar la siguiente tuerca al shuttle en cuanto su tuerca estaba lista (NUT_FEED_START); PRELOAD alimentaba mientras el robot entraba y soldaba; Request_next_nut a la salida solo cargaba la tuerca al pin; medición CL_CYCLE_TIME ($TIMER[20]) por paso.
-
-**Historial:**
-
-* 2026-10-07 — Alta: Análisis del video y del código; el dueño confirma que se puede alimentar la tuerca durante la soldadura.
-* 2026-10-07 — Corregido en oficina: Etapa 1 y medición; revisión independiente antes de la entrega.
-* 2026-10-07 — Revisión independiente: Dos revisores: sin errores de compilación ni rutas del ciclo normal con el shuttle en movimiento con la pieza en el pedestal. Corregido: la alimentación local de CENTERLINE_WELD no corre con una precarga activa (reintento tras timeout de pistola), NUT_START se borra solo cuando se toma, medición en $TIMER[20] (GlueTech reclama el 16), comentarios de trigger saltado.
-* 2026-10-11 — Cambio de base: Base = programa del programador (respaldo del 2026-10-05 14:46). La etapa 1 de oficina (commits 17064bc a 3e748dc, paquete del 2026-10-07) no está en su programa y ya no se le pide cargarla. Queda como referencia para la palanca d).
-* 2026-10-11 — Cambio entregado: Ethos entregó la medición sobre su respaldo del 05/10 14:46: rutinas CT_NUT_WAIT, CT_WELD_START/END y CT_PLC_START/END en GUN_OPEN_CHECK (como su R20), variables nCt* en gun_open_check.dat, $TIMER[20..24]; 14 archivos, mismo comportamiento. Falta cargar, correr 10 piezas y mandar el respaldo. Paquete: entregas/2026-10-11_F52_medicion (archivos que cambian, cambios.diff, LEEME.txt y PDF de instrucciones).
-* 2026-10-11 — Análisis: Palancas con evidencia y rangos en audits/2026-10-11_tiempo_ciclo/PALANCAS.es.md: d) tuerca anticipada 5-7 s; b) dry cycle leído después de la aproximación 0.6-1.2 s, permisos después de llegar 0.3-0.8 s; a) ~10 paradas exactas en espacio libre 1-3 s; c) esperas fijas de 0.2 s 1-2.6 s. Sin medir; nada prometido.
-* 2026-10-11 — Medición del programador: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). Ya tiene sus timers CT_* (como R20): dentro de la pistola 4.03 / 3.92 / 3.91 s, tuerca a tuerca 6.71 / 6.61 s, espera de tuerca 0 / 0.24 / 0.32 s (0.56 s por pieza), tuerca 1 → fin de tuerca 3 = 17.2 s. nCtCycle = 276.8 s: la última pieza vino después de un paro, no sirve; faltan varias piezas seguidas. La entrega de medición de Ethos del 11/10 queda sin efecto (se hizo sobre el 05/10); solo falta medir las esperas del PLC.
-* 2026-10-11 — Cambio entregado: Ethos entregó sobre su respaldo del 10/10 solo la medición de las esperas del PLC: CT_PLC_START / CT_PLC_END al final de gun_open_check.src, nCtHomeWait y nCtPlcWait[1..3] en gun_open_check.dat, $TIMER[24]; 7 archivos, mismo comportamiento. La entrega de medición sobre el 05/10 (entregas/2026-10-11_F52_medicion) se retiró: no se carga. Paquete: entregas/2026-10-11_F52_esperas_PLC (archivos que cambian, cambios.diff, LEEME.txt y PDF de instrucciones).
-* 2026-10-11 — Análisis: Palancas actualizadas con el respaldo del 10/10 (audits/2026-10-11_tiempo_ciclo/PALANCAS.es.md). Nuevo: la espera antes de leer la cámara pasó de 0.2 a 2.0 s (style1app2opt2.src:60; el comentario sigue diciendo 0.2 s), hasta 1.8 s por pieza: preguntar por qué; si el resultado tarda, esperar di100 o di101 con timeout. Quedan ~3.5-7 s por pieza en rangos, sin medir el ciclo completo.
-* 2026-10-11 — Decisión: Meta de R10: 38 s pieza a pieza (Edgar). Con lo medido el 10/10, la soldadura de las 3 tuercas ocupa 17.2 s (45 % de la meta); quedan 20.8 s para el resto del ciclo, que todavía no se ha medido completo.
-* 2026-10-12 — Medición: Respaldo del 11/10 22:32. AutomationCore guarda el último ciclo (arranque → fin, sin la espera en HOME; nCycleTime, en segundos enteros): 50 s el 05/10, 39 s el 10/10, 26 s el 11/10. El de 26 s no soldó (sus timers CT_* no cambiaron): por los cambios del día, probablemente un ciclo red rabbit. El de 39 s es probablemente la pieza que midió el 10/10 (no confirmado).
-* 2026-10-12 — Avance del programador: Respaldo del 11/10 22:32. La cámara espera el resultado (OK o NG) con 5 s máximo y 0.1 s después, en lugar de 2.0 s fijos: ahorra hasta 1.9 s. Regresó el WAIT SEC 0.2 al abrir la pistola (como R20): +0.6 s por pieza. Pre-alimentación de 2 s. No cargó la entrega de esperas del PLC: sigue válida sobre este respaldo (sus 7 archivos solo cambiaron en atributos de cabecera).
-* 2026-10-13 — Medición: Respaldo del 13/10 07:32. AutomationCore: último ciclo 67 s (nCycleTime). Los timers CT_* del programador no cambiaron desde el 10/10: en los respaldos del 11 y 13/10 no hay ninguna soldadura registrada. La entrega de esperas del PLC (entregas/2026-10-11_F52_esperas_PLC) queda obsoleta: sus 7 archivos cambiaron en este respaldo (comentarios y GUN_OPEN_LOST); cargarla desharía esos cambios.
-* 2026-11-07 — Medición: Respaldo del 14/10 15:05. Timers CT_* (última pieza): dentro de la pistola 4.10 / 4.01 / 4.00 s; tuerca a tuerca 6.94 / 6.89 s; espera de tuerca 0 / 0.44 / 0.52 s (0.96 s por pieza); tuerca 1 → fin de tuerca 3 17.8 s (17.2 s el 10/10). AutomationCore: último ciclo 42 s (39 s el 10/10), que ahora incluye la espera del acuse de Work Complete del PLC. nCtCycle 102.4 s incluye una espera. Meta 38 s.
-
----
-
-## F53 — Tiempo ciclo del programador: pre-alimenta la tuerca, la pide con la pieza aún en la pistola, CONT/PTP y sin esperas de 0.2 s
-
-**Severidad:** Alto · **Tipo:** Prueba en celda · **Responsable:** Programador robot · **Estado:** Aceptado sin cambio
-
-**Módulos:** `KRC/R1/Program/Centerline/preload.src`, `KRC/R1/Program/Centerline/centerline_weld.src`, `KRC/R1/Program/StyleApps/Options/style1app1opt1a..3b`, `KRC/R1/System/sps.sub`, `KRC/R1/System/$config.dat`
-
-**Qué está mal.** Respaldo del 10/10: PRELOAD pre-alimenta la siguiente tuerca al QFP en cuanto la anterior queda en el pin (paso 30, 2000 ms + nFeedSettleMs 3000 ms) y la siguiente precarga se salta la alimentación; las apps llaman Request_next_nut() justo después de CENTERLINE_WELD, con la pieza aún en el pedestal (el QFP avanza mientras el robot sale); el Bosch queda habilitado fuera de dry cycle; un solo Ready por tuerca; sin los WAIT SEC 0.2 de la pistola; CONT y PTP en los traslados de las apps y del nut check; ventana de pistola cerrada de 300 a 150 ms. Medido: espera de tuerca 0.56 s por pieza, 3.9-4.0 s dentro de la pistola por tuerca.
-
-**Qué hacer.** Aceptado como en R20 (F51 de R20, decisión de Edgar: en el paquete NutWeld de Gestamp el spear alimenta con el robot ya parado en la pose de soldadura). Sugerencias: ventana de 200 ms como Gestamp o anotar una prueba sin tuerca y con doble tuerca; borrar NUT_READY al pedir la siguiente tuerca (F14) para que el robot nunca entre con el NUT_READY anterior; confirmar la tuerca con $IN[481] dipw1_FeedComplt en lugar de 5 s fijos (F13).
-
-**Criterio de cierre** (se verifica en el respaldo):
-
-* Validado en celda por el programador (ciclos en automático sin tuerca faltante ni doble).
-
-**Depende de / se cierra con:** F52
-
-**Nota.** Igual que F51 de R20. Diferencia con R20: en R10 NUT_READY no se borra al soldar y la pre-alimentación dura 5 s (nFeedSettleMs=3000).
-
-**Historial:**
-
-* 2026-10-11 — Alta (auditoría): Encontrado en el respaldo del 10/10.
-* 2026-10-11 — Decisión: Aceptado por analogía con R20 F51 (decisión de Edgar del 2026-10-10).
-* 2026-10-12 — Nota: Respaldo del 11/10 22:32. La pre-alimentación volvió a 2 s y regresó el WAIT SEC 0.2 entre GunWork y GunHome al abrir la pistola, los dos como R20.
-* 2026-11-07 — Nota: Respaldo del 14/10 15:05. Con la pre-alimentación de 2 s la espera de tuerca subió a 0.96 s por pieza (0.56 s el 10/10 con 5 s).
-
----
-
 ## F54 — Cámara: el resultado se lee en cuanto hay OK o NG; confirmar que no es el de la pieza anterior
 
 **Severidad:** Alto · **Tipo:** Prueba en celda · **Responsable:** Programador robot / PLC · **Estado:** Abierto
@@ -2479,7 +2411,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 * Confirmación del PLC (nombre y fecha) de cuándo se borran di100/di101.
 * Prueba en celda: una pieza NG (o el red rabbit) justo después de una pieza OK; el robot la manda a scrap (o da PASSED en red rabbit).
 
-**Nota.** El cambio quita la espera fija de 2.0 s (F52) y está bien planteado; falta confirmar este punto antes de producción.
+**Nota.** El cambio está bien planteado; falta confirmar este punto antes de producción.
 
 **Historial:**
 

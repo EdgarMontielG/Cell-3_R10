@@ -15,7 +15,7 @@ sin comentario en las líneas nuevas).
 | Cambio | Dónde | Revisión |
 |---|---|---|
 | AutomationCore_BKG activo otra vez | sps.sub:102 | Como Gestamp y R20: escribe request to enter (`doCriticalWZ` por AC_Request_to_enter, automationcoreroutines.src:1411-1434), brake test pendiente, mastering, batería, velocidad, eje 1, Tool ID, posiciones y Ethernet de periféricos. C01 y C19 se cierran; C14 queda solo en F47. sps.sub sigue escribiendo sus copias de las mismas señales con la misma expresión. `do052EOATVlvMnfldEnetOK` fijo en TRUE (automationcoreroutines.src:178) |
-| Work Complete al PLC: después de EndOfCycle, `do015WorkComplete` y espera de `di015WorkCompleteAckn` con mensaje | cell.src:65-72 | F46 en proceso (falta la prueba). El tiempo de AutomationCore ahora incluye la espera del acuse |
+| Work Complete al PLC: después de EndOfCycle, `do015WorkComplete` y espera de `di015WorkCompleteAckn` con mensaje | cell.src:65-72 | F46 en proceso (falta la prueba) |
 | Red rabbit con OR: FAILED con cualquier tuerca, PASSED sin ninguna; el drop red rabbit ya no borra el resultado; la cámara solo puede dar FAILED | style1app2opt1.src:144-145, style1app2opt2.src:63-68, style1drop1opt2autorr.src | G21 cumple en código; falta la prueba. F19 se cierra con G21 |
 | Drop red rabbit con el gripper 1 (form con los mismos parámetros) y sin escribir `$OUT[249]`/`$OUT[250]` | style1drop1opt2autorr.src | F31 en proceso |
 | Estado de la tuerca: `NUT_STATE_INIT` al arrancar (USER INIT de sps.sub y cell.src), `NUT_READY=FALSE` al terminar la soldadura, PRELOAD descarta una petición si ya hay tuerca lista, y antes de esperar la tuerca se pide si nadie la pidió | preload.src:20-22, :260-285; centerline_weld.src:234; gun_open_check.src:422-424; sps.sub; cell.src | G19, F14 y F38 en proceso. Riesgo: la inicialización deja `NUT_READY=FALSE` aunque haya una tuerca en el pin; la petición siguiente puede alimentar otra (doble tuerca, que la ventana de pistola detectaría). Falta la prueba en celda |
@@ -24,19 +24,6 @@ sin comentario en las líneas nuevas).
 | Módulos borrados: capchange, electrodechange, redrabbit, safetest | controlador | G05: quedan pounce y GlueTech con movetopurge |
 | `XATDROP3` re-enseñado 66.7 mm; `iSTOP_TYPE` de TorqueMonitoring otra vez 53 | style1drop1opt1.dat, tm_bib.dat | Notas |
 | Configuración de seguridad: "Cell area" cambiada y guardada el 2026-10-13 18:58, versión 55, WorksheetCrc 3865158541, ParameterCrc 8DA361E6 | SafetyConfigData.xml, SCTLCRC.XML | Falta el checklist de aceptación de esta versión (ítem 40 del workbook) |
-
-## Tiempo ciclo (última pieza, timers CT_*)
-
-| Tramo | 14/10 | 10/10 |
-|---|---:|---:|
-| Dentro de la pistola, tuercas 1 / 2 / 3 | 4.10 / 4.01 / 4.00 s | 4.03 / 3.92 / 3.91 s |
-| Tuerca a tuerca, 2 / 3 | 6.94 / 6.89 s | 6.71 / 6.61 s |
-| Espera de tuerca, 2 / 3 (por pieza) | 0.44 / 0.52 s (0.96 s) | 0.24 / 0.32 s (0.56 s) |
-| Tuerca 1 → fin de tuerca 3 | 17.8 s | 17.2 s |
-| Último ciclo de AutomationCore (arranque → fin) | 42 s, con la espera de Work Complete | 39 s |
-
-Meta 38 s. La soldadura subió 0.6 s por pieza: el WAIT SEC 0.2 al abrir la pistola (13/10) y la pre-alimentación de
-2 s, que deja más espera de tuerca. Sigue sin medirse una serie de 10 piezas.
 
 ## Puntos
 
@@ -54,5 +41,4 @@ Meta 38 s. La soldadura subió 0.6 s por pieza: el WAIT SEC 0.2 al abrir la pist
 
 1. Doble tuerca después de un reset con tuerca en el pin (F38): probar antes de producción.
 2. Configuración de seguridad cambiada sin checklist de aceptación (versión 55).
-3. Tiempo ciclo: 42 s contra 38 s de meta.
-4. El zip del respaldo incluye una orden de compra de Ethos: no reenviarlo tal cual a Gestamp.
+3. El zip del respaldo incluye una orden de compra de Ethos: no reenviarlo tal cual a Gestamp.

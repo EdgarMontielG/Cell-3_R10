@@ -28,9 +28,9 @@ robot `658424_R10_AAAA-MM-DD_HHMM.zip`.
 Decisión de Edgar (igual que en R20): ya no se le exige al programador cargar
 la versión de oficina. **Su último respaldo es la base auditada**: el árbol del
 programa del repositorio es su último respaldo byte por byte: hoy el del
-2026-10-11 22:32 (commit `8cb5c7a`); el cambio de base fue sobre su respaldo
+2026-10-14 15:05 (commit `c401a76`); el cambio de base fue sobre su respaldo
 del 2026-10-05 14:46 (commit `468e29f`). La versión de oficina (depuración, correcciones de la
-revisión de Gestamp, integraciones y la etapa 1 de tiempo ciclo) queda en el
+revisión de Gestamp e integraciones) queda en el
 historial en `84442ac`, solo como referencia. Los dos commits están en
 `tools/audit_base.json`.
 
@@ -61,20 +61,10 @@ del pedestal se comparan por analogía. El respaldo se revisó en la conversaci�
 de R20; la aplicación a R10 está en
 `audits/2026-10-11_estandar_gestamp/REVISION.es.md`.
 
-## Tiempo ciclo: prioridad
+## Tiempo ciclo
 
-Meta de R10: **38 s pieza a pieza** (Edgar, 2026-10-11; R20: 57.3 s hoy,
-meta 53 s). Antes de prometer números se mide en el robot (pieza a pieza,
-tuerca a tuerca, dentro de la pistola, espera de tuerca, esperas del PLC en
-HOME y en permisos). Palancas, en este orden: (a) paradas exactas en espacio libre (CONT,
-PTP en lugar de LIN donde no hace falta línea recta); (b) lo que detiene el
-avance entre movimientos (salidas por TRIGGER o con CONTINUE, chequeos juntos
-en una parada planeada antes del pedestal); (c) esperas fijas después de
-acciones que ya confirma un sensor o un handshake; (d) pedir la tuerca con
-anticipación, escondida en el traslado; (e) handshakes de AutomationCore, solo
-con OK de Gestamp. No se tocan el tiempo de soldadura, los chequeos de calidad
-ni los interlocks de seguridad, y el chequeo de pedestal no se mueve a después
-de entrar. Los estimados van en rangos y con evidencia (archivo:línea).
+Cerrado por Gestamp (2026-11-07): ya no se audita ni aparece en los Excel ni en los PDF. F52 y F53
+quedan en la lista maestra como cerrados, con `conjunto` "retirado".
 
 ## Cada día
 

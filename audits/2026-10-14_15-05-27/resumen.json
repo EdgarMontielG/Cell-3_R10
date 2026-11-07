@@ -26,20 +26,13 @@
    ]
   },
   {
-   "texto": "Último ciclo de 42 s contra la meta de 38 s; la soldadura subió 0.6 s por pieza.",
-   "items": [
-    "F52"
-   ]
-  },
-  {
    "texto": "El zip del respaldo incluye una orden de compra de Ethos: no reenviarlo tal cual.",
    "items": []
   }
  ],
  "plan": [
   "Pruebas en celda de G19/F14/F38 (reset con y sin tuerca, corte a mitad de preload) y del red rabbit (G21).",
-  "Checklist de aceptación de SafeOperation de la versión 55 y protocolo de carga (G03).",
-  "10 piezas seguidas en automático para medir contra 38 s (F52)."
+  "Checklist de aceptación de SafeOperation de la versión 55 y protocolo de carga (G03)."
  ],
  "pedir": [
   "Checklist de aceptación firmado de la configuración de seguridad versión 55 (CRC 8DA361E6).",

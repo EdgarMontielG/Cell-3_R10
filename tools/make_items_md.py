@@ -20,7 +20,8 @@ def closed(item):
 
 def main():
     data = json.load(open(os.path.join(REPO, 'docs', 'open_items.json')))
-    items = data['items']
+    # items Gestamp closed out of the lists (conjunto "retirado", e.g. cycle time) stay only in the JSON
+    items = [i for i in data['items'] if i.get('conjunto') != 'retirado']
     pending = [i for i in items if not closed(i)]
     gestamp = [i for i in items if i['id'].startswith('G')]
     out = ['# Puntos abiertos — robot R10 (BMW-03-10-R1)', '',

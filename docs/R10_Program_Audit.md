@@ -26,7 +26,6 @@ Origen del código:
 - **Ethos:** revisión de hallazgos y una versión de oficina (2026-10-03 a 2026-10-07: depuración de comentarios en
   inglés, encabezados Gestamp, nombres de señal, correcciones de la revisión de Gestamp, integración). El programador
   cargó la versión de oficina del 2026-10-05 antes de su respaldo del 2026-10-10 y trabajó encima del 06 al 11/10.
-  La entrega `entregas/2026-10-11_F52_esperas_PLC` (medición de esperas del PLC) quedó obsoleta el 13/10 sin cargarse.
 
 ## 1. Identificación
 
@@ -61,9 +60,7 @@ Origen del código:
   entrar y al salir, con vigilancia por interrupciones (F01 cerrado).
 - Verificación de tuercas: ventana de pistola cerrada (sin tuerca / doble tuerca), sensor de tuerca por tuerca y
   cámara. Pendientes: la cámara puede tomar el resultado anterior (F54), ventana de 150 ms contra 200 ms de Gestamp
-  (F07/F53). Red rabbit ya con lógica OR y sin borrar el resultado en el drop (G21, falta prueba).
-- Tiempo ciclo: meta de R10 38 s pieza a pieza. Medido el 14/10: 17.8 s de la tuerca 1 al fin de la tuerca 3;
-  último ciclo de AutomationCore 42 s (incluye la espera del acuse de Work Complete). Falta medir 10 piezas seguidas.
+  (F07). Red rabbit ya con lógica OR y sin borrar el resultado en el drop (G21, falta prueba).
 - Módulos sobrantes casi resueltos (G05: quedan `pounce` y GlueTech con `movetopurge`); ediciones en archivos de KUKA
   sin lista de entrega (C28).
 - Lo físico (dress pack, gabinete, E-stop, red, IP) no se revisó.
@@ -128,26 +125,10 @@ Origen del código:
 | C-9 | Work Complete / fin de ciclo al PLC | OK | Desde el 14/10 `cell.src:65-72` manda `do015WorkComplete` y espera `di015WorkCompleteAckn` con mensaje, después de EndOfCycle (que sigue editado en el archivo de KUKA). Prueba con el PLC pendiente (F46 en proceso). |
 | C-10 | Brake test due al PLC | Not OK | `do021BrakeTestReqd` lo escribe otra vez AutomationCore_BKG (14/10); el camino del brake test sigue enseñado con tool/base de otro robot (F47). |
 
-## 5. Cycle time y desempeño
+## 5. Desempeño
 
-| Medición | Valor | Fuente |
-|---|---|---|
-| Meta de R10 (Edgar, 2026-10-11) | 38 s pieza a pieza | — |
-| Dentro de la pistola por tuerca (CENTERLINE_WELD) | 4.10 / 4.01 / 4.00 s (14/10); 4.03 / 3.92 / 3.91 s (10/10) | timers del programador `nCtInWelder`, `gun_open_check.dat` |
-| Tuerca a tuerca | 6.94 / 6.89 s (14/10); 6.71 / 6.61 s (10/10) | `nCtNutToNut[2..3]` |
-| Espera de tuerca | 0 / 0.44 / 0.52 s, 0.96 s por pieza (14/10); 0.56 s (10/10); ~4 s antes de las tuercas 2 y 3 en el video del 05/10 | `nCtNutWait` |
-| Tuerca 1 en posición → fin de tuerca 3 | 17.8 s (14/10); 17.2 s (10/10) | `nCtPart` |
-| Último ciclo de AutomationCore (arranque → fin, sin espera en HOME) | 50 s (05/10), 39 s (10/10), 26 s (11/10, sin soldar), 67 s (13/10), 42 s (14/10, ya incluye la espera del acuse de Work Complete) | `nCycleTime`, `automationcoredata.dat` |
-
-- El ciclo completo no se ha medido con varias piezas seguidas; `nCtCycle` (102.4 s el 14/10, 276.8 s el 10/10)
-  incluye esperas o paros. Falta la medición de 10 piezas seguidas y de las esperas del PLC.
-- La soldadura de las 3 tuercas subió 0.6 s por pieza del 10 al 14/10: WAIT SEC 0.2 al abrir la pistola (13/10) y
-  pre-alimentación de 2 s (más espera de tuerca).
-- Cuellos de botella identificados: la soldadura de las 3 tuercas ocupa 45 % de la meta; la espera fija de la
-  cámara (0.2 s → 2.0 s el 10/10 → espera del resultado el 11/10); WAIT SEC 0.2 al abrir la pistola, regresado el
-  11/10 (+0.6 s por pieza); permisos del PLC pedidos después de llegar (F48, F50). Palancas pendientes estimadas en
-  ~2-6 s por pieza sin medir (`audits/2026-10-11_tiempo_ciclo/PALANCAS.es.md`).
-- Fallas recurrentes: tuercas faltantes, 8 reintentos acumulados (`nNutRetryTotal=8`, `gun_open_check.dat:53`). El
+- Tiempo ciclo: cerrado por Gestamp; fuera del alcance de este documento.
+- Fallas recurrentes: tuercas faltantes, 8 reintentos acumulados (`nNutRetryTotal`, `gun_open_check.dat:39`). El
   programador subió la alimentación a 5 s el 10/10 ("el alimentador sopla hasta 5 s") y la regresó a 2 s el 11/10;
   la alimentación no se confirma con `$IN[481] dipw1_FeedComplt` (F13). Atribución (alimentador de Gestamp,
   programa o hardware): no determinada.
@@ -177,7 +158,6 @@ workbook queda Not OK por ese punto.
 | F48 / F50 | Permisos de drop-off y application antes de llegar | Programador\* | Sí (ítems 42, 45) |
 | F10 | Estado seguro del pedestal al cancelar o resetear | Programador\* | Sí (C-1) |
 | F54 | Confirmar que la cámara no da el resultado de la pieza anterior | Programador\* / PLC | Sí (C-5) |
-| F52 | Tiempo ciclo: medir 10 piezas y llegar a 38 s | Programador\* / Ethos | No (meta interna) |
 | C28 | Lista de ediciones en archivos de KUKA para la entrega | Programador\* / Ethos | No |
 | — | Todo lo marcado NO REVISADO en las secciones 3 y 4 | Ethos (en sitio) | Por revisar |
 
@@ -196,5 +176,4 @@ workbook queda Not OK por ese punto.
   (`audits/<fecha>/AUDIT.md`, `REVISION.es.md`).
 - Entregables vigentes (2026-11-07 08:10): `dist/R10_Gestamp_Puntos_*.xlsx`, `dist/R10_Gestamp_reporte_*.pdf`
   (puntos de Gestamp para el buy-off) y `dist/R10_Mejora_Puntos_*.xlsx`, `dist/R10_Mejora_reporte_*.pdf`.
-- Entrega de código `entregas/2026-10-11_F52_esperas_PLC`: obsoleta (`OBSOLETO.txt`), no se cargó.
 - Entrega del respaldo a Gestamp: no consta en esta revisión (NO REVISADO).

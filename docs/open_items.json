@@ -44,14 +44,6 @@
    "notas": "Integrados: apps A/B por estación (F51) y punto de cámara. No integrados: permiso de aplicación después de P22 (F50) y P1 quitado del drop (preguntar al programador). Correcciones de la revisión independiente: interrupts antes de cada GUN_OPEN_CHECK y mensaje en GUN_OPEN_LOST (F01), aplicación 1 liberada por TRIGGER al salir de la cámara (F48, F20), background de AutomationCore apagado con sus salidas en OFF al arrancar (F49). Un revisor independiente revisó la integración antes de la entrega: sin defectos bloqueantes. Se entrega como paquete para WorkVisual (tools/make_package.py), no como respaldo completo. Reporte en audits/2026-10-05_integracion_2."
   },
   {
-   "fecha": "2026-10-07",
-   "respaldo": "R10_paquete_2026-10-07_1341.zip (etapa 1 de tiempo ciclo sobre el respaldo de las 14:46 del 2026-10-05; incluye todo el paquete del 2026-10-05; zip completo 658424_R10_2026-10-07_1340)",
-   "cerrados": 0,
-   "reabiertos": 0,
-   "cambios": "Contra el respaldo de las 14:46: 57 programas a reemplazar, 4 a agregar (Styles/Options y CL_CYCLE_TIME), 24 a borrar. Contra la entrega del 2026-10-05: 11 KRL con cambios de código (PRELOAD, CENTERLINE_WELD, Request_next_nut, las 6 apps de soldadura, $config.dat, CL_CYCLE_TIME nuevo); audit_backup 0 FAIL, 0 WARN; zip idéntico al repositorio.",
-   "notas": "F52 etapa 1: la siguiente tuerca se alimenta al shuttle mientras el robot entra y suelda y se carga al pin a la salida (app 1 en P8, app 2 en P05); paso 20 con QFP regresado confirmado; medición de tiempos CL_CYCLE_TIME ($TIMER[20]). Dos revisores independientes (lógica de precarga, compilación y medición): sin errores de compilación ni rutas del ciclo normal con el shuttle en movimiento con la pieza en el pedestal; sus correcciones aplicadas antes de la entrega. Reporte en audits/2026-10-07_tiempo_ciclo (contra la entrega del 2026-10-05, 1b28a7e)."
-  },
-  {
    "fecha": "2026-10-11",
    "respaldo": "bmw_03_10_r1.zip del 2026-10-05 14:46 (sin respaldo nuevo): pasa a ser la base, commit 468e29f",
    "cerrados": 0,
@@ -65,7 +57,7 @@
    "cerrados": 10,
    "reabiertos": 0,
    "cambios": "Contra su respaldo del 05/10 14:46: 90 archivos cambiados, 3 agregados, 19 faltantes (14 de los 8 módulos sobrantes que borró y 5 de proyectos WorkVisual), 51 KRL con cambios de código (-1562/+931). Es la versión de oficina del 05/10 cargada más sus cambios del 06 al 10/10. audit_backup: 12 FAIL revisados (2 falsas alarmas del auditor: forms OUT con el nombre de la señal y NUT_WELD_RETRY declarado en gun_open_check.dat; 1 real: redrabbit.dat sobrante ya no compila).",
-   "notas": "Cerrados: G12, G13, G14, G15, G16, G17, G20, F01, F20 y F36. En proceso: G03/C08 (carga de 67.28 kg, falta la evidencia) y F12. F53 nuevo (pre-alimentación y tuerca pedida con la pieza en la pistola) aceptado como R20 F51. Midió con sus timers CT_*: 4.0 s dentro de la pistola por tuerca, 6.7 s tuerca a tuerca, 0.56 s de espera de tuerca por pieza. Riesgos: ventana de pistola de 150 ms (Gestamp 200), NUT_READY no se borra al soldar, tuerca confirmada por tiempo (5 s), cámara con 2.0 s fijos, F48/F50 sin cambio. Entrega de esperas del PLC en entregas/2026-10-11_F52_esperas_PLC. Registro en audits/2026-10-10_21-20-39."
+   "notas": "Cerrados: G12, G13, G14, G15, G16, G17, G20, F01, F20 y F36. En proceso: G03/C08 (carga de 67.28 kg, falta la evidencia) y F12. Riesgos: ventana de pistola de 150 ms (Gestamp 200), NUT_READY no se borra al soldar, tuerca confirmada por tiempo (5 s), F48/F50 sin cambio. Registro en audits/2026-10-10_21-20-39."
   },
   {
    "fecha": "2026-10-12",
@@ -73,7 +65,7 @@
    "cerrados": 0,
    "reabiertos": 3,
    "cambios": "Contra su respaldo del 10/10 21:20: 39 archivos cambiados, 1 agregado, 10 KRL con cambios de código (-38/+70): cámara, PRELOAD, apertura de pistola, sps.sub (NutWeld_BKG activo, robot en repair), pick red rabbit y NutWeld de KUKA. audit_backup: 0 FAIL, 19 WARN (17 líneas de código comentado en sps.sub, señales sin comentario).",
-   "notas": "Reabiertos C01, C19 y C14: corrección de la auditoría del 10/10, AutomationCore_BKG está apagado desde que cargó la versión de oficina. F54 nuevo: confirmar que la cámara no da el resultado de la pieza anterior. Cámara sin la espera fija de 2.0 s; pre-alimentación de 2 s y WAIT SEC 0.2 al abrir la pistola, como R20. Tiempo de ciclo de AutomationCore: 50 s (05/10), 39 s (10/10), 26 s (11/10, ciclo sin soldar). Registro en audits/2026-10-11_22-32-16."
+   "notas": "Reabiertos C01, C19 y C14: corrección de la auditoría del 10/10, AutomationCore_BKG está apagado desde que cargó la versión de oficina. F54 nuevo: confirmar que la cámara no da el resultado de la pieza anterior. Registro en audits/2026-10-11_22-32-16."
   },
   {
    "fecha": "2026-10-13",
@@ -81,7 +73,7 @@
    "cerrados": 3,
    "reabiertos": 0,
    "cambios": "Contra su respaldo del 11/10 22:32: 54 archivos cambiados, 3 KRL con cambios de código (-6/+28: GUN_OPEN_LOST, tm_bib.dat, XPOUNCE) y 40 con cambios solo de comentarios (simplificó los comentarios de la versión de oficina y quitó el código comentado). audit_backup: 0 FAIL, 1 WARN.",
-   "notas": "Cerrados: G01 y C02 (decisión de Edgar; el nombre queda BMW_03_10_R1) y G02 (capturas del 12/10: herramienta de seguridad EOAT 1 GE4-001 con TCP 0/0/380.8 igual a TOOL_DATA[1]; falta el checklist de aceptación firmado, ítem 40 del workbook). GUN_OPEN_LOST ya no frena con caídas cortas de señal (F01). Sin soldaduras registradas desde el 10/10. Entrega de esperas del PLC obsoleta. Registro en audits/2026-10-13_07-32-17."
+   "notas": "Cerrados: G01 y C02 (decisión de Edgar; el nombre queda BMW_03_10_R1) y G02 (capturas del 12/10: herramienta de seguridad EOAT 1 GE4-001 con TCP 0/0/380.8 igual a TOOL_DATA[1]; falta el checklist de aceptación firmado, ítem 40 del workbook). GUN_OPEN_LOST ya no frena con caídas cortas de señal (F01). Registro en audits/2026-10-13_07-32-17."
   },
   {
    "fecha": "2026-11-07",
@@ -89,7 +81,7 @@
    "cerrados": 4,
    "reabiertos": 0,
    "cambios": "Contra su respaldo del 13/10 07:32: 75 archivos cambiados, 8 borrados (capchange, electrodechange, redrabbit, safetest), 26 KRL con cambios de código (-84/+112). audit_backup: 0 FAIL, 9 WARN (señales sin comentario). El zip trae además un PDF de orden de compra fuera del respaldo.",
-   "notas": "Cerrados: C01 y C19 (AutomationCore_BKG activo otra vez, como R20), C14 y F19 con otro punto. En proceso: G19/F14/F38 (inicialización del estado de la tuerca, NUT_READY consumido al soldar), G21 (red rabbit con OR, falta prueba), F35, F46 (Work Complete en cell.src), F31. Herramienta 2 con pieza (68.28 kg). Configuración de seguridad cambiada el 13/10 (versión 55, CRC 8DA361E6). Tiempos: 17.8 s de soldadura por pieza; último ciclo 42 s (meta 38). Registro en audits/2026-10-14_15-05-27."
+   "notas": "Cerrados: C01 y C19 (AutomationCore_BKG activo otra vez, como R20), C14 y F19 con otro punto. En proceso: G19/F14/F38 (inicialización del estado de la tuerca, NUT_READY consumido al soldar), G21 (red rabbit con OR, falta prueba), F35, F46 (Work Complete en cell.src), F31. Herramienta 2 con pieza (68.28 kg). Configuración de seguridad cambiada el 13/10 (versión 55, CRC 8DA361E6). Registro en audits/2026-10-14_15-05-27."
   }
  ],
  "items": [
@@ -2109,7 +2101,7 @@
     },
     {
      "fecha": "2026-10-07",
-     "resultado": "Avance parcial (F52)",
+     "resultado": "Avance parcial",
      "nota": "El paso 20 ya termina con el QFP regresado confirmado ($IN[482] ON, $IN[470] OFF) en vez de 800 ms. Timeouts, falla y feed complete siguen pendientes."
     },
     {
@@ -2149,7 +2141,7 @@
    "que_hacer": "Borrar NUT_READY en el flujo de soldadura en cuanto la tuerca se consumió; confirmar el pin vacío antes de alimentar; pedir la siguiente tuerca con una instrucción en el flujo (no solo en un TRIGGER), en main run; una petición repetida no debe provocar una segunda alimentación.",
    "criterio_cierre": [
     "En CENTERLINE_WELD después de $IN[483] dipw1_WeldComplete, o inmediatamente después de CENTERLINE_WELD() en style1app1opt1..3, existe NUT_READY = FALSE (y la bandera que usen las tuercas 2 y 3) antes de salir del pedestal.",
-    "La petición de las tuercas 2 y 3 es una instrucción en el flujo, fuera de TRIGGER: Request_next_nut() justo después de CENTERLINE_WELD, con la pieza aún en el pedestal (aceptado en F53, como R20). La de la tuerca 1 puede seguir por TRIGGER antes del fold del movimiento del pick (G20).",
+    "La petición de las tuercas 2 y 3 es una instrucción en el flujo, fuera de TRIGGER: Request_next_nut() justo después de CENTERLINE_WELD, con la pieza aún en el pedestal (aceptado por Edgar, como R20). La de la tuerca 1 puede seguir por TRIGGER antes del fold del movimiento del pick (G20).",
     "En PRELOAD una petición que llega con preload activo o con tuerca cargada sin consumir no arranca otra alimentación.",
     "Antes de alimentar se confirma pin vacío: por sensor si existe (nombre y dirección), o por estado si se confirma en sitio que no hay sensor; el comentario del paso dice cuál.",
     "El pick red rabbit no pide preload, o la lista anota por qué sí.",
@@ -2189,7 +2181,7 @@
     {
      "fecha": "2026-10-12",
      "resultado": "Criterio ajustado",
-     "nota": "El criterio de la petición en el flujo se ajusta a lo ya aceptado en G20 (TRIGGER de la tuerca 1 antes del fold) y F53 (petición justo después de soldar): se cumple desde el 10/10. El pick red rabbit ya no pide preload (11/10). Quedan NUT_READY = FALSE al soldar, que una petición repetida no alimente otra tuerca, el pin vacío antes de alimentar y la prueba en celda."
+     "nota": "El criterio de la petición en el flujo se ajusta a lo ya aceptado en G20 (TRIGGER de la tuerca 1 antes del fold) y a la petición justo después de soldar (aceptada como R20): se cumple desde el 10/10. El pick red rabbit ya no pide preload (11/10). Quedan NUT_READY = FALSE al soldar, que una petición repetida no alimente otra tuerca, el pin vacío antes de alimentar y la prueba en celda."
     },
     {
      "fecha": "2026-11-07",
@@ -2805,8 +2797,8 @@
     },
     {
      "fecha": "2026-10-07",
-     "resultado": "Nota (F52)",
-     "nota": "PRELOAD ya no usa $TIMER[12]; la medición de tiempo ciclo usa $TIMER[20]. Dueños anotados en $config.dat."
+     "resultado": "Nota",
+     "nota": "PRELOAD ya no usa $TIMER[12]. Dueños de los timers anotados en $config.dat."
     }
    ],
    "conjunto": "mejora"
@@ -3495,7 +3487,7 @@
    "que_hacer": "Declarar constantes con nombre en $config.dat (mismos valores) y usarlas en el código; registrar los nombres en tools/renames.json para que check_equivalence muestre que el valor no cambió.",
    "criterio_cierre": [
     "En PRELOAD.src, sps.sub, CENTERLINE_HOME.src y centerline_weld.src no quedan esos números en líneas ejecutables: usan constantes de $config.dat con los mismos valores.",
-    "Un ciclo completo en automático sin cambio de tiempo de ciclo. Anotar fecha.",
+    "Un ciclo completo en automático sin cambio de comportamiento. Anotar fecha.",
     "Comentarios del código cambiado según docs/CONVENTIONS.md (inglés, señal con dirección y nombre); ningún encabezado de inline form ni línea dentro de un fold de form cambia sin estar declarado (F32, F21, F31)."
    ],
    "evidencia_programador": "Lista de constantes y fecha del ciclo.",
@@ -3763,7 +3755,7 @@
     {
      "fecha": "2026-11-07",
      "resultado": "Avance del programador",
-     "nota": "Respaldo del 14/10 15:05. cell.src manda Work Complete después de EndOfCycle y espera di015WorkCompleteAckn con mensaje de AutomationCore (cell.src:65-72), como el EndOfCycle estándar; la rutina del proveedor sigue editada (C28). Falta la prueba con el PLC; ahora nCycleTime incluye la espera del acuse."
+     "nota": "Respaldo del 14/10 15:05. cell.src manda Work Complete después de EndOfCycle y espera di015WorkCompleteAckn con mensaje de AutomationCore (cell.src:65-72), como el EndOfCycle estándar; la rutina del proveedor sigue editada (C28). Falta la prueba con el PLC."
     }
    ],
    "conjunto": "mejora"
@@ -3954,7 +3946,7 @@
     "KRC/R1/Program/StyleApps/Options/style1app2opt1.src"
    ],
    "que_esta_mal": "En el respaldo de las 14:46 el programador movió AC_ApplicationCheck(1) (espera $IN[70]) a después de PTP P22. P22 es el punto de aproximación de la estación de inspección (unos 170 mm del punto de cámara P6 y 480 mm abajo de los puntos del nut check): el robot entra sin permiso del PLC mientras $OUT[70]/$OUT[24] siguen diciendo que está libre.",
-   "que_hacer": "Dejar AC_ApplicationCheck(1) antes del primer movimiento, como en la versión integrada. Si se movió por tiempo de ciclo, ver con el PLC si se puede pedir el permiso antes (al salir del pedestal).",
+   "que_hacer": "Dejar AC_ApplicationCheck(1) antes del primer movimiento, como en la versión integrada. Si no se puede antes del movimiento, ver con el PLC si se puede pedir al salir del pedestal.",
    "criterio_cierre": [
     "AC_ApplicationCheck(1) antes de PTP P22 en el respaldo.",
     "Prueba en celda: con $IN[70] OFF el robot espera antes de moverse a P22 (mensaje de espera); con $IN[70] ON el ciclo sigue normal. Anotar fecha y resultado."
@@ -4050,7 +4042,7 @@
    ],
    "evidencia_programador": "Resultado de las pruebas con fecha y el respaldo después de 10 ciclos en automático.",
    "depende_de": [],
-   "estado": "En proceso",
+   "estado": "Aceptado sin cambio",
    "nota": "El programador hizo su propia petición anticipada de tuerca (F53, aceptada como R20 F51): la espera antes de las tuercas 2 y 3 bajó de ~4 s (video del 05/10) a 0.24-0.32 s. Sus timers CT_* ($TIMER[20..23]) y los de la entrega de esperas del PLC ($TIMER[24]) se quitan al cerrar el tema de tiempo ciclo. Referencia: así lo resolvió la versión de oficina (commit 84442ac): las apps 1 y 2 pedían alimentar la siguiente tuerca al shuttle en cuanto su tuerca estaba lista (NUT_FEED_START); PRELOAD alimentaba mientras el robot entraba y soldaba; Request_next_nut a la salida solo cargaba la tuerca al pin; medición CL_CYCLE_TIME ($TIMER[20]) por paso.",
    "fecha_alta": "2026-10-07",
    "origen": "Revisión Ethos de tiempo ciclo (video 2026-10-05; 12 s de Gestamp)",
@@ -4128,9 +4120,14 @@
      "fecha": "2026-11-07",
      "resultado": "Medición",
      "nota": "Respaldo del 14/10 15:05. Timers CT_* (última pieza): dentro de la pistola 4.10 / 4.01 / 4.00 s; tuerca a tuerca 6.94 / 6.89 s; espera de tuerca 0 / 0.44 / 0.52 s (0.96 s por pieza); tuerca 1 → fin de tuerca 3 17.8 s (17.2 s el 10/10). AutomationCore: último ciclo 42 s (39 s el 10/10), que ahora incluye la espera del acuse de Work Complete del PLC. nCtCycle 102.4 s incluye una espera. Meta 38 s."
+    },
+    {
+     "fecha": "2026-11-07",
+     "resultado": "Cerrado por Gestamp",
+     "nota": "Gestamp cerró el tema de tiempo ciclo (Edgar, 2026-11-07). Se retira de los Excel y PDF (conjunto \"retirado\")."
     }
    ],
-   "conjunto": "mejora"
+   "conjunto": "retirado"
   },
   {
    "id": "F53",
@@ -4182,9 +4179,14 @@
      "fecha": "2026-11-07",
      "resultado": "Nota",
      "nota": "Respaldo del 14/10 15:05. Con la pre-alimentación de 2 s la espera de tuerca subió a 0.96 s por pieza (0.56 s el 10/10 con 5 s)."
+    },
+    {
+     "fecha": "2026-11-07",
+     "resultado": "Cerrado por Gestamp",
+     "nota": "Gestamp cerró el tema de tiempo ciclo (Edgar, 2026-11-07). Se retira de los Excel y PDF (conjunto \"retirado\")."
     }
    ],
-   "conjunto": "mejora"
+   "conjunto": "retirado"
   },
   {
    "id": "F54",
@@ -4204,7 +4206,7 @@
    "evidencia_programador": "",
    "depende_de": [],
    "estado": "Abierto",
-   "nota": "El cambio quita la espera fija de 2.0 s (F52) y está bien planteado; falta confirmar este punto antes de producción.",
+   "nota": "El cambio está bien planteado; falta confirmar este punto antes de producción.",
    "fecha_alta": "2026-10-12",
    "origen": "Auditoría Ethos del respaldo del 2026-10-11",
    "nota_programador": "",

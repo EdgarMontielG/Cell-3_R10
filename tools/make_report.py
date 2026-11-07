@@ -585,7 +585,7 @@ def office_reference(st):
     out += bullets([
         'Del 2026-10-02 al 2026-10-07 Ethos preparó una versión de oficina: depuración de comentarios y código '
         'basura sin cambiar el comportamiento (03/10), correcciones de la revisión de Gestamp (04/10), integración '
-        'de los respaldos del programador (05/10) y la etapa 1 de tiempo ciclo, F52 (07/10).',
+        'de los respaldos del programador (05/10) y un último paquete (07/10).',
         'Se entregó como paquetes de WorkVisual. Hasta el 05/10 el programador siguió sobre su propio programa; '
         'antes del respaldo del 10/10 cargó la versión de oficina del 05/10 y trabajó encima.',
         f'El 2026-10-11 Edgar decidió tomar su programa como base (commit '
