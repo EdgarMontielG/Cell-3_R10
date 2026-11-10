@@ -28,7 +28,7 @@ robot `658424_R10_AAAA-MM-DD_HHMM.zip`.
 Decisión de Edgar (igual que en R20): ya no se le exige al programador cargar
 la versión de oficina. **Su último respaldo es la base auditada**: el árbol del
 programa del repositorio es su último respaldo byte por byte: hoy el del
-2026-10-14 15:05 (commit `c401a76`); el cambio de base fue sobre su respaldo
+2026-11-10 08:31 (commit `51c56fa`); el cambio de base fue sobre su respaldo
 del 2026-10-05 14:46 (commit `468e29f`). La versión de oficina (depuración, correcciones de la
 revisión de Gestamp e integraciones) queda en el
 historial en `84442ac`, solo como referencia. Los dos commits están en

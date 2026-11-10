@@ -1,0 +1,8 @@
+--- HEAD:KRC/R1/Program/Centerline/centerline_home.src
++++ backup:KRC/R1/Program/Centerline/centerline_home.src
+@@ -1,4 +1,4 @@
+-&ACCESS RVO
++&ACCESS RVP
+ &REL 1
+ &COMMENT 03-10-R1 PNW1 MANUAL HOME
+ &PARAM EDITMASK = *

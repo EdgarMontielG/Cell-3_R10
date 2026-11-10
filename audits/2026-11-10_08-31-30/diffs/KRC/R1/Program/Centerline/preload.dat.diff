@@ -1,0 +1,10 @@
+--- HEAD:KRC/R1/Program/Centerline/preload.dat
++++ backup:KRC/R1/Program/Centerline/preload.dat
+@@ -1,4 +1,6 @@
+-&ACCESS RVO2
++&ACCESS  RV
++&COMMENT 03-10-R1 PNW1 NUT PRELOAD
++&PARAM DISKPATH = Program/Centerline
+ DEFDAT  preload PUBLIC
+ ;FOLD EXTERNAL DECLARATIONS;%{PE}%MKUKATPBASIS,%CEXT,%VCOMMON,%P
+ ;FOLD BASISTECH EXT;%{PE}%MKUKATPBASIS,%CEXT,%VEXT,%P

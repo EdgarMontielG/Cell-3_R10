@@ -1,0 +1,19 @@
+--- HEAD:KRC/R1/Program/StylePicks/Options/style1pick1opt1autorr.src
++++ backup:KRC/R1/Program/StylePicks/Options/style1pick1opt1autorr.src
+@@ -1,4 +1,4 @@
+-&ACCESS RVO2
++&ACCESS RVP1
+ &REL 58
+ &COMMENT 03-10-R1 RED RABBIT PICK
+ &PARAM EDITMASK = *
+@@ -91,10 +91,6 @@
+ ;FOLD WAIT FOR ( IN 253 'di253PartPresent1' ) AND ( IN 254 'di254PartPresent2' );%{PE}%R 8.3.43,%MKUKATPBASIS,%CEXT_WAIT_FOR,%VEXT_WAIT_FOR,%P 2:, 4:, 5:$IN, 6:253, 7:di253PartPresent1, 9:AND, 10:, 12:, 13:$IN, 14:254, 15:di254PartPresent2, 17:
+ WAIT FOR  ( di253PartPresent1 ) AND ( di254PartPresent2 ) 
+ ;ENDFOLD
+-;PART IN GRIPPER
+-   ;FOLD OUT 18 'do018PartInGripper1' State=TRUE ;%{PE}%R 8.3.43,%MKUKATPBASIS,%COUT,%VOUTX,%P 2:18, 3:do018PartInGripper1, 5:TRUE, 6:
+-      do018Part1InGripper=TRUE
+-   ;ENDFOLD
+ ENDIF
+ 
+ ;LEAVE PICKUP 1 - P40 (ABOVE AtPick3), P9, P8

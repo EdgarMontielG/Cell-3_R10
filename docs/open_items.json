@@ -1,7 +1,7 @@
 {
  "_comment": "Lista maestra de puntos abiertos del R10: G01-G22 son los puntos de la revisión de Gestamp (2026-10-02, BMW-03-10R1), Fnn/Cnn los de la revisión de Ethos (docs/FINDINGS.md). La lista de Calvin (2026-10-03) se verificó punto por punto: su referencia va en origen_ref. La actualiza la auditoría.",
  "proyecto": "Gestamp celda 3 - robot R10 (BMW-03-10-R1)",
- "actualizado": "2026-11-07",
+ "actualizado": "2026-11-10",
  "auditorias": [
   {
    "fecha": "2026-10-04",
@@ -82,6 +82,14 @@
    "reabiertos": 0,
    "cambios": "Contra su respaldo del 13/10 07:32: 75 archivos cambiados, 8 borrados (capchange, electrodechange, redrabbit, safetest), 26 KRL con cambios de código (-84/+112). audit_backup: 0 FAIL, 9 WARN (señales sin comentario). El zip trae además un PDF de orden de compra fuera del respaldo.",
    "notas": "Cerrados: C01 y C19 (AutomationCore_BKG activo otra vez, como R20), C14 y F19 con otro punto. En proceso: G19/F14/F38 (inicialización del estado de la tuerca, NUT_READY consumido al soldar), G21 (red rabbit con OR, falta prueba), F35, F46 (Work Complete en cell.src), F31. Herramienta 2 con pieza (68.28 kg). Configuración de seguridad cambiada el 13/10 (versión 55, CRC 8DA361E6). Registro en audits/2026-10-14_15-05-27."
+  },
+  {
+   "fecha": "2026-11-10",
+   "respaldo": "BMW_03_WINDOWS-2CPT70E_BMW_03_10_R1_658424_1.zip (am.ini 2026-11-10 08:31, hora del controlador; robot BMW_03_10_R1, serie 658424, KSS 8.3.29); importado byte por byte en 51c56fa. Reporte de seguridad Safety_Report_R10-11_10_2026.pdf (WorkVisual, CRC 78FA8691)",
+   "cerrados": 0,
+   "reabiertos": 1,
+   "cambios": "Contra su respaldo del 14/10 15:05: 44 archivos cambiados, 2 borrados (movetopurge), 18 KRL con cambios de código (-45/+54). audit_backup: 0 FAIL, 5 WARN (señales sin comentario).",
+   "notas": "Reabierto G11 (GOTO para saltar el agua en dry cycle). En proceso G09 ($OUT[18] desde los sensores en sps.sub). Nuevo F55 (GRPg_ChkSetStatePLC quitado del submit). Cell area cambiada el 10/11 (CRC 78FA8691); reporte de seguridad sin firmas. Mínimo de agua 13 l/min. Registro en audits/2026-11-10_08-31-30."
   }
  ],
  "items": [
@@ -196,6 +204,11 @@
      "fecha": "2026-11-07",
      "resultado": "Nota",
      "nota": "Respaldo del 14/10 15:05. La herramienta 2 tiene el mismo TCP que la 1 (0/0/380.79): la herramienta de seguridad sigue siendo igual. La configuración de seguridad cambió otra vez el 2026-10-13 18:58 (Cell area parameter changed): versión 55, WorksheetCrc 3865158541, ParameterCrc 8DA361E6 (SCTLCRC.XML). Falta el checklist de aceptación de esta versión (ítem 40 del workbook)."
+    },
+    {
+     "fecha": "2026-11-10",
+     "resultado": "Nota",
+     "nota": "Respaldo del 10/11 08:31. Reporte de seguridad de WorkVisual (BMW-03-10R1_v8, impreso 10/11 10:33): herramienta 1 \"EOAT 1 GE4-001\" con TCP 0 / 0 / 380.8 mm, igual a TOOL_DATA[1]; una esfera de 350 mm en Z 150. Configuración cambiada el 10/11 06:41 (cell area): versión 56 en el respaldo, 57 en el reporte, la misma suma de verificación 78FA8691 en los dos. La declaración de aceptación del reporte está sin firmas, sin número de serie y sin código de activación (ítem 40 del workbook)."
     }
    ],
    "conjunto": "gestamp"
@@ -327,7 +340,7 @@
     "11 módulos borrados por la depuración (tools/cleanup_allowlist)"
    ],
    "que_esta_mal": "Había 11 módulos que nada llamaba: CENTERLINE_WELD1, trigger1-3, CK1STXXX, POUNCE, capchange, electrodechange, redrabbit y las dos copias AutoRR del nut check y de la cámara; además CENTERLINE_LOOP (lazo manual de válvulas del pedestal sin salida ni interlocks). Quedan safetest.src (lazo PTP sin fin a un punto, prueba manual que nada llama) y el paquete GlueTech (TP/GLUETECH y Program/MoveToPurge.src), instalado en un robot de soldadura de tuercas y sin uso.",
-   "que_hacer": "Módulos sobrantes en su programa: capchange, electrodechange, redrabbit y POUNCE (el 10/10 ya borró CK1STXXX, CENTERLINE_WELD1, centerline_loop, trigger1-3 y las copias AutoRR del nut check y la cámara). redrabbit ya no compila: su .dat usa REDRABBIT, que la versión de oficina quitó de $config.dat (nadie lo llama). Además safetest y el paquete GlueTech. Se borran cuando la celda esté probada al 100 %; no se evalúan antes.",
+   "que_hacer": "Módulos sobrantes que quedan en su programa: POUNCE (plantilla de otra línea) y el paquete GlueTech instalado sin uso (ya borró capchange, electrodechange, redrabbit, safetest y movetopurge). Se borran cuando la celda esté probada al 100 %; no se evalúan antes.",
    "criterio_cierre": [
     "Con la celda probada al 100 %: los módulos sobrantes de la lista ya no están en el respaldo (borrados en el controlador: un restore no borra archivos).",
     "safetest: decisión de Gestamp anotada en la lista; si se borra, no está en el respaldo; si se queda, su encabezado dice para qué prueba es y quién la usa.",
@@ -376,6 +389,11 @@
      "fecha": "2026-11-07",
      "resultado": "Avance del programador",
      "nota": "Respaldo del 14/10 15:05. Borró capchange, electrodechange, redrabbit y safetest en el controlador. Quedan pounce (plantilla de otra línea) y GlueTech instalado con movetopurge (glue.src lo llama)."
+    },
+    {
+     "fecha": "2026-11-10",
+     "resultado": "Avance del programador",
+     "nota": "Respaldo del 10/11 08:31. Borró movetopurge del controlador y quitó su llamada en glue.src (archivo de GlueTech, C28). Queda pounce y GlueTech instalado."
     }
    ],
    "conjunto": "gestamp"
@@ -559,7 +577,7 @@
     "C01",
     "C16"
    ],
-   "estado": "Aceptado sin cambio",
+   "estado": "En proceso",
    "nota": "",
    "fecha_alta": "2026-10-04",
    "nota_programador": "",
@@ -576,6 +594,11 @@
      "fecha": "2026-10-11",
      "resultado": "Estándar Gestamp",
      "nota": "Gestamp pone y quita $OUT[18] con inline forms OUT en pick, drop y reject; el nuestro igual (picks, drop al conveyor, drop red rabbit y RejectGE4). Aceptado sin cambio (igual que R20); el cierre final lo acepta Gestamp."
+    },
+    {
+     "fecha": "2026-11-10",
+     "resultado": "Avance del programador",
+     "nota": "Respaldo del 10/11 08:31. $OUT[18] do018Part1InGripper lo escribe sps.sub en cada ciclo con di253 AND di254 (sps.sub:189-199), como pide el punto; quitó los OUT 18 de picks, drop al conveyor y drop red rabbit. Queda el OUT 18 FALSE de RejectGE4 (rejectge4.src:68; sps.sub lo vuelve a escribir en el siguiente ciclo) y las líneas nuevas sin comentario de señal. Falta la prueba en T1."
     }
    ],
    "conjunto": "gestamp"
@@ -652,7 +675,7 @@
     "KRC/R1/Program/Styles/Options/style1opt1.src"
    ],
    "que_esta_mal": "Había GOTO en 9 módulos: saltos de dry cycle (picks, weld apps, nut check), retry muerto, salto de tuerca precargada y chequeo de gun cerrado en CENTERLINE_WELD, y la estructura de Style1Opt1.",
-   "que_hacer": "Nada: el programa del programador ya no usa GOTO.",
+   "que_hacer": "Quitar el GOTO de gun_open_check.src (líneas 66-68 y 81) y poner la condición de dry cycle en el IF del agua: IF bGunWaterCheck AND NOT di004UseDryCycle THEN.",
    "criterio_cierre": [
     "En el respaldo ningún módulo del integrador (KRC/R1/Program, KRC/R1/cell.src, sps.sub) tiene GOTO ni etiquetas.",
     "Prueba en celda: un ciclo sin dry cycle de estación 1 y uno de estación 2 (T1 y automático), un rechazo por nut check (option 1), un ciclo red rabbit (option 12), un pick en dry cycle (sin espera de pieza; el ciclo se sigue colgando en la primera weld app por F04, igual que antes) y el timeout de gun cerrado en T1 sin tuerca (HALT, START: vuelve a dar timeout si sigue sin cerrar). Anotar fecha y resultado de cada uno."
@@ -662,7 +685,7 @@
     "F30",
     "F07"
    ],
-   "estado": "Cerrado - auditado",
+   "estado": "Abierto",
    "nota": "Referencia: así lo resolvió la versión de oficina (commit 84442ac): todos los GOTO y etiquetas se quitaron. Dry cycle = IF NOT di004UseDryCycle; tuerca precargada = IF NOT NUT_READY; chequeo de gun cerrado = LOOP/EXIT (después del HALT los timers se rearrancan, F07); Style1Opt1 = un IF/ELSE por ciclo con la estación leída una vez en nPickStation (F30). tools/check_equivalence.py muestra que, fuera de esos puntos, la lógica es la misma que en la base fb8a4c8. Falta probar en celda.",
    "fecha_alta": "2026-10-04",
    "nota_programador": "",
@@ -699,6 +722,11 @@
      "fecha": "2026-10-11",
      "resultado": "Cerrado - auditado",
      "nota": "Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). Sin GOTO ni etiquetas en ningún módulo activo (solo quedaban en trigger1-3, que ya borró)."
+    },
+    {
+     "fecha": "2026-11-10",
+     "resultado": "Reabierto",
+     "nota": "Respaldo del 10/11 08:31. GOTO nuevo en gun_open_check.src:66-68 y etiqueta Jump: en :81 para no revisar el agua en dry cycle. Lo mismo sin GOTO: IF bGunWaterCheck AND NOT di004UseDryCycle THEN (línea 69)."
     }
    ],
    "conjunto": "gestamp"
@@ -1873,6 +1901,11 @@
      "fecha": "2026-10-05",
      "resultado": "Evidencia parcial",
      "nota": "Respaldo 14:46: nWaterFlow = 233 (23.3 l/min) con agua normal en este robot, arriba del mínimo de 15 l/min. Falta la prueba con agua cerrada y la espera antes del weld start."
+    },
+    {
+     "fecha": "2026-11-10",
+     "resultado": "Nota",
+     "nota": "Respaldo del 10/11 08:31. nWaterFlowMin bajó de 150 a 130 (13.0 l/min, gun_open_check.dat:18) y GUN_OPEN_CHECK ya no revisa el agua en dry cycle (con GOTO, G11). Sigue faltando el límite confirmado por escrito con CenterLine."
     }
    ],
    "conjunto": "mejora"
@@ -3553,6 +3586,11 @@
      "fecha": "2026-11-07",
      "resultado": "Nota",
      "nota": "Respaldo del 14/10 15:05. Cell area de SafeOperation cambiada y guardada el 2026-10-13 18:58 (versión 55)."
+    },
+    {
+     "fecha": "2026-11-10",
+     "resultado": "Nota",
+     "nota": "Respaldo del 10/11 08:31. Reporte de seguridad del 10/11 (CRC 78FA8691): cell area de 5 esquinas (X -2000 a 3510, Y -2700 a 1800; Z ±30000); espacio 1 \"Nest Workspace\" (protegido, siempre activo, sin paro en el límite: solo señala; X 1000 a 4000, Y -1400 a 0, Z -800 a 1800 en $WORLD), el pick queda dentro; espacios 2-16 apagados. Los puntos en base 0 del programa quedan a 189 mm o más del cell area con la esfera de la herramienta (cálculo nuestro; el más cercano, AtDrop3). Falta decidir con Gestamp y la captura firmada."
     }
    ],
    "conjunto": "mejora"
@@ -3855,6 +3893,11 @@
      "fecha": "2026-10-11",
      "resultado": "Sin cambio",
      "nota": "Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). AC_DropOffCheck(1) sigue después de PTP P5 (style1drop1opt1.src:38 y :49). P1 quitado."
+    },
+    {
+     "fecha": "2026-11-10",
+     "resultado": "Sin cambio",
+     "nota": "Respaldo del 10/11 08:31. AC_DropOffCheck(1) sigue después de PTP P5 (style1drop1opt1.src:31). Drop re-enseñado (AtDrop3, P5, P4/P6/P8 nuevos) y AC_DropOff(1,True) se adelantó a después de P7, antes de P3 (:62); P7 está a 2.5 m de altura, fuera del conveyor."
     }
    ],
    "nota_programador": "",
@@ -5638,6 +5681,46 @@
      "fecha": "2026-11-07",
      "resultado": "Nota",
      "nota": "Respaldo del 14/10 15:05. Ediciones nuevas: ninguna de código en archivos de KUKA (solo atributos en BrakeTest, masref_main, tm_bib.src). Sigue la edición de EndOfCycle (Work Complete ahora en cell.src) y do052EOATVlvMnfldEnetOK=TRUE fijo en AutomationCore_BKG (automationcoreroutines.src:178)."
+    },
+    {
+     "fecha": "2026-11-10",
+     "resultado": "Nota",
+     "nota": "Respaldo del 10/11 08:31. Ediciones nuevas: glue.src de GlueTech (quitó la llamada MoveToPurge) y $machine.dat (incrementos de jog: ejes 1 → 3°, cartesiano 50 → 10 mm y 3°). Corrección de la nota del 13/10: iSTOP_TYPE de tm_bib.dat es un valor que escribe GetSysState en tiempo de ejecución, no una edición."
+    }
+   ],
+   "conjunto": "mejora"
+  },
+  {
+   "id": "F55",
+   "titulo": "Teclas de estado y peticiones del gripper sin ejecutar: se quitó GRPg_ChkSetStatePLC del submit",
+   "severidad": "Medio",
+   "tipo": "Código + prueba en celda",
+   "responsable": "Programador robot",
+   "modulos": [
+    "KRC/R1/System/sps.sub",
+    "KRC/R1/TP/GripperSpotTech/Grp_Func.src"
+   ],
+   "que_esta_mal": "El 10/11 quitó GRPg_ChkSetStatePLC() de sps.sub (estaba antes de NutWeld_BKG; R20 lo conserva, sps.sub:127). Esa rutina de GripperTech ejecuta las peticiones de abrir/cerrar del gripper que llegan por las teclas de estado o el PLC (GRPg_ProcessData.ReqState). Sin ella esas peticiones no hacen nada, y en el respaldo hay una pendiente (ReqState 2, grp_func.dat:15): si se vuelve a poner la llamada, el gripper cambia de estado en cuanto arranque el submit.",
+   "que_hacer": "Preguntar al programador por qué la quitó. Si fue por un movimiento del gripper no deseado, corregir la causa y volver a ponerla como R20; antes de ponerla, dejar ReqState en 0.",
+   "criterio_cierre": [
+    "sps.sub llama GRPg_ChkSetStatePLC() como R20, o la razón de quitarla queda por escrito y aceptada por Gestamp.",
+    "Prueba en T1: abrir y cerrar el gripper con las teclas de estado; anotar fecha."
+   ],
+   "evidencia_programador": "",
+   "depende_de": [],
+   "estado": "Abierto",
+   "nota": "Diferencia con R20.",
+   "fecha_alta": "2026-11-10",
+   "origen": "Auditoría Ethos del respaldo del 2026-11-10",
+   "nota_programador": "",
+   "modulos_modificados": "",
+   "evidencia": "",
+   "fecha_programador": "",
+   "historial": [
+    {
+     "fecha": "2026-11-10",
+     "resultado": "Alta (auditoría)",
+     "nota": "Encontrado en el respaldo del 10/11 08:31."
     }
    ],
    "conjunto": "mejora"

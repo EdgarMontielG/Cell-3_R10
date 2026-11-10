@@ -1,0 +1,28 @@
+{
+ "titulo": "Auditoría del respaldo del 2026-11-10 08:31 y del reporte de seguridad",
+ "respaldo": "BMW_03_WINDOWS-2CPT70E_BMW_03_10_R1_658424_1.zip (am.ini 2026-11-10 08:31, hora del controlador; robot BMW_03_10_R1, serie 658424); importado byte por byte, es la nueva base. Reporte de seguridad de WorkVisual del 10/11 (CRC 78FA8691)",
+ "fecha_auditoria": "2026-11-10",
+ "base": "Comparado contra su respaldo del 14/10 15:05: 18 KRL con cambios de código, 2 archivos borrados (movetopurge), 0 FAIL. $OUT[18] desde los sensores, drop re-enseñado, mínimo de agua 13 l/min, cell area de seguridad cambiada.",
+ "cierre": "Reabierto G11 (GOTO para saltar el agua en dry cycle). G09 en proceso. Nuevo F55 (rutina de GripperTech quitada del submit). La herramienta de seguridad sigue igual al TCP (G02).",
+ "bueno": [
+  "$OUT[18] pieza en gripper ahora sigue a los sensores di253/di254 desde el submit, como pidió Gestamp (G09).",
+  "Liberación del drop-off adelantada a un punto fuera del conveyor; movetopurge borrado.",
+  "Reporte de seguridad con la misma suma de verificación que el respaldo; herramienta de seguridad igual al TCP."
+ ],
+ "riesgos": [
+  {"texto": "Configuración de seguridad cambiada el 10/11 (CRC 78FA8691) y la declaración de aceptación sin firmar.", "items": ["G02", "F42"]},
+  {"texto": "Rutina de peticiones del gripper quitada del submit con una petición pendiente.", "items": ["F55"]},
+  {"texto": "Mínimo de agua bajado a 13 l/min sin el valor de CenterLine por escrito.", "items": ["F09"]}
+ ],
+ "plan": [
+  "Quitar el GOTO de gun_open_check.src (G11) y aclarar la rutina del gripper (F55).",
+  "Prueba en T1 de $OUT[18] con y sin pieza (G09).",
+  "Checklist de aceptación de SafeOperation de la configuración actual (CRC 78FA8691)."
+ ],
+ "pedir": [
+  "Checklist de aceptación firmado de la configuración de seguridad con CRC 78FA8691, y el reporte firmado.",
+  "Por qué se quitó GRPg_ChkSetStatePLC del submit.",
+  "Límite de flujo de agua de CenterLine por escrito.",
+  "Protocolo de Load Data Determination de la herramienta 1 y la masa real de la pieza."
+ ]
+}

@@ -1,0 +1,11 @@
+--- HEAD:KRC/R1/TP/NutWeld/nutwelddata.dat
++++ backup:KRC/R1/TP/NutWeld/nutwelddata.dat
+@@ -414,7 +414,7 @@
+ DECL GLOBAL REAL rNutSensorValue[3]
+ rNutSensorValue[1]=0.0
+ rNutSensorValue[2]=0.0
+-rNutSensorValue[3]=11866.0
++rNutSensorValue[3]=5722.00
+ DECL GLOBAL REAL rStrokeSensorValue[3]
+ rStrokeSensorValue[1]=0.0
+ rStrokeSensorValue[2]=0.0

@@ -1,0 +1,36 @@
+--- HEAD:C/KRC/User/TP/SafetyDiagnostics/SpaceVisualization.xml
++++ backup:C/KRC/User/TP/SafetyDiagnostics/SpaceVisualization.xml
+@@ -1,19 +1,25 @@
+ <?xml version="1.0"?>
+ <SpaceVisualizationConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+   <CameraLookDirection>
+-    <X>35.557766583358692</X>
+-    <Y>-26.471253869896032</Y>
+-    <Z>32.977764433023978</Z>
++    <X>3.1844185760104509</X>
++    <Y>-1.4595994884204053</Y>
++    <Z>42.46053128697281</Z>
+   </CameraLookDirection>
+   <CameraPosition>
+-    <X>-10.557766583358692</X>
+-    <Y>31.471253869896032</Y>
+-    <Z>-25.977764433023978</Z>
++    <X>-17.701518703094152</X>
++    <Y>5.6788212585544615</Y>
++    <Z>-41.262917050321064</Z>
+   </CameraPosition>
+   <FloorSize>300</FloorSize>
+   <CameraDistance>50</CameraDistance>
+-  <SelectedModel xsi:type="ProtectedSpace">
+-    <Id>1Nest Workspace</Id>
++  <SelectedModel xsi:type="Sphere">
++    <Id>EOAT 1 GE4-00111</Id>
++    <ConsiderNumberOfAxes>1000</ConsiderNumberOfAxes>
++    <CurrentPointInSpace>
++      <X>-14.517100127083701</X>
++      <Y>4.2192217701340562</Y>
++      <Z>1.1976142366517446</Z>
++    </CurrentPointInSpace>
+     <IsMarkedAsViolated>false</IsMarkedAsViolated>
+     <IsSelected>true</IsSelected>
+   </SelectedModel>

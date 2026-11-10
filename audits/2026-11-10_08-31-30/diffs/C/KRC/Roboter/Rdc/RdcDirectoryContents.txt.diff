@@ -1,0 +1,13 @@
+--- HEAD:C/KRC/Roboter/Rdc/RdcDirectoryContents.txt
++++ backup:C/KRC/Roboter/Rdc/RdcDirectoryContents.txt
+@@ -14,8 +14,8 @@
+ SAFEDEV.VAL                           8 bytes in      1 sectors
+ _______________________________________________________________
+ Total       11 file(s)           11.648 bytes in     91 sectors
+-Free        47 file(s)          948.224 bytes in  7.408 sectors
++Free        46 file(s)          948.096 bytes in  7.407 sectors
+ _______________________________________________________________
+-Garbage      5 file(s)            5.760 bytes in     45 sectors
++Garbage      6 file(s)            5.888 bytes in     46 sectors
+ Reserved     1 file(s)           17.408 bytes in    136 sectors
+ 

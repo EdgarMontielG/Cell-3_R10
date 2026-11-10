@@ -2,7 +2,7 @@
 
 *Archivo generado por `tools/make_items_md.py` a partir de `docs/open_items.json` — no se edita a mano.*
 
-Actualizado: 2026-11-07. Pendientes: **58** de 102. El detalle técnico de cada punto (en inglés, para Gestamp) está en [FINDINGS.md](FINDINGS.md); el proceso en [PROCESO.es.md](PROCESO.es.md).
+Actualizado: 2026-11-10. Pendientes: **61** de 103. El detalle técnico de cada punto (en inglés, para Gestamp) está en [FINDINGS.md](FINDINGS.md); el proceso en [PROCESO.es.md](PROCESO.es.md).
 
 **Puntos de Gestamp (G01–G22)**: revisión de Gestamp del 2026-10-02 (BMW-03-10R1), con su texto original. Desde el 2026-10-11 la base es el programa del programador: cada punto se revisa contra su programa y la versión de oficina queda como referencia (nota de cada punto). Los Fnn/Cnn son de la revisión de Ethos (numeración del R20); los marcados "Calvin #n" también están en la lista de Calvin (2026-10-03), verificada punto por punto. Esta lista es la única que se usa.
 
@@ -20,9 +20,9 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 | G06 | Electrode change confirmation only 0.1 s, no handshake | Cambio de electrodo: confirmación de 0.1 s y sin handshake | Medio | Programador robot / Gestamp controles | **Requiere decisión** | F43, F12 |
 | G07 | Multiple options in Style_1 call the same sub-program | Options 1, 2, 7 y 8 de Style_1 llaman el mismo programa | Alto | Gestamp controles / Programador robot | **Requiere decisión** | F02 |
 | G08 | Separate Auto-Red Rabbit program that doesn't match production | ~~El ciclo red rabbit no sigue el camino de producción~~ | Alto | Gestamp controles / Programador robot | Aceptado sin cambio | F19, G21 |
-| G09 | Part control to PLC is set/reset instead of reflecting the real part controls | ~~Pieza en gripper al PLC fijada por programa, no por los sensores~~ | Medio | Programador robot / Gestamp controles | Aceptado sin cambio | F12, C01, C16 |
+| G09 | Part control to PLC is set/reset instead of reflecting the real part controls | Pieza en gripper al PLC fijada por programa, no por los sensores | Medio | Programador robot / Gestamp controles | **En proceso** | F12, C01, C16 |
 | G10 | Gripper commands not used at all times | ~~Comandos de gripper GripperTech en todos los movimientos de gripper~~ | Medio | Programador robot / Puesta en marcha | Se cierra con otro punto | F31, F33 |
-| G11 | Use of Goto labels | ~~Sin GOTO ni etiquetas~~ | Medio | Programador robot (prueba en celda) | Cerrado - auditado | F30, F07 |
+| G11 | Use of Goto labels | Sin GOTO ni etiquetas | Medio | Programador robot (prueba en celda) | **Abierto** | F30, F07 |
 | G12 | Use of I/O numbers instead of signal names | ~~Nombres de señal en lugar de números de E/S~~ | Medio | Programador robot (prueba en celda) | Cerrado - auditado | F17, C23, F29 |
 | G13 | Poor programming (10 lines for nut present) | ~~Código simplificado (nut present en una línea, duplicados fuera)~~ | Medio | Programador robot (prueba en celda) | Cerrado - auditado | F28, F03, F31 |
 | G14 | Gripper opened before the part control check | ~~Revisar gripper vacío antes del comando de gripper~~ | Medio | Programador robot (prueba en celda) | Cerrado - auditado |  |
@@ -119,6 +119,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 | C26 | ~~Solo inglés en comentarios, títulos de fold y &COMMENT~~ | - | Programador robot | Cerrado - depuración |
 | C27 | ~~Proceso controlado por robot no compartido; regla de dos procesos~~ | - | Ethos (Edgar) | No aplica |
 | C28 | Ediciones del integrador en archivos del proveedor: listarlas en la entrega | - | Ethos (Edgar) / Programador robot | **Abierto** |
+| F55 | Teclas de estado y peticiones del gripper sin ejecutar: se quitó GRPg_ChkSetStatePLC del submit | Medio | Programador robot | **Abierto** |
 
 ---
 
@@ -183,6 +184,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 * 2026-10-11 — Estándar Gestamp: La herramienta de seguridad no se ve en texto en ningún respaldo: sigue la captura del smartHMI.
 * 2026-10-13 — Cerrado - auditado: Captura del smartHMI del 2026-10-12 09:03 (Configuración de seguridad → Herramientas): herramienta de seguridad 1 "EOAT 1 GE4-001" activada con TCP X 0, Y 0, Z 380.8 mm; captura de Calibración → Datos de carga de TOOL 1: X 0, Y 0, Z 380.790, A -90, B -90, C -90, igual a TOOL_DATA[1] ($config.dat:234). SafetyConfigData.xml: cambio de parámetros de la herramienta "EOAT 1 GE4-001" y configuración guardada el 2026-10-10 11:12, versión 54, WorksheetCrc 2258919054 (sin cambios en los respaldos del 11 y 13/10). El checklist de aceptación de SafeOperation firmado no se presentó: queda para el ítem 40 del workbook de buy-off.
 * 2026-11-07 — Nota: Respaldo del 14/10 15:05. La herramienta 2 tiene el mismo TCP que la 1 (0/0/380.79): la herramienta de seguridad sigue siendo igual. La configuración de seguridad cambió otra vez el 2026-10-13 18:58 (Cell area parameter changed): versión 55, WorksheetCrc 3865158541, ParameterCrc 8DA361E6 (SCTLCRC.XML). Falta el checklist de aceptación de esta versión (ítem 40 del workbook).
+* 2026-11-10 — Nota: Respaldo del 10/11 08:31. Reporte de seguridad de WorkVisual (BMW-03-10R1_v8, impreso 10/11 10:33): herramienta 1 "EOAT 1 GE4-001" con TCP 0 / 0 / 380.8 mm, igual a TOOL_DATA[1]; una esfera de 350 mm en Z 150. Configuración cambiada el 10/11 06:41 (cell area): versión 56 en el respaldo, 57 en el reporte, la misma suma de verificación 78FA8691 en los dos. La declaración de aceptación del reporte está sin firmas, sin número de serie y sin código de activación (ítem 40 del workbook).
 
 ---
 
@@ -260,7 +262,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 
 **Qué está mal.** Había 11 módulos que nada llamaba: CENTERLINE_WELD1, trigger1-3, CK1STXXX, POUNCE, capchange, electrodechange, redrabbit y las dos copias AutoRR del nut check y de la cámara; además CENTERLINE_LOOP (lazo manual de válvulas del pedestal sin salida ni interlocks). Quedan safetest.src (lazo PTP sin fin a un punto, prueba manual que nada llama) y el paquete GlueTech (TP/GLUETECH y Program/MoveToPurge.src), instalado en un robot de soldadura de tuercas y sin uso.
 
-**Qué hacer.** Módulos sobrantes en su programa: capchange, electrodechange, redrabbit y POUNCE (el 10/10 ya borró CK1STXXX, CENTERLINE_WELD1, centerline_loop, trigger1-3 y las copias AutoRR del nut check y la cámara). redrabbit ya no compila: su .dat usa REDRABBIT, que la versión de oficina quitó de $config.dat (nadie lo llama). Además safetest y el paquete GlueTech. Se borran cuando la celda esté probada al 100 %; no se evalúan antes.
+**Qué hacer.** Módulos sobrantes que quedan en su programa: POUNCE (plantilla de otra línea) y el paquete GlueTech instalado sin uso (ya borró capchange, electrodechange, redrabbit, safetest y movetopurge). Se borran cuando la celda esté probada al 100 %; no se evalúan antes.
 
 **Criterio de cierre** (se verifica en el respaldo):
 
@@ -283,6 +285,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 * 2026-10-11 — Avance del programador: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). Borró 8 módulos sobrantes (14 archivos). Quedan capchange, electrodechange, redrabbit (no compila) y POUNCE.
 * 2026-10-13 — Avance del programador: Respaldo del 13/10 07:32. Quitó el código comentado de sps.sub y los TRIGGER comentados de las apps; ya no queda código comentado en los módulos activos. Siguen los módulos sobrantes capchange, electrodechange, redrabbit (no compila), POUNCE y safetest, y GlueTech instalado.
 * 2026-11-07 — Avance del programador: Respaldo del 14/10 15:05. Borró capchange, electrodechange, redrabbit y safetest en el controlador. Quedan pounce (plantilla de otra línea) y GlueTech instalado con movetopurge (glue.src lo llama).
+* 2026-11-10 — Avance del programador: Respaldo del 10/11 08:31. Borró movetopurge del controlador y quitó su llamada en glue.src (archivo de GlueTech, C28). Queda pounce y GlueTech instalado.
 
 ---
 
@@ -377,7 +380,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 
 **Origen:** Gestamp - Robot Program Review - Findings (2026-10-02), BMW-03-10R1, punto 9. Texto de Gestamp: *"Part control to PLC is set/reset instead of reflecting the real part controls"*
 
-**Severidad:** Medio · **Tipo:** Decisión + código · **Responsable:** Programador robot / Gestamp controles · **Estado:** Aceptado sin cambio
+**Severidad:** Medio · **Tipo:** Decisión + código · **Responsable:** Programador robot / Gestamp controles · **Estado:** En proceso
 
 **Módulos:** `KRC/R1/Program/StylePicks/Options/style1pick1opt1.src`, `KRC/R1/Program/StylePicks/Options/style1pick1opt2.src`, `KRC/R1/Program/StylePicks/Options/style1pick1opt1AutoRR.src`, `KRC/R1/Program/StyleDrops/Options/style1drop1opt1.src`, `KRC/R1/Program/StyleDrops/Options/style1drop1opt2AutoRR.src`, `KRC/R1/Program/Utilities/RejectGE4.src`, `KRC/R1/System/sps.sub`
 
@@ -399,6 +402,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 
 * 2026-10-04 — Alta (Gestamp): Punto 9 de la revisión de Gestamp del 2026-10-02 (BMW-03-10R1).
 * 2026-10-11 — Estándar Gestamp: Gestamp pone y quita $OUT[18] con inline forms OUT en pick, drop y reject; el nuestro igual (picks, drop al conveyor, drop red rabbit y RejectGE4). Aceptado sin cambio (igual que R20); el cierre final lo acepta Gestamp.
+* 2026-11-10 — Avance del programador: Respaldo del 10/11 08:31. $OUT[18] do018Part1InGripper lo escribe sps.sub en cada ciclo con di253 AND di254 (sps.sub:189-199), como pide el punto; quitó los OUT 18 de picks, drop al conveyor y drop red rabbit. Queda el OUT 18 FALSE de RejectGE4 (rejectge4.src:68; sps.sub lo vuelve a escribir en el siguiente ciclo) y las líneas nuevas sin comentario de señal. Falta la prueba en T1.
 
 ---
 
@@ -436,13 +440,13 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 
 **Origen:** Gestamp - Robot Program Review - Findings (2026-10-02), BMW-03-10R1, punto 11. Texto de Gestamp: *"Use of Goto labels"*
 
-**Severidad:** Medio · **Tipo:** Código + prueba en celda · **Responsable:** Programador robot (prueba en celda) · **Estado:** Cerrado - auditado
+**Severidad:** Medio · **Tipo:** Código + prueba en celda · **Responsable:** Programador robot (prueba en celda) · **Estado:** Abierto
 
 **Módulos:** `KRC/R1/Program/Centerline/centerline_weld.src`, `KRC/R1/Program/StyleApps/Options/style1app1opt1.src`, `KRC/R1/Program/StyleApps/Options/style1app1opt2.src`, `KRC/R1/Program/StyleApps/Options/style1app1opt3.src`, `KRC/R1/Program/StyleApps/Options/style1app2opt1.src`, `KRC/R1/Program/StylePicks/Options/style1pick1opt1.src`, `KRC/R1/Program/StylePicks/Options/style1pick1opt2.src`, `KRC/R1/Program/StylePicks/Options/style1pick1opt1AutoRR.src`, `KRC/R1/Program/Styles/Options/style1opt1.src`
 
 **Qué está mal.** Había GOTO en 9 módulos: saltos de dry cycle (picks, weld apps, nut check), retry muerto, salto de tuerca precargada y chequeo de gun cerrado en CENTERLINE_WELD, y la estructura de Style1Opt1.
 
-**Qué hacer.** Nada: el programa del programador ya no usa GOTO.
+**Qué hacer.** Quitar el GOTO de gun_open_check.src (líneas 66-68 y 81) y poner la condición de dry cycle en el IF del agua: IF bGunWaterCheck AND NOT di004UseDryCycle THEN.
 
 **Criterio de cierre** (se verifica en el respaldo):
 
@@ -463,6 +467,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 * 2026-10-05 — Integrado - por probar: Sigue en la versión integrada (658424_R10_2026-10-05_0819.zip, armada sobre el respaldo del programador). Cargarla y hacer la prueba de este punto.
 * 2026-10-11 — Cambio de base: Base = programa del programador (respaldo del 2026-10-05 14:46). Ningún módulo activo tiene GOTO ni etiquetas: el programador los cambió por IF/LOOP (encabezados "Rev. 2026-10-05" de CENTERLINE_WELD y Style1Opt1). Solo quedan GOTO en trigger1-3, módulos sobrantes de G05.
 * 2026-10-11 — Cerrado - auditado: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). Sin GOTO ni etiquetas en ningún módulo activo (solo quedaban en trigger1-3, que ya borró).
+* 2026-11-10 — Reabierto: Respaldo del 10/11 08:31. GOTO nuevo en gun_open_check.src:66-68 y etiqueta Jump: en :81 para no revisar el agua en dry cycle. Lo mismo sin GOTO: IF bGunWaterCheck AND NOT di004UseDryCycle THEN (línea 69).
 
 ---
 
@@ -1100,6 +1105,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 * 2026-10-05 — Auditoría - corregido sin marcar: sps.sub calcula dipw1_WaterOk del sensor Parker (flujo en 0.1 l/min, mínimo 150 con histéresis 10) y $OUT[475] sigue a $IN[13] di013WaterEnable. GUN_OPEN_CHECK espera agua antes de entrar. Falta: confirmar el mínimo (el comentario cita una medición del 20R1) y la prueba en celda sin agua.
 * 2026-10-05 — Integrado - avance parcial: El agua se calcula del SV0500 (mínimo 150 = 15 l/min, histéresis 10) y GUN_OPEN_CHECK la exige antes de entrar y al salir; $OUT[475] sigue a $IN[13]. Faltan: espera de agua y transformador antes del weld start en CENTERLINE_WELD, límite confirmado por escrito y la prueba en celda.
 * 2026-10-05 — Evidencia parcial: Respaldo 14:46: nWaterFlow = 233 (23.3 l/min) con agua normal en este robot, arriba del mínimo de 15 l/min. Falta la prueba con agua cerrada y la espera antes del weld start.
+* 2026-11-10 — Nota: Respaldo del 10/11 08:31. nWaterFlowMin bajó de 150 a 130 (13.0 l/min, gun_open_check.dat:18) y GUN_OPEN_CHECK ya no revisa el agua en dry cycle (con GOTO, G11). Sigue faltando el límite confirmado por escrito con CenterLine.
 
 ---
 
@@ -2131,6 +2137,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 
 * 2026-10-04 — Alta (Calvin): Revisión Ethos del respaldo 658424; el punto sale de la lista de Calvin (Calvin #30).
 * 2026-11-07 — Nota: Respaldo del 14/10 15:05. Cell area de SafeOperation cambiada y guardada el 2026-10-13 18:58 (versión 55).
+* 2026-11-10 — Nota: Respaldo del 10/11 08:31. Reporte de seguridad del 10/11 (CRC 78FA8691): cell area de 5 esquinas (X -2000 a 3510, Y -2700 a 1800; Z ±30000); espacio 1 "Nest Workspace" (protegido, siempre activo, sin paro en el límite: solo señala; X 1000 a 4000, Y -1400 a 0, Z -800 a 1800 en $WORLD), el pick queda dentro; espacios 2-16 apagados. Los puntos en base 0 del programa quedan a 189 mm o más del cell area con la esfera de la herramienta (cálculo nuestro; el más cercano, AtDrop3). Falta decidir con Gestamp y la captura firmada.
 
 ---
 
@@ -2313,6 +2320,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 * 2026-10-05 — Integrado: P1 se conserva (preguntar al programador por qué lo quitó). La aplicación 1 ya no se libera en el punto de cámara: la libera un TRIGGER en el primer movimiento fuera de la cámara (P5 del drop, P23 del rechazo, P28 del red rabbit).
 * 2026-10-11 — Cambio de base: Base = programa del programador (respaldo del 2026-10-05 14:46). PTP P5 (línea 24) y después AC_DropOffCheck(1) (línea 30): el interlock sigue después de la aproximación.
 * 2026-10-11 — Sin cambio: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). AC_DropOffCheck(1) sigue después de PTP P5 (style1drop1opt1.src:38 y :49). P1 quitado.
+* 2026-11-10 — Sin cambio: Respaldo del 10/11 08:31. AC_DropOffCheck(1) sigue después de PTP P5 (style1drop1opt1.src:31). Drop re-enseñado (AtDrop3, P5, P4/P6/P8 nuevos) y AC_DropOff(1,True) se adelantó a después de P7, antes de P3 (:62); P7 está a 2.5 m de altura, fuera del conveyor.
 
 ---
 
@@ -3166,3 +3174,27 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 * 2026-10-12 — Nota: Respaldo del 11/10 22:32. Ediciones nuevas en NutWeld: nutweldroutines.src (escrituras de pistolas 2/3 condicionadas a nMaxGunNr en NutWeld_Bkg y NutWeld_ProcessReset; luces de la tolva 1 combinadas con CL_WeldFault y dipw1_Fault; intensify y blow-off de la pistola 1 sin apagar en el reset mientras corre PRELOAD) y nutweldroutines.dat (nNutWeldGunNrSTK 3 → 1). Listarlas en la entrega.
 * 2026-10-13 — Nota: Respaldo del 13/10 07:32. Ediciones nuevas en archivos de KUKA: tm_bib.dat (iSTOP_TYPE 53 → 20), automationglobalpos.dat (XPOUNCE), ir_stopm.src (solo comentarios de las llamadas de GlueTech apagadas), BrakeTest (solo atributo &ACCESS).
 * 2026-11-07 — Nota: Respaldo del 14/10 15:05. Ediciones nuevas: ninguna de código en archivos de KUKA (solo atributos en BrakeTest, masref_main, tm_bib.src). Sigue la edición de EndOfCycle (Work Complete ahora en cell.src) y do052EOATVlvMnfldEnetOK=TRUE fijo en AutomationCore_BKG (automationcoreroutines.src:178).
+* 2026-11-10 — Nota: Respaldo del 10/11 08:31. Ediciones nuevas: glue.src de GlueTech (quitó la llamada MoveToPurge) y $machine.dat (incrementos de jog: ejes 1 → 3°, cartesiano 50 → 10 mm y 3°). Corrección de la nota del 13/10: iSTOP_TYPE de tm_bib.dat es un valor que escribe GetSysState en tiempo de ejecución, no una edición.
+
+---
+
+## F55 — Teclas de estado y peticiones del gripper sin ejecutar: se quitó GRPg_ChkSetStatePLC del submit
+
+**Severidad:** Medio · **Tipo:** Código + prueba en celda · **Responsable:** Programador robot · **Estado:** Abierto
+
+**Módulos:** `KRC/R1/System/sps.sub`, `KRC/R1/TP/GripperSpotTech/Grp_Func.src`
+
+**Qué está mal.** El 10/11 quitó GRPg_ChkSetStatePLC() de sps.sub (estaba antes de NutWeld_BKG; R20 lo conserva, sps.sub:127). Esa rutina de GripperTech ejecuta las peticiones de abrir/cerrar del gripper que llegan por las teclas de estado o el PLC (GRPg_ProcessData.ReqState). Sin ella esas peticiones no hacen nada, y en el respaldo hay una pendiente (ReqState 2, grp_func.dat:15): si se vuelve a poner la llamada, el gripper cambia de estado en cuanto arranque el submit.
+
+**Qué hacer.** Preguntar al programador por qué la quitó. Si fue por un movimiento del gripper no deseado, corregir la causa y volver a ponerla como R20; antes de ponerla, dejar ReqState en 0.
+
+**Criterio de cierre** (se verifica en el respaldo):
+
+* sps.sub llama GRPg_ChkSetStatePLC() como R20, o la razón de quitarla queda por escrito y aceptada por Gestamp.
+* Prueba en T1: abrir y cerrar el gripper con las teclas de estado; anotar fecha.
+
+**Nota.** Diferencia con R20.
+
+**Historial:**
+
+* 2026-11-10 — Alta (auditoría): Encontrado en el respaldo del 10/11 08:31.

@@ -1,0 +1,11 @@
+--- HEAD:KRC/R1/Program/StylePicks/Options/style1pick1opt1autorr.dat
++++ backup:KRC/R1/Program/StylePicks/Options/style1pick1opt1autorr.dat
+@@ -1,6 +1,6 @@
+-&ACCESS RVO2
++&ACCESS RVP1
+ &REL 58
+-&COMMENT 03-10-R1 PICK ST1
++&COMMENT 03-10-R1 RED RABBIT PICK
+ &PARAM EDITMASK = *
+ &PARAM DISKPATH = KRC:\R1\Program\StylePicks\Options
+ DEFDAT  style1pick1opt1AutoRR

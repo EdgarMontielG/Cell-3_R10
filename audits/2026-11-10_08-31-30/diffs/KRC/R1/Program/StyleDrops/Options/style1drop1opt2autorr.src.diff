@@ -1,0 +1,19 @@
+--- HEAD:KRC/R1/Program/StyleDrops/Options/style1drop1opt2autorr.src
++++ backup:KRC/R1/Program/StyleDrops/Options/style1drop1opt2autorr.src
+@@ -1,4 +1,4 @@
+-&ACCESS RVO1
++&ACCESS RVP1
+ &REL 269
+ &COMMENT 03-10-R1 RED RABBIT DROP
+ &PARAM EDITMASK = *
+@@ -128,10 +128,6 @@
+ LIN XP24 
+ ;ENDFOLD
+ ;PART NOT IN GRIPPER
+-;FOLD OUT 18 'do018PartInGripper1' State=FALSE ;%{PE}%R 8.3.43,%MKUKATPBASIS,%COUT,%VOUTX,%P 2:18, 3:do018PartInGripper1, 5:FALSE, 6:
+-do018Part1InGripper=FALSE
+-;ENDFOLD
+-;LEAVE - P21, P25
+ ;FOLD LIN P21 CONT Vel=2 m/s CPDAT7 Tool[1]:TOOL 1 Base[0];%{PE}%R 8.3.43,%MKUKATPBASIS,%CMOVE,%VLIN,%P 1:LIN, 2:P21, 3:C_DIS C_DIS, 5:2, 7:CPDAT7
+ $BWDSTART=FALSE
+ LDAT_ACT=LCPDAT7
