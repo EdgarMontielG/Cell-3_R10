@@ -1,6 +1,6 @@
 [\LocalMachine\SOFTWARE\KUKA ROBOTER GMBH\KUKA BOF\OCX Control's\FileHandler]
 "SpecialDrives"=multi:"K:\,USB-KCP,7"
-"StartUpPath"="KRC:\R1\"
+"StartUpPath"="KRC:\R1\Program\StyleDrops\Options\"
 
 [\LocalMachine\SOFTWARE\KUKA ROBOTER GMBH\KUKA BOF\OCX Control's\FileHandler\Display]
 

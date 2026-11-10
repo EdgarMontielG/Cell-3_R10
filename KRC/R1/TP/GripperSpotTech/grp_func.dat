@@ -1,4 +1,4 @@
-&ACCESS R2
+&ACCESS R6
 DEFDAT  grp_func PUBLIC
 ;############################################
 ;# File-Version: 1.0                        #
@@ -12,7 +12,7 @@ BOOL Grp_bDialWithIgnore=TRUE ; Default: TRUE
 
 ;## Runtime
 GLOBAL STRUC GRPg_ProcessData_T INT ActGrp,ReqState,LastGrpNo,LastStNo
-DECL GLOBAL GRPg_ProcessData_T GRPg_ProcessData={ActGrp 1,ReqState 0,LastGrpNo 1,LastStNo 1}
+DECL GLOBAL GRPg_ProcessData_T GRPg_ProcessData={ActGrp 1,ReqState 2,LastGrpNo 1,LastStNo 1}
 ;ActGrp: Currently selected gripper (STK or PlugIn)
 ;ReqState: Request for a new state (STK or PlugIn) 
 ;LastGrpNo,LastStNo: Last gripper and state set (through prog or STK) 

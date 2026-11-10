@@ -21,18 +21,10 @@ DEF Style_1( )
 ;********************************
 ;OPTION PROGRAM BY nOption (FROM THE PLC)
    SWITCH nOption
-      CASE 1
+      CASE 1,2,7,8
          ;OPTION 1: PRODUCTION CYCLE (PICK, WELD 3 NUTS, NUT CHECKS, DROP OR REJECT)
          Style1Opt1 ( )
-      CASE 2
-         ;OPTION 2: SAME PRODUCTION CYCLE (Style1Opt1)
-         Style1Opt1 ( )
-      CASE 7
-         ;OPTION 7: SAME PRODUCTION CYCLE (Style1Opt1)
-         Style1Opt1 ( )
-      CASE 8
-         ;OPTION 8: SAME PRODUCTION CYCLE (Style1Opt1)
-         Style1Opt1 ( )
+
       CASE 12
          ;OPTION 12: RED RABBIT TEST CYCLE
          Style1Opt10AutoRR ( )

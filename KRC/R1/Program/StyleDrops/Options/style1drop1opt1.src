@@ -1,5 +1,5 @@
-&ACCESS RVO1
-&REL 235
+&ACCESS RVP1
+&REL 271
 &COMMENT 03-10-R1 DROP CONVEYOR
 &PARAM EDITMASK = *
 &PARAM DISKPATH = KRC:\R1\Program\StyleDrops\Options
@@ -32,6 +32,8 @@ BAS(#PTP_PARAMS,100)
 PTP XP5 C_DIS
 ;ENDFOLD
 
+
+
 ;DROPOFF 1 REQUEST
 ;FOLD DropOff[1] Request
 ;FOLD ;%{h}
@@ -48,37 +50,43 @@ BAS(#CP_PARAMS,2)
 LIN XAtDrop3 
 ;ENDFOLD
 
+
+
+
 ;GRIPPER 1 OPEN
-   ;FOLD Gripper SET [1]Gripper1 State=[1]OPEN Wait 0.2[s] Check with Strategy 1 ;%{PE}
-      ;FOLD Parameters Parameters ;%{h}
-         ;Params IlfProvider=GripperTech.GripperSet;setgripper=1;setstate=1;setcont=nocont;waittime=0.2;errorstrategy=1
-      ;ENDFOLD
-      GRPg_SetStateAndCheck(1, 1, 0.2, 1)
-   ;ENDFOLD
+;FOLD Gripper SET [1]Gripper1 State=[1]OPEN Wait 0[s] Check with Strategy 1 ;%{PE}
+;FOLD Parameters Parameters ;%{h}
+;Params IlfProvider=GripperTech.GripperSet;setgripper=1;setstate=1;setcont=nocont;waittime=0;errorstrategy=1
+;ENDFOLD
+GRPg_SetStateAndCheck(1, 1, 0, 1)
+;ENDFOLD
 ;WAIT GRIPPER EMPTY
 ;FOLD WAIT FOR ( NOT IN 253 'di253PartPresent1' ) AND ( NOT IN 254 'di254PartPresent2' );%{PE}%R 8.3.43,%MKUKATPBASIS,%CEXT_WAIT_FOR,%VEXT_WAIT_FOR,%P 2:, 4:NOT, 5:$IN, 6:253, 7:di253PartPresent1, 9:AND, 10:, 12:NOT, 13:$IN, 14:254, 15:di254PartPresent2, 17:
 WAIT FOR  (  NOT di253PartPresent1 ) AND (  NOT di254PartPresent2 ) 
 ;ENDFOLD
-;PART NOT IN GRIPPER
-;FOLD OUT 18 'do018PartInGripper1' State=FALSE ;%{PE}%R 8.3.43,%MKUKATPBASIS,%COUT,%VOUTX,%P 2:18, 3:do018PartInGripper1, 5:FALSE, 6:
-do018Part1InGripper=FALSE
-;ENDFOLD
 
-;LEAVE DROPOFF 1 - P2, P7, P3
-;FOLD PTP P2 CONT Vel=100 % PDAT7 Tool[1]:TOOL 1 Base[0];%{PE}%R 8.3.43,%MKUKATPBASIS,%CMOVE,%VPTP,%P 1:PTP, 2:P2, 3:C_DIS, 5:100, 7:PDAT7
+;FOLD PTP P8 CONT Vel=100 % PDAT5 Tool[1]:TOOL 1 Base[0];%{PE}%R 8.3.43,%MKUKATPBASIS,%CMOVE,%VPTP,%P 1:PTP, 2:P8, 3:C_DIS, 5:100, 7:PDAT5
 $BWDSTART=FALSE
-PDAT_ACT=PPDAT7
-FDAT_ACT=FP2
+PDAT_ACT=PPDAT5
+FDAT_ACT=FP8
 BAS(#PTP_PARAMS,100)
-PTP XP2 C_DIS
+PTP XP8 C_DIS
 ;ENDFOLD
 
+ 
 ;FOLD PTP P7 CONT Vel=100 % PDAT13 Tool[1]:TOOL 1 Base[0];%{PE}%R 8.3.43,%MKUKATPBASIS,%CMOVE,%VPTP,%P 1:PTP, 2:P7, 3:C_DIS, 5:100, 7:PDAT13
 $BWDSTART=FALSE
 PDAT_ACT=PPDAT13
 FDAT_ACT=FP7
 BAS(#PTP_PARAMS,100)
 PTP XP7 C_DIS
+;ENDFOLD
+;DROPOFF 1 CLEAR
+;FOLD DropOff[1] Reset
+;FOLD ;%{h}
+;Params IlfProvider=ac_zoneilf; AC_CmdZones=DropOff; AC_CmdParam=1; AC_ZoneRepo=True; AC_Blending=False
+;ENDFOLD
+AC_DropOff (1,True)
 ;ENDFOLD
 ;FOLD PTP P3 CONT Vel=100 % PDAT2 Tool[1]:TOOL 1 Base[0];%{PE}%R 8.3.43,%MKUKATPBASIS,%CMOVE,%VPTP,%P 1:PTP, 2:P3, 3:C_DIS, 5:100, 7:PDAT2
 $BWDSTART=FALSE
@@ -88,13 +96,6 @@ BAS(#PTP_PARAMS,100)
 PTP XP3 C_DIS
 ;ENDFOLD
 
-;DROPOFF 1 CLEAR
-;FOLD DropOff[1] Reset
-;FOLD ;%{h}
-;Params IlfProvider=ac_zoneilf; AC_CmdZones=DropOff; AC_CmdParam=1; AC_ZoneRepo=True; AC_Blending=False
-;ENDFOLD
-AC_DropOff (1,True)
-;ENDFOLD
 
 ;PTP HOME (XHOME)
 ;FOLD PTP HOME Vel=100 % PDAT11;%{PE}%R 8.3.43,%MKUKATPBASIS,%CMOVE,%VPTP,%P 1:PTP, 2:HOME, 3:, 5:100, 7:PDAT11

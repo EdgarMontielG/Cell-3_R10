@@ -1,5 +1,5 @@
-&ACCESS RVO2
-&REL 49
+&ACCESS RVO4
+&REL 216
 &COMMENT 03-10-R1 PNW1 GUN OPEN CHECK
 &PARAM EDITMASK = *
 &PARAM TEMPLATE = C:\KRC\Roboter\Template\vorgabe
@@ -62,6 +62,10 @@ DECL BOOL bRes
    ENDIF
 
    ;3. COOLING WATER - dipw1_WaterOk FROM THE SV0500 FLOW (SPS.SUB); MESSAGE WITH THE FLOW, WAIT
+   
+   IF di004UseDryCycle==true then
+   GOTO Jump
+   ENDIF
    IF bGunWaterCheck THEN
       IF NOT dipw1_WaterOk THEN
          MsgW.Nr=6
@@ -74,6 +78,8 @@ DECL BOOL bRes
          Par[1].Par_Type=#EMPTY
       ENDIF
    ENDIF
+    Jump:
+
 
    ;4. GUN OPEN - UP TO nGunOpenWaitMs WITHOUT MESSAGE
    nWaitMs=0

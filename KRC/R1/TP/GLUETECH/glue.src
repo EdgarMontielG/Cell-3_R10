@@ -124,7 +124,7 @@ GLOBAL DEF InitSystem(eFillDoser :IN, iScheduleNo :IN )
             OutputSet(GlueSysDoserOut[GlueActData.SystemNo].SwirlCoolingAir, TRUE)
           ENDIF
           IF (((bCheckSystem[GlueActData.SystemNo]==TRUE) and ($TIMER_FLAG[iTimerSystem[GlueActData.SystemNo]]==TRUE)) OR (InputState(GlueSysDoserGenIn[GlueActData.SystemNo].PurgeRequest))) AND $IN_HOME THEN
-            MoveToPurge(GlueActData.SystemNo)
+            ;MoveToPurge(GlueActData.SystemNo)
             $TIMER_STOP[iTimerSystem[GlueActData.SystemNo]]=TRUE
             bCheckSystem[GlueActData.SystemNo]=FALSE
           ENDIF
