@@ -43,10 +43,10 @@ Origen del código:
 
 ## 2. Resumen del audit
 
-- Revisión de Gestamp del 2026-10-02 (22 puntos): 13 cerrados o aceptados y 9 abiertos (G03, G05, G06, G07, G09,
-  G11, G19, G21, G22); de esos, G09, G19 y G21 ya cumplen en código y solo falta la prueba en celda. G11 se reabrió el
-  10/11 (un GOTO nuevo en `gun_open_check.src:66-81`). El buy-off depende de cerrar esos 9 y 5 puntos de Ethos que
-  sus criterios piden (F43, F21, F31, F14, F38).
+- Revisión de Gestamp del 2026-10-02 (22 puntos): 17 cerrados o aceptados y 5 abiertos (G06, G09, G11, G19, G22);
+  de esos, G09 y G19 ya cumplen en código y solo falta la prueba en celda. G11 se reabrió el 10/11 (un GOTO nuevo en
+  `gun_open_check.src:66-81`). El 10/11 Edgar Montiel validó G03 y G21 y aceptó G05 y G07. El buy-off depende de
+  cerrar esos 5 y 3 puntos de Ethos que sus criterios piden (F43, F14, F38).
 - **Seguridad, crítico:** PRELOAD corre en el submit y mueve el pedestal (QFP, pines, soplado) en cualquier modo,
   sin dueño de las salidas (F11, requiere revisión de seguridad con Gestamp).
 - **Background de AutomationCore activo otra vez** (respaldo del 14/10, `sps.sub:102`): request to enter, brake test
@@ -56,13 +56,14 @@ Origen del código:
   herramientas 1 y 2 (G02, confirmado con el reporte de seguridad del 10/11). La configuración de seguridad cambió
   otra vez el 10/11 (cell area; CRC 78FA8691) y la declaración de aceptación del reporte está sin firmas.
 - Datos de carga: herramienta 1 67.28 kg con centro de masa; herramienta 2 "TOOL 1 WITH PART" 68.28 kg para los
-  movimientos con pieza. Falta el protocolo de Load Data Determination como evidencia (G03/C08).
+  movimientos con pieza. Validados por Edgar Montiel el 10/11 (G03 cerrado).
 - Entrada al pedestal resuelta: PEDESTAL_CLEAR_CHECK confirma pistola abierta, clamp abierto y pin retraído antes de
   entrar y al salir, con vigilancia por interrupciones (F01 cerrado).
 - Verificación de tuercas: ventana de pistola cerrada (sin tuerca / doble tuerca), sensor de tuerca por tuerca y
   cámara. Pendientes: la cámara puede tomar el resultado anterior (F54), ventana de 150 ms contra 200 ms de Gestamp
-  (F07). Red rabbit ya con lógica OR y sin borrar el resultado en el drop (G21, falta prueba).
-- Módulos sobrantes casi resueltos (G05: queda `pounce` y GlueTech instalado; `movetopurge` borrado el 10/11);
+  (F07). Red rabbit ya con lógica OR y sin borrar el resultado en el drop (G21 cerrado, prueba validada por Edgar Montiel el 10/11).
+- Módulos sobrantes: quedan `pounce` y GlueTech porque AutomationCore usa sus variables (G05 aceptado por Edgar
+  Montiel el 10/11; `movetopurge` borrado);
   ediciones en archivos de KUKA sin lista de entrega (C28). Desde el 10/11 el submit ya no llama `GRPg_ChkSetStatePLC`
   (teclas de estado del gripper, F55).
 - Lo físico (dress pack, gabinete, E-stop, red, IP) no se revisó.
@@ -82,9 +83,9 @@ Origen del código:
 | 19 | Master counts (Fanuc) | N/A | Robot KUKA. Datos de mastering en `C/KRC/Roboter/Rdc/658424.mam`, no revisados. |
 | 21 | TCP setup | OK | `TOOL_DATA[1]` y `TOOL_DATA[2]` = `{X 0,Y 0,Z 380.79,A -90,B -90,C -90}` (`$config.dat:234-235`); la herramienta de seguridad 1 "EOAT 1 GE4-001" tiene el mismo TCP (0 / 0 / 380.8, captura del smartHMI del 12/10 y reporte de seguridad del 10/11, G02 cerrado). Medición física del TCP no revisada; herramientas y bases con nombres de otro proyecto (C06). |
 | 22 | RTCP (pedestal welder) | Not OK | `BASE_DATA[3]` "NUT WELDER" `{X 21.84,Y 1866.09,Z 658.47,A 90,B 0,C 180}` (`$config.dat:314`) sin medir contra el electrodo fijo (C05). Movimientos del pedestal mezclan base y external TCP (F22, C04: requiere decisión). |
-| 23 | Latest Gestamp programming updates / standard | Not OK | 9 de 22 puntos de la revisión de Gestamp abiertos (sección 6). Comparado con NUT07_10R1; AutomationCore_BKG y NutWeld_BKG activos como Gestamp desde el 14/10. |
-| 24 | Payloads correct / within spec | Not OK | `LOAD_DATA[1]` 67.28 kg con centro de masa e inercias (`$config.dat:271`); `LOAD_DATA[2]` "TOOL 1 WITH PART" 68.28 kg (la misma + 1 kg, mismo centro de masa, `$config.dat:272`) en los movimientos con pieza. Falta el protocolo de Load Data Determination y la masa real de la pieza (G03/C08, en proceso). `LOAD_A3_DATA` 50 kg (`$config.dat:308`). Capacidad contra carga no revisada. |
-| 25 | No unused / commented code | Not OK | Borrados el 14/10: `capchange`, `electrodechange`, `redrabbit`, `safetest`; el 10/11 `movetopurge` (y su llamada en `glue.src`). Quedan `pounce` (plantilla de otra línea) y GlueTech instalado sin uso (G05). GOTO nuevo en `gun_open_check.src:66-81` (G11). Código comentado: quitado el 13/10. |
+| 23 | Latest Gestamp programming updates / standard | Not OK | 5 de 22 puntos de la revisión de Gestamp abiertos (sección 6). Comparado con NUT07_10R1; AutomationCore_BKG y NutWeld_BKG activos como Gestamp desde el 14/10. |
+| 24 | Payloads correct / within spec | OK | `LOAD_DATA[1]` 67.28 kg con centro de masa e inercias (`$config.dat:271`); `LOAD_DATA[2]` "TOOL 1 WITH PART" 68.28 kg (la misma + 1 kg, mismo centro de masa, `$config.dat:272`) en los movimientos con pieza. Validados por Edgar Montiel el 10/11 (G03 cerrado; C08 se cierra con G03). `LOAD_A3_DATA` 50 kg (`$config.dat:308`). Capacidad contra carga no revisada. |
+| 25 | No unused / commented code | Not OK | Borrados el 14/10: `capchange`, `electrodechange`, `redrabbit`, `safetest`; el 10/11 `movetopurge` (y su llamada en `glue.src`). Quedan `pounce` (plantilla de otra línea) y GlueTech instalado sin uso: no se pueden borrar porque AutomationCore usa sus variables (G05 aceptado por Edgar Montiel el 10/11). GOTO nuevo en `gun_open_check.src:66-81` (G11). Código comentado: quitado el 13/10. |
 | 26 | Slave devices unicast | NO REVISADO | Configuración EtherNet/IP no revisada. |
 | 27 | I/O bitmap per standard | Not OK | No se comparó contra el bitmap de Gestamp. El código usa nombres de señal (G12 cerrado), pero `KRC_IO.xml` mapea `$OUT[820..979]` e `$IN[820..930]` sobre los mismos bytes del adapter que `$OUT[1..160]` / `$IN[1..111]` (F18, requiere decisión) y hay declaraciones traslapadas de pistolas 2/3 (F17). |
 | 28 | No unlabeled spare I/O used | Not OK | `$OUT[470]` declarado `do470Spare` (`automationcoreroutines.dat:1305`) y escrito por NutWeld_Bkg como `dopw1_Hidraulyc_Valve = $PERI_RDY` (`nutweldroutines.src:33`) desde el 11/10: confirmar que no tiene nada conectado. Nombres Spare dobles en `$IN[466/467/470]` (F17). |
@@ -106,7 +107,7 @@ Origen del código:
 | 52 | Air / gas restriction stops robot | NO REVISADO | En código: antes de entrar al pedestal GUN_OPEN_CHECK espera `$IN[3132] dipw1_AirOK` con mensaje (`gun_open_check.src:61-62`, `bGunAirCheck=TRUE`); `do094AirOK` al PLC. Comportamiento en el resto del ciclo y corte de aire de la celda no revisados. |
 | — | Spot weld | N/A | El robot no lleva pistola. La soldadura de tuercas la hace el pedestal CenterLine fijo (timer Bosch); el robot presenta la pieza y el programa del robot comanda el pedestal. GripperSpotTech se usa solo para el gripper. |
 | — | MIG | N/A | No hay proceso MIG. |
-| — | Sealer | N/A | GlueTech instalado sin uso (debe desinstalarse, G05); base "PED SEALER" de otro proyecto (C06). |
+| — | Sealer | N/A | GlueTech instalado sin uso (se queda por las variables de AutomationCore, G05 aceptado); base "PED SEALER" de otro proyecto (C06). |
 | — | SPR | N/A | No hay proceso SPR. |
 | — | Flow drill | N/A | No hay proceso flow drill. |
 | — | Laser | N/A | No hay proceso láser. |
@@ -121,7 +122,7 @@ Origen del código:
 | C-3 | Crash conditions robot / tooling | Not OK | Entrada al pedestal con PEDESTAL_CLEAR_CHECK e interrupciones 20-24 (F01 cerrado). Detección de colisión apagada (C09); PRELOAD en cualquier modo (F11); permisos después de llegar (F48, F50). |
 | C-4 | Home = initial load position | NO REVISADO | `HomeCheck` antes de cada ciclo (`cell.src:52`); si HOME es la posición de carga inicial no se revisó. |
 | C-5 | Poka-yoke / 300 % fastener check | Not OK | Tres chequeos en código: ventana de pistola cerrada (sin tuerca / doble tuerca, `CL_GUN_IN_WINDOW_TIME=150`, `$config.dat:846`; Gestamp pide 200 ms), sensor de tuerca por tuerca (`style1app2opt1.src`, WAIT SEC 0.2 antes de leer) y cámara OK/NG (`style1app2opt2.src:63-68`). Pendientes: resultado de cámara de la pieza anterior (F54), banderas sin reset al inicio (F03), HALT tras el reintento (F07). |
-| C-6 | Red rabbit | OK | Desde el 14/10: FAILED con cualquier tuerca (OR), PASSED sin ninguna (`style1app2opt1.src:144-145`); el drop red rabbit ya no borra el resultado; la cámara solo puede dar FAILED (`style1app2opt2.src:63-68`). Prueba en celda pendiente (G21 en proceso). Ciclo red rabbit propio aceptado (G08). |
+| C-6 | Red rabbit | OK | Desde el 14/10: FAILED con cualquier tuerca (OR), PASSED sin ninguna (`style1app2opt1.src:144-145`); el drop red rabbit ya no borra el resultado; la cámara solo puede dar FAILED (`style1app2opt2.src:63-68`). Prueba en celda validada por Edgar Montiel el 10/11 (G21 cerrado). Ciclo red rabbit propio aceptado (G08). |
 | C-7 | LVDT / TOX interlock | OK | LPT de la pistola: rango abierto 137000..142000 vigilado por interrupciones 20-21 al entrar y salir del pedestal (`style1app1opt1a.src`, GUN_OPEN_CHECK). TOX: no aplica en R10. |
 | C-8 | HMI pantallas de robot | NO REVISADO | Pantallas del PLC/HMI no revisadas. `GripperConfig.xml` del smartHMI desincronizado con `grp_data.dat` (F33). |
 | C-9 | Work Complete / fin de ciclo al PLC | OK | Desde el 14/10 `cell.src:65-72` manda `do015WorkComplete` y espera `di015WorkCompleteAckn` con mensaje, después de EndOfCycle (que sigue editado en el archivo de KUKA). Prueba con el PLC pendiente (F46 en proceso). |
@@ -144,12 +145,9 @@ workbook queda Not OK por ese punto.
 | # | Descripción | Responsable | Bloquea buy-off |
 |---|---|---|---|
 | SafeOperation | Checklist de aceptación firmado de la configuración de seguridad actual (CRC 78FA8691, cambios del 10/10, 13/10 y 10/11) y el reporte firmado | Programador\* | Sí (ítem 40) |
-| G03 | Protocolo de Load Data Determination de la herramienta 1 | Programador\* | Sí |
-| G05 | Borrar `pounce` y desinstalar GlueTech | Programador\* | Sí |
 | G06 / F43 | Cambio de electrodo: forma de pedirlo y reset del stepper confirmado | Gestamp / Programador\* | Sí |
-| G07 / F21 / F31 | Options 1, 2, 7 y 8 llaman el mismo programa; forms AutomationCore y GripperTech con parámetros ocultos distintos | Gestamp (decisión) / Programador\* | Sí |
+| F21 / F31 | Forms AutomationCore y GripperTech con parámetros ocultos distintos (G07 aceptado el 10/11; pasan a mejora) | Programador\* | No |
 | G19 / F14 / F38 | Handshake de la tuerca: código hecho el 14/10; faltan pin vacío antes de alimentar y la prueba (reset con y sin tuerca, corte a mitad de preload) | Programador\* | Sí |
-| G21 | Red rabbit: código hecho el 14/10; falta la prueba con la pieza red rabbit y con una buena | Programador\* | Sí |
 | G09 | `$OUT[18]` desde los sensores (sps.sub, 10/11): falta la prueba en T1 | Programador\* | Sí |
 | G11 | Quitar el GOTO de `gun_open_check.src` (10/11) | Programador\* | Sí |
 | G22 | Uso de AutomationCore: Gestamp no ha mandado su lista | Gestamp | Sí |
@@ -179,6 +177,6 @@ workbook queda Not OK por ese punto.
 
 - Cada respaldo se importó byte por byte al repositorio y se auditó contra el anterior
   (`audits/<fecha>/AUDIT.md`, `REVISION.es.md`).
-- Entregables vigentes (2026-11-10 10:36): `dist/R10_Gestamp_Puntos_*.xlsx`, `dist/R10_Gestamp_reporte_*.pdf`
+- Entregables vigentes (2026-11-10 11:11): `dist/R10_Gestamp_Puntos_*.xlsx`, `dist/R10_Gestamp_reporte_*.pdf`
   (puntos de Gestamp para el buy-off) y `dist/R10_Mejora_Puntos_*.xlsx`, `dist/R10_Mejora_reporte_*.pdf`.
 - Entrega del respaldo a Gestamp: no consta en esta revisión (NO REVISADO).

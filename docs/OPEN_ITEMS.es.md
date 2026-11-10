@@ -2,7 +2,7 @@
 
 *Archivo generado por `tools/make_items_md.py` a partir de `docs/open_items.json` — no se edita a mano.*
 
-Actualizado: 2026-11-10. Pendientes: **61** de 103. El detalle técnico de cada punto (en inglés, para Gestamp) está en [FINDINGS.md](FINDINGS.md); el proceso en [PROCESO.es.md](PROCESO.es.md).
+Actualizado: 2026-11-10. Pendientes: **56** de 103. El detalle técnico de cada punto (en inglés, para Gestamp) está en [FINDINGS.md](FINDINGS.md); el proceso en [PROCESO.es.md](PROCESO.es.md).
 
 **Puntos de Gestamp (G01–G22)**: revisión de Gestamp del 2026-10-02 (BMW-03-10R1), con su texto original. Desde el 2026-10-11 la base es el programa del programador: cada punto se revisa contra su programa y la versión de oficina queda como referencia (nota de cada punto). Los Fnn/Cnn son de la revisión de Ethos (numeración del R20); los marcados "Calvin #n" también están en la lista de Calvin (2026-10-03), verificada punto por punto. Esta lista es la única que se usa.
 
@@ -14,11 +14,11 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 |---|---|---|---|---|---|---|
 | G01 | Robot name needs to change | ~~Cambiar el nombre del robot~~ | Medio | Programador robot (en celda) / Gestamp confirma el formato | Aceptado sin cambio | C02 |
 | G02 | Safety Tool is not equal to Default TCP | ~~Herramienta de seguridad igual al TCP de la herramienta 1~~ | Alto | Programador robot / Seguridad | Cerrado - auditado | F42 |
-| G03 | Tool 1 is used without Load data determination | Determinar los datos de carga de la herramienta 1 | Alto | Programador robot / Puesta en marcha | **En proceso** | C08, F39, C09 |
+| G03 | Tool 1 is used without Load data determination | ~~Determinar los datos de carga de la herramienta 1~~ | Alto | Programador robot / Puesta en marcha | Cerrado - auditado | C08, F39, C09 |
 | G04 | Program Red Rabbit() is blocked, might be an unnecessary copy | ~~Programa RedRabbit bloqueado: borrado~~ | Bajo | Programador robot (prueba en celda) | Se cierra con otro punto | G05 |
-| G05 | Unused programs | Programas sin uso | Bajo | Programador robot / Gestamp controles | **Abierto** | G04, C28 |
+| G05 | Unused programs | ~~Programas sin uso~~ | Bajo | Programador robot / Gestamp controles | Aceptado sin cambio | G04, C28 |
 | G06 | Electrode change confirmation only 0.1 s, no handshake | Cambio de electrodo: confirmación de 0.1 s y sin handshake | Medio | Programador robot / Gestamp controles | **Requiere decisión** | F43, F12 |
-| G07 | Multiple options in Style_1 call the same sub-program | Options 1, 2, 7 y 8 de Style_1 llaman el mismo programa | Alto | Gestamp controles / Programador robot | **Requiere decisión** | F02 |
+| G07 | Multiple options in Style_1 call the same sub-program | ~~Options 1, 2, 7 y 8 de Style_1 llaman el mismo programa~~ | Alto | Gestamp controles / Programador robot | Aceptado sin cambio | F02 |
 | G08 | Separate Auto-Red Rabbit program that doesn't match production | ~~El ciclo red rabbit no sigue el camino de producción~~ | Alto | Gestamp controles / Programador robot | Aceptado sin cambio | F19, G21 |
 | G09 | Part control to PLC is set/reset instead of reflecting the real part controls | Pieza en gripper al PLC fijada por programa, no por los sensores | Medio | Programador robot / Gestamp controles | **En proceso** | F12, C01, C16 |
 | G10 | Gripper commands not used at all times | ~~Comandos de gripper GripperTech en todos los movimientos de gripper~~ | Medio | Programador robot / Puesta en marcha | Se cierra con otro punto | F31, F33 |
@@ -32,7 +32,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 | G18 | NO check for Weld OK, just weld finished | ~~Sin chequeo de soldadura buena~~ | Alto | Programador robot / Puesta en marcha | Aceptado sin cambio | F08 |
 | G19 | Next_Nut_Ready logic can fail at block selection, reset, reboot | Handshake de la tuerca frágil ante selección de bloque, reset y reinicio | Alto | Programador robot | **En proceso** | F38, F14 |
 | G20 | Change of xP0 deletes Request_next_nut inside inline forms | ~~Request_next_nut y NUT_START fuera de los inline forms~~ | Alto | Programador robot (prueba en celda) | Cerrado - auditado | F32, F14 |
-| G21 | Style1app2Opt1 will not work for RedRabbit | El nut check no funciona para red rabbit | Alto | Gestamp controles / Programador robot | **En proceso** | F19, G08 |
+| G21 | Style1app2Opt1 will not work for RedRabbit | ~~El nut check no funciona para red rabbit~~ | Alto | Gestamp controles / Programador robot | Cerrado - auditado | F19, G08 |
 | G22 | Use of AutomationCore is wrong in multiple places | Uso incorrecto de AutomationCore | Alto | Gestamp controles / Programador robot | **Abierto** | F12, C01, F46, F21, F20, C11, C12, C18, C19, C14, F35 |
 
 ## Resumen — puntos de Ethos
@@ -59,7 +59,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 | F18 | KRC_IO.xml mapea $OUT[820..979] y $IN[820..930] sobre los mismos bytes del adapter PLC | Medio | Gestamp controles / Programador robot | **Requiere decisión** |
 | F19 | ~~Red rabbit: el ciclo no puede dar resultado y suelta la pieza por un mapeo duplicado~~ (Calvin #26) | Alto | Programador robot / Gestamp controles | Se cierra con otro punto |
 | F20 | ~~Rechazo por nut check: Application 1 sin liberar~~ | Medio | Programador robot / Gestamp controles | Cerrado - auditado |
-| F21 | Parámetros ocultos de inline forms AutomationCore no coinciden con la llamada — **para G07** | Medio | Programador robot | **Abierto** |
+| F21 | Parámetros ocultos de inline forms AutomationCore no coinciden con la llamada | Medio | Programador robot | **Abierto** |
 | F22 | Movimientos del pedestal mezclan modo base y external TCP | Medio | Ethos (Edgar) / Programador robot | **Requiere decisión** |
 | F23 | Posición del LPT armada con 3 bytes en otro orden que en R20 | Bajo | Puesta en marcha / Programador robot | **Abierto** |
 | F24 | ~~Camino de retry de soldadura muerto: NUT_WELD_RETRY nunca es TRUE~~ (Calvin #27) | Bajo | Programador robot (prueba en celda) | Se cierra con otro punto |
@@ -69,7 +69,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 | F28 | ~~Sensor de tuerca leído al llegar al punto; el dwell iba después de la lectura~~ | Bajo | Programador robot (prueba en celda) | Se cierra con otro punto |
 | F29 | Faro KL50L2: lógica muerta y un bit sin mapear | Bajo | Programador robot / Puesta en marcha | **Abierto** |
 | F30 | Style1Opt1 sin GOTO: un camino IF/ELSE por ciclo | Bajo | Programador robot (prueba en celda) | **En proceso** |
-| F31 | Forms GripperTech: parámetros ocultos de otro gripper; drop red rabbit con el gripper 3 (Calvin #25) — **para G07** | Medio | Programador robot / Puesta en marcha | **En proceso** |
+| F31 | Forms GripperTech: parámetros ocultos de otro gripper; drop red rabbit con el gripper 3 (Calvin #25) | Medio | Programador robot / Puesta en marcha | **En proceso** |
 | F32 | ~~TRIGGERs y resets escritos a mano dentro de folds de inline form~~ (Calvin #28) | Medio | Programador robot (prueba en celda) | Se cierra con otro punto |
 | F33 | GripperConfig.xml del HMI desincronizado con grp_data.dat | Medio | Programador robot | **Abierto** |
 | F34 | CENTERLINE_HOME: polaridad de $OUT[473] y falta el reset del Bosch | Bajo | Programador robot / Puesta en marcha | **Requiere decisión** |
@@ -98,7 +98,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 | C05 | TCP remoto del pedestal (BASE_DATA[3]) sin medir | - | Puesta en marcha / Programador robot | **Abierto** |
 | C06 | Herramientas y bases con nombre: nombres de otro proyecto | - | Programador robot | **Abierto** |
 | C07 | Un user frame por utillaje: picks, nut check, reject y drops en WORLD | - | Gestamp controles / Ethos (Edgar) | **Requiere decisión** |
-| C08 | Datos de carga: LOAD_DATA[1] tecleado, sin determinar | - | Programador robot / Puesta en marcha | **En proceso** |
+| C08 | ~~Datos de carga: LOAD_DATA[1] tecleado, sin determinar~~ | - | Programador robot / Puesta en marcha | Se cierra con otro punto |
 | C09 | Detección de colisión apagada en todo el programa; la reacción es un HALT | - | Programador robot / Puesta en marcha | **Abierto** |
 | C10 | Falta el programa de mastering ZERO_G1 | - | Programador robot | **Abierto** |
 | C11 | Zonas sin documentar: ninguna zona pedida, falta la forma NA-FM-71-138.1 | - | Ethos (Edgar) / Gestamp controles | **Requiere decisión** |
@@ -192,7 +192,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 
 **Origen:** Gestamp - Robot Program Review - Findings (2026-10-02), BMW-03-10R1, punto 3. Texto de Gestamp: *"Tool 1 is used without Load data determination"*
 
-**Severidad:** Alto · **Tipo:** Prueba en celda · **Responsable:** Programador robot / Puesta en marcha · **Estado:** En proceso
+**Severidad:** Alto · **Tipo:** Prueba en celda · **Responsable:** Programador robot / Puesta en marcha · **Estado:** Cerrado - auditado
 
 **Módulos:** `$config.dat (LOAD_DATA[1])`, `KRC/STEU/Mada/$custom.dat ($LDC_CONFIG[1])`
 
@@ -217,6 +217,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 * 2026-10-11 — Estándar Gestamp: Gestamp tiene una carga determinada por herramienta (LOAD_DATA[1] 81 kg con centro de masa e inercias) y no usa carga aparte con pieza: se quita ese criterio (igual que R20). Hoy LOAD_DATA[1] sigue tecleado (210 kg, CM 270/0/240, inercias 105).
 * 2026-10-11 — Avance del programador: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). LOAD_DATA[1] = 67.28 kg con centro de masa (-2.62, 17.93, 219.18) e inercias: ya no es el tecleado de 210 kg. Falta la evidencia de Load Data Determination (captura o protocolo). LOAD_A3_DATA pasó de 30 a 50 kg.
 * 2026-11-07 — Avance del programador: Respaldo del 14/10 15:05. Ver C08: herramienta 2 con pieza (68.28 kg). Falta el protocolo de Load Data Determination de la herramienta 1.
+* 2026-11-10 — Cerrado - auditado: Validado por Edgar Montiel (10/11). LOAD_DATA[1] 67.28 kg con centro de masa e inercias ($config.dat:271); LOAD_DATA[2] con pieza 68.28 kg (:272).
 
 ---
 
@@ -256,7 +257,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 
 **Origen:** Gestamp - Robot Program Review - Findings (2026-10-02), BMW-03-10R1, punto 5. Texto de Gestamp: *"Unused programs"*
 
-**Severidad:** Bajo · **Tipo:** Código + configuración · **Responsable:** Programador robot / Gestamp controles · **Estado:** Abierto
+**Severidad:** Bajo · **Tipo:** Código + configuración · **Responsable:** Programador robot / Gestamp controles · **Estado:** Aceptado sin cambio
 
 **Módulos:** `KRC/R1/Program/Centerline/centerline_loop.src`, `KRC/R1/safetest.src`, `KRC/R1/Program/MoveToPurge.src`, `KRC/R1/TP/GLUETECH`, `11 módulos borrados por la depuración (tools/cleanup_allowlist)`
 
@@ -286,6 +287,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 * 2026-10-13 — Avance del programador: Respaldo del 13/10 07:32. Quitó el código comentado de sps.sub y los TRIGGER comentados de las apps; ya no queda código comentado en los módulos activos. Siguen los módulos sobrantes capchange, electrodechange, redrabbit (no compila), POUNCE y safetest, y GlueTech instalado.
 * 2026-11-07 — Avance del programador: Respaldo del 14/10 15:05. Borró capchange, electrodechange, redrabbit y safetest en el controlador. Quedan pounce (plantilla de otra línea) y GlueTech instalado con movetopurge (glue.src lo llama).
 * 2026-11-10 — Avance del programador: Respaldo del 10/11 08:31. Borró movetopurge del controlador y quitó su llamada en glue.src (archivo de GlueTech, C28). Queda pounce y GlueTech instalado.
+* 2026-11-10 — Decisión: Edgar Montiel (10/11): POUNCE y GlueTech se quedan; no se pueden borrar porque AutomationCore usa sus variables. Lo demás ya se borró (capchange, electrodechange, redrabbit, safetest, movetopurge).
 
 ---
 
@@ -321,7 +323,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 
 **Origen:** Gestamp - Robot Program Review - Findings (2026-10-02), BMW-03-10R1, punto 7. Texto de Gestamp: *"Multiple options in Style_1 call the same sub-program"*
 
-**Severidad:** Alto · **Tipo:** Decisión Gestamp + código · **Responsable:** Gestamp controles / Programador robot · **Estado:** Requiere decisión
+**Severidad:** Alto · **Tipo:** Decisión Gestamp + código · **Responsable:** Gestamp controles / Programador robot · **Estado:** Aceptado sin cambio
 
 **Módulos:** `KRC/R1/Program/Styles/style_1.src`, `KRC/R1/Program/Styles/Options/style1opt1.src`, `KRC/R1/Program/StyleApps/Options/style1app2opt1.src`, `KRC/R1/Program/StyleApps/Options/style1app2opt2.src`
 
@@ -343,6 +345,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 
 * 2026-10-04 — Alta (Gestamp): Punto 7 de la revisión de Gestamp del 2026-10-02 (BMW-03-10R1).
 * 2026-10-11 — Estándar Gestamp: Gestamp usa un option por estación de pick (1 = estación 1, 2 = estación 2, 10 = red rabbit), cada uno con su programa Style1OptN. El nuestro manda 1, 2, 7 y 8 a Style1Opt1 (la estación la decide di065/di066) y 12 al red rabbit. Se cambia o lo acepta Gestamp (igual que R20).
+* 2026-11-10 — Decisión: Validado por Edgar Montiel (10/11): las options 1, 2, 7 y 8 llaman Style1Opt1 (style_1.src:24, CASE 1,2,7,8).
 
 ---
 
@@ -766,7 +769,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 
 **Origen:** Gestamp - Robot Program Review - Findings (2026-10-02), BMW-03-10R1, punto 21. Texto de Gestamp: *"Style1app2Opt1 will not work for RedRabbit"*
 
-**Severidad:** Alto · **Tipo:** Decisión + código · **Responsable:** Gestamp controles / Programador robot · **Estado:** En proceso
+**Severidad:** Alto · **Tipo:** Decisión + código · **Responsable:** Gestamp controles / Programador robot · **Estado:** Cerrado - auditado
 
 **Módulos:** `KRC/R1/Program/StyleApps/Options/style1app2opt1.src`, `KRC/R1/Program/StyleApps/Options/style1app2opt2.src`, `KRC/R1/Program/Styles/Options/Style1Opt10AutoRR.src`
 
@@ -791,6 +794,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 * 2026-10-11 — Estándar Gestamp: Gestamp (Style1App2Opt4): FAILED si hay cualquier tuerca (OR), PASSED si no hay ninguna; los resultados los borra solo MaintainSystem, nunca el drop. El nuestro da FAILED solo con las 3 tuercas (style1app2opt1.src:147-154) y el drop red rabbit borra do141/do142 dentro del fold DropOff[2] Reset (style1drop1opt2AutoRR.src:154-155): el PLC puede no ver el resultado.
 * 2026-10-11 — Sin cambio: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). El red rabbit sigue dando FAILED solo con las 3 tuercas (AND, style1app2opt1.src:164) y el drop red rabbit borra do141/do142 (ya fuera del fold).
 * 2026-11-07 — Avance del programador: Respaldo del 14/10 15:05. Red rabbit con la lógica de Gestamp: do141RedRabbitFailed = cualquier tuerca presente (OR) y do142RedRabbitPassed = ninguna (style1app2opt1.src:144-145); el drop red rabbit ya no borra los resultados; la cámara solo puede marcar FAILED (style1app2opt2.src:63-68), no da un PASSED contrario. Cumple en código los tres primeros criterios; falta la prueba con la pieza red rabbit y con una pieza buena.
+* 2026-11-10 — Cerrado - auditado: Prueba en celda validada por Edgar Montiel (10/11). Código desde el 14/10: FAILED con cualquier tuerca (OR), PASSED sin ninguna (style1app2opt1.src:144-145); el drop red rabbit no borra el resultado.
 
 ---
 
@@ -1508,6 +1512,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 * 2026-10-04 — Alta (Ethos): Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02).
 * 2026-10-11 — Estándar Gestamp: En todos los forms AutomationCore del respaldo de Gestamp el AC_CmdParam oculto es igual al número de la llamada: esa es la convención y ya no hace falta la prueba con foto. En el nuestro no coinciden 5.
 * 2026-10-11 — Sin cambio: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). Siguen 4 forms con AC_CmdParam oculto distinto a la llamada: style1drop1opt1.src:49 AC_DropOffCheck(1) y :108 AC_DropOff(1) con oculto 2; style1pick1opt2.src:34 AC_pickUPCheck(2) y :138 AC_pickUP(2) con oculto 1.
+* 2026-11-10 — Nota: G07 cerrado (Edgar Montiel, 10/11): pasa al reporte de mejora de proceso.
 
 ---
 
@@ -1804,6 +1809,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 
 * 2026-10-04 — Alta (Ethos): Revisión Ethos del respaldo 658424 (v431_03_10_r1.zip del 2026-10-02).
 * 2026-11-07 — Avance del programador: Respaldo del 14/10 15:05. El drop red rabbit usa el form del gripper 1 (Params setgripper=1, igual a la llamada) y ya no escribe $OUT[249]/$OUT[250] ni usa el gripper 3 (style1drop1opt2autorr.src). Falta revisar el resto de forms y la prueba.
+* 2026-11-10 — Nota: G07 cerrado (Edgar Montiel, 10/11): pasa al reporte de mejora de proceso.
 
 ---
 
@@ -2616,7 +2622,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 
 ## C08 — Datos de carga: LOAD_DATA[1] tecleado, sin determinar
 
-**Severidad:** - · **Tipo:** Código + prueba en celda · **Responsable:** Programador robot / Puesta en marcha · **Estado:** En proceso
+**Severidad:** - · **Tipo:** Código + prueba en celda · **Responsable:** Programador robot / Puesta en marcha · **Estado:** Se cierra con otro punto
 
 **Módulos:** `KRC/R1/System/$config.dat`, `KRC/R1/Program/StylePicks/Options/style1pick1opt1.src`, `KRC/R1/Program/StylePicks/Options/style1pick1opt2.src`, `KRC/R1/Program/StylePicks/Options/style1pick1opt1AutoRR.src`, `KRC/R1/Program/StyleApps/Options/style1app1opt1.src`, `KRC/R1/Program/StyleApps/Options/style1app1opt2.src`, `KRC/R1/Program/StyleApps/Options/style1app1opt3.src`, `KRC/R1/Program/StyleApps/Options/style1app2opt1.src`, `KRC/R1/Program/StyleApps/Options/style1app2opt2.src`, `KRC/R1/Program/StyleDrops/Options/style1drop1opt1.src`, `KRC/R1/Program/StyleDrops/Options/style1drop1opt2AutoRR.src`, `KRC/R1/Program/Utilities/RejectGE4.src`
 
@@ -2642,6 +2648,7 @@ Desde el 2026-10-12 se entregan dos juegos de Excel y PDF: **Gestamp** (G01–G2
 * 2026-10-11 — Estándar Gestamp: Gestamp tiene una carga determinada por herramienta (LOAD_DATA[1] 81 kg con centro de masa e inercias) y no usa carga aparte con pieza: se quita ese criterio (igual que R20). Hoy LOAD_DATA[1] sigue tecleado (210 kg, CM 270/0/240, inercias 105).
 * 2026-10-11 — Avance del programador: Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). LOAD_DATA[1] = 67.28 kg con centro de masa (-2.62, 17.93, 219.18) e inercias: ya no es el tecleado de 210 kg. Falta la evidencia de Load Data Determination (captura o protocolo). LOAD_A3_DATA pasó de 30 a 50 kg.
 * 2026-11-07 — Avance del programador: Respaldo del 14/10 15:05. TOOL_DATA[2] "TOOL 1 WITH PART" igual a la herramienta 1 y LOAD_DATA[2] = 68.28 kg (la carga de la herramienta 1 + 1 kg, mismo centro de masa); los movimientos con pieza usan la herramienta 2. Ningún movimiento de producción usa carga por defecto. Sigue faltando el protocolo de Load Data Determination; la masa de la pieza (1 kg) no está confirmada.
+* 2026-11-10 — Se cierra con otro punto: Se cierra con G03 (datos de carga validados por Edgar Montiel, 10/11).
 
 ---
 

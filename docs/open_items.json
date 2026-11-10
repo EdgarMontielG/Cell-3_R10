@@ -86,10 +86,10 @@
   {
    "fecha": "2026-11-10",
    "respaldo": "BMW_03_WINDOWS-2CPT70E_BMW_03_10_R1_658424_1.zip (am.ini 2026-11-10 08:31, hora del controlador; robot BMW_03_10_R1, serie 658424, KSS 8.3.29); importado byte por byte en 51c56fa. Reporte de seguridad Safety_Report_R10-11_10_2026.pdf (WorkVisual, CRC 78FA8691)",
-   "cerrados": 0,
+   "cerrados": 4,
    "reabiertos": 1,
    "cambios": "Contra su respaldo del 14/10 15:05: 44 archivos cambiados, 2 borrados (movetopurge), 18 KRL con cambios de código (-45/+54). audit_backup: 0 FAIL, 5 WARN (señales sin comentario).",
-   "notas": "Reabierto G11 (GOTO para saltar el agua en dry cycle). En proceso G09 ($OUT[18] desde los sensores en sps.sub). Nuevo F55 (GRPg_ChkSetStatePLC quitado del submit). Cell area cambiada el 10/11 (CRC 78FA8691); reporte de seguridad sin firmas. Mínimo de agua 13 l/min. Registro en audits/2026-11-10_08-31-30."
+   "notas": "Reabierto G11 (GOTO para saltar el agua en dry cycle). En proceso G09 ($OUT[18] desde los sensores en sps.sub). Nuevo F55 (GRPg_ChkSetStatePLC quitado del submit). Cell area cambiada el 10/11 (CRC 78FA8691); reporte de seguridad sin firmas. Mínimo de agua 13 l/min. Registro en audits/2026-11-10_08-31-30. Después, por decisión de Edgar: G03 y G21 cerrados (validados), G05 y G07 aceptados sin cambio; C08 se cierra con G03; F21 y F31 pasan a mejora."
   }
  ],
  "items": [
@@ -238,7 +238,7 @@
     "F39",
     "C09"
    ],
-   "estado": "En proceso",
+   "estado": "Cerrado - auditado",
    "nota": "Calvin describe el R10 como robot de pistola; es un robot de manejo (EOAT 1 + pieza). Los hechos se sostienen.",
    "fecha_alta": "2026-10-04",
    "nota_programador": "",
@@ -265,6 +265,11 @@
      "fecha": "2026-11-07",
      "resultado": "Avance del programador",
      "nota": "Respaldo del 14/10 15:05. Ver C08: herramienta 2 con pieza (68.28 kg). Falta el protocolo de Load Data Determination de la herramienta 1."
+    },
+    {
+     "fecha": "2026-11-10",
+     "resultado": "Cerrado - auditado",
+     "nota": "Validado por Edgar Montiel (10/11). LOAD_DATA[1] 67.28 kg con centro de masa e inercias ($config.dat:271); LOAD_DATA[2] con pieza 68.28 kg (:272)."
     }
    ],
    "conjunto": "gestamp"
@@ -352,7 +357,7 @@
     "G04",
     "C28"
    ],
-   "estado": "Abierto",
+   "estado": "Aceptado sin cambio",
    "nota": "Quedan 4 módulos sobrantes en el controlador (8 borrados por el programador el 10/10). Referencia: la versión de oficina borró los 12 en el repositorio. Falta la decisión de safetest y la desinstalación de GlueTech.",
    "fecha_alta": "2026-10-04",
    "nota_programador": "",
@@ -394,6 +399,11 @@
      "fecha": "2026-11-10",
      "resultado": "Avance del programador",
      "nota": "Respaldo del 10/11 08:31. Borró movetopurge del controlador y quitó su llamada en glue.src (archivo de GlueTech, C28). Queda pounce y GlueTech instalado."
+    },
+    {
+     "fecha": "2026-11-10",
+     "resultado": "Decisión",
+     "nota": "Edgar Montiel (10/11): POUNCE y GlueTech se quedan; no se pueden borrar porque AutomationCore usa sus variables. Lo demás ya se borró (capchange, electrodechange, redrabbit, safetest, movetopurge)."
     }
    ],
    "conjunto": "gestamp"
@@ -473,7 +483,7 @@
    "depende_de": [
     "F02"
    ],
-   "estado": "Requiere decisión",
+   "estado": "Aceptado sin cambio",
    "nota": "",
    "fecha_alta": "2026-10-04",
    "nota_programador": "",
@@ -490,6 +500,11 @@
      "fecha": "2026-10-11",
      "resultado": "Estándar Gestamp",
      "nota": "Gestamp usa un option por estación de pick (1 = estación 1, 2 = estación 2, 10 = red rabbit), cada uno con su programa Style1OptN. El nuestro manda 1, 2, 7 y 8 a Style1Opt1 (la estación la decide di065/di066) y 12 al red rabbit. Se cambia o lo acepta Gestamp (igual que R20)."
+    },
+    {
+     "fecha": "2026-11-10",
+     "resultado": "Decisión",
+     "nota": "Validado por Edgar Montiel (10/11): las options 1, 2, 7 y 8 llaman Style1Opt1 (style_1.src:24, CASE 1,2,7,8)."
     }
    ],
    "conjunto": "gestamp"
@@ -1339,7 +1354,7 @@
     "F19",
     "G08"
    ],
-   "estado": "En proceso",
+   "estado": "Cerrado - auditado",
    "nota": "",
    "fecha_alta": "2026-10-04",
    "nota_programador": "",
@@ -1366,6 +1381,11 @@
      "fecha": "2026-11-07",
      "resultado": "Avance del programador",
      "nota": "Respaldo del 14/10 15:05. Red rabbit con la lógica de Gestamp: do141RedRabbitFailed = cualquier tuerca presente (OR) y do142RedRabbitPassed = ninguna (style1app2opt1.src:144-145); el drop red rabbit ya no borra los resultados; la cámara solo puede marcar FAILED (style1app2opt2.src:63-68), no da un PASSED contrario. Cumple en código los tres primeros criterios; falta la prueba con la pieza red rabbit y con una pieza buena."
+    },
+    {
+     "fecha": "2026-11-10",
+     "resultado": "Cerrado - auditado",
+     "nota": "Prueba en celda validada por Edgar Montiel (10/11). Código desde el 14/10: FAILED con cualquier tuerca (OR), PASSED sin ninguna (style1app2opt1.src:144-145); el drop red rabbit no borra el resultado."
     }
    ],
    "conjunto": "gestamp"
@@ -2597,12 +2617,14 @@
      "fecha": "2026-10-11",
      "resultado": "Sin cambio",
      "nota": "Respaldo del 10/10 (versión de oficina del 05/10 cargada + cambios suyos del 06 al 10/10). Siguen 4 forms con AC_CmdParam oculto distinto a la llamada: style1drop1opt1.src:49 AC_DropOffCheck(1) y :108 AC_DropOff(1) con oculto 2; style1pick1opt2.src:34 AC_pickUPCheck(2) y :138 AC_pickUP(2) con oculto 1."
+    },
+    {
+     "fecha": "2026-11-10",
+     "resultado": "Nota",
+     "nota": "G07 cerrado (Edgar Montiel, 10/11): pasa al reporte de mejora de proceso."
     }
    ],
-   "conjunto": "gestamp",
-   "requerido_por": [
-    "G07"
-   ]
+   "conjunto": "mejora"
   },
   {
    "id": "F22",
@@ -3063,12 +3085,14 @@
      "fecha": "2026-11-07",
      "resultado": "Avance del programador",
      "nota": "Respaldo del 14/10 15:05. El drop red rabbit usa el form del gripper 1 (Params setgripper=1, igual a la llamada) y ya no escribe $OUT[249]/$OUT[250] ni usa el gripper 3 (style1drop1opt2autorr.src). Falta revisar el resto de forms y la prueba."
+    },
+    {
+     "fecha": "2026-11-10",
+     "resultado": "Nota",
+     "nota": "G07 cerrado (Edgar Montiel, 10/11): pasa al reporte de mejora de proceso."
     }
    ],
-   "conjunto": "gestamp",
-   "requerido_por": [
-    "G07"
-   ]
+   "conjunto": "mejora"
   },
   {
    "id": "F32",
@@ -4649,7 +4673,7 @@
     "G03",
     "F39"
    ],
-   "estado": "En proceso",
+   "estado": "Se cierra con otro punto",
    "nota": "Si se edita el FDAT directo en el .dat, actualizar también el texto Tool[n]:<nombre> del fold. Los datos de carga correctos son requisito para C09.",
    "fecha_alta": "2026-10-04",
    "nota_programador": "",
@@ -4676,6 +4700,11 @@
      "fecha": "2026-11-07",
      "resultado": "Avance del programador",
      "nota": "Respaldo del 14/10 15:05. TOOL_DATA[2] \"TOOL 1 WITH PART\" igual a la herramienta 1 y LOAD_DATA[2] = 68.28 kg (la carga de la herramienta 1 + 1 kg, mismo centro de masa); los movimientos con pieza usan la herramienta 2. Ningún movimiento de producción usa carga por defecto. Sigue faltando el protocolo de Load Data Determination; la masa de la pieza (1 kg) no está confirmada."
+    },
+    {
+     "fecha": "2026-11-10",
+     "resultado": "Se cierra con otro punto",
+     "nota": "Se cierra con G03 (datos de carga validados por Edgar Montiel, 10/11)."
     }
    ],
    "conjunto": "mejora"
